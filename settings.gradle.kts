@@ -21,6 +21,8 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Aosora"
+rootProject.name = "AniFlowKMP"
 include(":composeApp")
 
+include(":network:service")
+include(":network:engine-mock")
