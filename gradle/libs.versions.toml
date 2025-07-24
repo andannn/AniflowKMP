@@ -1,0 +1,120 @@
+[versions]
+agp = "8.10.1"
+circuit = "0.27.1"
+kotlin = "2.1.21"
+coreKtx = "1.16.0"
+junit = "4.13.2"
+junitVersion = "1.2.1"
+espressoCore = "3.6.1"
+kotlinxIoCore = "0.7.0"
+ktor = "3.2.1"
+lifecycleRuntimeKtx = "2.9.1"
+activityCompose = "1.10.1"
+napierVersion = "2.7.1"
+kotlinxCollectionsImmutable = "0.4.0"
+kotlinxCoroutines = "1.10.2"
+kotlinxSerializationJson = "1.8.1"
+ksp = "2.1.21-2.0.2"
+androidGradlePlugin = "8.11.1"
+compose-plugin = "1.7.3"
+koin-bom = "4.0.4"
+kotlinxDatetime = "0.7.0-0.6.x-compat"
+ksoup = "0.2.4"
+okio = "3.15.0"
+ktlint = "12.2.0"
+googleService = "4.4.3"
+firebaseCrashlytics = "3.0.4"
+firebaseBom = "33.16.0"
+androidxDatastore = "1.1.7"
+pagingCommonVersion = "3.3.6"
+playServicesAds = "24.4.0"
+spotless = "7.1.0"
+androidxRoom = "2.7.2"
+sqliteBundled = "2.5.2"
+androidxTestRunner = "1.6.2"
+testCoreKtx = "1.6.1"
+testMonitor = "1.7.2"
+licensee = "1.13.0"
+workRuntimeKtx = "2.10.2"
+
+[libraries]
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-foundation = { module = "androidx.compose.foundation:foundation" }
+androidx-paging-common = { module = "androidx.paging:paging-common", version.ref = "pagingCommonVersion" }
+circuit-foundation = { module = "com.slack.circuit:circuit-foundation", version.ref = "circuit" }
+circuit-test = { group = "com.slack.circuit", name = "circuit-test", version.ref = "circuit" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+kotlinx-io-core = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinxIoCore" }
+kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
+okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
+ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
+ktor-client-resources = { module = "io.ktor:ktor-client-resources", version.ref = "ktor" }
+ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+napier = { group = "io.github.aakira", name = "napier", version.ref = "napierVersion" }
+kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinxCollectionsImmutable" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin-bom" }
+koin-core = { module = "io.insert-koin:koin-core" }
+koin-core-viewmodel = { module = "io.insert-koin:koin-core-viewmodel" }
+koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel" }
+koin-android = { module = "io.insert-koin:koin-android" }
+koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose" }
+kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxDatetime" }
+ksoup = { module = "com.fleeksoft.ksoup:ksoup", version.ref = "ksoup" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
+datastore = { group = "androidx.datastore", name = "datastore", version.ref = "androidxDatastore" }
+datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "androidxDatastore" }
+play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
+room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "androidxRoom" }
+room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "androidxRoom" }
+room-paging = { group = "androidx.room", name = "room-paging", version.ref = "androidxRoom" }
+androidx-room-testing = { module = "androidx.room:room-testing", version.ref = "androidxRoom" }
+androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqliteBundled" }
+androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTestRunner" }
+androidx-test-core-ktx = { group = "androidx.test", name = "core-ktx", version.ref = "testCoreKtx" }
+androidx-test-monitor = { group = "androidx.test", name = "monitor", version.ref = "testMonitor" }
+androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtx" }
+
+# dependecy in build-logic
+android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
+kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+composeCompiler-gradlePlugin = { group = "org.jetbrains.kotlin", name = "compose-compiler-gradle-plugin", version.ref = "kotlin" }
+ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
+jetbrainsCompose-gradlePlugin = { group = "org.jetbrains.compose", name = "compose-gradle-plugin", version.ref = "compose-plugin" }
+ktlint-gradlePlugin = { group = "org.jlleitschuh.gradle", name = "ktlint-gradle", version.ref = "ktlint" }
+spotless-gradlePlugin = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
+licensee-gradlePlugin = { group = "app.cash.licensee", name = "licensee-gradle-plugin", version.ref = "licensee" }
+
+[plugins]
+android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
+kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
+serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
+google-service = { id = "com.google.gms.google-services", version.ref = "googleService" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlytics" }
+room = { id = "androidx.room", version.ref = "androidxRoom" }
+licensee = { id = "app.cash.licensee", version.ref = "licensee" }
