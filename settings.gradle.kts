@@ -26,3 +26,4 @@ include(":composeApp")
 
 include(":network:service")
 include(":network:engine-mock")
+include(":network:engine-real")

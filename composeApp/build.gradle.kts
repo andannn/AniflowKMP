@@ -50,12 +50,12 @@ android {
 kotlin {
     sourceSets {
         commonMain.dependencies {
+            implementation(project(":network:service"))
             implementation(libs.napier)
             implementation(libs.circuit.foundation)
         }
 
         androidMain.dependencies {
-            implementation(libs.play.services.ads)
             implementation(libs.androidx.core.ktx)
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.lifecycle.runtime.ktx)
