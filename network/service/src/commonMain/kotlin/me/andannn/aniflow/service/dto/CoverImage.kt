@@ -1,17 +1,24 @@
 package me.andannn.aniflow.service.dto
 
-import kotlin.String
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 public data class CoverImage(
-  @SerialName(value = "extraLarge")
-  public val extraLarge: String,
-  @SerialName(value = "large")
-  public val large: String,
-  @SerialName(value = "medium")
-  public val medium: String,
-  @SerialName(value = "color")
-  public val color: String,
+    /**
+     * The cover image url of the media at its largest size. If this size isn't available, large
+     * will be provided instead.
+     */
+    public val extraLarge: String?,
+    /**
+     * The cover image url of the media at a large size
+     */
+    public val large: String?,
+    /**
+     * The cover image url of the media at medium size
+     */
+    public val medium: String?,
+    /**
+     * Average #hex color of cover image
+     */
+    public val color: String?,
 )

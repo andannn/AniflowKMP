@@ -1,15 +1,19 @@
 package me.andannn.aniflow.service.dto
 
-import kotlin.String
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 public data class Trailer(
-  @SerialName(value = "id")
-  public val id: String,
-  @SerialName(value = "site")
-  public val site: String,
-  @SerialName(value = "thumbnail")
-  public val thumbnail: String,
+    /**
+     * The trailer video id
+     */
+    public val id: String?,
+    /**
+     * The site the video is hosted by (Currently either youtube or dailymotion)
+     */
+    public val site: String?,
+    /**
+     * The url for the thumbnail image of the video
+     */
+    public val thumbnail: String?,
 )

@@ -15,6 +15,7 @@ android {
     }
 
     buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {

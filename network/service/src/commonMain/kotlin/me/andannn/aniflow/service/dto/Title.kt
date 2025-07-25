@@ -1,15 +1,20 @@
 package me.andannn.aniflow.service.dto
 
-import kotlin.String
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 public data class Title(
-  @SerialName(value = "romaji")
-  public val romaji: String,
-  @SerialName(value = "english")
-  public val english: String,
-  @SerialName(value = "native")
-  public val native: String,
+    /**
+     * The romanization of the native language title
+     */
+    public val romaji: String?,
+    /**
+     * The official english title
+     */
+    public val english: String?,
+    /**
+     * Official title in it's native language
+     */
+    public val native: String?,
 )

@@ -1,8 +1,7 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     id("kmp.library")
     alias(libs.plugins.serialization)
+//    alias(libs.plugins.apollo)
 }
 
 kotlin {
@@ -44,6 +43,21 @@ kotlin {
         }
     }
 }
+
+//apollo {
+//    service("service") {
+//        packageName.set("me.andannn.aniflow.service.generated")
+//        generateApolloMetadata.set(false)
+//        flattenModels.set(true)
+//        generateFragmentImplementations.set(false)
+//        generateAsInternal.set(true)
+//
+//        introspection {
+//            endpointUrl.set("https://graphql.anilist.co")
+//            schemaFile.set(file("src/commonMain/graphql/schema.graphqls"))
+//        }
+//    }
+//}
 
 android {
     namespace = "me.andannn.aniflow.service"

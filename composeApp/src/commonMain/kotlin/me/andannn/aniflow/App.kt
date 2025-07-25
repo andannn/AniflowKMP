@@ -17,10 +17,18 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 import aniflowkmp.composeapp.generated.resources.Res
 import aniflowkmp.composeapp.generated.resources.compose_multiplatform
+import me.andannn.aniflow.service.AniListService
+import org.koin.mp.KoinPlatform.getKoin
 
 @Composable
 @Preview
 fun App() {
+    LaunchedEffect(Unit) {
+        getKoin().get<AniListService>().getDetailMedia(1).also {
+
+        }
+    }
+
     MaterialTheme {
         var showContent by remember { mutableStateOf(false) }
         Column(

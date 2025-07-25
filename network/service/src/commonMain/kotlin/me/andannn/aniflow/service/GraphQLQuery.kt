@@ -1,6 +1,7 @@
 package me.andannn.aniflow.service
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonPrimitive
 import me.andannn.network.common.GraphQLBody
 import kotlin.reflect.KClass
 
@@ -26,8 +27,8 @@ internal fun GraphQLQuery<*>.toQueryBody(): GraphQLBody {
         variables = schema.params.mapIndexed { index, param ->
             val value = variables[index]
             param.name to when (value) {
-                is String -> value
-                is Number -> value.toString()
+                is String -> JsonPrimitive(value)
+                is Number -> JsonPrimitive(value)
                 else -> throw IllegalArgumentException("Unsupported variable type: ${value::class}")
             }
         }.toMap()

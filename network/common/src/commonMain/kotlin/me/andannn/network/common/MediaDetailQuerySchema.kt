@@ -131,8 +131,6 @@ query ($id: Int) {
         isFavourite
 	  }
     }
-    relations {
-    }
   }
 }
 """

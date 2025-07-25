@@ -8,6 +8,7 @@ import io.ktor.content.TextContent
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonPrimitive
 import me.andannn.network.common.GraphQLBody
 import me.andannn.network.common.MediaDetailQuerySchema
 import me.andannn.network.engine.mock.DetailAnimeData
@@ -38,7 +39,7 @@ val MockHttpClientEngine = MockEngine.create {
 }
 
 private fun MockRequestHandleScope.respondMediaDetailQuery(
-    variables: Map<String, String> = emptyMap(),
+    variables: Map<String, JsonPrimitive> = emptyMap(),
 ): HttpResponseData {
     return respond(
         content = DetailAnimeData,

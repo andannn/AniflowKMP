@@ -1,17 +1,20 @@
 package me.andannn.aniflow.service.dto
 
-import kotlin.Boolean
-import kotlin.Double
-import kotlin.String
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import me.andannn.aniflow.service.dto.enums.MediaRankType
 
 @Serializable
 public data class Ranking(
-  @SerialName(value = "rank")
-  public val rank: Double,
-  @SerialName(value = "type")
-  public val type: String,
-  @SerialName(value = "allTime")
-  public val allTime: Boolean,
+    /**
+     * The numerical rank of the media
+     */
+    public val rank: Int,
+    /**
+     * The type of ranking
+     */
+    public val type: MediaRankType,
+    /**
+     * If the ranking is based on all time instead of a season/year
+     */
+    public val allTime: Boolean?,
 )

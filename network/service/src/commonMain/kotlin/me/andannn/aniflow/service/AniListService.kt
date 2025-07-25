@@ -5,10 +5,12 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
-import io.ktor.client.request.get
+import io.ktor.client.request.accept
+import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
@@ -29,6 +31,12 @@ class AniListService(
     private val client = HttpClient(engine) {
         expectSuccess = true
 
+        defaultRequest {
+            url("https://graphql.anilist.co")
+            contentType(ContentType.Application.Json)
+            accept(ContentType.Application.Json)
+        }
+
         install(ContentNegotiation) {
             json(
                 Json {
@@ -44,7 +52,7 @@ class AniListService(
                         Napier.d(tag = TAG) { message }
                     }
                 }
-            level = LogLevel.HEADERS
+            level = LogLevel.ALL
         }
     }
 
@@ -57,8 +65,7 @@ class AniListService(
     private suspend inline fun <reified T> doGraphQlQuery(
         query: GraphQLQuery<DataWrapper<T>>
     ): T {
-        return client.get {
-            contentType(ContentType.Application.Json)
+        return client.post {
             setBody(query.toQueryBody())
         }.let { response ->
             val dataWrapper = response.body<DataWrapper<T>>()
