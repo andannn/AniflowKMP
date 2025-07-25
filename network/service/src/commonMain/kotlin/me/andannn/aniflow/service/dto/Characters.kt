@@ -3,7 +3,6 @@ package me.andannn.aniflow.service.dto
 import kotlinx.serialization.Serializable
 import me.andannn.aniflow.service.dto.enums.CharacterRole
 
-
 @Serializable
 public data class Characters(
     /**

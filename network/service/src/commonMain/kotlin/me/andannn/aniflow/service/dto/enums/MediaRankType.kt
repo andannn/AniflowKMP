@@ -5,28 +5,26 @@
 //
 package me.andannn.aniflow.service.dto.enums
 
-import kotlin.Array
-import kotlin.Deprecated
 import kotlin.String
-import kotlin.collections.List
 
 /**
  * The type of ranking
  */
- enum class MediaRankType(
-  public val rawValue: String,
+enum class MediaRankType(
+    public val rawValue: String,
 ) {
-  /**
-   * Ranking is based on the media's ratings/score
-   */
-  RATED("RATED"),
-  /**
-   * Ranking is based on the media's popularity
-   */
-  POPULAR("POPULAR"),
-  /**
-   * Auto generated constant for unknown enum values
-   */
-  UNKNOWN__("UNKNOWN__"),
-  ;
+    /**
+     * Ranking is based on the media's ratings/score
+     */
+    RATED("RATED"),
+
+    /**
+     * Ranking is based on the media's popularity
+     */
+    POPULAR("POPULAR"),
+
+    /**
+     * Auto generated constant for unknown enum values
+     */
+    UNKNOWN__("UNKNOWN__"),
 }

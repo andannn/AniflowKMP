@@ -53,4 +53,3 @@ public data class StaffName(
      */
     public val native: String?,
 )
-

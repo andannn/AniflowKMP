@@ -5,6 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 public data class MediaDetailResponse(
-  @SerialName(value = "Media")
-  public val media: Media,
+    @SerialName(value = "Media")
+    public val media: Media,
 )

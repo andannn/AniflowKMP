@@ -6,5 +6,5 @@ import kotlinx.serialization.json.JsonPrimitive
 @Serializable
 data class GraphQLBody(
     val query: String,
-    val variables: Map<String, JsonPrimitive>
+    val variables: Map<String, JsonPrimitive>,
 )

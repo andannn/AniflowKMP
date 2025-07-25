@@ -33,6 +33,7 @@ kotlin {
             implementation(project(":network:common"))
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.logging)
+            implementation(libs.ktor.client.encoding)
             implementation(libs.ktor.client.auth)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
@@ -44,7 +45,7 @@ kotlin {
     }
 }
 
-//apollo {
+// apollo {
 //    service("service") {
 //        packageName.set("me.andannn.aniflow.service.generated")
 //        generateApolloMetadata.set(false)
@@ -57,7 +58,7 @@ kotlin {
 //            schemaFile.set(file("src/commonMain/graphql/schema.graphqls"))
 //        }
 //    }
-//}
+// }
 
 android {
     namespace = "me.andannn.aniflow.service"

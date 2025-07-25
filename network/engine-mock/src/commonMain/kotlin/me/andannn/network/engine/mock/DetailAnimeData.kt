@@ -1,6 +1,6 @@
 package me.andannn.network.engine.mock
 
-internal const val DetailAnimeData = """
+internal const val DETAIL_ANIME_DATA = """
 {
   "data": {
     "Media": {

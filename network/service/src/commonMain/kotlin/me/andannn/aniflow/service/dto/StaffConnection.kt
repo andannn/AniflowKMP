@@ -10,7 +10,6 @@ public data class StaffConnection(
     public val pageInfo: PageInfo?,
     public val edges: List<Edge?>?,
 ) {
-
     @Serializable
     public data class Edge(
         /**

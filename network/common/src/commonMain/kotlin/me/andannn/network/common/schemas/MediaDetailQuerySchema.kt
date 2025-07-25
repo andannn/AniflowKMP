@@ -1,6 +1,6 @@
-package me.andannn.network.common
+package me.andannn.network.common.schemas
 
-const val MediaDetailQuerySchema = $$"""
+const val MEDIA_DETAIL_QUERY_SCHEMA = $$"""
 query ($id: Int) {
   Media(id: $id) {
     id
@@ -134,4 +134,3 @@ query ($id: Int) {
   }
 }
 """
-

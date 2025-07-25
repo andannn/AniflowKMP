@@ -1,14 +1,14 @@
 package me.andannn.aniflow.service.dto
 
-import kotlin.Boolean
-import kotlin.String
-import kotlin.collections.List
 import kotlinx.serialization.Serializable
 import me.andannn.aniflow.service.dto.enums.MediaFormat
 import me.andannn.aniflow.service.dto.enums.MediaSeason
 import me.andannn.aniflow.service.dto.enums.MediaSource
 import me.andannn.aniflow.service.dto.enums.MediaStatus
 import me.andannn.aniflow.service.dto.enums.MediaType
+import kotlin.Boolean
+import kotlin.String
+import kotlin.collections.List
 
 @Serializable
 public data class Media(

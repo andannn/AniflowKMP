@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 public data class DataWrapper<T>(
-  public val data: T,
+    public val data: T,
 )

@@ -12,3 +12,11 @@ This is a Kotlin Multiplatform project targeting Android, iOS.
 
 
 Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+
+### Code style
+
+This project uses [ktlint](https://github.com/pinterest/ktlint).`
+
+running `./gradlew ktLintFormat` to automatically fix lint errors.
+
+running `./gradlew spotlessApply` to add copyright.
