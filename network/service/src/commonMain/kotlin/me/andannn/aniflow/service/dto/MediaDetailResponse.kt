@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-public data class Data(
+public data class MediaDetailResponse(
   @SerialName(value = "Media")
-  public val Media: Media,
+  public val media: Media,
 )

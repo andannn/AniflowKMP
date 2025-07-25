@@ -1,13 +1,15 @@
 plugins {
     id("kmp.library")
-    id("compose.multiplatform.library")
+    alias(libs.plugins.serialization)
 }
 
 kotlin {
     sourceSets {
         commonMain.dependencies {
+            implementation(project(":network:common"))
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.mock)
+            implementation(libs.kotlinx.serialization.json)
         }
     }
 }

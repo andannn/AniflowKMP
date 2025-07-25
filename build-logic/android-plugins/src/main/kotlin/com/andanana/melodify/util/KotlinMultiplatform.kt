@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
+import kotlin.text.set
 
 @ExperimentalKotlinGradlePluginApi
 fun Project.configureKotlinMultiplatform(extension: KotlinMultiplatformExtension) {
@@ -12,6 +13,7 @@ fun Project.configureKotlinMultiplatform(extension: KotlinMultiplatformExtension
         compilerOptions {
             androidTarget {
                 compilerOptions.jvmTarget.set(JvmTarget.JVM_17)
+                freeCompilerArgs.set(listOf("-Xmulti-dollar-interpolation"))
 
                 // this is experimental API and will likely change in the future into more robust DSL
                 @OptIn(ExperimentalKotlinGradlePluginApi::class)

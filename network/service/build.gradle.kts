@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     id("kmp.library")
     alias(libs.plugins.serialization)
@@ -29,11 +31,16 @@ kotlin {
         }
 
         commonMain.dependencies {
+            implementation(project(":network:common"))
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.logging)
             implementation(libs.ktor.client.auth)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
+        }
+
+        commonTest.dependencies {
+            implementation(project(":network:engine-mock"))
         }
     }
 }

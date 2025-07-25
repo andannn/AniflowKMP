@@ -1,3 +1,6 @@
+package me.andannn.network.engine.mock
+
+internal const val DetailAnimeData = """
 {
   "data": {
     "Media": {
@@ -625,3 +628,4 @@
     }
   }
 }
+"""

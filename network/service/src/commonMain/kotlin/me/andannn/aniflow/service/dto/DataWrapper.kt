@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-public data class DetailAnimeData(
+public data class DataWrapper<T>(
   @SerialName(value = "data")
-  public val `data`: Data,
+  public val `data`: T,
 )
