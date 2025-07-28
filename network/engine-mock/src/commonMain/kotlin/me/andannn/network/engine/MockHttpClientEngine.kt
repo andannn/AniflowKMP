@@ -8,16 +8,19 @@ import io.ktor.content.TextContent
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonPrimitive
 import me.andannn.network.common.GraphQLBody
 import me.andannn.network.common.schemas.MEDIA_DETAIL_QUERY_SCHEMA
+import me.andannn.network.common.schemas.MEDIA_PAGE_QUERY_SCHEMA
 import me.andannn.network.common.schemas.USER_DATA_MUTATION_SCHEMA
 import me.andannn.network.engine.mock.DETAIL_ANIME_DATA
+import me.andannn.network.engine.mock.MEDIA_PAGE_DATA
 import me.andannn.network.engine.mock.UNAUTHORIZED_ERROR
+import me.andannn.network.engine.mock.USER_DATA
 
 val MockHttpClientEngine =
     MockEngine.create {
         addHandler { request ->
+            val hasToken = request.headers["Authorization"] == "Bearer DummyAccessToken"
             request.body
                 .takeIf { body ->
                     body is TextContent
@@ -27,12 +30,21 @@ val MockHttpClientEngine =
                         when (query.query) {
                             MEDIA_DETAIL_QUERY_SCHEMA -> {
                                 println("MediaDetailQuerySchema")
-                                respondMediaDetailQuery(query.variables)
+                                respondString(DETAIL_ANIME_DATA)
                             }
 
                             USER_DATA_MUTATION_SCHEMA -> {
                                 println("UserDataMutationSchema")
-                                respondUnAuthed()
+                                if (hasToken) {
+                                    respondString(USER_DATA)
+                                } else {
+                                    respondUnAuthed()
+                                }
+                            }
+
+                            MEDIA_PAGE_QUERY_SCHEMA -> {
+                                println("MediaPageQuerySchema")
+                                respondString(MEDIA_PAGE_DATA)
                             }
 
                             else -> error("Not supported query: $query")
@@ -45,16 +57,16 @@ val MockHttpClientEngine =
         }
     }
 
+private fun MockRequestHandleScope.respondString(string: String): HttpResponseData =
+    respond(
+        content = string,
+        status = HttpStatusCode.OK,
+        headers = headersOf("Content-Type" to listOf("application/json")),
+    )
+
 private fun MockRequestHandleScope.respondUnAuthed(): HttpResponseData =
     respond(
         content = UNAUTHORIZED_ERROR,
         status = HttpStatusCode.Unauthorized,
-        headers = headersOf("Content-Type" to listOf("application/json")),
-    )
-
-private fun MockRequestHandleScope.respondMediaDetailQuery(variables: Map<String, JsonPrimitive> = emptyMap()): HttpResponseData =
-    respond(
-        content = DETAIL_ANIME_DATA,
-        status = HttpStatusCode.OK,
         headers = headersOf("Content-Type" to listOf("application/json")),
     )

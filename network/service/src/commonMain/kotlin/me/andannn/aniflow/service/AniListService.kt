@@ -24,11 +24,19 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import me.andannn.aniflow.service.dto.AniListErrorResponse
 import me.andannn.aniflow.service.dto.DataWrapper
+import me.andannn.aniflow.service.dto.Media
 import me.andannn.aniflow.service.dto.MediaDetailResponse
-import me.andannn.aniflow.service.dto.User
+import me.andannn.aniflow.service.dto.PageWrapper
+import me.andannn.aniflow.service.dto.UpdateUserRespond
+import me.andannn.aniflow.service.dto.enums.MediaFormat
+import me.andannn.aniflow.service.dto.enums.MediaSeason
+import me.andannn.aniflow.service.dto.enums.MediaSort
+import me.andannn.aniflow.service.dto.enums.MediaStatus
+import me.andannn.aniflow.service.dto.enums.MediaType
 import me.andannn.aniflow.service.request.DetailMediaQuery
 import me.andannn.aniflow.service.request.GetUserDataQuery
 import me.andannn.aniflow.service.request.GraphQLQuery
+import me.andannn.aniflow.service.request.MediaPageQuery
 import me.andannn.aniflow.service.request.toQueryBody
 
 open class AniListServiceException(
@@ -39,11 +47,16 @@ class UnauthorizedException(
     override val message: String,
 ) : AniListServiceException(message)
 
+class TokenExpiredException(
+    override val message: String,
+) : AniListServiceException(message)
+
 /**
  * Service for interacting with AniList GraphQL API.
  */
 class AniListService(
     engine: HttpClientEngine = HttpEngine,
+    tokenProvider: TokenProvider,
 ) {
     private val client =
         HttpClient(engine) {
@@ -77,11 +90,16 @@ class AniListService(
                     }
 
                     loadTokens {
-                        BearerTokens("def456", "xyz111")
+                        tokenProvider.getAccessToken()?.let { accessToken ->
+                            BearerTokens(
+                                accessToken = accessToken,
+                                refreshToken = null,
+                            )
+                        } ?: throw UnauthorizedException("No access token available")
                     }
 
                     refreshTokens {
-                        BearerTokens("def456", "xyz111")
+                        throw TokenExpiredException("Refresh token is not supported")
                     }
                 }
             }
@@ -98,28 +116,72 @@ class AniListService(
         }
 
     /**
+     * Fetches the authenticated user's data.
      *
+     * @throws UnauthorizedException if no access token is available or the token is invalid.
      */
-    suspend fun getAuthedUserData(): User =
-        doGraphQlQuery(
-            query = GetUserDataQuery,
-        )
+    suspend fun getAuthedUserData(): UpdateUserRespond = doGraphQlQuery(query = GetUserDataQuery)
 
     /**
-     *
+     * Fetches detailed media information by its ID.
      */
-    suspend fun getDetailMedia(id: Int): MediaDetailResponse =
+    suspend fun getDetailMedia(id: Int): MediaDetailResponse = doGraphQlQuery(query = DetailMediaQuery(id))
+
+    /**
+     * Fetches a paginated list of media based on various filters and sorting options.
+     *
+     * @param page The page number to fetch (default is 1).
+     * @param perPage The number of items per page (default is 10).
+     * @param type The type of media to filter by (optional).
+     * @param countryCode The country code to filter by (optional).
+     * @param seasonYear The year of the season to filter by (optional).
+     * @param season The season to filter by (optional).
+     * @param status The status of the media to filter by (optional).
+     * @param sort A list of sorting options (optional).
+     * @param formatIn A list of formats to filter by (optional).
+     * @param isAdult Whether to include adult content (optional).
+     * @param startDateGreater Start date greater than this value (optional).
+     * @param endDateLesser End date lesser than this value (optional).
+     */
+    suspend fun getMediaPage(
+        page: Int = 1,
+        perPage: Int = 10,
+        type: MediaType? = null,
+        countryCode: String? = null,
+        seasonYear: Int? = null,
+        season: MediaSeason? = null,
+        status: MediaStatus? = null,
+        sort: List<MediaSort>? = null,
+        formatIn: List<MediaFormat>? = null,
+        isAdult: Boolean? = null,
+        startDateGreater: String? = null,
+        endDateLesser: String? = null,
+    ): PageWrapper<Media> =
         doGraphQlQuery(
-            query = DetailMediaQuery(id),
+            query =
+                MediaPageQuery(
+                    page = page,
+                    perPage = perPage,
+                    type = type,
+                    countryCode = countryCode,
+                    seasonYear = seasonYear,
+                    season = season,
+                    status = status,
+                    sort = sort,
+                    formatIn = formatIn,
+                    isAdult = isAdult,
+                    startDateGreater = startDateGreater,
+                    endDateLesser = endDateLesser,
+                ),
         )
 
-    private suspend inline fun <reified T> doGraphQlQuery(query: GraphQLQuery<DataWrapper<T>>): T =
+    private suspend inline fun <reified T : GraphQLQuery<DataWrapper<U>>, reified U> doGraphQlQuery(query: T): U =
         try {
             client
                 .post {
                     setBody(query.toQueryBody())
                 }.let { response ->
-                    val dataWrapper = response.body<DataWrapper<T>>()
+                    val dataWrapper = response.body<DataWrapper<U>>()
                     dataWrapper.data
                 }
         } catch (exception: ResponseException) {

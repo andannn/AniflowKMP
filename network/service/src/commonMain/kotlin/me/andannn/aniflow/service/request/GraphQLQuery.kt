@@ -1,37 +1,24 @@
 package me.andannn.aniflow.service.request
 
-import kotlinx.serialization.json.JsonPrimitive
+import io.ktor.util.reflect.typeInfo
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.serializerOrNull
 import me.andannn.network.common.GraphQLBody
-import kotlin.reflect.KClass
-
-internal data class Param(
-    val name: String,
-    val type: KClass<*>,
-)
-
-internal data class GraphQLSchema(
-    val schema: String,
-    val params: List<Param>,
-)
 
 internal interface GraphQLQuery<T> {
-    val schema: GraphQLSchema
-
-    val variables: List<Any>
+    val schema: String
 }
 
-internal fun GraphQLQuery<*>.toQueryBody(): GraphQLBody =
-    GraphQLBody(
-        query = schema.schema,
-        variables =
-            schema.params
-                .mapIndexed { index, param ->
-                    val value = variables[index]
-                    param.name to
-                        when (value) {
-                            is String -> JsonPrimitive(value)
-                            is Number -> JsonPrimitive(value)
-                            else -> throw IllegalArgumentException("Unsupported variable type: ${value::class}")
-                        }
-                }.toMap(),
+internal inline fun <reified T : GraphQLQuery<*>> T.toQueryBody(): GraphQLBody {
+    val typeInfo = typeInfo<T>()
+    val serializer =
+        typeInfo.kotlinType
+            ?.let {
+                Json.serializersModule.serializerOrNull(it)
+            }
+            ?: throw IllegalArgumentException("No serializer found for type: ${typeInfo.type}")
+    return GraphQLBody(
+        query = schema,
+        variables = Json.encodeToString(serializer, this),
     )
+}

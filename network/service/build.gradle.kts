@@ -44,7 +44,7 @@ kotlin {
         }
     }
 }
-
+//
 // apollo {
 //    service("service") {
 //        packageName.set("me.andannn.aniflow.service.generated")

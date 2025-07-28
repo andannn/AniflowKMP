@@ -8,19 +8,19 @@ public data class Characters(
     /**
      * The pagination information
      */
-    public val pageInfo: PageInfo?,
-    public val edges: List<Edge?>?,
+    public val pageInfo: PageInfo? = null,
+    public val edges: List<Edge?>? = null,
 ) {
     @Serializable
     public data class Edge(
         /**
          * The characters role in the media
          */
-        public val role: CharacterRole?,
-        public val node: Character?,
+        public val role: CharacterRole? = null,
+        public val node: Character? = null,
         /**
          * The voice actors of the character
          */
-        public val voiceActors: List<Staff?>?,
+        public val voiceActors: List<Staff?>? = null,
     )
 }

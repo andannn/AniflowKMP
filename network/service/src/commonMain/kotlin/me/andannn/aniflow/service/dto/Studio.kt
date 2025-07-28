@@ -19,7 +19,7 @@ public data class Studio(
     /**
      * The url for the studio page on the AniList website
      */
-    public val siteUrl: String?,
+    public val siteUrl: String? = null,
     /**
      * If the studio is marked as favourite by the currently authenticated user
      */

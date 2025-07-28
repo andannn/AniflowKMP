@@ -7,15 +7,15 @@ public data class StaffConnection(
     /**
      * The pagination information
      */
-    public val pageInfo: PageInfo?,
-    public val edges: List<Edge?>?,
+    public val pageInfo: PageInfo? = null,
+    public val edges: List<Edge?>? = null,
 ) {
     @Serializable
     public data class Edge(
         /**
          * The role of the staff member in the production of the media
          */
-        public val role: String?,
-        public val node: Staff?,
+        public val role: String? = null,
+        public val node: Staff? = null,
     )
 }

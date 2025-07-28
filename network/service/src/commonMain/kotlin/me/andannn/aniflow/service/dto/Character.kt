@@ -11,11 +11,11 @@ public data class Character(
     /**
      * Character images
      */
-    public val image: CharacterImage?,
+    public val image: CharacterImage? = null,
     /**
      * The names of the character
      */
-    public val name: CharacterName?,
+    public val name: CharacterName? = null,
 )
 
 @Serializable
@@ -23,11 +23,11 @@ public data class CharacterImage(
     /**
      * The character's image of media at its largest size
      */
-    public val large: String?,
+    public val large: String? = null,
     /**
      * The character's image of media at medium size
      */
-    public val medium: String?,
+    public val medium: String? = null,
 )
 
 @Serializable
@@ -35,21 +35,21 @@ public data class CharacterName(
     /**
      * The character's given name
      */
-    public val first: String?,
+    public val first: String? = null,
     /**
      * The character's middle name
      */
-    public val middle: String?,
+    public val middle: String? = null,
     /**
      * The character's surname
      */
-    public val last: String?,
+    public val last: String? = null,
     /**
      * The character's first and last name
      */
-    public val full: String?,
+    public val full: String? = null,
     /**
      * The character's full name in their native language
      */
-    public val native: String?,
+    public val native: String? = null,
 )

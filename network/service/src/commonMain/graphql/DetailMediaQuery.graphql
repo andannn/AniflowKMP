@@ -1,25 +1,28 @@
-mutation GetUserData($titleLanguage: UserTitleLanguage, $displayAdultContent: Boolean, $userStaffNameLanguage: UserStaffNameLanguage, $scoreFormat: ScoreFormat) {
-    UpdateUser(titleLanguage: $titleLanguage, displayAdultContent: $displayAdultContent, staffNameLanguage: $userStaffNameLanguage, scoreFormat: $scoreFormat) {
-        id
-        name
-        avatar {
-            large
-            medium
-        }
-        bannerImage
-        unreadNotificationCount
-        options {
-            titleLanguage
-            displayAdultContent
-            airingNotifications
-            profileColor
-            timezone
-            activityMergeTime
-            staffNameLanguage
-            restrictMessagesToFollowing
-        }
-        mediaListOptions {
-            scoreFormat
+query MediaPageQuery($page: Int, $perPage: Int, $type: MediaType, $countryCode: CountryCode, $seasonYear: Int, $season: MediaSeason, $status: MediaStatus, $sort: [MediaSort], $format_in: [MediaFormat], $isAdult: Boolean, $startDate_greater: FuzzyDateInt, $endDate_lesser: FuzzyDateInt) {
+    Page(page: $page, perPage: $perPage) {
+        media: media(type: $type, countryOfOrigin: $countryCode, seasonYear: $seasonYear, season: $season, status: $status, sort: $sort, format_in: $format_in, isAdult: $isAdult, startDate_greater: $startDate_greater, endDate_lesser: $endDate_lesser) {
+            id
+            type
+            format
+            status
+            season
+            seasonYear
+            startDate {
+                year
+                month
+                day
+            }
+            coverImage {
+                extraLarge
+                large
+                medium
+                color
+            }
+            title {
+                romaji
+                english
+                native
+            }
         }
     }
 }

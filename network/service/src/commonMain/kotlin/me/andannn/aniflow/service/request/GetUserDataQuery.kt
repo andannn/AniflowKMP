@@ -1,17 +1,11 @@
 package me.andannn.aniflow.service.request
 
+import kotlinx.serialization.Serializable
 import me.andannn.aniflow.service.dto.DataWrapper
-import me.andannn.aniflow.service.dto.User
+import me.andannn.aniflow.service.dto.UpdateUserRespond
 import me.andannn.network.common.schemas.USER_DATA_MUTATION_SCHEMA
 
-internal data object GetUserDataQuery : GraphQLQuery<DataWrapper<User>> {
-    override val schema: GraphQLSchema = MediaDetailSchema
-    override val variables: List<Any>
-        get() = listOf()
+@Serializable
+internal data object GetUserDataQuery : GraphQLQuery<DataWrapper<UpdateUserRespond>> {
+    override val schema: String = USER_DATA_MUTATION_SCHEMA
 }
-
-private val MediaDetailSchema =
-    GraphQLSchema(
-        schema = USER_DATA_MUTATION_SCHEMA,
-        params = listOf(),
-    )

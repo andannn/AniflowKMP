@@ -12,19 +12,19 @@ public data class ExternalLink(
     /**
      * The url of the external link or base url of link source
      */
-    public val url: String?,
+    public val url: String? = null,
     /**
      * The links website site name
      */
     public val site: String,
-    public val type: ExternalLinkType?,
+    public val type: ExternalLinkType? = null,
     /**
      * The links website site id
      */
-    public val siteId: Int?,
-    public val color: String?,
+    public val siteId: Int? = null,
+    public val color: String? = null,
     /**
      * The icon image url of the site. Not available for all links. Transparent PNG 64x64
      */
-    public val icon: String?,
+    public val icon: String? = null,
 )

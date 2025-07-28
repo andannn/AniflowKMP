@@ -16,5 +16,5 @@ public data class Ranking(
     /**
      * If the ranking is based on all time instead of a season/year
      */
-    public val allTime: Boolean?,
+    public val allTime: Boolean? = null,
 )

@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 public data class StudioConnection(
-    public val nodes: List<Studio?>?,
+    public val nodes: List<Studio?>? = null,
 )
