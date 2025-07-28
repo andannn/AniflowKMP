@@ -1,3 +1,7 @@
+/*
+ * Copyright 2025, the AniflowKMP project contributors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package me.andannn.network.engine.mock
 
 internal const val DETAIL_ANIME_DATA = """
