@@ -1,56 +1,32 @@
 
-query MediaList($mediaId: Int, $userId: Int, $format: ScoreFormat) {
-    MediaList(mediaId: $mediaId, userId: $userId) {
-        id
-        status
-        progress
-        priority
-        notes
-        repeat
-        private
-        userId
-        updatedAt
-        score(format: $format)
-        progressVolumes
-        startedAt {
-            year
-            month
-            day
-        }
-        completedAt {
-            year
-            month
-            day
-        }
-        media {
+query M($page: Int, $perPage: Int, $airingAt_greater: Int, $airingAt_lesser: Int){
+    Page(page: $page, perPage: $perPage) {
+        airingSchedules(airingAt_greater: $airingAt_greater, airingAt_lesser: $airingAt_lesser) {
             id
-            title {
-                romaji
-                english
-                native
-            }
-            type
-            format
-            description(asHtml: false)
-            episodes
-            seasonYear
-            season
-            source
-            status
-            coverImage {
-                extraLarge
-                large
-                medium
-                color
-            }
-            averageScore
-            favourites
-            trending
-            nextAiringEpisode {
+            airingAt
+            timeUntilAiring
+            episode
+            mediaId
+            media {
                 id
-                airingAt
-                episode
-                timeUntilAiring
+                type
+                format
+                status
+                seasonYear
+                season
+                source
+                episodes
+                coverImage {
+                    extraLarge
+                    large
+                    medium
+                    color
+                }
+                title {
+                    romaji
+                    english
+                    native
+                }
             }
         }
     }

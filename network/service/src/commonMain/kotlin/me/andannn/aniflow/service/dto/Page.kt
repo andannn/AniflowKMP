@@ -70,6 +70,7 @@ internal class PageSerializer : KSerializer<Page<*>> {
             mapOf<String, KSerializer<*>>(
                 "media" to Media.serializer(),
                 "mediaList" to MediaList.serializer(),
+                "airingSchedules" to AiringSchedule.serializer(),
             )
     }
 }

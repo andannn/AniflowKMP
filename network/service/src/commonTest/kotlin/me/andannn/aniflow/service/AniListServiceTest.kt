@@ -6,6 +6,7 @@ package me.andannn.aniflow.service
 
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
+import me.andannn.aniflow.service.dto.AiringSchedule
 import me.andannn.aniflow.service.dto.CharactersConnection
 import me.andannn.aniflow.service.dto.Media
 import me.andannn.aniflow.service.dto.MediaDetailResponse
@@ -117,6 +118,19 @@ class AniListServiceTest {
                     format = ScoreFormat.POINT_10_DECIMAL,
                 )
             assertIs<PageWrapper<MediaList>>(respond)
+        }
+
+    @Test
+    fun testGetAiringSchedulePage() =
+        testScope.runTest {
+            val respond =
+                serviceWithNoToken.getAiringSchedulePage(
+                    page = 1,
+                    perPage = 10,
+                    airingAtGreater = 0,
+                    airingAtLesser = 1000000,
+                )
+            assertIs<PageWrapper<AiringSchedule>>(respond)
         }
 }
 
