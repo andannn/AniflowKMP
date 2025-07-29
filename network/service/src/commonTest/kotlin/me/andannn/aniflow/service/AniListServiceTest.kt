@@ -6,10 +6,12 @@ package me.andannn.aniflow.service
 
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
+import me.andannn.aniflow.service.dto.CharactersConnection
 import me.andannn.aniflow.service.dto.Media
 import me.andannn.aniflow.service.dto.MediaDetailResponse
 import me.andannn.aniflow.service.dto.PageWrapper
 import me.andannn.aniflow.service.dto.UpdateUserRespond
+import me.andannn.aniflow.service.dto.enums.StaffLanguage
 import me.andannn.network.engine.MockHttpClientEngine
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
@@ -59,6 +61,19 @@ class AniListServiceTest {
         testScope.runTest {
             val respond = serviceWithDummyToken.getAuthedUserData()
             assertIs<UpdateUserRespond>(respond)
+        }
+
+    @Test
+    fun testGetCharacterPage() =
+        testScope.runTest {
+            val respond =
+                serviceWithNoToken.getCharacterPagesOfMedia(
+                    mediaId = 1,
+                    page = 1,
+                    perPage = 10,
+                    staffLanguage = StaffLanguage.ENGLISH,
+                )
+            assertIs<CharactersConnection>(respond)
         }
 }
 

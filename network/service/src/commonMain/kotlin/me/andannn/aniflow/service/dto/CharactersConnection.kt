@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 import me.andannn.aniflow.service.dto.enums.CharacterRole
 
 @Serializable
-public data class Characters(
+public data class CharactersConnection(
     /**
      * The pagination information
      */

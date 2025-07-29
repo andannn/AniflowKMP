@@ -27,6 +27,7 @@ import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import me.andannn.aniflow.service.dto.AniListErrorResponse
+import me.andannn.aniflow.service.dto.CharactersConnection
 import me.andannn.aniflow.service.dto.DataWrapper
 import me.andannn.aniflow.service.dto.Media
 import me.andannn.aniflow.service.dto.MediaDetailResponse
@@ -37,6 +38,8 @@ import me.andannn.aniflow.service.dto.enums.MediaSeason
 import me.andannn.aniflow.service.dto.enums.MediaSort
 import me.andannn.aniflow.service.dto.enums.MediaStatus
 import me.andannn.aniflow.service.dto.enums.MediaType
+import me.andannn.aniflow.service.dto.enums.StaffLanguage
+import me.andannn.aniflow.service.request.CharacterPageQuery
 import me.andannn.aniflow.service.request.DetailMediaQuery
 import me.andannn.aniflow.service.request.GetUserDataQuery
 import me.andannn.aniflow.service.request.GraphQLQuery
@@ -76,7 +79,7 @@ class AniListService(
                 json(
                     Json {
                         prettyPrint = true
-                        ignoreUnknownKeys = true
+//                        ignoreUnknownKeys = true
                     },
                 )
             }
@@ -178,6 +181,30 @@ class AniListService(
                     endDateLesser = endDateLesser,
                 ),
         )
+
+    /**
+     * Fetches a paginated list of characters associated with a specific media.
+     *
+     * @param page The page number to fetch (default is 1).
+     * @param perPage The number of items per page (default is 10).
+     * @param mediaId The ID of the media to fetch characters for.
+     * @param staffLanguage The language of the staff to filter by.
+     */
+    suspend fun getCharacterPagesOfMedia(
+        page: Int = 1,
+        perPage: Int = 10,
+        mediaId: Int,
+        staffLanguage: StaffLanguage,
+    ): CharactersConnection? =
+        doGraphQlQuery(
+            query =
+                CharacterPageQuery(
+                    page = page,
+                    perPage = perPage,
+                    mediaId = mediaId,
+                    staffLanguage = staffLanguage,
+                ),
+        ).media.characters
 
     private suspend inline fun <reified T : GraphQLQuery<DataWrapper<U>>, reified U> doGraphQlQuery(query: T): U =
         try {
