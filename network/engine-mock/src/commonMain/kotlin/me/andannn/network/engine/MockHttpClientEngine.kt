@@ -25,6 +25,7 @@ import me.andannn.network.common.schemas.SEARCH_CHARACTER_QUERY_SCHEMA
 import me.andannn.network.common.schemas.SEARCH_MEDIA_QUERY_SCHEMA
 import me.andannn.network.common.schemas.SEARCH_STAFF_QUERY_SCHEMA
 import me.andannn.network.common.schemas.SEARCH_STUDIO_QUERY_SCHEMA
+import me.andannn.network.common.schemas.STAFF_DETAIL_QUERY_SCHEMA
 import me.andannn.network.common.schemas.STAFF_PAGE_QUERY_SCHEMA
 import me.andannn.network.common.schemas.TOGGLE_FAVORITE_MUTATION_SCHEMA
 import me.andannn.network.common.schemas.USER_DATA_MUTATION_SCHEMA
@@ -33,6 +34,7 @@ import me.andannn.network.engine.mock.AIRING_SCHEDULE_PAGE_DATA
 import me.andannn.network.engine.mock.CHARACTER_DETAIL_DATA
 import me.andannn.network.engine.mock.CHARACTER_PAGE_DATA
 import me.andannn.network.engine.mock.DETAIL_ANIME_DATA
+import me.andannn.network.engine.mock.DETAIL_STAFF_DATA
 import me.andannn.network.engine.mock.MEDIA_LIST_ITEM_DATA
 import me.andannn.network.engine.mock.MEDIA_LIST_PAGE_DATA
 import me.andannn.network.engine.mock.MEDIA_PAGE_DATA
@@ -122,6 +124,10 @@ val MockHttpClientEngine =
 
                             CHARACTER_DETAIL_QUERY_SCHEMA -> {
                                 respondString(CHARACTER_DETAIL_DATA)
+                            }
+
+                            STAFF_DETAIL_QUERY_SCHEMA -> {
+                                respondString(DETAIL_STAFF_DATA)
                             }
 
                             else -> error("Not supported query: $query")

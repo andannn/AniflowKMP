@@ -4,9 +4,9 @@
  */
 package me.andannn.network.common.schemas
 
-const val CHARACTER_DETAIL_QUERY_SCHEMA = $$"""
-query ($id: Int, $page: Int, $perPage: Int) {
-  Character(id: $id) {
+const val STAFF_DETAIL_QUERY_SCHEMA = $$"""
+query ($id: Int, $page: Int, $perPage: Int, $sort: [MediaSort]) {
+  Staff(id: $id) {
     id
     name {
       first
@@ -16,8 +16,8 @@ query ($id: Int, $page: Int, $perPage: Int) {
       native
     }
     image {
-      medium
       large
+      medium
     }
     description(asHtml: true)
     gender
@@ -26,12 +26,18 @@ query ($id: Int, $page: Int, $perPage: Int) {
       month
       day
     }
+    dateOfDeath {
+      year
+      month
+      day
+    }
     age
+    yearsActive
+    homeTown
     bloodType
     isFavourite
     siteUrl
-    favourites
-    media(page: $page, perPage: $perPage) {
+    characterMedia(sort: $sort, page: $page, perPage: $perPage) {
       pageInfo {
         total
         perPage
@@ -40,21 +46,33 @@ query ($id: Int, $page: Int, $perPage: Int) {
         hasNextPage
       }
       edges {
-        relationType
+        id
+        characters {
+          id
+          image {
+            large
+            medium
+          }
+          name {
+            first
+            middle
+            last
+            full
+            native
+          }
+        }
+        characterRole
         node {
           id
           type
           format
           status
-          episodes
-          seasonYear
           season
-          source
+          seasonYear
           coverImage {
             extraLarge
             large
             medium
-            color
           }
           title {
             romaji

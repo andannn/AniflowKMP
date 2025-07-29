@@ -1,6 +1,6 @@
 
-query B($id: Int) {
-    Character(id: $id) {
+query C($id: Int, $page: Int, $perPage: Int, $sort: [MediaSort]) {
+    Staff(id: $id) {
         id
         name {
             first
@@ -10,8 +10,8 @@ query B($id: Int) {
             native
         }
         image {
-            medium
             large
+            medium
         }
         description(asHtml: true)
         gender
@@ -20,12 +20,18 @@ query B($id: Int) {
             month
             day
         }
+        dateOfDeath {
+            year
+            month
+            day
+        }
         age
+        yearsActive
+        homeTown
         bloodType
         isFavourite
         siteUrl
-        favourites
-        media {
+        characterMedia(sort: $sort, page: $page, perPage: $perPage) {
             pageInfo {
                 total
                 perPage
@@ -34,21 +40,33 @@ query B($id: Int) {
                 hasNextPage
             }
             edges {
-                relationType
+                id
+                characters {
+                    id
+                    image {
+                        large
+                        medium
+                    }
+                    name {
+                        first
+                        middle
+                        last
+                        full
+                        native
+                    }
+                }
+                characterRole
                 node {
                     id
                     type
                     format
                     status
-                    episodes
-                    seasonYear
                     season
-                    source
+                    seasonYear
                     coverImage {
                         extraLarge
                         large
                         medium
-                        color
                     }
                     title {
                         romaji

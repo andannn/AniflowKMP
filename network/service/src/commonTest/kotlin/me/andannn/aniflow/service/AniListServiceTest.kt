@@ -176,7 +176,7 @@ class AniListServiceTest {
         }
 
     @Test
-    fun testGetStaffDetail() =
+    fun testSearchStaff() =
         testScope.runTest {
             val respond =
                 serviceWithNoToken.searchStaff(
@@ -188,7 +188,7 @@ class AniListServiceTest {
         }
 
     @Test
-    fun testGetStaffDetailById() =
+    fun testGetActivities() =
         testScope.runTest {
             val respond =
                 serviceWithNoToken.getActivities(
@@ -214,6 +214,16 @@ class AniListServiceTest {
                     id = 1,
                 )
             assertIs<Character>(respond)
+        }
+
+    @Test
+    fun testGetStaffDetail() =
+        testScope.runTest {
+            val respond =
+                serviceWithNoToken.getStaffDetail(
+                    staffId = 1,
+                )
+            assertIs<Staff>(respond)
         }
 }
 

@@ -44,7 +44,7 @@ public data class Character(
     /**
      * If the character is marked as favourite by the currently authenticated user
      */
-    public val isFavourite: Boolean,
+    public val isFavourite: Boolean? = null,
     /**
      * The url for the character page on the AniList website
      */

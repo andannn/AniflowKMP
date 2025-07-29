@@ -54,6 +54,7 @@ import me.andannn.aniflow.service.request.AiringScheduleQuery
 import me.andannn.aniflow.service.request.CharacterDetailQuery
 import me.andannn.aniflow.service.request.CharacterPageQuery
 import me.andannn.aniflow.service.request.DetailMediaQuery
+import me.andannn.aniflow.service.request.DetailStaffQuery
 import me.andannn.aniflow.service.request.GetUserDataQuery
 import me.andannn.aniflow.service.request.GraphQLQuery
 import me.andannn.aniflow.service.request.MediaListPageQuery
@@ -469,13 +470,43 @@ class AniListService(
                 ),
         )
 
-    suspend fun getCharacterDetail(id: Int): Character? =
+    suspend fun getCharacterDetail(
+        id: Int,
+        mediaConnectionPage: Int? = null,
+        mediaConnectionPerPage: Int? = null,
+    ): Character? =
         doGraphQlQuery(
             query =
                 CharacterDetailQuery(
                     id = id,
+                    mediaConnectionPage = mediaConnectionPage,
+                    mediaConnectionPerPage = mediaConnectionPerPage,
                 ),
         ).character
+
+    /**
+     * Fetches detailed information about a staff member by their ID.
+     *
+     * @param staffId The ID of the staff member to fetch details for.
+     * @param characterConnectionPage The page number for character connections (optional).
+     * @param characterConnectionPerPage The number of character connections per page (optional).
+     * @param mediaSort A list of sorting options for media connections (optional).
+     */
+    suspend fun getStaffDetail(
+        staffId: Int,
+        characterConnectionPage: Int? = null,
+        characterConnectionPerPage: Int? = null,
+        mediaSort: List<MediaSort> = emptyList(),
+    ): Staff? =
+        doGraphQlQuery(
+            query =
+                DetailStaffQuery(
+                    staffId = staffId,
+                    characterConnectionPage = characterConnectionPage,
+                    characterConnectionPerPage = characterConnectionPerPage,
+                    mediaSort = mediaSort,
+                ),
+        ).staff
 
     private suspend inline fun <reified T : GraphQLQuery<DataWrapper<U>>, reified U> doGraphQlQuery(query: T): U =
         try {
