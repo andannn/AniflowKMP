@@ -33,7 +33,7 @@ import me.andannn.aniflow.service.dto.DataWrapper
 import me.andannn.aniflow.service.dto.Media
 import me.andannn.aniflow.service.dto.MediaDetailResponse
 import me.andannn.aniflow.service.dto.MediaList
-import me.andannn.aniflow.service.dto.PageWrapper
+import me.andannn.aniflow.service.dto.Page
 import me.andannn.aniflow.service.dto.StaffConnection
 import me.andannn.aniflow.service.dto.UpdateUserRespond
 import me.andannn.aniflow.service.dto.enums.MediaFormat
@@ -52,6 +52,7 @@ import me.andannn.aniflow.service.request.GraphQLQuery
 import me.andannn.aniflow.service.request.MediaListPageQuery
 import me.andannn.aniflow.service.request.MediaListQuery
 import me.andannn.aniflow.service.request.MediaPageQuery
+import me.andannn.aniflow.service.request.SearchMediaQuery
 import me.andannn.aniflow.service.request.StaffPageQuery
 import me.andannn.aniflow.service.request.toQueryBody
 
@@ -172,7 +173,7 @@ class AniListService(
         isAdult: Boolean? = null,
         startDateGreater: String? = null,
         endDateLesser: String? = null,
-    ): PageWrapper<Media> =
+    ): Page<Media> =
         doGraphQlQuery(
             query =
                 MediaPageQuery(
@@ -189,7 +190,7 @@ class AniListService(
                     startDateGreater = startDateGreater,
                     endDateLesser = endDateLesser,
                 ),
-        )
+        ).page
 
     /**
      * Fetches a paginated list of characters associated with a specific media.
@@ -274,7 +275,7 @@ class AniListService(
         statusIn: List<MediaListStatus>,
         type: MediaType,
         format: ScoreFormat,
-    ): PageWrapper<MediaList> =
+    ): Page<MediaList> =
         doGraphQlQuery(
             query =
                 MediaListPageQuery(
@@ -285,7 +286,7 @@ class AniListService(
                     type = type,
                     format = format,
                 ),
-        )
+        ).page
 
     /**
      * Fetches a paginated list of airing schedules based on airing times.
@@ -300,7 +301,7 @@ class AniListService(
         perPage: Int,
         airingAtGreater: Int,
         airingAtLesser: Int,
-    ): PageWrapper<AiringSchedule> =
+    ): Page<AiringSchedule> =
         doGraphQlQuery(
             query =
                 AiringScheduleQuery(
@@ -309,7 +310,25 @@ class AniListService(
                     airingAtGreater = airingAtGreater,
                     airingAtLesser = airingAtLesser,
                 ),
-        )
+        ).page
+
+    suspend fun searchMedia(
+        page: Int,
+        perPage: Int,
+        keyword: String,
+        type: MediaType,
+        isAdult: Boolean,
+    ): Page<Media> =
+        doGraphQlQuery(
+            query =
+                SearchMediaQuery(
+                    page = page,
+                    perPage = perPage,
+                    keyword = keyword,
+                    type = type,
+                    isAdult = isAdult,
+                ),
+        ).page
 
     private suspend inline fun <reified T : GraphQLQuery<DataWrapper<U>>, reified U> doGraphQlQuery(query: T): U =
         try {

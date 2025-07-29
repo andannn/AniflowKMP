@@ -19,6 +19,7 @@ import me.andannn.network.common.schemas.MEDIA_DETAIL_QUERY_SCHEMA
 import me.andannn.network.common.schemas.MEDIA_LIST_PAGE_QUERY_SCHEMA
 import me.andannn.network.common.schemas.MEDIA_LIST_QUERY_SCHEMA
 import me.andannn.network.common.schemas.MEDIA_PAGE_QUERY_SCHEMA
+import me.andannn.network.common.schemas.SEARCH_MEDIA_QUERY_SCHEMA
 import me.andannn.network.common.schemas.STAFF_PAGE_QUERY_SCHEMA
 import me.andannn.network.common.schemas.USER_DATA_MUTATION_SCHEMA
 import me.andannn.network.engine.mock.AIRING_SCHEDULE_PAGE_DATA
@@ -27,6 +28,7 @@ import me.andannn.network.engine.mock.DETAIL_ANIME_DATA
 import me.andannn.network.engine.mock.MEDIA_LIST_ITEM_DATA
 import me.andannn.network.engine.mock.MEDIA_LIST_PAGE_DATA
 import me.andannn.network.engine.mock.MEDIA_PAGE_DATA
+import me.andannn.network.engine.mock.SEARCH_MEDIA_RESULT_PAGE_DATA
 import me.andannn.network.engine.mock.STAFF_PAGE_DATA
 import me.andannn.network.engine.mock.UNAUTHORIZED_ERROR
 import me.andannn.network.engine.mock.USER_DATA
@@ -77,6 +79,10 @@ val MockHttpClientEngine =
 
                             AIRING_SCHEDULE_QUERY_SCHEMA -> {
                                 respondString(AIRING_SCHEDULE_PAGE_DATA)
+                            }
+
+                            SEARCH_MEDIA_QUERY_SCHEMA -> {
+                                respondString(SEARCH_MEDIA_RESULT_PAGE_DATA)
                             }
 
                             else -> error("Not supported query: $query")

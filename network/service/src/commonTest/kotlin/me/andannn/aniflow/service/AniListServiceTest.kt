@@ -11,6 +11,7 @@ import me.andannn.aniflow.service.dto.CharactersConnection
 import me.andannn.aniflow.service.dto.Media
 import me.andannn.aniflow.service.dto.MediaDetailResponse
 import me.andannn.aniflow.service.dto.MediaList
+import me.andannn.aniflow.service.dto.Page
 import me.andannn.aniflow.service.dto.PageWrapper
 import me.andannn.aniflow.service.dto.StaffConnection
 import me.andannn.aniflow.service.dto.UpdateUserRespond
@@ -131,6 +132,20 @@ class AniListServiceTest {
                     airingAtLesser = 1000000,
                 )
             assertIs<PageWrapper<AiringSchedule>>(respond)
+        }
+
+    @Test
+    fun testGetMediaSearchPage() =
+        testScope.runTest {
+            val respond =
+                serviceWithNoToken.searchMedia(
+                    page = 1,
+                    perPage = 10,
+                    keyword = "test",
+                    type = MediaType.ANIME,
+                    isAdult = false,
+                )
+            assertIs<Page<Media>>(respond)
         }
 }
 

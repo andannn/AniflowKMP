@@ -18,7 +18,7 @@ import kotlinx.serialization.json.JsonDecoder
 import kotlinx.serialization.json.jsonObject
 
 @Serializable
-data class PageWrapper<T>(
+internal data class PageWrapper<T>(
     @SerialName("Page")
     val page: Page<T>,
 )
