@@ -14,6 +14,7 @@ import me.andannn.aniflow.service.dto.MediaDetailResponse
 import me.andannn.aniflow.service.dto.MediaList
 import me.andannn.aniflow.service.dto.Page
 import me.andannn.aniflow.service.dto.StaffConnection
+import me.andannn.aniflow.service.dto.Studio
 import me.andannn.aniflow.service.dto.UpdateUserRespond
 import me.andannn.aniflow.service.dto.enums.MediaType
 import me.andannn.aniflow.service.dto.enums.ScoreFormat
@@ -158,6 +159,18 @@ class AniListServiceTest {
                     keyword = "test",
                 )
             assertIs<Page<Character>>(respond)
+        }
+
+    @Test
+    fun testGetStudioSearchPage() =
+        testScope.runTest {
+            val respond =
+                serviceWithNoToken.searchStudio(
+                    page = 1,
+                    perPage = 10,
+                    keyword = "test",
+                )
+            assertIs<Page<Studio>>(respond)
         }
 }
 
