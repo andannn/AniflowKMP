@@ -10,7 +10,7 @@ import kotlinx.serialization.serializerOrNull
 import me.andannn.network.common.GraphQLBody
 
 internal interface GraphQLQuery<T> {
-    val schema: String
+    fun getSchema(): String
 }
 
 internal inline fun <reified T : GraphQLQuery<*>> T.toQueryBody(): GraphQLBody {
@@ -22,7 +22,7 @@ internal inline fun <reified T : GraphQLQuery<*>> T.toQueryBody(): GraphQLBody {
             }
             ?: throw IllegalArgumentException("No serializer found for type: ${typeInfo.type}")
     return GraphQLBody(
-        query = schema,
+        query = getSchema(),
         variables = Json.encodeToString(serializer, this),
     )
 }

@@ -31,19 +31,24 @@ import me.andannn.aniflow.service.dto.CharactersConnection
 import me.andannn.aniflow.service.dto.DataWrapper
 import me.andannn.aniflow.service.dto.Media
 import me.andannn.aniflow.service.dto.MediaDetailResponse
+import me.andannn.aniflow.service.dto.MediaList
 import me.andannn.aniflow.service.dto.PageWrapper
 import me.andannn.aniflow.service.dto.StaffConnection
 import me.andannn.aniflow.service.dto.UpdateUserRespond
 import me.andannn.aniflow.service.dto.enums.MediaFormat
+import me.andannn.aniflow.service.dto.enums.MediaListStatus
 import me.andannn.aniflow.service.dto.enums.MediaSeason
 import me.andannn.aniflow.service.dto.enums.MediaSort
 import me.andannn.aniflow.service.dto.enums.MediaStatus
 import me.andannn.aniflow.service.dto.enums.MediaType
+import me.andannn.aniflow.service.dto.enums.ScoreFormat
 import me.andannn.aniflow.service.dto.enums.StaffLanguage
 import me.andannn.aniflow.service.request.CharacterPageQuery
 import me.andannn.aniflow.service.request.DetailMediaQuery
 import me.andannn.aniflow.service.request.GetUserDataQuery
 import me.andannn.aniflow.service.request.GraphQLQuery
+import me.andannn.aniflow.service.request.MediaListPageQuery
+import me.andannn.aniflow.service.request.MediaListQuery
 import me.andannn.aniflow.service.request.MediaPageQuery
 import me.andannn.aniflow.service.request.StaffPageQuery
 import me.andannn.aniflow.service.request.toQueryBody
@@ -228,6 +233,57 @@ class AniListService(
                     mediaId = mediaId,
                 ),
         ).media.staff
+
+    /**
+     * Fetches a specific media list item by its media ID and user ID.
+     *
+     * @param mediaId The ID of the media to fetch.
+     * @param userId The ID of the user whose media list item to fetch.
+     * @param scoreFormat The format of the score to return.
+     */
+    suspend fun getMediaListItem(
+        mediaId: Int,
+        userId: Int,
+        scoreFormat: ScoreFormat,
+    ): MediaList? =
+        doGraphQlQuery(
+            query =
+                MediaListQuery(
+                    mediaId,
+                    userId,
+                    scoreFormat,
+                ),
+        ).mediaList
+
+    /**
+     * Fetches a paginated list of media list items for a specific user.
+     *
+     * @param page The page number to fetch (default is 1).
+     * @param perPage The number of items per page (default is 10).
+     * @param userId The ID of the user whose media list to fetch.
+     * @param statusIn A list of media list statuses to filter by.
+     * @param type The type of media to filter by.
+     * @param format The format of the score to return.
+     */
+    suspend fun getMediaListPage(
+        page: Int = 1,
+        perPage: Int = 10,
+        userId: Int,
+        statusIn: List<MediaListStatus>,
+        type: MediaType,
+        format: ScoreFormat,
+    ): PageWrapper<MediaList> =
+        doGraphQlQuery(
+            query =
+                MediaListPageQuery(
+                    page = page,
+                    perPage = perPage,
+                    userId = userId,
+                    statusIn = statusIn,
+                    type = type,
+                    format = format,
+                ),
+        )
 
     private suspend inline fun <reified T : GraphQLQuery<DataWrapper<U>>, reified U> doGraphQlQuery(query: T): U =
         try {

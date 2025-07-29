@@ -69,6 +69,7 @@ internal class PageSerializer : KSerializer<Page<*>> {
         private val ITEM_SERIALIZER_MAP =
             mapOf<String, KSerializer<*>>(
                 "media" to Media.serializer(),
+                "mediaList" to MediaList.serializer(),
             )
     }
 }

@@ -14,7 +14,6 @@ import me.andannn.aniflow.service.dto.enums.MediaSort
 import me.andannn.aniflow.service.dto.enums.MediaStatus
 import me.andannn.aniflow.service.dto.enums.MediaType
 import me.andannn.network.common.schemas.MEDIA_PAGE_QUERY_SCHEMA
-import kotlin.jvm.Transient
 
 @Serializable
 internal data class MediaPageQuery(
@@ -31,6 +30,5 @@ internal data class MediaPageQuery(
     val startDateGreater: String? = null,
     val endDateLesser: String? = null,
 ) : GraphQLQuery<DataWrapper<PageWrapper<Media>>> {
-    @Transient
-    override val schema: String = MEDIA_PAGE_QUERY_SCHEMA
+    override fun getSchema() = MEDIA_PAGE_QUERY_SCHEMA
 }

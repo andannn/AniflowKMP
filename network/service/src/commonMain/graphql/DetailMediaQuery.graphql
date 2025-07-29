@@ -1,44 +1,56 @@
 
-query Character($id: Int, $page: Int, $perPage: Int, $staffLanguage: StaffLanguage) {
-    Media(id: $id) {
-        characters(page: $page, perPage: $perPage, sort: RELEVANCE) {
-            pageInfo {
-                total
-                perPage
-                currentPage
-                lastPage
-                hasNextPage
+query MediaList($mediaId: Int, $userId: Int, $format: ScoreFormat) {
+    MediaList(mediaId: $mediaId, userId: $userId) {
+        id
+        status
+        progress
+        priority
+        notes
+        repeat
+        private
+        userId
+        updatedAt
+        score(format: $format)
+        progressVolumes
+        startedAt {
+            year
+            month
+            day
+        }
+        completedAt {
+            year
+            month
+            day
+        }
+        media {
+            id
+            title {
+                romaji
+                english
+                native
             }
-            edges {
-                role
-                node {
-                    id
-                    image {
-                        large
-                        medium
-                    }
-                    name {
-                        first
-                        middle
-                        last
-                        full
-                        native
-                    }
-                }
-                voiceActors(language: $staffLanguage, sort: LANGUAGE) {
-                    id
-                    image {
-                        large
-                        medium
-                    }
-                    name {
-                        first
-                        middle
-                        last
-                        full
-                        native
-                    }
-                }
+            type
+            format
+            description(asHtml: false)
+            episodes
+            seasonYear
+            season
+            source
+            status
+            coverImage {
+                extraLarge
+                large
+                medium
+                color
+            }
+            averageScore
+            favourites
+            trending
+            nextAiringEpisode {
+                id
+                airingAt
+                episode
+                timeUntilAiring
             }
         }
     }

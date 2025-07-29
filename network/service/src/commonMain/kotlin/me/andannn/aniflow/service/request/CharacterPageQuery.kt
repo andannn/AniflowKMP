@@ -9,7 +9,6 @@ import me.andannn.aniflow.service.dto.DataWrapper
 import me.andannn.aniflow.service.dto.MediaDetailResponse
 import me.andannn.aniflow.service.dto.enums.StaffLanguage
 import me.andannn.network.common.schemas.CHARACTER_PAGE_QUERY_SCHEMA
-import kotlin.jvm.Transient
 
 @Serializable
 internal data class CharacterPageQuery(
@@ -18,6 +17,5 @@ internal data class CharacterPageQuery(
     val mediaId: Int,
     val staffLanguage: StaffLanguage,
 ) : GraphQLQuery<DataWrapper<MediaDetailResponse>> {
-    @Transient
-    override val schema: String = CHARACTER_PAGE_QUERY_SCHEMA
+    override fun getSchema() = CHARACTER_PAGE_QUERY_SCHEMA
 }

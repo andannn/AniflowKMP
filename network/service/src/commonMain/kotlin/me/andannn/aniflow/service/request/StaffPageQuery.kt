@@ -8,7 +8,6 @@ import kotlinx.serialization.Serializable
 import me.andannn.aniflow.service.dto.DataWrapper
 import me.andannn.aniflow.service.dto.MediaDetailResponse
 import me.andannn.network.common.schemas.STAFF_PAGE_QUERY_SCHEMA
-import kotlin.jvm.Transient
 
 @Serializable
 internal data class StaffPageQuery(
@@ -16,6 +15,5 @@ internal data class StaffPageQuery(
     val perPage: Int,
     val mediaId: Int,
 ) : GraphQLQuery<DataWrapper<MediaDetailResponse>> {
-    @Transient
-    override val schema: String = STAFF_PAGE_QUERY_SCHEMA
+    override fun getSchema() = STAFF_PAGE_QUERY_SCHEMA
 }

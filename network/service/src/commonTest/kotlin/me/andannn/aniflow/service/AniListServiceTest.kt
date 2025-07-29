@@ -9,9 +9,12 @@ import kotlinx.coroutines.test.runTest
 import me.andannn.aniflow.service.dto.CharactersConnection
 import me.andannn.aniflow.service.dto.Media
 import me.andannn.aniflow.service.dto.MediaDetailResponse
+import me.andannn.aniflow.service.dto.MediaList
 import me.andannn.aniflow.service.dto.PageWrapper
 import me.andannn.aniflow.service.dto.StaffConnection
 import me.andannn.aniflow.service.dto.UpdateUserRespond
+import me.andannn.aniflow.service.dto.enums.MediaType
+import me.andannn.aniflow.service.dto.enums.ScoreFormat
 import me.andannn.aniflow.service.dto.enums.StaffLanguage
 import me.andannn.network.engine.MockHttpClientEngine
 import kotlin.test.Test
@@ -87,6 +90,33 @@ class AniListServiceTest {
                     perPage = 10,
                 )
             assertIs<StaffConnection>(respond)
+        }
+
+    @Test
+    fun testGetMediaListItem() =
+        testScope.runTest {
+            val respond =
+                serviceWithNoToken.getMediaListItem(
+                    mediaId = 1,
+                    userId = 1,
+                    scoreFormat = ScoreFormat.POINT_10_DECIMAL,
+                )
+            assertIs<MediaList>(respond)
+        }
+
+    @Test
+    fun testGetMediaListPage() =
+        testScope.runTest {
+            val respond =
+                serviceWithNoToken.getMediaListPage(
+                    userId = 1,
+                    page = 1,
+                    perPage = 10,
+                    statusIn = listOf(),
+                    type = MediaType.ANIME,
+                    format = ScoreFormat.POINT_10_DECIMAL,
+                )
+            assertIs<PageWrapper<MediaList>>(respond)
         }
 }
 

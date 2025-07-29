@@ -11,5 +11,5 @@ import me.andannn.network.common.schemas.USER_DATA_MUTATION_SCHEMA
 
 @Serializable
 internal data object GetUserDataQuery : GraphQLQuery<DataWrapper<UpdateUserRespond>> {
-    override val schema: String = USER_DATA_MUTATION_SCHEMA
+    override fun getSchema() = USER_DATA_MUTATION_SCHEMA
 }
