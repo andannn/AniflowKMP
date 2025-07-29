@@ -21,6 +21,7 @@ import me.andannn.network.common.schemas.MEDIA_DETAIL_QUERY_SCHEMA
 import me.andannn.network.common.schemas.MEDIA_LIST_PAGE_QUERY_SCHEMA
 import me.andannn.network.common.schemas.MEDIA_LIST_QUERY_SCHEMA
 import me.andannn.network.common.schemas.MEDIA_PAGE_QUERY_SCHEMA
+import me.andannn.network.common.schemas.NOTIFICATION_PAGE_QUERY_SCHEMA
 import me.andannn.network.common.schemas.SEARCH_CHARACTER_QUERY_SCHEMA
 import me.andannn.network.common.schemas.SEARCH_MEDIA_QUERY_SCHEMA
 import me.andannn.network.common.schemas.SEARCH_STAFF_QUERY_SCHEMA
@@ -40,6 +41,7 @@ import me.andannn.network.engine.mock.DETAIL_STUDIO_DATA
 import me.andannn.network.engine.mock.MEDIA_LIST_ITEM_DATA
 import me.andannn.network.engine.mock.MEDIA_LIST_PAGE_DATA
 import me.andannn.network.engine.mock.MEDIA_PAGE_DATA
+import me.andannn.network.engine.mock.NOTIFICATION_DATA
 import me.andannn.network.engine.mock.SEARCH_CHARACTER_RESULT_PAGE_DATA
 import me.andannn.network.engine.mock.SEARCH_MEDIA_RESULT_PAGE_DATA
 import me.andannn.network.engine.mock.SEARCH_STUDIO_RESULT_PAGE_DATA
@@ -134,6 +136,14 @@ val MockHttpClientEngine =
 
                             STUDIO_DETAIL_QUERY_SCHEMA -> {
                                 respondString(DETAIL_STUDIO_DATA)
+                            }
+
+                            NOTIFICATION_PAGE_QUERY_SCHEMA -> {
+                                if (!hasToken) {
+                                    respondUnAuthed()
+                                } else {
+                                    respondString(NOTIFICATION_DATA)
+                                }
                             }
 
                             else -> error("Not supported query: $query")

@@ -130,6 +130,14 @@ public data class ListActivity(
     public val media: Media? = null,
 ) : ActivityUnion
 
+@Serializable
+public data class MessageActivity(
+    /**
+     * The id of the activity
+     */
+    public val id: Int,
+)
+
 private object ActivitySerializer : KSerializer<ActivityUnion> {
     override val descriptor: SerialDescriptor =
         buildClassSerialDescriptor("activity") {

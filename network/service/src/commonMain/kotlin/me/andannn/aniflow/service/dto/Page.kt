@@ -74,6 +74,7 @@ internal class PageSerializer : KSerializer<Page<*>> {
                 "characters" to Character.serializer(),
                 "studios" to Studio.serializer(),
                 "activities" to ActivityUnion.serializer(),
+                "notifications" to NotificationUnion.serializer(),
             )
     }
 }

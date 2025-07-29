@@ -35,6 +35,7 @@ import me.andannn.aniflow.service.dto.DataWrapper
 import me.andannn.aniflow.service.dto.Media
 import me.andannn.aniflow.service.dto.MediaDetailResponse
 import me.andannn.aniflow.service.dto.MediaList
+import me.andannn.aniflow.service.dto.NotificationUnion
 import me.andannn.aniflow.service.dto.Page
 import me.andannn.aniflow.service.dto.Staff
 import me.andannn.aniflow.service.dto.StaffConnection
@@ -47,6 +48,7 @@ import me.andannn.aniflow.service.dto.enums.MediaSeason
 import me.andannn.aniflow.service.dto.enums.MediaSort
 import me.andannn.aniflow.service.dto.enums.MediaStatus
 import me.andannn.aniflow.service.dto.enums.MediaType
+import me.andannn.aniflow.service.dto.enums.NotificationType
 import me.andannn.aniflow.service.dto.enums.ScoreFormat
 import me.andannn.aniflow.service.dto.enums.StaffLanguage
 import me.andannn.aniflow.service.request.ActivityPageScheduleQuery
@@ -61,6 +63,7 @@ import me.andannn.aniflow.service.request.GraphQLQuery
 import me.andannn.aniflow.service.request.MediaListPageQuery
 import me.andannn.aniflow.service.request.MediaListQuery
 import me.andannn.aniflow.service.request.MediaPageQuery
+import me.andannn.aniflow.service.request.NotificationQuery
 import me.andannn.aniflow.service.request.SearchCharacterQuery
 import me.andannn.aniflow.service.request.SearchMediaQuery
 import me.andannn.aniflow.service.request.SearchStaffQuery
@@ -471,6 +474,13 @@ class AniListService(
                 ),
         )
 
+    /**
+     * Fetches detailed information about a media item by its ID.
+     *
+     * @param id The ID of the media item to fetch details for.
+     * @param mediaConnectionPage The page number for media connections (optional).
+     * @param mediaConnectionPerPage The number of media connections per page (optional).
+     */
     suspend fun getCharacterDetail(
         id: Int,
         mediaConnectionPage: Int? = null,
@@ -529,6 +539,30 @@ class AniListService(
                     mediaConnectionPerPage = mediaConnectionPerPage,
                 ),
         ).studio
+
+    /**
+     * Fetches a paginated list of notifications for the authenticated user.
+     *
+     * @param page The page number to fetch (default is 1).
+     * @param perPage The number of items per page (default is 10).
+     * @param notificationTypeIn A list of notification types to filter by (optional).
+     * @param resetNotificationCount Whether to reset the notification count (default is false).
+     */
+    suspend fun getNotificationPage(
+        page: Int,
+        perPage: Int,
+        notificationTypeIn: List<NotificationType> = emptyList(),
+        resetNotificationCount: Boolean = false,
+    ): Page<NotificationUnion>? =
+        doGraphQlQuery(
+            query =
+                NotificationQuery(
+                    page = page,
+                    perPage = perPage,
+                    notificationTypeIn = notificationTypeIn,
+                    resetNotificationCount = resetNotificationCount,
+                ),
+        ).page
 
     private suspend inline fun <reified T : GraphQLQuery<DataWrapper<U>>, reified U> doGraphQlQuery(query: T): U =
         try {

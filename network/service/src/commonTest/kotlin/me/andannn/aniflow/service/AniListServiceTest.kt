@@ -13,6 +13,7 @@ import me.andannn.aniflow.service.dto.CharactersConnection
 import me.andannn.aniflow.service.dto.Media
 import me.andannn.aniflow.service.dto.MediaDetailResponse
 import me.andannn.aniflow.service.dto.MediaList
+import me.andannn.aniflow.service.dto.NotificationUnion
 import me.andannn.aniflow.service.dto.Page
 import me.andannn.aniflow.service.dto.Staff
 import me.andannn.aniflow.service.dto.StaffConnection
@@ -234,6 +235,17 @@ class AniListServiceTest {
                     studioId = 1,
                 )
             assertIs<Studio>(respond)
+        }
+
+    @Test
+    fun testGetNotificationPage() =
+        testScope.runTest {
+            val respond =
+                serviceWithDummyToken.getNotificationPage(
+                    page = 1,
+                    perPage = 10,
+                )
+            assertIs<Page<NotificationUnion>>(respond)
         }
 }
 
