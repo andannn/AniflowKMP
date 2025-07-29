@@ -10,6 +10,7 @@ import me.andannn.aniflow.service.dto.CharactersConnection
 import me.andannn.aniflow.service.dto.Media
 import me.andannn.aniflow.service.dto.MediaDetailResponse
 import me.andannn.aniflow.service.dto.PageWrapper
+import me.andannn.aniflow.service.dto.StaffConnection
 import me.andannn.aniflow.service.dto.UpdateUserRespond
 import me.andannn.aniflow.service.dto.enums.StaffLanguage
 import me.andannn.network.engine.MockHttpClientEngine
@@ -74,6 +75,18 @@ class AniListServiceTest {
                     staffLanguage = StaffLanguage.ENGLISH,
                 )
             assertIs<CharactersConnection>(respond)
+        }
+
+    @Test
+    fun testGetStaffPage() =
+        testScope.runTest {
+            val respond =
+                serviceWithNoToken.getStaffPagesOfMedia(
+                    mediaId = 1,
+                    page = 1,
+                    perPage = 10,
+                )
+            assertIs<StaffConnection>(respond)
         }
 }
 

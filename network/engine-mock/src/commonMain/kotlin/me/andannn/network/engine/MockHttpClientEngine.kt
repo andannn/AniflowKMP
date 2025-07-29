@@ -16,10 +16,12 @@ import me.andannn.network.common.GraphQLBody
 import me.andannn.network.common.schemas.CHARACTER_PAGE_QUERY_SCHEMA
 import me.andannn.network.common.schemas.MEDIA_DETAIL_QUERY_SCHEMA
 import me.andannn.network.common.schemas.MEDIA_PAGE_QUERY_SCHEMA
+import me.andannn.network.common.schemas.STAFF_PAGE_QUERY_SCHEMA
 import me.andannn.network.common.schemas.USER_DATA_MUTATION_SCHEMA
 import me.andannn.network.engine.mock.CHARACTER_PAGE_DATA
 import me.andannn.network.engine.mock.DETAIL_ANIME_DATA
 import me.andannn.network.engine.mock.MEDIA_PAGE_DATA
+import me.andannn.network.engine.mock.STAFF_PAGE_DATA
 import me.andannn.network.engine.mock.UNAUTHORIZED_ERROR
 import me.andannn.network.engine.mock.USER_DATA
 
@@ -33,14 +35,13 @@ val MockHttpClientEngine =
                 }?.let { body ->
                     body as TextContent
                     Json.decodeFromString<GraphQLBody>(body.text).let { query ->
+                        println(query)
                         when (query.query) {
                             MEDIA_DETAIL_QUERY_SCHEMA -> {
-                                println("MediaDetailQuerySchema")
                                 respondString(DETAIL_ANIME_DATA)
                             }
 
                             USER_DATA_MUTATION_SCHEMA -> {
-                                println("UserDataMutationSchema")
                                 if (hasToken) {
                                     respondString(USER_DATA)
                                 } else {
@@ -49,12 +50,15 @@ val MockHttpClientEngine =
                             }
 
                             MEDIA_PAGE_QUERY_SCHEMA -> {
-                                println("MediaPageQuerySchema")
                                 respondString(MEDIA_PAGE_DATA)
                             }
 
                             CHARACTER_PAGE_QUERY_SCHEMA -> {
                                 respondString(CHARACTER_PAGE_DATA)
+                            }
+
+                            STAFF_PAGE_QUERY_SCHEMA -> {
+                                respondString(STAFF_PAGE_DATA)
                             }
 
                             else -> error("Not supported query: $query")
