@@ -19,6 +19,7 @@ import me.andannn.network.common.schemas.MEDIA_DETAIL_QUERY_SCHEMA
 import me.andannn.network.common.schemas.MEDIA_LIST_PAGE_QUERY_SCHEMA
 import me.andannn.network.common.schemas.MEDIA_LIST_QUERY_SCHEMA
 import me.andannn.network.common.schemas.MEDIA_PAGE_QUERY_SCHEMA
+import me.andannn.network.common.schemas.SEARCH_CHARACTER_QUERY_SCHEMA
 import me.andannn.network.common.schemas.SEARCH_MEDIA_QUERY_SCHEMA
 import me.andannn.network.common.schemas.STAFF_PAGE_QUERY_SCHEMA
 import me.andannn.network.common.schemas.USER_DATA_MUTATION_SCHEMA
@@ -28,6 +29,7 @@ import me.andannn.network.engine.mock.DETAIL_ANIME_DATA
 import me.andannn.network.engine.mock.MEDIA_LIST_ITEM_DATA
 import me.andannn.network.engine.mock.MEDIA_LIST_PAGE_DATA
 import me.andannn.network.engine.mock.MEDIA_PAGE_DATA
+import me.andannn.network.engine.mock.SEARCH_CHARACTER_RESULT_PAGE_DATA
 import me.andannn.network.engine.mock.SEARCH_MEDIA_RESULT_PAGE_DATA
 import me.andannn.network.engine.mock.STAFF_PAGE_DATA
 import me.andannn.network.engine.mock.UNAUTHORIZED_ERROR
@@ -83,6 +85,10 @@ val MockHttpClientEngine =
 
                             SEARCH_MEDIA_QUERY_SCHEMA -> {
                                 respondString(SEARCH_MEDIA_RESULT_PAGE_DATA)
+                            }
+
+                            SEARCH_CHARACTER_QUERY_SCHEMA -> {
+                                respondString(SEARCH_CHARACTER_RESULT_PAGE_DATA)
                             }
 
                             else -> error("Not supported query: $query")

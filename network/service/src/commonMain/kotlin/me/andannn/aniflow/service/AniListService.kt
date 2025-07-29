@@ -28,6 +28,7 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import me.andannn.aniflow.service.dto.AiringSchedule
 import me.andannn.aniflow.service.dto.AniListErrorResponse
+import me.andannn.aniflow.service.dto.Character
 import me.andannn.aniflow.service.dto.CharactersConnection
 import me.andannn.aniflow.service.dto.DataWrapper
 import me.andannn.aniflow.service.dto.Media
@@ -52,6 +53,7 @@ import me.andannn.aniflow.service.request.GraphQLQuery
 import me.andannn.aniflow.service.request.MediaListPageQuery
 import me.andannn.aniflow.service.request.MediaListQuery
 import me.andannn.aniflow.service.request.MediaPageQuery
+import me.andannn.aniflow.service.request.SearchCharacterQuery
 import me.andannn.aniflow.service.request.SearchMediaQuery
 import me.andannn.aniflow.service.request.StaffPageQuery
 import me.andannn.aniflow.service.request.toQueryBody
@@ -312,6 +314,15 @@ class AniListService(
                 ),
         ).page
 
+    /**
+     * Searches for media based on a keyword and various filters.
+     *
+     * @param page The page number to fetch (default is 1).
+     * @param perPage The number of items per page (default is 10).
+     * @param keyword The keyword to search for in media titles.
+     * @param type The type of media to filter by.
+     * @param isAdult Whether to include adult content in the search results.
+     */
     suspend fun searchMedia(
         page: Int,
         perPage: Int,
@@ -327,6 +338,27 @@ class AniListService(
                     keyword = keyword,
                     type = type,
                     isAdult = isAdult,
+                ),
+        ).page
+
+    /**
+     * Searches for characters based on a keyword.
+     *
+     * @param page The page number to fetch (default is 1).
+     * @param perPage The number of items per page (default is 10).
+     * @param keyword The keyword to search for in character names.
+     */
+    suspend fun searchCharacter(
+        page: Int,
+        perPage: Int,
+        keyword: String,
+    ): Page<Character> =
+        doGraphQlQuery(
+            query =
+                SearchCharacterQuery(
+                    page = page,
+                    perPage = perPage,
+                    keyword = keyword,
                 ),
         ).page
 

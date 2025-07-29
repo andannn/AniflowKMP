@@ -4,7 +4,7 @@
  */
 package me.andannn.network.engine.mock
 
-const val SEARCH_MEDIA_RESULT_PAGE_DATA = """
+const val SEARCH_CHARACTER_RESULT_PAGE_DATA = """
 {
   "data": {
     "Page": {
@@ -15,245 +15,145 @@ const val SEARCH_MEDIA_RESULT_PAGE_DATA = """
         "lastPage": 500,
         "hasNextPage": true
       },
-      "media": [
+      "characters": [
         {
           "id": 1,
-          "type": "ANIME",
-          "format": "TV",
-          "status": "FINISHED",
-          "season": "SPRING",
-          "seasonYear": 1998,
-          "startDate": {
-            "year": 1998,
-            "month": 4,
-            "day": 3
+          "image": {
+            "large": "https://s4.anilist.co/file/anilistcdn/character/large/b1-ChxaldmieFlQ.png",
+            "medium": "https://s4.anilist.co/file/anilistcdn/character/medium/b1-ChxaldmieFlQ.png"
           },
-          "coverImage": {
-            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx1-GCsPm7waJ4kS.png",
-            "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx1-GCsPm7waJ4kS.png",
-            "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx1-GCsPm7waJ4kS.png",
-            "color": "#f16b50"
+          "name": {
+            "first": "Spike",
+            "middle": null,
+            "last": "Spiegel",
+            "full": "Spike Spiegel",
+            "native": "スパイク・スピーゲル"
+          }
+        },
+        {
+          "id": 2,
+          "image": {
+            "large": "https://s4.anilist.co/file/anilistcdn/character/large/b2-0Iszg6Izgt4p.png",
+            "medium": "https://s4.anilist.co/file/anilistcdn/character/medium/b2-0Iszg6Izgt4p.png"
           },
-          "title": {
-            "romaji": "Cowboy Bebop",
-            "english": "Cowboy Bebop",
-            "native": "カウボーイビバップ"
+          "name": {
+            "first": "Faye",
+            "middle": null,
+            "last": "Valentine",
+            "full": "Faye Valentine",
+            "native": "フェイ・バレンタイン"
+          }
+        },
+        {
+          "id": 3,
+          "image": {
+            "large": "https://s4.anilist.co/file/anilistcdn/character/large/b3-JjH9Si9UM1NZ.png",
+            "medium": "https://s4.anilist.co/file/anilistcdn/character/medium/b3-JjH9Si9UM1NZ.png"
+          },
+          "name": {
+            "first": "Jet",
+            "middle": null,
+            "last": "Black",
+            "full": "Jet Black",
+            "native": "ジェット・ブラック"
+          }
+        },
+        {
+          "id": 4,
+          "image": {
+            "large": "https://s4.anilist.co/file/anilistcdn/character/large/4.jpg",
+            "medium": "https://s4.anilist.co/file/anilistcdn/character/medium/4.jpg"
+          },
+          "name": {
+            "first": "Ein",
+            "middle": null,
+            "last": null,
+            "full": "Ein",
+            "native": "アイン"
           }
         },
         {
           "id": 5,
-          "type": "ANIME",
-          "format": "MOVIE",
-          "status": "FINISHED",
-          "season": "SUMMER",
-          "seasonYear": 2001,
-          "startDate": {
-            "year": 2001,
-            "month": 9,
-            "day": 1
+          "image": {
+            "large": "https://s4.anilist.co/file/anilistcdn/character/large/b5-a7bkJgjhhigE.png",
+            "medium": "https://s4.anilist.co/file/anilistcdn/character/medium/b5-a7bkJgjhhigE.png"
           },
-          "coverImage": {
-            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx5-NozHwXWdNLCz.jpg",
-            "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx5-NozHwXWdNLCz.jpg",
-            "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx5-NozHwXWdNLCz.jpg",
-            "color": "#f13500"
-          },
-          "title": {
-            "romaji": "Cowboy Bebop: Tengoku no Tobira",
-            "english": "Cowboy Bebop: The Movie - Knockin' on Heaven's Door",
-            "native": "カウボーイビバップ天国の扉"
+          "name": {
+            "first": "Ichigo",
+            "middle": null,
+            "last": "Kurosaki",
+            "full": "Ichigo Kurosaki",
+            "native": "黒崎一護"
           }
         },
         {
           "id": 6,
-          "type": "ANIME",
-          "format": "TV",
-          "status": "FINISHED",
-          "season": "SPRING",
-          "seasonYear": 1998,
-          "startDate": {
-            "year": 1998,
-            "month": 4,
-            "day": 1
+          "image": {
+            "large": "https://s4.anilist.co/file/anilistcdn/character/large/b6-25WoBeWMZXBc.png",
+            "medium": "https://s4.anilist.co/file/anilistcdn/character/medium/b6-25WoBeWMZXBc.png"
           },
-          "coverImage": {
-            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx6-wd4saT1JzStH.jpg",
-            "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx6-wd4saT1JzStH.jpg",
-            "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx6-wd4saT1JzStH.jpg",
-            "color": "#356bae"
-          },
-          "title": {
-            "romaji": "TRIGUN",
-            "english": "Trigun",
-            "native": "TRIGUN"
+          "name": {
+            "first": "Rukia",
+            "middle": null,
+            "last": "Kuchiki",
+            "full": "Rukia Kuchiki",
+            "native": "朽木ルキア"
           }
         },
         {
           "id": 7,
-          "type": "ANIME",
-          "format": "TV",
-          "status": "FINISHED",
-          "season": "SUMMER",
-          "seasonYear": 2002,
-          "startDate": {
-            "year": 2002,
-            "month": 7,
-            "day": 2
+          "image": {
+            "large": "https://s4.anilist.co/file/anilistcdn/character/large/b7-JdR4betokDjR.jpg",
+            "medium": "https://s4.anilist.co/file/anilistcdn/character/medium/b7-JdR4betokDjR.jpg"
           },
-          "coverImage": {
-            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx7-6uh1fPvbgS9t.png",
-            "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx7-6uh1fPvbgS9t.png",
-            "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx7-6uh1fPvbgS9t.png",
-            "color": "#e4935d"
-          },
-          "title": {
-            "romaji": "Witch Hunter ROBIN",
-            "english": "Witch Hunter ROBIN",
-            "native": "Witch Hunter ROBIN"
+          "name": {
+            "first": "Orihime",
+            "middle": null,
+            "last": "Inoue",
+            "full": "Orihime Inoue",
+            "native": "井上織姫"
           }
         },
         {
-          "id": 8,
-          "type": "ANIME",
-          "format": "TV",
-          "status": "FINISHED",
-          "season": "FALL",
-          "seasonYear": 2004,
-          "startDate": {
-            "year": 2004,
-            "month": 9,
-            "day": 30
+          "id": 11,
+          "image": {
+            "large": "https://s4.anilist.co/file/anilistcdn/character/large/b11-TA5Nuk7EDUZG.jpg",
+            "medium": "https://s4.anilist.co/file/anilistcdn/character/medium/b11-TA5Nuk7EDUZG.jpg"
           },
-          "coverImage": {
-            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/b8-ReS3TwSgrDDi.jpg",
-            "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/b8-ReS3TwSgrDDi.jpg",
-            "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/b8-ReS3TwSgrDDi.jpg",
-            "color": "#e46b50"
-          },
-          "title": {
-            "romaji": "Bouken Ou Beet",
-            "english": "Beet the Vandel Buster",
-            "native": "冒険王ビィト"
+          "name": {
+            "first": "Edward",
+            "middle": null,
+            "last": "Elric",
+            "full": "Edward Elric",
+            "native": "エドワード・エルリック"
           }
         },
         {
-          "id": 15,
-          "type": "ANIME",
-          "format": "TV",
-          "status": "FINISHED",
-          "season": "SPRING",
-          "seasonYear": 2005,
-          "startDate": {
-            "year": 2005,
-            "month": 4,
-            "day": 6
+          "id": 12,
+          "image": {
+            "large": "https://s4.anilist.co/file/anilistcdn/character/large/b12-tCKu8yK5kFL5.jpg",
+            "medium": "https://s4.anilist.co/file/anilistcdn/character/medium/b12-tCKu8yK5kFL5.jpg"
           },
-          "coverImage": {
-            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx15-A4F2t0TgWoi4.png",
-            "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx15-A4F2t0TgWoi4.png",
-            "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx15-A4F2t0TgWoi4.png",
-            "color": "#d6bb1a"
-          },
-          "title": {
-            "romaji": "Eyeshield 21",
-            "english": "Eyeshield 21",
-            "native": "アイシールド21"
+          "name": {
+            "first": "Alphonse",
+            "middle": null,
+            "last": "Elric",
+            "full": "Alphonse Elric",
+            "native": "アルフォンス・エルリック"
           }
         },
         {
-          "id": 16,
-          "type": "ANIME",
-          "format": "TV",
-          "status": "FINISHED",
-          "season": "SPRING",
-          "seasonYear": 2005,
-          "startDate": {
-            "year": 2005,
-            "month": 4,
-            "day": 15
+          "id": 13,
+          "image": {
+            "large": "https://s4.anilist.co/file/anilistcdn/character/large/b13-SISLEw1oAD7a.png",
+            "medium": "https://s4.anilist.co/file/anilistcdn/character/medium/b13-SISLEw1oAD7a.png"
           },
-          "coverImage": {
-            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx16-S9k8qahNXoYP.jpg",
-            "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx16-S9k8qahNXoYP.jpg",
-            "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx16-S9k8qahNXoYP.jpg",
-            "color": "#aee486"
-          },
-          "title": {
-            "romaji": "Hachimitsu to Clover",
-            "english": "Honey and Clover",
-            "native": "ハチミツとクローバー"
-          }
-        },
-        {
-          "id": 17,
-          "type": "ANIME",
-          "format": "TV",
-          "status": "FINISHED",
-          "season": "FALL",
-          "seasonYear": 2002,
-          "startDate": {
-            "year": 2002,
-            "month": 9,
-            "day": 11
-          },
-          "coverImage": {
-            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx17-6kqIbdUk3dgi.png",
-            "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx17-6kqIbdUk3dgi.png",
-            "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx17-6kqIbdUk3dgi.png",
-            "color": "#43aee4"
-          },
-          "title": {
-            "romaji": "Hungry Heart: Wild Striker",
-            "english": null,
-            "native": "ハングリーハート Wild Striker"
-          }
-        },
-        {
-          "id": 18,
-          "type": "ANIME",
-          "format": "TV",
-          "status": "FINISHED",
-          "season": "SPRING",
-          "seasonYear": 2004,
-          "startDate": {
-            "year": 2004,
-            "month": 4,
-            "day": 17
-          },
-          "coverImage": {
-            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/b18-r7IirVmwP89u.jpg",
-            "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/b18-r7IirVmwP89u.jpg",
-            "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/b18-r7IirVmwP89u.jpg",
-            "color": "#e46b50"
-          },
-          "title": {
-            "romaji": "Initial D FOURTH STAGE",
-            "english": "Initial D 4th Stage",
-            "native": "頭文字〈イニシャル〉D FOURTH STAGE"
-          }
-        },
-        {
-          "id": 19,
-          "type": "ANIME",
-          "format": "TV",
-          "status": "FINISHED",
-          "season": "SPRING",
-          "seasonYear": 2004,
-          "startDate": {
-            "year": 2004,
-            "month": 4,
-            "day": 7
-          },
-          "coverImage": {
-            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx19-gtMC64182sm4.jpg",
-            "large": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx19-gtMC64182sm4.jpg",
-            "medium": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx19-gtMC64182sm4.jpg",
-            "color": null
-          },
-          "title": {
-            "romaji": "MONSTER",
-            "english": "Monster",
-            "native": "MONSTER"
+          "name": {
+            "first": "Sasuke",
+            "middle": null,
+            "last": "Uchiha",
+            "full": "Sasuke Uchiha",
+            "native": "うちはサスケ"
           }
         }
       ]

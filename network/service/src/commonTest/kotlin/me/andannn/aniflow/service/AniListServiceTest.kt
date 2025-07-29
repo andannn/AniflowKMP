@@ -7,12 +7,12 @@ package me.andannn.aniflow.service
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import me.andannn.aniflow.service.dto.AiringSchedule
+import me.andannn.aniflow.service.dto.Character
 import me.andannn.aniflow.service.dto.CharactersConnection
 import me.andannn.aniflow.service.dto.Media
 import me.andannn.aniflow.service.dto.MediaDetailResponse
 import me.andannn.aniflow.service.dto.MediaList
 import me.andannn.aniflow.service.dto.Page
-import me.andannn.aniflow.service.dto.PageWrapper
 import me.andannn.aniflow.service.dto.StaffConnection
 import me.andannn.aniflow.service.dto.UpdateUserRespond
 import me.andannn.aniflow.service.dto.enums.MediaType
@@ -51,7 +51,7 @@ class AniListServiceTest {
                     page = 1,
                     perPage = 10,
                 )
-            assertIs<PageWrapper<Media>>(respond)
+            assertIs<Page<Media>>(respond)
         }
 
     @Test
@@ -118,7 +118,7 @@ class AniListServiceTest {
                     type = MediaType.ANIME,
                     format = ScoreFormat.POINT_10_DECIMAL,
                 )
-            assertIs<PageWrapper<MediaList>>(respond)
+            assertIs<Page<MediaList>>(respond)
         }
 
     @Test
@@ -131,7 +131,7 @@ class AniListServiceTest {
                     airingAtGreater = 0,
                     airingAtLesser = 1000000,
                 )
-            assertIs<PageWrapper<AiringSchedule>>(respond)
+            assertIs<Page<AiringSchedule>>(respond)
         }
 
     @Test
@@ -146,6 +146,18 @@ class AniListServiceTest {
                     isAdult = false,
                 )
             assertIs<Page<Media>>(respond)
+        }
+
+    @Test
+    fun testGetCharacterSearchPage() =
+        testScope.runTest {
+            val respond =
+                serviceWithNoToken.searchCharacter(
+                    page = 1,
+                    perPage = 10,
+                    keyword = "test",
+                )
+            assertIs<Page<Character>>(respond)
         }
 }
 
