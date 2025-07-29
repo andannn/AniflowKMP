@@ -25,6 +25,7 @@ import me.andannn.network.common.schemas.SEARCH_MEDIA_QUERY_SCHEMA
 import me.andannn.network.common.schemas.SEARCH_STAFF_QUERY_SCHEMA
 import me.andannn.network.common.schemas.SEARCH_STUDIO_QUERY_SCHEMA
 import me.andannn.network.common.schemas.STAFF_PAGE_QUERY_SCHEMA
+import me.andannn.network.common.schemas.TOGGLE_FAVORITE_MUTATION_SCHEMA
 import me.andannn.network.common.schemas.USER_DATA_MUTATION_SCHEMA
 import me.andannn.network.engine.mock.ACTIVITY_PAGE_DATA
 import me.andannn.network.engine.mock.AIRING_SCHEDULE_PAGE_DATA
@@ -37,6 +38,7 @@ import me.andannn.network.engine.mock.SEARCH_CHARACTER_RESULT_PAGE_DATA
 import me.andannn.network.engine.mock.SEARCH_MEDIA_RESULT_PAGE_DATA
 import me.andannn.network.engine.mock.SEARCH_STUDIO_RESULT_PAGE_DATA
 import me.andannn.network.engine.mock.STAFF_PAGE_DATA
+import me.andannn.network.engine.mock.TOGGLE_FAVORITE_RESULT
 import me.andannn.network.engine.mock.UNAUTHORIZED_ERROR
 import me.andannn.network.engine.mock.USER_DATA
 
@@ -106,6 +108,14 @@ val MockHttpClientEngine =
 
                             ACTIVITY_PAGE_QUERY_SCHEMA -> {
                                 respondString(ACTIVITY_PAGE_DATA)
+                            }
+
+                            TOGGLE_FAVORITE_MUTATION_SCHEMA -> {
+                                if (!hasToken) {
+                                    respondUnAuthed()
+                                } else {
+                                    respondString(TOGGLE_FAVORITE_RESULT)
+                                }
                             }
 
                             else -> error("Not supported query: $query")

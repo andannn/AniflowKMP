@@ -63,6 +63,7 @@ import me.andannn.aniflow.service.request.SearchMediaQuery
 import me.andannn.aniflow.service.request.SearchStaffQuery
 import me.andannn.aniflow.service.request.SearchStudioQuery
 import me.andannn.aniflow.service.request.StaffPageQuery
+import me.andannn.aniflow.service.request.ToggleFavoriteMutation
 import me.andannn.aniflow.service.request.toQueryBody
 
 open class AniListServiceException(
@@ -438,6 +439,34 @@ class AniListService(
                     hasRepliesOrTypeText = hasRepliesOrTypeText,
                 ),
         ).page
+
+    /**
+     * Toggles the favorite status of a media item, manga, character, staff, or studio.
+     *
+     * This method allows you to add or remove an item from the user's favorites.
+     * @param mediaId The ID of the media item to toggle (optional).
+     * @param mangaId The ID of the manga to toggle (optional).
+     * @param characterId The ID of the character to toggle (optional).
+     * @param staffId The ID of the staff member to toggle (optional).
+     * @param studioId The ID of the studio to toggle (optional).
+     */
+    suspend fun toggleFavorite(
+        mediaId: Int? = null,
+        mangaId: Int? = null,
+        characterId: Int? = null,
+        staffId: Int? = null,
+        studioId: Int? = null,
+    ): Unit =
+        doGraphQlQuery(
+            query =
+                ToggleFavoriteMutation(
+                    mediaId = mediaId,
+                    mangaId = mangaId,
+                    characterId = characterId,
+                    staffId = staffId,
+                    studioId = studioId,
+                ),
+        )
 
     private suspend inline fun <reified T : GraphQLQuery<DataWrapper<U>>, reified U> doGraphQlQuery(query: T): U =
         try {

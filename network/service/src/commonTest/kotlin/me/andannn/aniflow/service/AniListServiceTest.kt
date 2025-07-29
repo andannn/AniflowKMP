@@ -197,6 +197,14 @@ class AniListServiceTest {
                 )
             assertIs<Page<ActivityUnion>>(respond)
         }
+
+    @Test
+    fun testToggleFavorite() =
+        testScope.runTest {
+            val respond =
+                serviceWithDummyToken.toggleFavorite()
+            println(respond)
+        }
 }
 
 private val NoneTokenProvider =
