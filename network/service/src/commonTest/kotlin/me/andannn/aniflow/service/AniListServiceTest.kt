@@ -13,6 +13,7 @@ import me.andannn.aniflow.service.dto.Media
 import me.andannn.aniflow.service.dto.MediaDetailResponse
 import me.andannn.aniflow.service.dto.MediaList
 import me.andannn.aniflow.service.dto.Page
+import me.andannn.aniflow.service.dto.Staff
 import me.andannn.aniflow.service.dto.StaffConnection
 import me.andannn.aniflow.service.dto.Studio
 import me.andannn.aniflow.service.dto.UpdateUserRespond
@@ -171,6 +172,18 @@ class AniListServiceTest {
                     keyword = "test",
                 )
             assertIs<Page<Studio>>(respond)
+        }
+
+    @Test
+    fun testGetStaffDetail() =
+        testScope.runTest {
+            val respond =
+                serviceWithNoToken.searchStaff(
+                    page = 1,
+                    perPage = 10,
+                    keyword = "test",
+                )
+            assertIs<Page<Staff>>(respond)
         }
 }
 

@@ -21,6 +21,7 @@ import me.andannn.network.common.schemas.MEDIA_LIST_QUERY_SCHEMA
 import me.andannn.network.common.schemas.MEDIA_PAGE_QUERY_SCHEMA
 import me.andannn.network.common.schemas.SEARCH_CHARACTER_QUERY_SCHEMA
 import me.andannn.network.common.schemas.SEARCH_MEDIA_QUERY_SCHEMA
+import me.andannn.network.common.schemas.SEARCH_STAFF_QUERY_SCHEMA
 import me.andannn.network.common.schemas.SEARCH_STUDIO_QUERY_SCHEMA
 import me.andannn.network.common.schemas.STAFF_PAGE_QUERY_SCHEMA
 import me.andannn.network.common.schemas.USER_DATA_MUTATION_SCHEMA
@@ -94,6 +95,10 @@ val MockHttpClientEngine =
                             }
 
                             SEARCH_STUDIO_QUERY_SCHEMA -> {
+                                respondString(SEARCH_STUDIO_RESULT_PAGE_DATA)
+                            }
+
+                            SEARCH_STAFF_QUERY_SCHEMA -> {
                                 respondString(SEARCH_STUDIO_RESULT_PAGE_DATA)
                             }
 

@@ -35,6 +35,7 @@ import me.andannn.aniflow.service.dto.Media
 import me.andannn.aniflow.service.dto.MediaDetailResponse
 import me.andannn.aniflow.service.dto.MediaList
 import me.andannn.aniflow.service.dto.Page
+import me.andannn.aniflow.service.dto.Staff
 import me.andannn.aniflow.service.dto.StaffConnection
 import me.andannn.aniflow.service.dto.Studio
 import me.andannn.aniflow.service.dto.UpdateUserRespond
@@ -56,6 +57,7 @@ import me.andannn.aniflow.service.request.MediaListQuery
 import me.andannn.aniflow.service.request.MediaPageQuery
 import me.andannn.aniflow.service.request.SearchCharacterQuery
 import me.andannn.aniflow.service.request.SearchMediaQuery
+import me.andannn.aniflow.service.request.SearchStaffQuery
 import me.andannn.aniflow.service.request.SearchStudioQuery
 import me.andannn.aniflow.service.request.StaffPageQuery
 import me.andannn.aniflow.service.request.toQueryBody
@@ -379,6 +381,27 @@ class AniListService(
         doGraphQlQuery(
             query =
                 SearchStudioQuery(
+                    page = page,
+                    perPage = perPage,
+                    keyword = keyword,
+                ),
+        ).page
+
+    /**
+     * Searches for studios based on a keyword.
+     *
+     * @param page The page number to fetch (default is 1).
+     * @param perPage The number of items per page (default is 10).
+     * @param keyword The keyword to search for in studio names.
+     */
+    suspend fun searchStaff(
+        page: Int,
+        perPage: Int,
+        keyword: String,
+    ): Page<Staff> =
+        doGraphQlQuery(
+            query =
+                SearchStaffQuery(
                     page = page,
                     perPage = perPage,
                     keyword = keyword,
