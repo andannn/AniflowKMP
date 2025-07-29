@@ -205,6 +205,16 @@ class AniListServiceTest {
                 serviceWithDummyToken.toggleFavorite()
             println(respond)
         }
+
+    @Test
+    fun testGetCharacterDetail() =
+        testScope.runTest {
+            val respond =
+                serviceWithNoToken.getCharacterDetail(
+                    id = 1,
+                )
+            assertIs<Character>(respond)
+        }
 }
 
 private val NoneTokenProvider =

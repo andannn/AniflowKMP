@@ -13,13 +13,50 @@ public data class Character(
      */
     public val id: Int,
     /**
+     * The names of the character
+     */
+    public val name: CharacterName? = null,
+    /**
      * Character images
      */
     public val image: CharacterImage? = null,
     /**
-     * The names of the character
+     * A general description of the character
      */
-    public val name: CharacterName? = null,
+    public val description: String? = null,
+    /**
+     * The character's gender. Usually Male, Female, or Non-binary but can be any string.
+     */
+    public val gender: String? = null,
+    /**
+     * The character's birth date
+     */
+    public val dateOfBirth: FuzzyDate? = null,
+    /**
+     * The character's age. Note this is a string, not an int, it may contain further text and
+     * additional ages.
+     */
+    public val age: String? = null,
+    /**
+     * The characters blood type
+     */
+    public val bloodType: String? = null,
+    /**
+     * If the character is marked as favourite by the currently authenticated user
+     */
+    public val isFavourite: Boolean,
+    /**
+     * The url for the character page on the AniList website
+     */
+    public val siteUrl: String? = null,
+    /**
+     * The amount of user's who have favourited the character
+     */
+    public val favourites: Int? = null,
+    /**
+     * Media that includes the character
+     */
+    public val media: MediaConnection? = null,
 )
 
 @Serializable

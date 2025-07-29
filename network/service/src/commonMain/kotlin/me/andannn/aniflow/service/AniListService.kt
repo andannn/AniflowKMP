@@ -51,6 +51,7 @@ import me.andannn.aniflow.service.dto.enums.ScoreFormat
 import me.andannn.aniflow.service.dto.enums.StaffLanguage
 import me.andannn.aniflow.service.request.ActivityPageScheduleQuery
 import me.andannn.aniflow.service.request.AiringScheduleQuery
+import me.andannn.aniflow.service.request.CharacterDetailQuery
 import me.andannn.aniflow.service.request.CharacterPageQuery
 import me.andannn.aniflow.service.request.DetailMediaQuery
 import me.andannn.aniflow.service.request.GetUserDataQuery
@@ -467,6 +468,14 @@ class AniListService(
                     studioId = studioId,
                 ),
         )
+
+    suspend fun getCharacterDetail(id: Int): Character? =
+        doGraphQlQuery(
+            query =
+                CharacterDetailQuery(
+                    id = id,
+                ),
+        ).character
 
     private suspend inline fun <reified T : GraphQLQuery<DataWrapper<U>>, reified U> doGraphQlQuery(query: T): U =
         try {
