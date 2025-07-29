@@ -225,6 +225,16 @@ class AniListServiceTest {
                 )
             assertIs<Staff>(respond)
         }
+
+    @Test
+    fun testGetStudioDetail() =
+        testScope.runTest {
+            val respond =
+                serviceWithNoToken.getStudioDetail(
+                    studioId = 1,
+                )
+            assertIs<Studio>(respond)
+        }
 }
 
 private val NoneTokenProvider =

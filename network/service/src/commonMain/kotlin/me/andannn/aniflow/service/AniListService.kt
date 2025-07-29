@@ -55,6 +55,7 @@ import me.andannn.aniflow.service.request.CharacterDetailQuery
 import me.andannn.aniflow.service.request.CharacterPageQuery
 import me.andannn.aniflow.service.request.DetailMediaQuery
 import me.andannn.aniflow.service.request.DetailStaffQuery
+import me.andannn.aniflow.service.request.DetailStudioQuery
 import me.andannn.aniflow.service.request.GetUserDataQuery
 import me.andannn.aniflow.service.request.GraphQLQuery
 import me.andannn.aniflow.service.request.MediaListPageQuery
@@ -507,6 +508,27 @@ class AniListService(
                     mediaSort = mediaSort,
                 ),
         ).staff
+
+    /**
+     * Fetches detailed information about a studio by its ID.
+     *
+     * @param studioId The ID of the studio to fetch details for.
+     * @param mediaConnectionPage The page number for character connections (optional).
+     * @param mediaConnectionPerPage The number of character connections per page (optional).
+     */
+    suspend fun getStudioDetail(
+        studioId: Int,
+        mediaConnectionPage: Int? = null,
+        mediaConnectionPerPage: Int? = null,
+    ): Studio? =
+        doGraphQlQuery(
+            query =
+                DetailStudioQuery(
+                    studioId = studioId,
+                    mediaConnectionPage = mediaConnectionPage,
+                    mediaConnectionPerPage = mediaConnectionPerPage,
+                ),
+        ).studio
 
     private suspend inline fun <reified T : GraphQLQuery<DataWrapper<U>>, reified U> doGraphQlQuery(query: T): U =
         try {
