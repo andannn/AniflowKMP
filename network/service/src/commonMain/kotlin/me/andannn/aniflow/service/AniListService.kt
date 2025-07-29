@@ -26,6 +26,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import me.andannn.aniflow.service.dto.ActivityUnion
 import me.andannn.aniflow.service.dto.AiringSchedule
 import me.andannn.aniflow.service.dto.AniListErrorResponse
 import me.andannn.aniflow.service.dto.Character
@@ -39,6 +40,7 @@ import me.andannn.aniflow.service.dto.Staff
 import me.andannn.aniflow.service.dto.StaffConnection
 import me.andannn.aniflow.service.dto.Studio
 import me.andannn.aniflow.service.dto.UpdateUserRespond
+import me.andannn.aniflow.service.dto.enums.ActivityType
 import me.andannn.aniflow.service.dto.enums.MediaFormat
 import me.andannn.aniflow.service.dto.enums.MediaListStatus
 import me.andannn.aniflow.service.dto.enums.MediaSeason
@@ -47,6 +49,7 @@ import me.andannn.aniflow.service.dto.enums.MediaStatus
 import me.andannn.aniflow.service.dto.enums.MediaType
 import me.andannn.aniflow.service.dto.enums.ScoreFormat
 import me.andannn.aniflow.service.dto.enums.StaffLanguage
+import me.andannn.aniflow.service.request.ActivityPageScheduleQuery
 import me.andannn.aniflow.service.request.AiringScheduleQuery
 import me.andannn.aniflow.service.request.CharacterPageQuery
 import me.andannn.aniflow.service.request.DetailMediaQuery
@@ -405,6 +408,34 @@ class AniListService(
                     page = page,
                     perPage = perPage,
                     keyword = keyword,
+                ),
+        ).page
+
+    /**
+     * Fetches a paginated list of staff members based on various filters.
+     *
+     * @param page The page number to fetch (default is 1).
+     * @param perPage The number of items per page (default is 10).
+     */
+    suspend fun getActivities(
+        page: Int,
+        perPage: Int,
+        isFollowing: Boolean? = null,
+        typeIn: List<ActivityType> = emptyList(),
+        userId: Int? = null,
+        mediaId: Int? = null,
+        hasRepliesOrTypeText: Boolean? = null,
+    ): Page<ActivityUnion> =
+        doGraphQlQuery(
+            query =
+                ActivityPageScheduleQuery(
+                    page = page,
+                    perPage = perPage,
+                    userId = userId,
+                    typeIn = typeIn,
+                    mediaId = mediaId,
+                    isFollowing = isFollowing,
+                    hasRepliesOrTypeText = hasRepliesOrTypeText,
                 ),
         ).page
 

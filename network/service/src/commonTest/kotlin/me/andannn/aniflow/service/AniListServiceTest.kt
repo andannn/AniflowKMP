@@ -6,6 +6,7 @@ package me.andannn.aniflow.service
 
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
+import me.andannn.aniflow.service.dto.ActivityUnion
 import me.andannn.aniflow.service.dto.AiringSchedule
 import me.andannn.aniflow.service.dto.Character
 import me.andannn.aniflow.service.dto.CharactersConnection
@@ -184,6 +185,17 @@ class AniListServiceTest {
                     keyword = "test",
                 )
             assertIs<Page<Staff>>(respond)
+        }
+
+    @Test
+    fun testGetStaffDetailById() =
+        testScope.runTest {
+            val respond =
+                serviceWithNoToken.getActivities(
+                    page = 1,
+                    perPage = 10,
+                )
+            assertIs<Page<ActivityUnion>>(respond)
         }
 }
 

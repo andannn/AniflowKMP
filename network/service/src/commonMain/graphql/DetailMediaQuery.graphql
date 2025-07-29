@@ -1,31 +1,80 @@
-
-query M($page: Int, $perPage: Int, $airingAt_greater: Int, $airingAt_lesser: Int){
+query A($page: Int, $perPage: Int, $userId: Int, $type_in: [ActivityType], $mediaId: Int, $isFollowing: Boolean, $hasRepliesOrTypeText: Boolean) {
     Page(page: $page, perPage: $perPage) {
-        airingSchedules(airingAt_greater: $airingAt_greater, airingAt_lesser: $airingAt_lesser) {
-            id
-            airingAt
-            timeUntilAiring
-            episode
-            mediaId
-            media {
+        activities(userId: $userId, type_in: $type_in, mediaId: $mediaId, isFollowing: $isFollowing, sort: ID_DESC, hasRepliesOrTypeText: $hasRepliesOrTypeText) {
+            __typename
+            ... on TextActivity {
                 id
+                text(asHtml: true)
+                userId
                 type
-                format
-                status
-                seasonYear
-                season
-                source
-                episodes
-                coverImage {
-                    extraLarge
-                    large
-                    medium
-                    color
+                replyCount
+                siteUrl
+                isLocked
+                isLiked
+                likeCount
+                isPinned
+                createdAt
+                user {
+                    id
+                    name
+                    siteUrl
+                    avatar {
+                        large
+                    }
+                    bannerImage
+                    options {
+                        profileColor
+                    }
                 }
-                title {
-                    romaji
-                    english
-                    native
+            }
+            ... on ListActivity {
+                id
+                status
+                progress
+                userId
+                type
+                replyCount
+                siteUrl
+                isLocked
+                isLiked
+                likeCount
+                isPinned
+                createdAt
+                user {
+                    id
+                    name
+                    siteUrl
+                    avatar {
+                        large
+                    }
+                    bannerImage
+                    options {
+                        profileColor
+                    }
+                }
+                media {
+                    id
+                    type
+                    format
+                    status
+                    season
+                    seasonYear
+                    startDate {
+                        year
+                        month
+                        day
+                    }
+                    coverImage {
+                        extraLarge
+                        large
+                        medium
+                        color
+                    }
+                    title {
+                        romaji
+                        english
+                        native
+                    }
                 }
             }
         }
