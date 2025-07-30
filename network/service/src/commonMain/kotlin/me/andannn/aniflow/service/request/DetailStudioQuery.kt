@@ -15,9 +15,9 @@ internal data class DetailStudioQuery(
     @SerialName("id")
     val studioId: Int,
     @SerialName("page")
-    val mediaConnectionPage: Int? = null,
+    val mediaConnectionPage: Int?,
     @SerialName("perPage")
-    val mediaConnectionPerPage: Int? = null,
+    val mediaConnectionPerPage: Int?,
 ) : GraphQLQuery<DataWrapper<StudioDetailResponse>> {
     override fun getSchema() = STUDIO_DETAIL_QUERY_SCHEMA
 }

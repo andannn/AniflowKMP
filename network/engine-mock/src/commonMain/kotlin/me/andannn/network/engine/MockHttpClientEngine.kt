@@ -18,6 +18,7 @@ import me.andannn.network.common.schemas.AIRING_SCHEDULE_QUERY_SCHEMA
 import me.andannn.network.common.schemas.CHARACTER_DETAIL_QUERY_SCHEMA
 import me.andannn.network.common.schemas.CHARACTER_PAGE_QUERY_SCHEMA
 import me.andannn.network.common.schemas.MEDIA_DETAIL_QUERY_SCHEMA
+import me.andannn.network.common.schemas.MEDIA_LIST_MUTATION_SCHEMA
 import me.andannn.network.common.schemas.MEDIA_LIST_PAGE_QUERY_SCHEMA
 import me.andannn.network.common.schemas.MEDIA_LIST_QUERY_SCHEMA
 import me.andannn.network.common.schemas.MEDIA_PAGE_QUERY_SCHEMA
@@ -30,6 +31,7 @@ import me.andannn.network.common.schemas.STAFF_DETAIL_QUERY_SCHEMA
 import me.andannn.network.common.schemas.STAFF_PAGE_QUERY_SCHEMA
 import me.andannn.network.common.schemas.STUDIO_DETAIL_QUERY_SCHEMA
 import me.andannn.network.common.schemas.TOGGLE_FAVORITE_MUTATION_SCHEMA
+import me.andannn.network.common.schemas.UPDATE_USER_SETTING_MUTATION_SCHEMA
 import me.andannn.network.common.schemas.USER_DATA_MUTATION_SCHEMA
 import me.andannn.network.engine.mock.ACTIVITY_PAGE_DATA
 import me.andannn.network.engine.mock.AIRING_SCHEDULE_PAGE_DATA
@@ -42,12 +44,14 @@ import me.andannn.network.engine.mock.MEDIA_LIST_ITEM_DATA
 import me.andannn.network.engine.mock.MEDIA_LIST_PAGE_DATA
 import me.andannn.network.engine.mock.MEDIA_PAGE_DATA
 import me.andannn.network.engine.mock.NOTIFICATION_DATA
+import me.andannn.network.engine.mock.SAVED_MEDIA_LIST_RESPONSE
 import me.andannn.network.engine.mock.SEARCH_CHARACTER_RESULT_PAGE_DATA
 import me.andannn.network.engine.mock.SEARCH_MEDIA_RESULT_PAGE_DATA
 import me.andannn.network.engine.mock.SEARCH_STUDIO_RESULT_PAGE_DATA
 import me.andannn.network.engine.mock.STAFF_PAGE_DATA
 import me.andannn.network.engine.mock.TOGGLE_FAVORITE_RESULT
 import me.andannn.network.engine.mock.UNAUTHORIZED_ERROR
+import me.andannn.network.engine.mock.UPDATE_USER_SETTING_RESPONSE
 import me.andannn.network.engine.mock.USER_DATA
 
 val MockHttpClientEngine =
@@ -143,6 +147,22 @@ val MockHttpClientEngine =
                                     respondUnAuthed()
                                 } else {
                                     respondString(NOTIFICATION_DATA)
+                                }
+                            }
+
+                            MEDIA_LIST_MUTATION_SCHEMA -> {
+                                if (!hasToken) {
+                                    respondUnAuthed()
+                                } else {
+                                    respondString(SAVED_MEDIA_LIST_RESPONSE)
+                                }
+                            }
+
+                            UPDATE_USER_SETTING_MUTATION_SCHEMA -> {
+                                if (!hasToken) {
+                                    respondUnAuthed()
+                                } else {
+                                    respondString(UPDATE_USER_SETTING_RESPONSE)
                                 }
                             }
 

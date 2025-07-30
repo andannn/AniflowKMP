@@ -10,11 +10,11 @@ import me.andannn.network.common.schemas.TOGGLE_FAVORITE_MUTATION_SCHEMA
 
 @Serializable
 internal data class ToggleFavoriteMutation(
-    val mediaId: Int? = null,
-    val mangaId: Int? = null,
-    val characterId: Int? = null,
-    val staffId: Int? = null,
-    val studioId: Int? = null,
+    val mediaId: Int?,
+    val mangaId: Int?,
+    val characterId: Int?,
+    val staffId: Int?,
+    val studioId: Int?,
 ) : GraphQLQuery<DataWrapper<Unit>> {
     override fun getSchema() = TOGGLE_FAVORITE_MUTATION_SCHEMA
 }

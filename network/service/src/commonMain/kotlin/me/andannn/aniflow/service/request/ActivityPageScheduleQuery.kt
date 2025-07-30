@@ -17,11 +17,11 @@ internal data class ActivityPageScheduleQuery(
     val page: Int,
     val perPage: Int,
     @SerialName("type_in")
-    val isFollowing: Boolean? = null,
-    val typeIn: List<ActivityType> = emptyList(),
-    val userId: Int? = null,
-    val mediaId: Int? = null,
-    val hasRepliesOrTypeText: Boolean? = null,
+    val isFollowing: Boolean?,
+    val typeIn: List<ActivityType>,
+    val userId: Int?,
+    val mediaId: Int?,
+    val hasRepliesOrTypeText: Boolean?,
 ) : GraphQLQuery<DataWrapper<PageWrapper<ActivityUnion>>> {
     override fun getSchema() = ACTIVITY_PAGE_QUERY_SCHEMA
 }

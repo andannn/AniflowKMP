@@ -14,9 +14,9 @@ import me.andannn.network.common.schemas.CHARACTER_DETAIL_QUERY_SCHEMA
 internal data class CharacterDetailQuery(
     val id: Int,
     @SerialName("page")
-    val mediaConnectionPage: Int? = null,
+    val mediaConnectionPage: Int?,
     @SerialName("perPage")
-    val mediaConnectionPerPage: Int? = null,
+    val mediaConnectionPerPage: Int?,
 ) : GraphQLQuery<DataWrapper<CharacterDetailResponse>> {
     override fun getSchema() = CHARACTER_DETAIL_QUERY_SCHEMA
 }

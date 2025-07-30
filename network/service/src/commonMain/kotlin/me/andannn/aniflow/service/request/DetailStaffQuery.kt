@@ -16,9 +16,9 @@ internal data class DetailStaffQuery(
     @SerialName("id")
     val staffId: Int,
     @SerialName("page")
-    val characterConnectionPage: Int? = null,
+    val characterConnectionPage: Int?,
     @SerialName("perPage")
-    val characterConnectionPerPage: Int? = null,
+    val characterConnectionPerPage: Int?,
     @SerialName("sort")
     val mediaSort: List<MediaSort> = emptyList(),
 ) : GraphQLQuery<DataWrapper<StaffDetailResponse>> {

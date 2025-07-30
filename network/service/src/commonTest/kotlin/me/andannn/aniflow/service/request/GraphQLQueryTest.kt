@@ -38,6 +38,16 @@ class GraphQLQueryTest {
             MediaPageQuery(
                 page = 1,
                 perPage = 10,
+                type = null,
+                countryCode = null,
+                seasonYear = null,
+                season = null,
+                status = null,
+                sort = null,
+                formatIn = null,
+                isAdult = null,
+                startDateGreater = null,
+                endDateLesser = null,
             )
         query.toQueryBody().let {
             val variables = Json.decodeFromString<Map<String, JsonPrimitive>>(it.variables)

@@ -32,6 +32,7 @@ import me.andannn.aniflow.service.dto.AniListErrorResponse
 import me.andannn.aniflow.service.dto.Character
 import me.andannn.aniflow.service.dto.CharactersConnection
 import me.andannn.aniflow.service.dto.DataWrapper
+import me.andannn.aniflow.service.dto.FuzzyDate
 import me.andannn.aniflow.service.dto.Media
 import me.andannn.aniflow.service.dto.MediaDetailResponse
 import me.andannn.aniflow.service.dto.MediaList
@@ -41,6 +42,7 @@ import me.andannn.aniflow.service.dto.Staff
 import me.andannn.aniflow.service.dto.StaffConnection
 import me.andannn.aniflow.service.dto.Studio
 import me.andannn.aniflow.service.dto.UpdateUserRespond
+import me.andannn.aniflow.service.dto.User
 import me.andannn.aniflow.service.dto.enums.ActivityType
 import me.andannn.aniflow.service.dto.enums.MediaFormat
 import me.andannn.aniflow.service.dto.enums.MediaListStatus
@@ -51,6 +53,8 @@ import me.andannn.aniflow.service.dto.enums.MediaType
 import me.andannn.aniflow.service.dto.enums.NotificationType
 import me.andannn.aniflow.service.dto.enums.ScoreFormat
 import me.andannn.aniflow.service.dto.enums.StaffLanguage
+import me.andannn.aniflow.service.dto.enums.UserStaffNameLanguage
+import me.andannn.aniflow.service.dto.enums.UserTitleLanguage
 import me.andannn.aniflow.service.request.ActivityPageScheduleQuery
 import me.andannn.aniflow.service.request.AiringScheduleQuery
 import me.andannn.aniflow.service.request.CharacterDetailQuery
@@ -60,6 +64,7 @@ import me.andannn.aniflow.service.request.DetailStaffQuery
 import me.andannn.aniflow.service.request.DetailStudioQuery
 import me.andannn.aniflow.service.request.GetUserDataQuery
 import me.andannn.aniflow.service.request.GraphQLQuery
+import me.andannn.aniflow.service.request.MediaListMutation
 import me.andannn.aniflow.service.request.MediaListPageQuery
 import me.andannn.aniflow.service.request.MediaListQuery
 import me.andannn.aniflow.service.request.MediaPageQuery
@@ -70,6 +75,7 @@ import me.andannn.aniflow.service.request.SearchStaffQuery
 import me.andannn.aniflow.service.request.SearchStudioQuery
 import me.andannn.aniflow.service.request.StaffPageQuery
 import me.andannn.aniflow.service.request.ToggleFavoriteMutation
+import me.andannn.aniflow.service.request.UpdateUserSettingMutation
 import me.andannn.aniflow.service.request.toQueryBody
 
 open class AniListServiceException(
@@ -563,6 +569,76 @@ class AniListService(
                     resetNotificationCount = resetNotificationCount,
                 ),
         ).page
+
+    /**
+     * Sets or updates a media list item for the authenticated user.
+     *
+     * @param id The ID of the media list item to update (optional).
+     * @param mediaId The ID of the media to set in the list (optional).
+     * @param progress The progress made in the media (optional).
+     * @param status The status of the media list item (optional).
+     * @param score The score given to the media (optional).
+     * @param progressVolumes The progress made in volumes (optional).
+     * @param repeat The number of times the media has been repeated (optional).
+     * @param private Whether the media list item is private (optional).
+     * @param notes Additional notes for the media list item (optional).
+     * @param startedAt The date when the media was started (optional).
+     * @param completedAt The date when the media was completed (optional).
+     */
+    suspend fun updateMediaList(
+        id: Int? = null,
+        mediaId: Int? = null,
+        progress: Int? = null,
+        status: MediaListStatus? = null,
+        score: Float? = null,
+        progressVolumes: Int? = null,
+        repeat: Int? = null,
+        private: Boolean? = null,
+        notes: String? = null,
+        startedAt: FuzzyDate? = null,
+        completedAt: FuzzyDate? = null,
+    ): MediaList =
+        doGraphQlQuery(
+            query =
+                MediaListMutation(
+                    mediaListId = id,
+                    mediaId = mediaId,
+                    progress = progress,
+                    status = status,
+                    score = score,
+                    progressVolumes = progressVolumes,
+                    repeat = repeat,
+                    private = private,
+                    notes = notes,
+                    startedAt = startedAt,
+                    completedAt = completedAt,
+                ),
+        ).mediaList
+
+    /**
+     * Updates the user's settings, such as title language, adult content display,
+     * staff name language, and score format.
+     *
+     * @param titleLanguage The language for media titles (optional).
+     * @param displayAdultContent Whether to display adult content (optional).
+     * @param userStaffNameLanguage The language for staff names (optional).
+     * @param scoreFormat The format for scores (optional).
+     */
+    suspend fun updateUserSetting(
+        titleLanguage: UserTitleLanguage? = null,
+        displayAdultContent: Boolean? = null,
+        userStaffNameLanguage: UserStaffNameLanguage? = null,
+        scoreFormat: ScoreFormat? = null,
+    ): User? =
+        doGraphQlQuery(
+            query =
+                UpdateUserSettingMutation(
+                    titleLanguage = titleLanguage,
+                    displayAdultContent = displayAdultContent,
+                    userStaffNameLanguage = userStaffNameLanguage,
+                    scoreFormat = scoreFormat,
+                ),
+        ).user
 
     private suspend inline fun <reified T : GraphQLQuery<DataWrapper<U>>, reified U> doGraphQlQuery(query: T): U =
         try {
