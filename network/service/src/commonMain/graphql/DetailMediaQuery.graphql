@@ -1,27 +1,256 @@
-query MediaPageQuery($page: Int, $perPage: Int, $type: MediaType, $countryCode: CountryCode, $seasonYear: Int, $season: MediaSeason, $status: MediaStatus, $sort: [MediaSort], $format_in: [MediaFormat], $isAdult: Boolean, $startDate_greater: FuzzyDateInt, $endDate_lesser: FuzzyDateInt) {
+
+query C($page: Int, $perPage: Int, $type_in: [NotificationType], $resetNotificationCount: Boolean) {
     Page(page: $page, perPage: $perPage) {
-        media: media(type: $type, countryOfOrigin: $countryCode, seasonYear: $seasonYear, season: $season, status: $status, sort: $sort, format_in: $format_in, isAdult: $isAdult, startDate_greater: $startDate_greater, endDate_lesser: $endDate_lesser) {
-            id
-            type
-            format
-            status
-            season
-            seasonYear
-            startDate {
-                year
-                month
-                day
+        notifications(type_in: $type_in, resetNotificationCount: $resetNotificationCount) {
+            __typename
+            ... on AiringNotification {
+                id
+                type
+                animeId
+                episode
+                contexts
+                createdAt
+                media {
+                    id
+                    siteUrl
+                    coverImage {
+                        extraLarge
+                        large
+                        medium
+                    }
+                    title {
+                        romaji
+                        english
+                        native
+                    }
+                }
             }
-            coverImage {
-                extraLarge
-                large
-                medium
-                color
+            ... on ActivityLikeNotification {
+                id
+                userId
+                type
+                context
+                activityId
+                createdAt
+                user {
+                    id
+                    name
+                    siteUrl
+                    avatar {
+                        large
+                    }
+                    bannerImage
+                    options {
+                        profileColor
+                    }
+                }
             }
-            title {
-                romaji
-                english
-                native
+            ... on ActivityMentionNotification {
+                id
+                userId
+                type
+                activityId
+                context
+                createdAt
+                user {
+                    id
+                    name
+                    avatar {
+                        large
+                        medium
+                    }
+                    bannerImage
+                    unreadNotificationCount
+                    options {
+                        titleLanguage
+                        displayAdultContent
+                        airingNotifications
+                        profileColor
+                        timezone
+                        activityMergeTime
+                        staffNameLanguage
+                        restrictMessagesToFollowing
+                    }
+                    mediaListOptions {
+                        scoreFormat
+                    }
+                }
+            }
+            ... on ActivityMessageNotification {
+                id
+                userId
+                type
+                activityId
+                context
+                createdAt
+                message {
+                    id
+                }
+                user {
+                    id
+                    name
+                    siteUrl
+                    avatar {
+                        large
+                    }
+                    bannerImage
+                    options {
+                        profileColor
+                    }
+                }
+            }
+            ... on ActivityReplySubscribedNotification {
+                id
+                userId
+                type
+                activityId
+                context
+                createdAt
+                user {
+                    id
+                    name
+                    siteUrl
+                    avatar {
+                        large
+                    }
+                    bannerImage
+                    options {
+                        profileColor
+                    }
+                }
+            }
+            ... on ActivityReplyLikeNotification {
+                id
+                userId
+                type
+                activityId
+                context
+                createdAt
+                user {
+                    id
+                    name
+                    siteUrl
+                    avatar {
+                        large
+                    }
+                    bannerImage
+                    options {
+                        profileColor
+                    }
+                }
+            }
+            ... on ActivityReplyNotification {
+                id
+                userId
+                type
+                activityId
+                context
+                createdAt
+                user {
+                    id
+                    name
+                    siteUrl
+                    avatar {
+                        large
+                    }
+                    bannerImage
+                    options {
+                        profileColor
+                    }
+                }
+            }
+            ... on FollowingNotification {
+                id
+                userId
+                type
+                context
+                createdAt
+                user {
+                    id
+                    name
+                    siteUrl
+                    avatar {
+                        large
+                    }
+                    bannerImage
+                    options {
+                        profileColor
+                    }
+                }
+            }
+            ... on MediaMergeNotification {
+                id
+                type
+                mediaId
+                deletedMediaTitles
+                context
+                reason
+                createdAt
+                media {
+                    id
+                    siteUrl
+                    coverImage {
+                        extraLarge
+                        large
+                        medium
+                    }
+                    title {
+                        romaji
+                        english
+                        native
+                    }
+                }
+            }
+            ... on MediaDataChangeNotification {
+                id
+                type
+                mediaId
+                context
+                reason
+                createdAt
+                media {
+                    id
+                    siteUrl
+                    coverImage {
+                        extraLarge
+                        large
+                        medium
+                    }
+                    title {
+                        romaji
+                        english
+                        native
+                    }
+                }
+            }
+            ... on MediaDeletionNotification {
+                id
+                type
+                deletedMediaTitle
+                context
+                reason
+                createdAt
+            }
+            ... on RelatedMediaAdditionNotification {
+                id
+                type
+                mediaId
+                context
+                createdAt
+                media {
+                    id
+                    siteUrl
+                    coverImage {
+                        extraLarge
+                        large
+                        medium
+                    }
+                    title {
+                        romaji
+                        english
+                        native
+                    }
+                }
             }
         }
     }

@@ -19,7 +19,7 @@ public data class Media(
     /**
      * The id of the media
      */
-    public val id: Int,
+    public val id: Int? = null,
     /**
      * The official titles of the media in various languages
      */
@@ -107,7 +107,7 @@ public data class Media(
     /**
      * The characters in the media
      */
-    public val characters: Characters? = null,
+    public val characters: CharactersConnection? = null,
     /**
      * The staff who produced the media
      */

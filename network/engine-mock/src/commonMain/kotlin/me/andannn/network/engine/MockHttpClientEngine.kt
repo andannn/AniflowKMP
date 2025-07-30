@@ -13,12 +13,45 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import kotlinx.serialization.json.Json
 import me.andannn.network.common.GraphQLBody
+import me.andannn.network.common.schemas.ACTIVITY_PAGE_QUERY_SCHEMA
+import me.andannn.network.common.schemas.AIRING_SCHEDULE_QUERY_SCHEMA
+import me.andannn.network.common.schemas.CHARACTER_DETAIL_QUERY_SCHEMA
+import me.andannn.network.common.schemas.CHARACTER_PAGE_QUERY_SCHEMA
 import me.andannn.network.common.schemas.MEDIA_DETAIL_QUERY_SCHEMA
+import me.andannn.network.common.schemas.MEDIA_LIST_MUTATION_SCHEMA
+import me.andannn.network.common.schemas.MEDIA_LIST_PAGE_QUERY_SCHEMA
+import me.andannn.network.common.schemas.MEDIA_LIST_QUERY_SCHEMA
 import me.andannn.network.common.schemas.MEDIA_PAGE_QUERY_SCHEMA
+import me.andannn.network.common.schemas.NOTIFICATION_PAGE_QUERY_SCHEMA
+import me.andannn.network.common.schemas.SEARCH_CHARACTER_QUERY_SCHEMA
+import me.andannn.network.common.schemas.SEARCH_MEDIA_QUERY_SCHEMA
+import me.andannn.network.common.schemas.SEARCH_STAFF_QUERY_SCHEMA
+import me.andannn.network.common.schemas.SEARCH_STUDIO_QUERY_SCHEMA
+import me.andannn.network.common.schemas.STAFF_DETAIL_QUERY_SCHEMA
+import me.andannn.network.common.schemas.STAFF_PAGE_QUERY_SCHEMA
+import me.andannn.network.common.schemas.STUDIO_DETAIL_QUERY_SCHEMA
+import me.andannn.network.common.schemas.TOGGLE_FAVORITE_MUTATION_SCHEMA
+import me.andannn.network.common.schemas.UPDATE_USER_SETTING_MUTATION_SCHEMA
 import me.andannn.network.common.schemas.USER_DATA_MUTATION_SCHEMA
+import me.andannn.network.engine.mock.ACTIVITY_PAGE_DATA
+import me.andannn.network.engine.mock.AIRING_SCHEDULE_PAGE_DATA
+import me.andannn.network.engine.mock.CHARACTER_DETAIL_DATA
+import me.andannn.network.engine.mock.CHARACTER_PAGE_DATA
 import me.andannn.network.engine.mock.DETAIL_ANIME_DATA
+import me.andannn.network.engine.mock.DETAIL_STAFF_DATA
+import me.andannn.network.engine.mock.DETAIL_STUDIO_DATA
+import me.andannn.network.engine.mock.MEDIA_LIST_ITEM_DATA
+import me.andannn.network.engine.mock.MEDIA_LIST_PAGE_DATA
 import me.andannn.network.engine.mock.MEDIA_PAGE_DATA
+import me.andannn.network.engine.mock.NOTIFICATION_DATA
+import me.andannn.network.engine.mock.SAVED_MEDIA_LIST_RESPONSE
+import me.andannn.network.engine.mock.SEARCH_CHARACTER_RESULT_PAGE_DATA
+import me.andannn.network.engine.mock.SEARCH_MEDIA_RESULT_PAGE_DATA
+import me.andannn.network.engine.mock.SEARCH_STUDIO_RESULT_PAGE_DATA
+import me.andannn.network.engine.mock.STAFF_PAGE_DATA
+import me.andannn.network.engine.mock.TOGGLE_FAVORITE_RESULT
 import me.andannn.network.engine.mock.UNAUTHORIZED_ERROR
+import me.andannn.network.engine.mock.UPDATE_USER_SETTING_RESPONSE
 import me.andannn.network.engine.mock.USER_DATA
 
 val MockHttpClientEngine =
@@ -31,14 +64,13 @@ val MockHttpClientEngine =
                 }?.let { body ->
                     body as TextContent
                     Json.decodeFromString<GraphQLBody>(body.text).let { query ->
+                        println(query)
                         when (query.query) {
                             MEDIA_DETAIL_QUERY_SCHEMA -> {
-                                println("MediaDetailQuerySchema")
                                 respondString(DETAIL_ANIME_DATA)
                             }
 
                             USER_DATA_MUTATION_SCHEMA -> {
-                                println("UserDataMutationSchema")
                                 if (hasToken) {
                                     respondString(USER_DATA)
                                 } else {
@@ -47,8 +79,91 @@ val MockHttpClientEngine =
                             }
 
                             MEDIA_PAGE_QUERY_SCHEMA -> {
-                                println("MediaPageQuerySchema")
                                 respondString(MEDIA_PAGE_DATA)
+                            }
+
+                            CHARACTER_PAGE_QUERY_SCHEMA -> {
+                                respondString(CHARACTER_PAGE_DATA)
+                            }
+
+                            STAFF_PAGE_QUERY_SCHEMA -> {
+                                respondString(STAFF_PAGE_DATA)
+                            }
+
+                            MEDIA_LIST_QUERY_SCHEMA -> {
+                                respondString(MEDIA_LIST_ITEM_DATA)
+                            }
+
+                            MEDIA_LIST_PAGE_QUERY_SCHEMA -> {
+                                respondString(MEDIA_LIST_PAGE_DATA)
+                            }
+
+                            AIRING_SCHEDULE_QUERY_SCHEMA -> {
+                                respondString(AIRING_SCHEDULE_PAGE_DATA)
+                            }
+
+                            SEARCH_MEDIA_QUERY_SCHEMA -> {
+                                respondString(SEARCH_MEDIA_RESULT_PAGE_DATA)
+                            }
+
+                            SEARCH_CHARACTER_QUERY_SCHEMA -> {
+                                respondString(SEARCH_CHARACTER_RESULT_PAGE_DATA)
+                            }
+
+                            SEARCH_STUDIO_QUERY_SCHEMA -> {
+                                respondString(SEARCH_STUDIO_RESULT_PAGE_DATA)
+                            }
+
+                            SEARCH_STAFF_QUERY_SCHEMA -> {
+                                respondString(SEARCH_STUDIO_RESULT_PAGE_DATA)
+                            }
+
+                            ACTIVITY_PAGE_QUERY_SCHEMA -> {
+                                respondString(ACTIVITY_PAGE_DATA)
+                            }
+
+                            TOGGLE_FAVORITE_MUTATION_SCHEMA -> {
+                                if (!hasToken) {
+                                    respondUnAuthed()
+                                } else {
+                                    respondString(TOGGLE_FAVORITE_RESULT)
+                                }
+                            }
+
+                            CHARACTER_DETAIL_QUERY_SCHEMA -> {
+                                respondString(CHARACTER_DETAIL_DATA)
+                            }
+
+                            STAFF_DETAIL_QUERY_SCHEMA -> {
+                                respondString(DETAIL_STAFF_DATA)
+                            }
+
+                            STUDIO_DETAIL_QUERY_SCHEMA -> {
+                                respondString(DETAIL_STUDIO_DATA)
+                            }
+
+                            NOTIFICATION_PAGE_QUERY_SCHEMA -> {
+                                if (!hasToken) {
+                                    respondUnAuthed()
+                                } else {
+                                    respondString(NOTIFICATION_DATA)
+                                }
+                            }
+
+                            MEDIA_LIST_MUTATION_SCHEMA -> {
+                                if (!hasToken) {
+                                    respondUnAuthed()
+                                } else {
+                                    respondString(SAVED_MEDIA_LIST_RESPONSE)
+                                }
+                            }
+
+                            UPDATE_USER_SETTING_MUTATION_SCHEMA -> {
+                                if (!hasToken) {
+                                    respondUnAuthed()
+                                } else {
+                                    respondString(UPDATE_USER_SETTING_RESPONSE)
+                                }
                             }
 
                             else -> error("Not supported query: $query")

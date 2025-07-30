@@ -18,7 +18,7 @@ import kotlinx.serialization.json.JsonDecoder
 import kotlinx.serialization.json.jsonObject
 
 @Serializable
-data class PageWrapper<T>(
+internal data class PageWrapper<T>(
     @SerialName("Page")
     val page: Page<T>,
 )
@@ -69,6 +69,12 @@ internal class PageSerializer : KSerializer<Page<*>> {
         private val ITEM_SERIALIZER_MAP =
             mapOf<String, KSerializer<*>>(
                 "media" to Media.serializer(),
+                "mediaList" to MediaList.serializer(),
+                "airingSchedules" to AiringSchedule.serializer(),
+                "characters" to Character.serializer(),
+                "studios" to Studio.serializer(),
+                "activities" to ActivityUnion.serializer(),
+                "notifications" to NotificationUnion.serializer(),
             )
     }
 }
