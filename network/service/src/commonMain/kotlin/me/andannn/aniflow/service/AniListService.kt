@@ -58,7 +58,6 @@ import me.andannn.aniflow.service.dto.enums.UserTitleLanguage
 import me.andannn.aniflow.service.request.ActivityPageScheduleQuery
 import me.andannn.aniflow.service.request.AiringScheduleQuery
 import me.andannn.aniflow.service.request.CharacterDetailQuery
-import me.andannn.aniflow.service.request.CharacterPageQuery
 import me.andannn.aniflow.service.request.DetailMediaQuery
 import me.andannn.aniflow.service.request.DetailStaffQuery
 import me.andannn.aniflow.service.request.DetailStudioQuery
@@ -73,7 +72,6 @@ import me.andannn.aniflow.service.request.SearchCharacterQuery
 import me.andannn.aniflow.service.request.SearchMediaQuery
 import me.andannn.aniflow.service.request.SearchStaffQuery
 import me.andannn.aniflow.service.request.SearchStudioQuery
-import me.andannn.aniflow.service.request.StaffPageQuery
 import me.andannn.aniflow.service.request.ToggleFavoriteMutation
 import me.andannn.aniflow.service.request.UpdateUserSettingMutation
 import me.andannn.aniflow.service.request.toQueryBody
@@ -163,8 +161,35 @@ class AniListService(
 
     /**
      * Fetches detailed media information by its ID.
+     *
+     * @param id The ID of the media to fetch details for.
+     * @param characterPage The page number for character connections (optional).
+     * @param characterPerPage The number of characters per page (optional).
+     * @param staffPage The page number for staff connections (optional).
+     * @param staffPerPage The number of staff per page (optional).
+     * @param withStudioConnection Whether to include studio connections (default is false).
      */
-    suspend fun getDetailMedia(id: Int): MediaDetailResponse = doGraphQlQuery(query = DetailMediaQuery(id))
+    suspend fun getDetailMedia(
+        id: Int,
+        characterPage: Int? = null,
+        characterPerPage: Int? = null,
+        characterStaffLanguage: StaffLanguage? = null,
+        staffPage: Int? = null,
+        staffPerPage: Int? = null,
+        withStudioConnection: Boolean = false,
+    ): MediaDetailResponse =
+        doGraphQlQuery(
+            query =
+                DetailMediaQuery(
+                    id = id,
+                    characterPage = characterPage,
+                    characterPerPage = characterPerPage,
+                    characterStaffLanguage = characterStaffLanguage,
+                    staffPage = staffPage,
+                    staffPerPage = staffPerPage,
+                    withStudioConnection = withStudioConnection,
+                ),
+        )
 
     /**
      * Fetches a paginated list of media based on various filters and sorting options.
@@ -223,18 +248,18 @@ class AniListService(
      * @param staffLanguage The language of the staff to filter by.
      */
     suspend fun getCharacterPagesOfMedia(
-        page: Int = 1,
-        perPage: Int = 10,
+        page: Int,
+        perPage: Int,
         mediaId: Int,
-        staffLanguage: StaffLanguage,
+        staffLanguage: StaffLanguage? = null,
     ): CharactersConnection? =
         doGraphQlQuery(
             query =
-                CharacterPageQuery(
-                    page = page,
-                    perPage = perPage,
-                    mediaId = mediaId,
-                    staffLanguage = staffLanguage,
+                DetailMediaQuery(
+                    characterPage = page,
+                    characterPerPage = perPage,
+                    id = mediaId,
+                    characterStaffLanguage = staffLanguage,
                 ),
         ).media.characters
 
@@ -252,10 +277,10 @@ class AniListService(
     ): StaffConnection? =
         doGraphQlQuery(
             query =
-                StaffPageQuery(
-                    page = page,
-                    perPage = perPage,
-                    mediaId = mediaId,
+                DetailMediaQuery(
+                    staffPage = page,
+                    staffPerPage = perPage,
+                    id = mediaId,
                 ),
         ).media.staff
 

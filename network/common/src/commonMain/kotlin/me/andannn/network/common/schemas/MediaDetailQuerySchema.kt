@@ -4,137 +4,174 @@
  */
 package me.andannn.network.common.schemas
 
-const val MEDIA_DETAIL_QUERY_SCHEMA = $$"""
-query ($id: Int) {
-  Media(id: $id) {
-    id
-    title {
-      romaji
-      english
-      native
-    }
-    type
-    description(asHtml: false)
-    episodes
-    seasonYear
-    season
-    source
-    genres
-    status
-    hashtag
-    isFavourite
-    externalLinks {
-      id
-      url
-      site
-      type
-      siteId
-      color
-      icon
-    }
-    rankings {
-      rank
-      type
-      allTime
-    }
-    trailer {
-      id
-      site
-      thumbnail
-    }
-    coverImage {
-      extraLarge
-      large
-      medium
-      color
-    }
-    format
-    bannerImage
-    averageScore
-    favourites
-    trending
-    isFavourite
-    nextAiringEpisode {
-      id
-      airingAt
-      episode
-      timeUntilAiring
-    }
-    characters(page: 1, perPage: 9, sort: RELEVANCE) {
-      pageInfo {
-        total
-        perPage
-        currentPage
-        lastPage
-        hasNextPage
-      }
-      edges {
-        role
-        node {
-          id
-          image {
-            large
-            medium
-          }
-          name {
-            first
-            middle
-            last
-            full
-            native
-          }
+fun buildMediaDetailQuerySchema(
+    withCharacterConnection: Boolean = false,
+    withStaffConnection: Boolean = false,
+    withStudioConnection: Boolean = false,
+): String =
+    buildString {
+        append($$"query ($id: Int")
+        if (withCharacterConnection) append($$", $characterPage: Int, $characterPerPage: Int")
+        if (withStaffConnection) append($$", $staffPage: Int, $staffPerPage: Int, $staffLanguage: StaffLanguage")
+        append(") {")
+        append(
+            $$"""
+            Media(id: $id) {
+                id
+                title {
+                  romaji
+                  english
+                  native
+                }
+                type
+                description(asHtml: false)
+                episodes
+                seasonYear
+                season
+                source
+                genres
+                status
+                hashtag
+                isFavourite
+                externalLinks {
+                  id
+                  url
+                  site
+                  type
+                  siteId
+                  color
+                  icon
+                }
+                rankings {
+                  rank
+                  type
+                  allTime
+                }
+                trailer {
+                  id
+                  site
+                  thumbnail
+                }
+                coverImage {
+                  extraLarge
+                  large
+                  medium
+                  color
+                }
+                format
+                bannerImage
+                averageScore
+                favourites
+                trending
+                isFavourite
+                nextAiringEpisode {
+                  id
+                  airingAt
+                  episode
+                  timeUntilAiring
+                }
+            """,
+        )
+        if (withCharacterConnection) {
+            append(
+                $$"""
+                characters(page: $characterPage, perPage: $characterPerPage, sort: RELEVANCE) {
+                  pageInfo {
+                    total
+                    perPage
+                    currentPage
+                    lastPage
+                    hasNextPage
+                  }
+                  edges {
+                    role
+                    node {
+                      id
+                      image {
+                        large
+                        medium
+                      }
+                      name {
+                        first
+                        middle
+                        last
+                        full
+                        native
+                      }
+                    }
+                    voiceActors(language: $staffLanguage, sort: LANGUAGE) {
+                      id
+                      image {
+                        large
+                        medium
+                      }
+                      name {
+                        first
+                        middle
+                        last
+                        full
+                        native
+                      }
+                    }
+                  }
+                }
+                """.trimIndent(),
+            )
         }
-        voiceActors(language: JAPANESE, sort: LANGUAGE) {
-          id
-          image {
-            large
-            medium
-          }
-          name {
-            first
-            middle
-            last
-            full
-            native
-          }
+
+        if (withStaffConnection) {
+            append(
+                $$"""
+                staff(page: $staffPage, perPage: $staffPerPage, sort: FAVOURITES_DESC) {
+                  pageInfo {
+                    total
+                    perPage
+                    currentPage
+                    lastPage
+                    hasNextPage
+                  }
+                  edges {
+                    role
+                    node {
+                      id
+                      name {
+                        first
+                        middle
+                        last
+                        full
+                        native
+                      }
+                      image {
+                        large
+                        medium
+                      }
+                    }
+                  }
+                }
+                """.trimIndent(),
+            )
         }
-      }
-    }
-    staff(page: 1, perPage: 9, sort: FAVOURITES_DESC) {
-      pageInfo {
-        total
-        perPage
-        currentPage
-        lastPage
-        hasNextPage
-      }
-      edges {
-        role
-        node {
-          id
-          name {
-            first
-            middle
-            last
-            full
-            native
-          }
-          image {
-            large
-            medium
-          }
+
+        if (withStudioConnection) {
+            append(
+                $$"""
+                studios {
+                  nodes {
+                    id
+                    name
+                    isAnimationStudio
+                    siteUrl
+                    isFavourite
+                  }
+                }
+                """.trimIndent(),
+            )
         }
-      }
+
+        append(
+            """
+              }
+            }
+            """.trimIndent(),
+        )
     }
-    studios {
-	  nodes {
-	    id
-        name
-        isAnimationStudio
-        siteUrl
-        isFavourite
-	  }
-    }
-  }
-}
-"""

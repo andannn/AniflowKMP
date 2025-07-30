@@ -16,8 +16,6 @@ import me.andannn.network.common.GraphQLBody
 import me.andannn.network.common.schemas.ACTIVITY_PAGE_QUERY_SCHEMA
 import me.andannn.network.common.schemas.AIRING_SCHEDULE_QUERY_SCHEMA
 import me.andannn.network.common.schemas.CHARACTER_DETAIL_QUERY_SCHEMA
-import me.andannn.network.common.schemas.CHARACTER_PAGE_QUERY_SCHEMA
-import me.andannn.network.common.schemas.MEDIA_DETAIL_QUERY_SCHEMA
 import me.andannn.network.common.schemas.MEDIA_LIST_MUTATION_SCHEMA
 import me.andannn.network.common.schemas.MEDIA_LIST_PAGE_QUERY_SCHEMA
 import me.andannn.network.common.schemas.MEDIA_LIST_QUERY_SCHEMA
@@ -28,11 +26,11 @@ import me.andannn.network.common.schemas.SEARCH_MEDIA_QUERY_SCHEMA
 import me.andannn.network.common.schemas.SEARCH_STAFF_QUERY_SCHEMA
 import me.andannn.network.common.schemas.SEARCH_STUDIO_QUERY_SCHEMA
 import me.andannn.network.common.schemas.STAFF_DETAIL_QUERY_SCHEMA
-import me.andannn.network.common.schemas.STAFF_PAGE_QUERY_SCHEMA
 import me.andannn.network.common.schemas.STUDIO_DETAIL_QUERY_SCHEMA
 import me.andannn.network.common.schemas.TOGGLE_FAVORITE_MUTATION_SCHEMA
 import me.andannn.network.common.schemas.UPDATE_USER_SETTING_MUTATION_SCHEMA
 import me.andannn.network.common.schemas.USER_DATA_MUTATION_SCHEMA
+import me.andannn.network.common.schemas.buildMediaDetailQuerySchema
 import me.andannn.network.engine.mock.ACTIVITY_PAGE_DATA
 import me.andannn.network.engine.mock.AIRING_SCHEDULE_PAGE_DATA
 import me.andannn.network.engine.mock.CHARACTER_DETAIL_DATA
@@ -66,7 +64,7 @@ val MockHttpClientEngine =
                     Json.decodeFromString<GraphQLBody>(body.text).let { query ->
                         println(query)
                         when (query.query) {
-                            MEDIA_DETAIL_QUERY_SCHEMA -> {
+                            buildMediaDetailQuerySchema() -> {
                                 respondString(DETAIL_ANIME_DATA)
                             }
 
@@ -82,11 +80,11 @@ val MockHttpClientEngine =
                                 respondString(MEDIA_PAGE_DATA)
                             }
 
-                            CHARACTER_PAGE_QUERY_SCHEMA -> {
+                            buildMediaDetailQuerySchema(withCharacterConnection = true) -> {
                                 respondString(CHARACTER_PAGE_DATA)
                             }
 
-                            STAFF_PAGE_QUERY_SCHEMA -> {
+                            buildMediaDetailQuerySchema(withStaffConnection = true) -> {
                                 respondString(STAFF_PAGE_DATA)
                             }
 

@@ -12,7 +12,14 @@ import kotlin.test.assertTrue
 class GraphQLQueryTest {
     @Test
     fun testToQueryBody() {
-        val query = DetailMediaQuery(id = 1)
+        val query =
+            DetailMediaQuery(
+                id = 1,
+                characterPage = null,
+                characterPerPage = null,
+                staffPage = null,
+                staffPerPage = null,
+            )
         query.toQueryBody().let {
             val variables = Json.decodeFromString<Map<String, JsonPrimitive>>(it.variables)
             assertTrue {
