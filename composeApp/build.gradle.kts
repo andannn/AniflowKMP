@@ -52,6 +52,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":network:service"))
+            implementation(project(":ui"))
             implementation(libs.napier)
             implementation(libs.circuit.foundation)
         }
