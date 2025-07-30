@@ -14,7 +14,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,19 +22,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import aniflowkmp.composeapp.generated.resources.Res
 import aniflowkmp.composeapp.generated.resources.compose_multiplatform
-import me.andannn.aniflow.service.AniListService
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import org.koin.mp.KoinPlatform.getKoin
 
 @Composable
 @Preview
 fun App() {
-    LaunchedEffect(Unit) {
-        getKoin().get<AniListService>().getDetailMedia(1).also {
-        }
-    }
-
     MaterialTheme {
         var showContent by remember { mutableStateOf(false) }
         Column(
@@ -46,7 +38,7 @@ fun App() {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
+                Text("Click !")
             }
             AnimatedVisibility(showContent) {
                 val greeting = remember { Greeting().greet() }
