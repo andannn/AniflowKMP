@@ -24,14 +24,12 @@ CREATE TABLE IF NOT EXISTS mediaEntity (
   trailerThumbnail TEXT DEFAULT NULL,
   genres TEXT DEFAULT NULL,
   format TEXT DEFAULT NULL,
-  trending TEXT DEFAULT NULL,
-  favourites TEXT DEFAULT NULL,
+  trending INTEGER DEFAULT NULL,
+  favourites INTEGER DEFAULT NULL,
   popularRanking INTEGER DEFAULT NULL,
   ratedRanking INTEGER DEFAULT NULL,
   nextAiringEpisode INTEGER DEFAULT NULL,
   timeUntilAiring INTEGER DEFAULT NULL,
-  startDate INTEGER DEFAULT NULL,
-  endDate INTEGER DEFAULT NULL,
   isFavourite INTEGER AS Boolean DEFAULT NULL ,
   siteUrl INTEGER DEFAULT NULL
 );
@@ -76,8 +74,6 @@ INSERT OR REPLACE INTO mediaEntity (
   ratedRanking,
   nextAiringEpisode,
   timeUntilAiring,
-  startDate,
-  endDate,
   isFavourite,
   siteUrl
 ) VALUES ?;

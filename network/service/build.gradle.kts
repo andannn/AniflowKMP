@@ -31,7 +31,7 @@ kotlin {
 
         commonMain.dependencies {
             implementation(project(":network:common"))
-            implementation(libs.ktor.client.core)
+            api(libs.ktor.client.core)
             implementation(libs.ktor.client.logging)
             implementation(libs.ktor.client.encoding)
             implementation(libs.ktor.client.auth)

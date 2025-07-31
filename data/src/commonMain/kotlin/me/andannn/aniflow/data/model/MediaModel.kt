@@ -1,12 +1,16 @@
 package me.andannn.aniflow.data.model
 
-import me.andannn.aniflow.data.model.define.*
+import me.andannn.aniflow.data.model.define.MediaFormat
+import me.andannn.aniflow.data.model.define.MediaSeason
+import me.andannn.aniflow.data.model.define.MediaSource
+import me.andannn.aniflow.data.model.define.MediaStatus
+import me.andannn.aniflow.data.model.define.MediaType
 
 data class MediaModel(
     /**
      * The id of the media
      */
-    public val id: Int? = null,
+    public val id: String,
     /**
      * The official titles of the media in various languages
      */
@@ -46,11 +50,11 @@ data class MediaModel(
     /**
      * Official Twitter hashtags for the media
      */
-    public val hashtag: String? = null,
+    public val hashtag: List<String> = emptyList(),
     /**
      * If the media is marked as favourite by the current authenticated user
      */
-    public val isFavourite: Boolean? = null,
+    public val isFavourite: Boolean,
     /**
      * External links to another site related to the media
      */

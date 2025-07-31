@@ -1,8 +1,18 @@
 package me.andannn.aniflow.data.internal
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
+import kotlinx.serialization.json.Json
 import me.andannn.aniflow.data.MediaRepository
+import me.andannn.aniflow.data.model.DataWithErrors
 import me.andannn.aniflow.data.model.MediaCategory
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.define.MediaFormat
@@ -11,41 +21,88 @@ import me.andannn.aniflow.data.model.define.MediaSort
 import me.andannn.aniflow.data.model.define.MediaStatus
 import me.andannn.aniflow.data.model.define.MediaType
 import me.andannn.aniflow.database.MediaLibraryDao
+import me.andannn.aniflow.database.schema.MediaEntity
 import me.andannn.aniflow.service.AniListService
+import me.andannn.aniflow.service.ServerException
+import me.andannn.aniflow.service.dto.Media
 
-internal class MediaRepositoryImpl(
+class MediaRepositoryImpl(
     private val mediaLibraryDao: MediaLibraryDao,
     private val mediaService: AniListService,
 ) : MediaRepository {
-    override fun getAllMediasWithCategory(mediaType: MediaType): Flow<Map<MediaCategory, List<MediaModel>>> =
-        flow {
-            val categories = mediaType.allCategories()
+    override fun getAllMediasWithCategory(mediaType: MediaType): Flow<DataWithErrors<Map<MediaCategory, List<MediaModel>>>> =
+        channelFlow {
+            with(mediaService) {
+                with(mediaLibraryDao) {
+                    val categories = mediaType.allCategories()
 
-            categories.map { category -> }
+                    var dataMap = mapOf<MediaCategory, List<MediaModel>>()
+                    val errorList = mutableListOf<Throwable>()
+                    // sync data from service
+                    launch {
+                        supervisorScope {
+                            val deferredList =
+                                categories.map {
+                                    it.syncLocalWithService()
+                                }
+
+                            deferredList
+                                .awaitAll()
+                                .filterNotNull()
+                                .takeIf { it.isNotEmpty() }
+                                ?.let { errors ->
+                                    errorList.addAll(errors)
+                                    send(DataWithErrors(dataMap, errors))
+                                }
+                        }
+                    }
+
+                    // emit data from database
+                    val categoryToItemsFlowList =
+                        categories.map { category ->
+                            getMediaOfCategoryFlow(Json.encodeToString(category)).map {
+                                category to it.map(MediaEntity::toDomain)
+                            }
+                        }
+
+                    combine(
+                        categoryToItemsFlowList,
+                    ) { pairs ->
+                        pairs.toMap()
+                    }.collect {
+                        dataMap = it
+                        send(DataWithErrors(dataMap, errorList))
+                    }
+                }
+            }
         }
 }
 
-data class AnimeSeasonParam(
-    val seasonYear: Int,
-    val season: MediaSeason,
-) {
-    fun getNextSeasonParam(): AnimeSeasonParam =
-        when (season) {
-            MediaSeason.WINTER -> AnimeSeasonParam(seasonYear, MediaSeason.SPRING)
-            MediaSeason.SPRING -> AnimeSeasonParam(seasonYear, MediaSeason.SUMMER)
-            MediaSeason.SUMMER -> AnimeSeasonParam(seasonYear, MediaSeason.FALL)
-            MediaSeason.FALL -> AnimeSeasonParam(seasonYear + 1, MediaSeason.WINTER)
-        }
-}
+private const val DEFAULT_CACHED_SIZE = 20
 
-private suspend fun AniListService.getMediaOfCategory(
-    category: MediaCategory,
+context(service: AniListService, database: MediaLibraryDao, scope: CoroutineScope)
+private fun MediaCategory.syncLocalWithService(): Deferred<Throwable?> =
+    scope.async {
+        try {
+            val items = getMediaOfCategoryFromRemote(MediaSeason.SUMMER, 2025)
+            database.upsertMediasWithCategory(
+                category = Json.encodeToString(this@syncLocalWithService),
+                mediaList = items.map(Media::toEntity),
+            )
+            null
+        } catch (exception: ServerException) {
+            exception
+        }
+    }
+
+context(service: AniListService)
+private suspend fun MediaCategory.getMediaOfCategoryFromRemote(
     currentSeason: MediaSeason,
     currentSeasonYear: Int,
-) {
-    var status: MediaStatus? = null
-    var seasonParam: AnimeSeasonParam? = null
-    val type = category.mediaType()
+): List<Media> {
+    var status: MediaStatus?
+    var seasonParam: AnimeSeasonParam?
+    val type = this.mediaType()
     var sorts: List<MediaSort> = emptyList()
     var format: List<MediaFormat> = emptyList()
     var code: String? = null
@@ -56,7 +113,7 @@ private suspend fun AniListService.getMediaOfCategory(
             season = currentSeason,
         )
 
-    when (category) {
+    when (this) {
         MediaCategory.CURRENT_SEASON_ANIME -> {
             status = null
             seasonParam = currentSeasonParam
@@ -133,53 +190,17 @@ private suspend fun AniListService.getMediaOfCategory(
         }
     }
 
-//    getMediaPage(
-//        page=  1,
-//    perPage=  10,
-//    seasonYear = seasonParam?.seasonYear,
-//    season = seasonParam?.season,
-//    status = status,
-//        sort = sorts,
-//    mediaFormat = format,
-//    countryCode = code,
-//    showAdultContents = null,
-//
-//        type= = mediaType,
-//    )
+    return service
+        .getMediaPage(
+            page = 1,
+            perPage = DEFAULT_CACHED_SIZE,
+            seasonYear = seasonParam?.seasonYear,
+            season = seasonParam?.season?.toServiceType(),
+            status = status,
+            countryCode = code,
+            isAdult = false,
+            type = type.toServiceType(),
+            formatIn = format.map { it.toServiceType() },
+            sort = sorts.map { it.toServiceType() },
+        ).items
 }
-
-private fun MediaType.allCategories(): List<MediaCategory> =
-    when (this) {
-        MediaType.ANIME ->
-            listOf(
-                MediaCategory.CURRENT_SEASON_ANIME,
-                MediaCategory.NEXT_SEASON_ANIME,
-                MediaCategory.TRENDING_ANIME,
-                MediaCategory.MOVIE_ANIME,
-                MediaCategory.NEW_ADDED_ANIME,
-            )
-
-        MediaType.MANGA ->
-            listOf(
-                MediaCategory.TRENDING_MANGA,
-                MediaCategory.ALL_TIME_POPULAR_MANGA,
-                MediaCategory.TOP_MANHWA,
-                MediaCategory.NEW_ADDED_MANGA,
-            )
-    }
-
-fun MediaCategory.mediaType(): MediaType =
-    when (this) {
-        MediaCategory.CURRENT_SEASON_ANIME,
-        MediaCategory.NEXT_SEASON_ANIME,
-        MediaCategory.TRENDING_ANIME,
-        MediaCategory.MOVIE_ANIME,
-        MediaCategory.NEW_ADDED_ANIME,
-        -> MediaType.ANIME
-
-        MediaCategory.TRENDING_MANGA,
-        MediaCategory.ALL_TIME_POPULAR_MANGA,
-        MediaCategory.TOP_MANHWA,
-        MediaCategory.NEW_ADDED_MANGA,
-        -> MediaType.MANGA
-    }

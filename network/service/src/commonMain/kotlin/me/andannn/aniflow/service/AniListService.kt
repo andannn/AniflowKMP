@@ -76,17 +76,21 @@ import me.andannn.aniflow.service.request.ToggleFavoriteMutation
 import me.andannn.aniflow.service.request.UpdateUserSettingMutation
 import me.andannn.aniflow.service.request.toQueryBody
 
-open class AniListServiceException(
+open class ServerException(
     override val message: String,
 ) : IllegalStateException(message)
 
+open class AniListException(
+    override val message: String,
+) : ServerException(message)
+
 class UnauthorizedException(
     override val message: String,
-) : AniListServiceException(message)
+) : AniListException(message)
 
 class TokenExpiredException(
     override val message: String,
-) : AniListServiceException(message)
+) : AniListException(message)
 
 /**
  * Service for interacting with AniList GraphQL API.
@@ -679,16 +683,21 @@ class AniListService(
         }
 }
 
-private suspend fun ResponseException.toAniListException(): AniListServiceException {
-    val error = response.body<AniListErrorResponse>()
-    return when (response.status) {
-        HttpStatusCode.Unauthorized -> {
-            UnauthorizedException(error.errors.first().message)
-        }
+private suspend fun ResponseException.toAniListException(): ServerException {
+// TODO: handle different error types
+    val error = response.body<AniListErrorResponse?>()
+    return if (error != null) {
+        when (response.status) {
+            HttpStatusCode.Unauthorized -> {
+                UnauthorizedException(error.errors.first().message)
+            }
 
-        else -> {
-            AniListServiceException(error.errors.first().message)
+            else -> {
+                AniListException(error.errors.first().message)
+            }
         }
+    } else {
+        ServerException("Unknown error: $message")
     }
 }
 
