@@ -6,11 +6,9 @@ import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import org.koin.mp.KoinPlatform.getKoin
 
-actual class DriverFactory {
-    actual fun createDriver(): SqlDriver =
-        AndroidSqliteDriver(
-            AniflowDatabase.Schema.synchronous(),
-            getKoin().get<Context>(),
-            DATABASE_NAME,
-        )
-}
+actual fun createDriver(): SqlDriver =
+    AndroidSqliteDriver(
+        AniflowDatabase.Schema.synchronous(),
+        getKoin().get<Context>(),
+        DATABASE_NAME,
+    )

@@ -11,6 +11,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(project(":database"))
+                implementation(project(":network:service"))
                 implementation(libs.kotlinx.serialization.json)
             }
         }

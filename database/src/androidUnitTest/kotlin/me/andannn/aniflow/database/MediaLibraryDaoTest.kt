@@ -74,4 +74,25 @@ class MediaLibraryDaoTest {
                 )
             }
         }
+
+    @Test
+    fun testUpsertMediasWithCategory() =
+        testScope.runTest {
+            with(mediaLibraryDao) {
+                upsertMediasWithCategory(
+                    category = "testCategory",
+                    mediaList =
+                        listOf(
+                            MediaEntityWithDefault(id = "1"),
+                            MediaEntityWithDefault(id = "2"),
+                        ),
+                )
+
+                getMediaOfCategoryFlow("testCategory").first().let {
+                    assertEquals(2, it.size)
+                    assertEquals("1", it[0].id)
+                    assertEquals("2", it[1].id)
+                }
+            }
+        }
 }

@@ -1,6 +1,6 @@
 import kotlin.Boolean;
 
-CREATE TABLE IF NOT EXISTS MediaEntity (
+CREATE TABLE IF NOT EXISTS mediaEntity (
   id TEXT PRIMARY KEY NOT NULL,
   mediaType TEXT DEFAULT NULL,
   englishTitle TEXT DEFAULT NULL,
@@ -37,16 +37,16 @@ CREATE TABLE IF NOT EXISTS MediaEntity (
 );
 
 getAllMedias:
-SELECT * FROM MediaEntity;
+SELECT * FROM mediaEntity;
 
 getMedia:
-SELECT * FROM MediaEntity WHERE id = ?;
+SELECT * FROM mediaEntity WHERE id = ?;
 
-getMediasById:
-SELECT * FROM MediaEntity WHERE id IN ?;
+getMediaListById:
+SELECT * FROM mediaEntity WHERE id IN ?;
 
 upsertMedia:
-INSERT OR REPLACE INTO MediaEntity (
+INSERT OR REPLACE INTO mediaEntity (
   id,
   mediaType,
   englishTitle,

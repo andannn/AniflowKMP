@@ -4,12 +4,10 @@ import app.cash.sqldelight.db.SqlDriver
 
 internal const val DATABASE_NAME = "aniflow.db"
 
-expect class DriverFactory {
-    fun createDriver(): SqlDriver
-}
+expect fun createDriver(): SqlDriver
 
-fun createDatabase(driverFactory: DriverFactory): AniflowDatabase {
-    val driver = driverFactory.createDriver()
+fun createDatabase(driverFactory: () -> SqlDriver): AniflowDatabase {
+    val driver = driverFactory()
     val database = AniflowDatabase(driver)
 
     return database
