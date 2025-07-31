@@ -53,6 +53,7 @@ kotlin {
         commonMain.dependencies {
             implementation(project(":network:service"))
             implementation(project(":ui"))
+            implementation(project(":data"))
             implementation(libs.napier)
             implementation(libs.circuit.foundation)
         }

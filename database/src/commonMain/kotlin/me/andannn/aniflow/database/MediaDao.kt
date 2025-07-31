@@ -26,12 +26,12 @@ class MediaLibraryDao(
             getMedia(mediaId).asFlow().mapToOneOrNull(dispatcher).filterNotNull()
         }
 
-    suspend fun getMediaListById(mediaIds: List<String>): List<MediaEntity> =
+    suspend fun getMediasById(mediaIds: List<String>): List<MediaEntity> =
         withQueries {
             getMediasById(mediaIds).awaitAsList()
         }
 
-    suspend fun upsertMediaList(mediaList: List<MediaEntity>) =
+    suspend fun upsertMedias(mediaList: List<MediaEntity>) =
         withQueries {
             transaction(true) {
                 mediaList.forEach { mediaEntity ->
