@@ -38,6 +38,7 @@ testMonitor = "1.7.2"
 licensee = "1.13.0"
 workRuntimeKtx = "2.10.2"
 apollo = "4.1.0"
+sqldelight = "2.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -126,3 +127,4 @@ firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "
 room = { id = "androidx.room", version.ref = "androidxRoom" }
 licensee = { id = "app.cash.licensee", version.ref = "licensee" }
 apollo = { id = "com.apollographql.apollo", version.ref = "apollo" }
+sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
