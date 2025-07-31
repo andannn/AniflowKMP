@@ -1,0 +1,78 @@
+CREATE TABLE IF NOT EXISTS MediaEntity (
+  id TEXT PRIMARY KEY NOT NULL,
+  mediaType TEXT,
+  englishTitle TEXT,
+  romajiTitle TEXT,
+  nativeTitle TEXT,
+  coverImageExtraLarge TEXT,
+  coverImageLarge TEXT,
+  coverImageMedium TEXT,
+  coverImageColor TEXT,
+  description TEXT,
+  episodes INTEGER,
+  seasonYear INTEGER,
+  season TEXT,
+  source TEXT,
+  status TEXT,
+  hashtag TEXT,
+  bannerImage TEXT,
+  averageScore INTEGER,
+  trailerId TEXT,
+  trailerSite TEXT,
+  trailerThumbnail TEXT,
+  genres TEXT,
+  format TEXT,
+  trending TEXT,
+  favourites TEXT,
+  popularRanking INTEGER,
+  ratedRanking INTEGER,
+  nextAiringEpisode INTEGER,
+  timeUntilAiring INTEGER,
+  startDate INTEGER,
+  endDate INTEGER,
+  isFavourite INTEGER,
+  siteUrl INTEGER
+);
+
+getMedia:
+SELECT * FROM MediaEntity WHERE id = ?;
+
+getMediasById:
+SELECT * FROM MediaEntity WHERE id IN ?;
+
+upsertMedia:
+INSERT OR REPLACE INTO MediaEntity (
+  id,
+  mediaType,
+  englishTitle,
+  romajiTitle,
+  nativeTitle,
+  coverImageExtraLarge,
+  coverImageLarge,
+  coverImageMedium,
+  coverImageColor,
+  description,
+  episodes,
+  seasonYear,
+  season,
+  source,
+  status,
+  hashtag,
+  bannerImage,
+  averageScore,
+  trailerId,
+  trailerSite,
+  trailerThumbnail,
+  genres,
+  format,
+  trending,
+  favourites,
+  popularRanking,
+  ratedRanking,
+  nextAiringEpisode,
+  timeUntilAiring,
+  startDate,
+  endDate,
+  isFavourite,
+  siteUrl
+) VALUES ?;

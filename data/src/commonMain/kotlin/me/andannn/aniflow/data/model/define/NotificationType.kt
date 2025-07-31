@@ -79,7 +79,7 @@ enum class NotificationType {
     RELATED_MEDIA_ADDITION,
 
     /**
-     * An anime or manga has had a data change that affects how a user may track it in their lists
+     * An anime or manga has had a database change that affects how a user may track it in their lists
      */
     MEDIA_DATA_CHANGE,
 
