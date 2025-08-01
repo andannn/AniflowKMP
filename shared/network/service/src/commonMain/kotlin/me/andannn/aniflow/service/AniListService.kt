@@ -96,7 +96,7 @@ class TokenExpiredException(
  * Service for interacting with AniList GraphQL API.
  */
 class AniListService(
-    engine: HttpClientEngine = HttpEngine,
+    engine: HttpClientEngine = PlatformHttpClientEngine,
     tokenProvider: TokenProvider,
 ) {
     private val client =
@@ -703,4 +703,4 @@ private suspend fun ResponseException.toAniListException(): ServerException {
 
 private const val TAG = "AniListService"
 
-internal expect val HttpEngine: HttpClientEngine
+expect val PlatformHttpClientEngine: HttpClientEngine

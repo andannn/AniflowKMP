@@ -6,29 +6,6 @@ plugins {
 
 kotlin {
     sourceSets {
-        val useMockHttpEngine =
-            project.findProperty("USE_MOCK_HTTP_ENGINE")?.toString()?.toBoolean()
-                ?: error("USE_MOCK_HTTP_ENGINE flag not found.")
-        if (useMockHttpEngine) {
-            val mockMain by creating {
-                dependsOn(commonMain.get())
-            }
-            iosMain { dependsOn(mockMain) }
-            androidMain { dependsOn(mockMain) }
-            mockMain.dependencies {
-                implementation(project(":network:engine-mock"))
-            }
-        } else {
-            val realMain by creating {
-                dependsOn(commonMain.get())
-            }
-            iosMain { dependsOn(realMain) }
-            androidMain { dependsOn(realMain) }
-            realMain.dependencies {
-                implementation(project(":shared:network:engine-real"))
-            }
-        }
-
         commonMain.dependencies {
             implementation(project(":shared:network:common"))
             api(libs.ktor.client.core)
@@ -37,6 +14,14 @@ kotlin {
             implementation(libs.ktor.client.auth)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
+        }
+
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
+        }
+
+        androidMain.dependencies {
+            implementation(libs.ktor.client.okhttp)
         }
 
         commonTest.dependencies {
