@@ -7,11 +7,6 @@ import org.koin.dsl.module
 
 val databaseModule =
     module {
-        lazy {
-            createDatabase(
-                ::createDriver,
-            )
-        }
-
-        lazyOf(::MediaLibraryDao)
+        single { createDatabase(::createDriver) }
+        single { MediaLibraryDao(get()) }
     }

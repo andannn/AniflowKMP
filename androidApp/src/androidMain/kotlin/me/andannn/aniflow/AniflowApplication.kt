@@ -8,6 +8,7 @@ import android.app.Application
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 import me.andannn.aniflow.data.di.dataModule
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
 class AniflowApplication : Application() {
@@ -19,12 +20,8 @@ class AniflowApplication : Application() {
         }
 
         startKoin {
-            modules(Modules)
+            androidContext(this@AniflowApplication)
+            modules(dataModule)
         }
     }
 }
-
-private val Modules =
-    listOf(
-        dataModule,
-    )

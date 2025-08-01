@@ -13,16 +13,21 @@ internal interface GraphQLQuery<T> {
     fun getSchema(): String
 }
 
+private val CustomJson =
+    Json {
+        explicitNulls = false
+    }
+
 internal inline fun <reified T : GraphQLQuery<*>> T.toQueryBody(): GraphQLBody {
     val typeInfo = typeInfo<T>()
     val serializer =
         typeInfo.kotlinType
             ?.let {
-                Json.serializersModule.serializerOrNull(it)
+                CustomJson.serializersModule.serializerOrNull(it)
             }
             ?: throw IllegalArgumentException("No serializer found for type: ${typeInfo.type}")
     return GraphQLBody(
         query = getSchema(),
-        variables = Json.encodeToString(serializer, this),
+        variables = CustomJson.encodeToString(serializer, this),
     )
 }

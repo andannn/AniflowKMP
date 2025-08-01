@@ -50,18 +50,15 @@ android {
 
 kotlin {
     sourceSets {
-        appleMain.dependencies {
-            implementation(libs.ktor.client.darwin)
-        }
-
-        commonMain.dependencies {
+        androidMain.dependencies {
+            implementation(libs.napier)
             implementation(libs.coil3.compose)
             implementation(libs.coil.network.ktor3)
             implementation(project(":shared:data"))
-            implementation(libs.napier)
-        }
+            implementation(project(":shared:components"))
 
-        androidMain.dependencies {
+            implementation(libs.decompose)
+            implementation(libs.decompose.extensions.compose)
             implementation(libs.ktor.client.okhttp)
 
             implementation(libs.androidx.core.ktx)

@@ -22,7 +22,7 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "AniFlowKMP"
-include(":composeApp")
+include(":androidApp")
 
 // sharded modules
 include(":shared:components")
