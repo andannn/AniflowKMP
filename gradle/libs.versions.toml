@@ -2,6 +2,7 @@
 agp = "8.10.1"
 circuit = "0.27.1"
 coil = "3.3.0"
+decompose = "3.3.0"
 kotlin = "2.1.21"
 coreKtx = "1.16.0"
 junit = "4.13.2"
@@ -9,6 +10,7 @@ junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 kotlinxIoCore = "0.7.0"
 ktor = "3.2.1"
+lifecycleCoroutines = "2.5.0"
 lifecycleRuntimeKtx = "2.9.1"
 activityCompose = "1.10.1"
 napierVersion = "2.7.1"
@@ -41,6 +43,8 @@ apollo = "4.1.0"
 sqldelight = "2.1.0"
 
 [libraries]
+decompose = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
+essenty-lifecycle-coroutines = { module = "com.arkivanov.essenty:lifecycle-coroutines", version.ref = "lifecycleCoroutines" }
 sqldelight-coroutines-extensions = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
 sqldelight-native-driver = { module = "app.cash.sqldelight:native-driver", version.ref = "sqldelight" }
 sqldelight-sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }

@@ -33,3 +33,4 @@ include(":shared:data")
 include(":shared:database")
 
 include(":ui")
+include(":shared:components")
