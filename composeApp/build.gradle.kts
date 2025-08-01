@@ -50,18 +50,22 @@ android {
 
 kotlin {
     sourceSets {
+        appleMain.dependencies {
+            implementation(libs.ktor.client.darwin)
+        }
+
         commonMain.dependencies {
+            implementation(libs.coil3.compose)
+            implementation(libs.coil.network.ktor3)
             implementation(project(":shared:data"))
-            implementation(project(":shared:network:service"))
-            implementation(project(":ui"))
             implementation(libs.napier)
-            implementation(libs.circuit.foundation)
         }
 
         androidMain.dependencies {
+            implementation(libs.ktor.client.okhttp)
+
             implementation(libs.androidx.core.ktx)
             implementation(libs.androidx.activity.compose)
-            implementation(libs.androidx.lifecycle.runtime.ktx)
 
             implementation(project.dependencies.platform(libs.firebase.bom))
             implementation(libs.firebase.analytics)

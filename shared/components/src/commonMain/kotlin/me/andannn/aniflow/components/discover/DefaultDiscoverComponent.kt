@@ -3,6 +3,7 @@ package me.andannn.aniflow.components.discover
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.essenty.lifecycle.coroutines.coroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -13,7 +14,7 @@ import kotlin.coroutines.CoroutineContext
 
 class DefaultDiscoverComponent(
     componentContext: ComponentContext,
-    mainContext: CoroutineContext,
+    mainContext: CoroutineContext = Dispatchers.Main,
     mediaRepository: MediaRepository = getKoin().get(),
 ) : DiscoverComponent,
     ComponentContext by componentContext {

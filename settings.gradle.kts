@@ -25,12 +25,10 @@ rootProject.name = "AniFlowKMP"
 include(":composeApp")
 
 // sharded modules
+include(":shared:components")
+include(":shared:data")
 include(":shared:network:service")
 include(":shared:network:engine-mock")
 include(":shared:network:engine-real")
 include(":shared:network:common")
-include(":shared:data")
 include(":shared:database")
-
-include(":ui")
-include(":shared:components")

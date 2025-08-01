@@ -32,7 +32,11 @@ class DefaultHomeComponent(
     ): HomeComponent.Child =
         when (config) {
             Config.Discover ->
-                HomeComponent.Child.Discover(DefaultDiscoverComponent(componentContext))
+                HomeComponent.Child.Discover(
+                    DefaultDiscoverComponent(
+                        componentContext = componentContext,
+                    ),
+                )
         }
 
     @Serializable
