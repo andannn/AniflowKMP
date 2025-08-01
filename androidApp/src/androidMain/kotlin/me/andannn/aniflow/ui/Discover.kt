@@ -7,27 +7,30 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
+import com.arkivanov.decompose.value.Value
 import me.andannn.aniflow.components.discover.DiscoverComponent
+import me.andannn.aniflow.data.model.MediaCategory
+import me.andannn.aniflow.data.model.MediaModel
 
 @Composable
 fun Discover(
     component: DiscoverComponent,
     modifier: Modifier = Modifier,
 ) {
-    val state by component.state.subscribeAsState()
+    val categoryDataMap by component.categoryDataMap.subscribeAsState()
     DiscoverContent(
-        state = state,
+        categoryDataMap = categoryDataMap,
         modifier = modifier,
     )
 }
 
 @Composable
 fun DiscoverContent(
-    state: DiscoverComponent.DiscoverState,
+    categoryDataMap: Map<MediaCategory, List<MediaModel>>,
     modifier: Modifier = Modifier,
 ) {
     Column {
-        state.categoryDataMap.entries.forEach { entry ->
+        categoryDataMap.entries.forEach { entry ->
             Text(text = entry.key.toString(), modifier = modifier)
             Text(text = entry.value.toString(), modifier = modifier)
             HorizontalDivider()

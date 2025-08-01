@@ -5,11 +5,14 @@
 package me.andannn.aniflow
 
 import android.app.Application
+import android.content.Context
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
-import me.andannn.aniflow.data.di.dataModule
-import org.koin.android.ext.koin.androidContext
+import me.andannn.aniflow.components.KoinLauncher
+import me.andannn.aniflow.components.Modules
 import org.koin.core.context.startKoin
+import org.koin.dsl.bind
+import org.koin.dsl.module
 
 class AniflowApplication : Application() {
     override fun onCreate() {
@@ -19,9 +22,21 @@ class AniflowApplication : Application() {
             Napier.base(DebugAntilog())
         }
 
-        startKoin {
-            androidContext(this@AniflowApplication)
-            modules(dataModule)
-        }
+        KoinLauncher.startKoin(
+            modules =
+                listOf(
+                    *Modules.toTypedArray(),
+                    androidContextModule(this@AniflowApplication),
+                ),
+        )
+//        startKoin {
+//            androidContext(this@AniflowApplication)
+//            modules(dataModule)
+//        }
     }
 }
+
+private fun androidContextModule(application: AniflowApplication) =
+    module {
+        single { application } bind Context::class
+    }

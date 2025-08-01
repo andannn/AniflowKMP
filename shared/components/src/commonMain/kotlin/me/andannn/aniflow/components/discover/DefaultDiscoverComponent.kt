@@ -2,12 +2,15 @@ package me.andannn.aniflow.components.discover
 
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
+import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.lifecycle.coroutines.coroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.MediaRepository
+import me.andannn.aniflow.data.model.MediaCategory
+import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.define.MediaType
 import org.koin.mp.KoinPlatform.getKoin
 import kotlin.coroutines.CoroutineContext
@@ -20,19 +23,18 @@ class DefaultDiscoverComponent(
     ComponentContext by componentContext {
     private val scope = coroutineScope(mainContext + SupervisorJob())
 
-    override val state = MutableValue(DiscoverComponent.DiscoverState())
+    override val categoryDataMap: MutableValue<Map<MediaCategory, List<MediaModel>>> =
+        MutableValue(emptyMap())
 
     private val stateFlow =
         mediaRepository.getAllMediasWithCategory(MediaType.ANIME).map {
-            DiscoverComponent.DiscoverState(
-                categoryDataMap = it.data ?: emptyMap(),
-            )
+            it.data ?: emptyMap()
         }
 
     init {
         scope.launch {
             stateFlow.collect { newState ->
-                state.value = newState
+                categoryDataMap.value = newState
             }
         }
     }

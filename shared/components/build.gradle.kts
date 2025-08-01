@@ -14,11 +14,8 @@ kotlin {
         binaries.framework {
             baseName = "Shared"
             isStatic = true // or false, depending on your use case
-            export(project(":shared:data"))
-            export(project(":shared:database"))
-            export(project(":shared:network:common"))
-            export(project(":shared:network:service"))
             export(libs.decompose)
+            export(libs.essenty.lifecycle)
         }
     }
 

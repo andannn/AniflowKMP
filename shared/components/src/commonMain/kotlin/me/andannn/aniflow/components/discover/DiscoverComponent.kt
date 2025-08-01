@@ -5,9 +5,5 @@ import me.andannn.aniflow.data.model.MediaCategory
 import me.andannn.aniflow.data.model.MediaModel
 
 interface DiscoverComponent {
-    val state: Value<DiscoverState>
-
-    data class DiscoverState(
-        val categoryDataMap: Map<MediaCategory, List<MediaModel>> = emptyMap(),
-    )
+    val categoryDataMap: Value<Map<MediaCategory, List<MediaModel>>>
 }

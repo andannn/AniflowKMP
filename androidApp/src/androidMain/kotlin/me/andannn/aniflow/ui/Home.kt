@@ -48,12 +48,6 @@ private fun Children(
     Children(
         stack = component.stack,
         modifier = modifier,
-        animation =
-            predictiveBackAnimation(
-                backHandler = component.backHandler,
-                fallbackAnimation = stackAnimation(fade() + scale()),
-                onBack = component::onBackClicked,
-            ),
     ) {
         Surface(modifier = Modifier.fillMaxSize()) {
             when (val child = it.instance) {
