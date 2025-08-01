@@ -15,17 +15,17 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(project(":database"))
-                implementation(project(":network:service"))
+                implementation(project(":shared:database"))
+                implementation(project(":shared:network:service"))
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.kotlinx.datetime)
             }
         }
 
         androidUnitTest.dependencies {
-            implementation(project(":database"))
-            implementation(project(":network:service"))
-            implementation(project(":network:engine-mock"))
+            implementation(project(":shared:database"))
+            implementation(project(":shared:network:service"))
+            implementation(project(":shared:network:engine-mock"))
             implementation(libs.sqldelight.sqlite.driver)
             implementation(libs.sqldelight.jdbc.driver)
         }

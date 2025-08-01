@@ -24,10 +24,12 @@ dependencyResolutionManagement {
 rootProject.name = "AniFlowKMP"
 include(":composeApp")
 
-include(":network:service")
-include(":network:engine-mock")
-include(":network:engine-real")
-include(":network:common")
-include(":data")
+// sharded modules
+include(":shared:network:service")
+include(":shared:network:engine-mock")
+include(":shared:network:engine-real")
+include(":shared:network:common")
+include(":shared:data")
+include(":shared:database")
+
 include(":ui")
-include(":database")

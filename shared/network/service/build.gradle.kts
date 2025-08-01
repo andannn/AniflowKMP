@@ -25,12 +25,12 @@ kotlin {
             iosMain { dependsOn(realMain) }
             androidMain { dependsOn(realMain) }
             realMain.dependencies {
-                implementation(project(":network:engine-real"))
+                implementation(project(":shared:network:engine-real"))
             }
         }
 
         commonMain.dependencies {
-            implementation(project(":network:common"))
+            implementation(project(":shared:network:common"))
             api(libs.ktor.client.core)
             implementation(libs.ktor.client.logging)
             implementation(libs.ktor.client.encoding)
@@ -40,7 +40,7 @@ kotlin {
         }
 
         commonTest.dependencies {
-            implementation(project(":network:engine-mock"))
+            implementation(project(":shared:network:engine-mock"))
         }
     }
 }

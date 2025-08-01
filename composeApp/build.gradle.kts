@@ -51,9 +51,9 @@ android {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":network:service"))
+            implementation(project(":shared:data"))
+            implementation(project(":shared:network:service"))
             implementation(project(":ui"))
-            implementation(project(":data"))
             implementation(libs.napier)
             implementation(libs.circuit.foundation)
         }
