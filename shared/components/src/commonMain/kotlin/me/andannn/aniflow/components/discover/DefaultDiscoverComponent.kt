@@ -1,8 +1,11 @@
+/*
+ * Copyright 2025, the AniflowKMP project contributors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package me.andannn.aniflow.components.discover
 
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
-import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.lifecycle.coroutines.coroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
