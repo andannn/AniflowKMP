@@ -8,11 +8,22 @@ import me.andannn.aniflow.components.discover.DiscoverComponent
 interface HomeComponent : BackHandlerOwner {
     val stack: Value<ChildStack<*, Child>>
 
+
+    val selectedNavigationItem: Value<TopLevelNavigation>
+
     fun onBackClicked()
+    fun onSelectNavigationItem(navigationItem: TopLevelNavigation)
 
     sealed interface Child {
         class Discover(
             val component: DiscoverComponent,
         ) : Child
     }
+}
+
+enum class TopLevelNavigation {
+    DISCOVER,
+    TRACK,
+    SOCIAL,
+    PROFILE
 }

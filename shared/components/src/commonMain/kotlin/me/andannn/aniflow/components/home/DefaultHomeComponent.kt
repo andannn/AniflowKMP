@@ -4,6 +4,7 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.childStack
+import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import kotlinx.serialization.Serializable
 import me.andannn.aniflow.components.discover.DefaultDiscoverComponent
@@ -21,9 +22,15 @@ class DefaultHomeComponent(
             childFactory = ::child,
         )
     override val stack: Value<ChildStack<*, HomeComponent.Child>> = _stack
+    override val selectedNavigationItem: MutableValue<TopLevelNavigation> =
+        MutableValue(TopLevelNavigation.DISCOVER)
 
     override fun onBackClicked() {
         TODO("Not yet implemented")
+    }
+
+    override fun onSelectNavigationItem(navigationItem: TopLevelNavigation) {
+        selectedNavigationItem.value = navigationItem
     }
 
     private fun child(
