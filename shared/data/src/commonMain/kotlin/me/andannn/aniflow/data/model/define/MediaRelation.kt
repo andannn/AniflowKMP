@@ -4,9 +4,12 @@
  */
 package me.andannn.aniflow.data.model.define
 
+import kotlinx.serialization.Serializable
+
 /**
  * Type of relation media has to its parent.
  */
+@Serializable
 enum class MediaRelation {
     /**
      * An adaption of this media into a different format

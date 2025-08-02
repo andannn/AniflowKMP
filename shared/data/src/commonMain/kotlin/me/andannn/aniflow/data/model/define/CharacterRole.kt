@@ -4,9 +4,12 @@
  */
 package me.andannn.aniflow.data.model.define
 
+import kotlinx.serialization.Serializable
+
 /**
  * The role the character plays in the media
  */
+@Serializable
 enum class CharacterRole {
     /**
      * A primary character role in the media

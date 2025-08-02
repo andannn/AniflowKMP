@@ -21,12 +21,19 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         )
     )
 
-//    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
-//
-//        KoinLauncher().startKoin(
-//            modules: KoinLauncherKt.Modules
-//        )
-//
-//        return true
-//    }
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+
+        KoinLauncher().startKoin(
+            modules: KoinLauncherKt.Modules
+        )
+        
+        #if DEBUG
+        print("Running in Debug mode")
+        Logger.shared.enableDebugLog()
+        #else
+        print("Running in Release mode")
+        #endif
+
+        return true
+    }
 }

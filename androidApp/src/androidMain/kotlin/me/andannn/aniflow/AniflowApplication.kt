@@ -6,11 +6,9 @@ package me.andannn.aniflow
 
 import android.app.Application
 import android.content.Context
-import io.github.aakira.napier.DebugAntilog
-import io.github.aakira.napier.Napier
 import me.andannn.aniflow.components.KoinLauncher
+import me.andannn.aniflow.components.Logger
 import me.andannn.aniflow.components.Modules
-import org.koin.core.context.startKoin
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
@@ -19,7 +17,7 @@ class AniflowApplication : Application() {
         super.onCreate()
 
         if (BuildConfig.DEBUG) {
-            Napier.base(DebugAntilog())
+            Logger.enableDebugLog()
         }
 
         KoinLauncher.startKoin(

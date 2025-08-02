@@ -1,5 +1,6 @@
 plugins {
     id("kmp.library")
+    alias(libs.plugins.serialization)
 }
 
 android {

@@ -4,9 +4,12 @@
  */
 package me.andannn.aniflow.data.model.define
 
+import kotlinx.serialization.Serializable
+
 /**
  * Media type enum, anime or manga.
  */
+@Serializable
 enum class MediaType {
     /**
      * Japanese Anime

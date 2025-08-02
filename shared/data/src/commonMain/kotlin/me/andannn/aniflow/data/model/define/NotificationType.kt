@@ -4,9 +4,12 @@
  */
 package me.andannn.aniflow.data.model.define
 
+import kotlinx.serialization.Serializable
+
 /**
  * Notification type enum
  */
+@Serializable
 enum class NotificationType {
     /**
      * A user has sent you message

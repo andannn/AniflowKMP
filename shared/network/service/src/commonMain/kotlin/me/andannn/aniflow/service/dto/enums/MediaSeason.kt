@@ -4,8 +4,10 @@
  */
 package me.andannn.aniflow.service.dto.enums
 
+import kotlinx.serialization.Serializable
 import kotlin.String
 
+@Serializable
 enum class MediaSeason(
     public val rawValue: String,
 ) {

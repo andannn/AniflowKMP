@@ -4,9 +4,12 @@
  */
 package me.andannn.aniflow.service.dto.enums
 
+import kotlinx.serialization.Serializable
+
 /**
  * Media type enum, anime or manga.
  */
+@Serializable
 enum class MediaType(
     public val rawValue: String,
 ) {

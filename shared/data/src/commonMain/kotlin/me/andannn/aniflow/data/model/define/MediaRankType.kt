@@ -4,9 +4,12 @@
  */
 package me.andannn.aniflow.data.model.define
 
+import kotlinx.serialization.Serializable
+
 /**
  * The type of ranking
  */
+@Serializable
 enum class MediaRankType {
     /**
      * Ranking is based on the media's ratings/score

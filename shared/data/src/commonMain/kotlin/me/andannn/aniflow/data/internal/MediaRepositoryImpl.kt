@@ -4,6 +4,7 @@
  */
 package me.andannn.aniflow.data.internal
 
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
@@ -30,6 +31,8 @@ import me.andannn.aniflow.service.AniListService
 import me.andannn.aniflow.service.ServerException
 import me.andannn.aniflow.service.dto.Media
 
+private const val TAG = "MediaRepository"
+
 class MediaRepositoryImpl(
     private val mediaLibraryDao: MediaLibraryDao,
     private val mediaService: AniListService,
@@ -47,7 +50,7 @@ class MediaRepositoryImpl(
                         supervisorScope {
                             val deferredList =
                                 categories.map {
-                                    it.syncLocalWithService()
+                                    it.syncLocalWithService(this)
                                 }
 
                             deferredList
@@ -84,17 +87,21 @@ class MediaRepositoryImpl(
 
 private const val DEFAULT_CACHED_SIZE = 20
 
-context(service: AniListService, database: MediaLibraryDao, scope: CoroutineScope)
-private fun MediaCategory.syncLocalWithService(): Deferred<Throwable?> =
+context(service: AniListService, database: MediaLibraryDao)
+private fun MediaCategory.syncLocalWithService(scope: CoroutineScope): Deferred<Throwable?> =
     scope.async {
+        val category = this@syncLocalWithService
+        Napier.d(tag = TAG) { "syncLocalWithService start: $category" }
         try {
             val items = getMediaOfCategoryFromRemote(MediaSeason.SUMMER, 2025)
             database.upsertMediasWithCategory(
-                category = Json.encodeToString(this@syncLocalWithService),
+                category = Json.encodeToString(category),
                 mediaList = items.map(Media::toEntity),
             )
+            Napier.d(tag = TAG) { "syncLocalWithService finished: $category" }
             null
         } catch (exception: ServerException) {
+            Napier.e { "Error when syncing local with remote: $exception" }
             exception
         }
     }

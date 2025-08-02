@@ -4,9 +4,12 @@
  */
 package me.andannn.aniflow.service.dto.enums
 
+import kotlinx.serialization.Serializable
+
 /**
  * Source type the media was adapted from
  */
+@Serializable
 enum class MediaSource(
     public val rawValue: String,
 ) {

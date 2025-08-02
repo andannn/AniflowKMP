@@ -4,6 +4,8 @@
  */
 package me.andannn.aniflow.components
 
+import io.github.aakira.napier.DebugAntilog
+import io.github.aakira.napier.Napier
 import me.andannn.aniflow.data.di.dataModule
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
@@ -18,5 +20,11 @@ object KoinLauncher {
         startKoin {
             modules(modules)
         }
+    }
+}
+
+object Logger {
+    fun enableDebugLog() {
+        Napier.base(DebugAntilog())
     }
 }

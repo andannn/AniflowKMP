@@ -4,9 +4,12 @@
  */
 package me.andannn.aniflow.service.dto.enums
 
+import kotlinx.serialization.Serializable
+
 /**
  * Type of relation media has to its parent.
  */
+@Serializable
 enum class MediaRelation(
     public val rawValue: String,
 ) {

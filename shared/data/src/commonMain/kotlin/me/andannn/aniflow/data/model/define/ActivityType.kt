@@ -4,9 +4,12 @@
  */
 package me.andannn.aniflow.data.model.define
 
+import kotlinx.serialization.Serializable
+
 /**
  * Activity type enum.
  */
+@Serializable
 enum class ActivityType {
     /**
      * A text activity

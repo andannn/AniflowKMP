@@ -9,5 +9,9 @@ import me.andannn.aniflow.data.model.MediaCategory
 import me.andannn.aniflow.data.model.MediaModel
 
 interface DiscoverComponent {
-    val categoryDataMap: Value<Map<MediaCategory, List<MediaModel>>>
+    val categoryDataMap: Value<CategoryDataModel>
 }
+
+data class CategoryDataModel(
+    val map: Map<MediaCategory, List<MediaModel>> = emptyMap(),
+)

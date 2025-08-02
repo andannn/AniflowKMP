@@ -4,9 +4,12 @@
  */
 package me.andannn.aniflow.data.model.define
 
+import kotlinx.serialization.Serializable
+
 /**
  * The format the media was released in
  */
+@Serializable
 enum class MediaFormat {
     /**
      * Anime broadcast on television

@@ -4,9 +4,12 @@
  */
 package me.andannn.aniflow.service.dto.enums
 
+import kotlinx.serialization.Serializable
+
 /**
  * Activity type enum.
  */
+@Serializable
 enum class ActivityType(
     public val rawValue: String,
 ) {

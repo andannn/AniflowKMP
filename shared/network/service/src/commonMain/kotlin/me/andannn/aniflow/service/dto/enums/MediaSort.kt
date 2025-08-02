@@ -4,9 +4,12 @@
  */
 package me.andannn.aniflow.service.dto.enums
 
+import kotlinx.serialization.Serializable
+
 /**
  * Media sort enums
  */
+@Serializable
 enum class MediaSort(
     public val rawValue: String,
 ) {

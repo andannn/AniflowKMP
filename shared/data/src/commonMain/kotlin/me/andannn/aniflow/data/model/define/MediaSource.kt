@@ -4,9 +4,12 @@
  */
 package me.andannn.aniflow.data.model.define
 
+import kotlinx.serialization.Serializable
+
 /**
  * Source type the media was adapted from
  */
+@Serializable
 enum class MediaSource {
     /**
      * An original production not based of another work

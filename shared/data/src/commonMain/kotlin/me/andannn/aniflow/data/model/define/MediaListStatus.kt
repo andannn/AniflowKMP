@@ -4,9 +4,12 @@
  */
 package me.andannn.aniflow.data.model.define
 
+import kotlinx.serialization.Serializable
+
 /**
  * Media list watching/reading status enum.
  */
+@Serializable
 enum class MediaListStatus {
     /**
      * Currently watching/reading

@@ -4,9 +4,12 @@
  */
 package me.andannn.aniflow.data.model.define
 
+import kotlinx.serialization.Serializable
+
 /**
  * Media list scoring type
  */
+@Serializable
 enum class ScoreFormat {
     /**
      * An integer from 0-100

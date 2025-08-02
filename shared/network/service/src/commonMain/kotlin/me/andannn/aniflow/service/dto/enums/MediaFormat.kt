@@ -4,11 +4,13 @@
  */
 package me.andannn.aniflow.service.dto.enums
 
+import kotlinx.serialization.Serializable
 import kotlin.String
 
 /**
  * The format the media was released in
  */
+@Serializable
 enum class MediaFormat(
     public val rawValue: String,
 ) {

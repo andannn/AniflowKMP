@@ -4,6 +4,9 @@
  */
 package me.andannn.aniflow.data.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 enum class MediaCategory {
     // current season releasing anime.
     CURRENT_SEASON_ANIME,

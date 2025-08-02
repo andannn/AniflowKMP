@@ -4,9 +4,12 @@
  */
 package me.andannn.aniflow.service.dto.enums
 
+import kotlinx.serialization.Serializable
+
 /**
  * The primary language of the voice actor
  */
+@Serializable
 enum class StaffLanguage(
     public val rawValue: String,
 ) {

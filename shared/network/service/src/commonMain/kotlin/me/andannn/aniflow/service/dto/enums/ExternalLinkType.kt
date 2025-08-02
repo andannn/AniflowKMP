@@ -4,6 +4,9 @@
  */
 package me.andannn.aniflow.service.dto.enums
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 enum class ExternalLinkType(
     public val rawValue: String,
 ) {

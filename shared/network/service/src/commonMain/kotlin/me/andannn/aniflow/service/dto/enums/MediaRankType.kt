@@ -4,11 +4,13 @@
  */
 package me.andannn.aniflow.service.dto.enums
 
+import kotlinx.serialization.Serializable
 import kotlin.String
 
 /**
  * The type of ranking
  */
+@Serializable
 enum class MediaRankType(
     public val rawValue: String,
 ) {

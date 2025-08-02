@@ -4,9 +4,12 @@
  */
 package me.andannn.aniflow.service.dto.enums
 
+import kotlinx.serialization.Serializable
+
 /**
  * The current releasing status of the media
  */
+@Serializable
 enum class MediaStatus(
     public val rawValue: String,
 ) {

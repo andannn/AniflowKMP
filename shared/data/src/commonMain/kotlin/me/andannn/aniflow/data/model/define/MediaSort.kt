@@ -4,9 +4,12 @@
  */
 package me.andannn.aniflow.data.model.define
 
+import kotlinx.serialization.Serializable
+
 /**
  * Media sort enums
  */
+@Serializable
 enum class MediaSort {
     START_DATE,
     START_DATE_DESC,

@@ -4,11 +4,13 @@
  */
 package me.andannn.aniflow.service.dto.enums
 
+import kotlinx.serialization.Serializable
 import kotlin.String
 
 /**
  * Media list scoring type
  */
+@Serializable
 enum class ScoreFormat(
     public val rawValue: String,
 ) {

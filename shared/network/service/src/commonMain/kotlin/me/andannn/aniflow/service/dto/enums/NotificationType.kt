@@ -4,9 +4,12 @@
  */
 package me.andannn.aniflow.service.dto.enums
 
+import kotlinx.serialization.Serializable
+
 /**
  * Notification type enum
  */
+@Serializable
 enum class NotificationType(
     public val rawValue: String,
 ) {

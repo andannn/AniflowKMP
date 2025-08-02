@@ -152,7 +152,7 @@ class AniListService(
                             Napier.d(tag = TAG) { message }
                         }
                     }
-                level = LogLevel.ALL
+                level = LogLevel.HEADERS
             }
         }
 
@@ -680,6 +680,9 @@ class AniListService(
                 }
         } catch (exception: ResponseException) {
             throw exception.toAniListException()
+        } catch (throwable: Throwable) {
+            Napier.e { "Error when doing GraphQL query: $throwable" }
+            throw throwable
         }
 }
 

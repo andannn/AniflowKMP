@@ -4,9 +4,12 @@
  */
 package me.andannn.aniflow.data.model.define
 
+import kotlinx.serialization.Serializable
+
 /**
  * The current releasing status of the media
  */
+@Serializable
 enum class MediaStatus {
     /**
      * Has completed and is no longer being released

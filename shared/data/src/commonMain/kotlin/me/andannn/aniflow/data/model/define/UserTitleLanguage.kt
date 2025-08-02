@@ -4,9 +4,12 @@
  */
 package me.andannn.aniflow.data.model.define
 
+import kotlinx.serialization.Serializable
+
 /**
  * The language the user wants to see media titles in
  */
+@Serializable
 enum class UserTitleLanguage {
     /**
      * The romanization of the native language title

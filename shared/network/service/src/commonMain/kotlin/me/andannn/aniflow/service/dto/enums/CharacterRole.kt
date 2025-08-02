@@ -4,11 +4,13 @@
  */
 package me.andannn.aniflow.service.dto.enums
 
+import kotlinx.serialization.Serializable
 import kotlin.String
 
 /**
  * The role the character plays in the media
  */
+@Serializable
 enum class CharacterRole(
     public val rawValue: String,
 ) {

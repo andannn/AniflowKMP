@@ -4,11 +4,13 @@
  */
 package me.andannn.aniflow.service.dto.enums
 
+import kotlinx.serialization.Serializable
 import kotlin.String
 
 /**
  * The language the user wants to see media titles in
  */
+@Serializable
 enum class UserTitleLanguage(
     public val rawValue: String,
 ) {
