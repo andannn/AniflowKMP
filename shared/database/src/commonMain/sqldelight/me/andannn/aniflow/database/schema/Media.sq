@@ -1,0 +1,79 @@
+import kotlin.Boolean;
+
+CREATE TABLE IF NOT EXISTS mediaEntity (
+  id TEXT PRIMARY KEY NOT NULL,
+  mediaType TEXT DEFAULT NULL,
+  englishTitle TEXT DEFAULT NULL,
+  romajiTitle TEXT DEFAULT NULL,
+  nativeTitle TEXT DEFAULT NULL,
+  coverImageExtraLarge TEXT DEFAULT NULL,
+  coverImageLarge TEXT DEFAULT NULL,
+  coverImageMedium TEXT DEFAULT NULL,
+  coverImageColor TEXT DEFAULT NULL,
+  description TEXT DEFAULT NULL,
+  episodes INTEGER DEFAULT NULL,
+  seasonYear INTEGER DEFAULT NULL,
+  season TEXT DEFAULT NULL,
+  source TEXT DEFAULT NULL,
+  status TEXT DEFAULT NULL,
+  hashtag TEXT DEFAULT NULL,
+  bannerImage TEXT DEFAULT NULL,
+  averageScore INTEGER DEFAULT NULL,
+  trailerId TEXT DEFAULT NULL,
+  trailerSite TEXT DEFAULT NULL,
+  trailerThumbnail TEXT DEFAULT NULL,
+  genres TEXT DEFAULT NULL,
+  format TEXT DEFAULT NULL,
+  trending INTEGER DEFAULT NULL,
+  favourites INTEGER DEFAULT NULL,
+  popularRanking INTEGER DEFAULT NULL,
+  ratedRanking INTEGER DEFAULT NULL,
+  nextAiringEpisode INTEGER DEFAULT NULL,
+  timeUntilAiring INTEGER DEFAULT NULL,
+  isFavourite INTEGER AS Boolean DEFAULT NULL ,
+  siteUrl INTEGER DEFAULT NULL
+);
+
+getAllMedias:
+SELECT * FROM mediaEntity;
+
+getMedia:
+SELECT * FROM mediaEntity WHERE id = ?;
+
+getMediaListById:
+SELECT * FROM mediaEntity WHERE id IN ?;
+
+upsertMedia:
+INSERT OR REPLACE INTO mediaEntity (
+  id,
+  mediaType,
+  englishTitle,
+  romajiTitle,
+  nativeTitle,
+  coverImageExtraLarge,
+  coverImageLarge,
+  coverImageMedium,
+  coverImageColor,
+  description,
+  episodes,
+  seasonYear,
+  season,
+  source,
+  status,
+  hashtag,
+  bannerImage,
+  averageScore,
+  trailerId,
+  trailerSite,
+  trailerThumbnail,
+  genres,
+  format,
+  trending,
+  favourites,
+  popularRanking,
+  ratedRanking,
+  nextAiringEpisode,
+  timeUntilAiring,
+  isFavourite,
+  siteUrl
+) VALUES ?;

@@ -22,9 +22,12 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "AniFlowKMP"
-include(":composeApp")
+include(":androidApp")
 
-include(":network:service")
-include(":network:engine-mock")
-include(":network:engine-real")
-include(":network:common")
+// sharded modules
+include(":shared:components")
+include(":shared:data")
+include(":shared:network:service")
+include(":shared:network:engine-mock")
+include(":shared:network:common")
+include(":shared:database")
