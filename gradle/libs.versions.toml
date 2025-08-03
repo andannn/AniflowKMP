@@ -1,22 +1,25 @@
 [versions]
 agp = "8.10.1"
 circuit = "0.27.1"
-kotlin = "2.1.21"
+coil = "3.3.0"
+decompose = "3.3.0"
+kotlin = "2.2.0"
 coreKtx = "1.16.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 kotlinxIoCore = "0.7.0"
-ktor = "3.2.1"
+ktor = "3.2.3"
+essenty = "2.5.0"
 lifecycleRuntimeKtx = "2.9.1"
 activityCompose = "1.10.1"
 napierVersion = "2.7.1"
 kotlinxCollectionsImmutable = "0.4.0"
 kotlinxCoroutines = "1.10.2"
 kotlinxSerializationJson = "1.8.1"
-ksp = "2.1.21-2.0.2"
+ksp = "2.2.0-2.0.2"
 androidGradlePlugin = "8.11.1"
-compose-plugin = "1.7.3"
+compose-plugin = "1.8.2"
 koin-bom = "4.0.4"
 kotlinxDatetime = "0.7.0-0.6.x-compat"
 ksoup = "0.2.4"
@@ -37,13 +40,25 @@ testMonitor = "1.7.2"
 licensee = "1.13.0"
 workRuntimeKtx = "2.10.2"
 apollo = "4.1.0"
+sqldelight = "2.1.0"
 
 [libraries]
+decompose = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
+decompose-extensions-compose = { module = "com.arkivanov.decompose:extensions-compose", version.ref = "decompose" }
+essenty-lifecycle-coroutines = { module = "com.arkivanov.essenty:lifecycle-coroutines", version.ref = "essenty" }
+essenty-lifecycle = { module = "com.arkivanov.essenty:lifecycle", version.ref = "essenty" }
+sqldelight-coroutines-extensions = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
+sqldelight-native-driver = { module = "app.cash.sqldelight:native-driver", version.ref = "sqldelight" }
+sqldelight-sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }
+sqldelight-jdbc-driver = { module = "app.cash.sqldelight:jdbc-driver", version.ref = "sqldelight" }
+sqldelight-android-driver = { module = "app.cash.sqldelight:android-driver", version.ref = "sqldelight" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-foundation = { module = "androidx.compose.foundation:foundation" }
 androidx-paging-common = { module = "androidx.paging:paging-common", version.ref = "pagingCommonVersion" }
 circuit-foundation = { module = "com.slack.circuit:circuit-foundation", version.ref = "circuit" }
 circuit-test = { group = "com.slack.circuit", name = "circuit-test", version.ref = "circuit" }
+coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
+coil3-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -123,3 +138,4 @@ firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "
 room = { id = "androidx.room", version.ref = "androidxRoom" }
 licensee = { id = "app.cash.licensee", version.ref = "licensee" }
 apollo = { id = "com.apollographql.apollo", version.ref = "apollo" }
+sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }

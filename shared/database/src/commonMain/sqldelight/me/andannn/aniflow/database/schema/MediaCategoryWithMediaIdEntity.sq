@@ -1,0 +1,17 @@
+CREATE TABLE mediaCategoryWithMediaIdEntity (
+      mediaId TEXT NOT NULL,
+      category TEXT NOT NULL,
+      PRIMARY KEY (mediaId, category)
+);
+
+upsertMediaCategoryWithMediaId:
+INSERT OR REPLACE INTO mediaCategoryWithMediaIdEntity (
+      mediaId,
+      category
+) VALUES (?, ?);
+
+getMediaOfCategory:
+SELECT mediaEntity.*
+FROM mediaCategoryWithMediaIdEntity AS b
+JOIN mediaEntity ON b.mediaId = mediaEntity.id
+WHERE b.category = ?;
