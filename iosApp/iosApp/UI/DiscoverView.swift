@@ -14,21 +14,22 @@ struct DiscoverView: View {
     }
     
     var body: some View {
-        ScrollView {
-            LazyVStack(alignment: .leading, spacing: 16) {
-                ForEach(Array(categoryDataMapHolder.map.keys), id: \.self) { category in
-                    if let mediaList = categoryDataMapHolder.map[category] {
-                        TitleWithContent(title: category.title, onMoreClick: {}) {
-                            MediaPreviewSector(mediaList: mediaList) { item in
+        NavigationStack {
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 16) {
+                    ForEach(Array(categoryDataMapHolder.content), id: \.category) { categoryWithContents in
+                        TitleWithContent(title: categoryWithContents.category.title, onMoreClick: {}) {
+                            MediaPreviewSector(mediaList: categoryWithContents.medias) { item in
                                 // onMediaClick
+//                                component.onStartLoginProcess()
                             }
                         }
                     }
                 }
+                .padding()
             }
-            .padding()
-            
         }
+        .navigationTitle("Discover")
     }
 }
 

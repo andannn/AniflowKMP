@@ -13,6 +13,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import me.andannn.aniflow.data.AuthToken
 import me.andannn.aniflow.data.BrowserAuthOperationHandler
 import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 private const val TAG = "BrowserAuthOperationHandler"
 private const val CLIENT_ID = "14409"
@@ -40,7 +41,7 @@ internal class BrowserAuthOperationHandlerImpl : BrowserAuthOperationHandler {
     override suspend fun awaitAuthResult(): AuthToken =
         suspendCancellableCoroutine { cont ->
             if (authOperationContinuation != null) {
-                error("Auth operation already in progress")
+                cont.resumeWithException(IllegalStateException("Auth operation already in progress"))
             }
 
             cont.invokeOnCancellation {

@@ -20,18 +20,18 @@ struct HomeView: View {
     }
     
     var body: some View {
-        NavigationStack {
-            VStack {
-                ChildView(child: activeChild)
+        VStack {
+            StackView(
+                stackValue: _stack,
+                getTitle: { _ in "Heh" },
+                onBack: { a in  }
+            ) { child in
+                ChildView(child: child)
                     .frame(maxHeight: .infinity)
             }
-            .navigationTitle("Discover")
-            .toolbar {
-                ToolbarItemGroup(placement: .bottomBar) {
-                    NavigationArea(selected: selectedNavigationItem) { newItem in
-                        component.onSelectNavigationItem(navigationItem: newItem)
-                    }
-                }
+            
+            NavigationArea(selected: selectedNavigationItem) { newItem in
+                component.onSelectNavigationItem(navigationItem: newItem)
             }
         }
     }

@@ -58,6 +58,7 @@ androidx-paging-common = { module = "androidx.paging:paging-common", version.ref
 circuit-foundation = { module = "com.slack.circuit:circuit-foundation", version.ref = "circuit" }
 circuit-test = { group = "com.slack.circuit", name = "circuit-test", version.ref = "circuit" }
 coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
+coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil" }
 coil3-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

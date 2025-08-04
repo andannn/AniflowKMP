@@ -46,7 +46,10 @@ class DefaultDiscoverComponent(
                 .map {
                     it.data ?: emptyMap()
                 }.collect { newState ->
-                    categoryDataMap.value = CategoryDataModel(newState)
+                    categoryDataMap.value =
+                        CategoryDataModel(
+                            newState,
+                        )
                 }
         }
 

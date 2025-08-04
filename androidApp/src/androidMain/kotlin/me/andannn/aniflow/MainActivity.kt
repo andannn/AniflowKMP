@@ -12,6 +12,7 @@ import androidx.activity.enableEdgeToEdge
 import com.arkivanov.decompose.defaultComponentContext
 import io.github.aakira.napier.Napier
 import me.andannn.aniflow.components.root.DefaultRootComponent
+import me.andannn.aniflow.data.BrowserAuthOperationHandler
 import me.andannn.aniflow.platform.BrowserAuthOperationHandlerImpl
 import me.andannn.aniflow.ui.Root
 import org.koin.android.ext.android.getKoin
@@ -20,7 +21,7 @@ private const val TAG = "MainActivity"
 
 class MainActivity : ComponentActivity() {
     private val browserAuthOperationHandler: BrowserAuthOperationHandlerImpl by lazy {
-        getKoin().get<BrowserAuthOperationHandlerImpl>()
+        getKoin().get<BrowserAuthOperationHandler>() as BrowserAuthOperationHandlerImpl
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,6 +54,6 @@ class MainActivity : ComponentActivity() {
 
         Napier.d(tag = TAG) { "onNewIntent $intent" }
 
-        getKoin().get<BrowserAuthOperationHandlerImpl>().onReceiveNewIntent(intent)
+        browserAuthOperationHandler.onReceiveNewIntent(intent)
     }
 }
