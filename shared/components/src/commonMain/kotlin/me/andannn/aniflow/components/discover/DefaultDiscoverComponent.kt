@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.MediaRepository
+import me.andannn.aniflow.data.model.UserModel
 import me.andannn.aniflow.data.model.define.MediaType
 import org.koin.mp.KoinPlatform.getKoin
 import kotlin.coroutines.CoroutineContext
@@ -26,12 +27,11 @@ class DefaultDiscoverComponent(
     ComponentContext by componentContext {
     private val scope = coroutineScope(mainContext + SupervisorJob())
 
-    private val stateFlow =
-        mediaRepository.getAllMediasWithCategory(MediaType.ANIME).map {
-            it.data ?: emptyMap()
-        }
     override val categoryDataMap: MutableValue<CategoryDataModel> =
         MutableValue(CategoryDataModel())
+
+    override val authedUser: MutableValue<Optional<UserModel>> =
+        MutableValue(Optional(null))
 
     override fun onStartLoginProcess() {
         scope.launch {
@@ -41,8 +41,18 @@ class DefaultDiscoverComponent(
 
     init {
         scope.launch {
-            stateFlow.collect { newState ->
-                categoryDataMap.value = CategoryDataModel(newState)
+            mediaRepository
+                .getAllMediasWithCategory(MediaType.ANIME)
+                .map {
+                    it.data ?: emptyMap()
+                }.collect { newState ->
+                    categoryDataMap.value = CategoryDataModel(newState)
+                }
+        }
+
+        scope.launch {
+            authRepository.getAuthedUser().collect {
+                authedUser.value = Optional(it)
             }
         }
     }

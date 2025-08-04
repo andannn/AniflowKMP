@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -32,6 +33,8 @@ import kotlinx.coroutines.delay
 import me.andannn.aniflow.components.discover.DiscoverComponent
 import me.andannn.aniflow.data.model.MediaCategory
 import me.andannn.aniflow.data.model.MediaModel
+import me.andannn.aniflow.data.model.UserModel
+import me.andannn.aniflow.ui.widget.AvatarIcon
 import me.andannn.aniflow.ui.widget.MediaPreviewItem
 
 @Composable
@@ -40,6 +43,7 @@ fun Discover(
     modifier: Modifier = Modifier,
 ) {
     val categoryDataMap by component.categoryDataMap.subscribeAsState()
+    val authedUser by component.authedUser.subscribeAsState()
 
     LaunchedEffect(Unit) {
         delay(2000)
@@ -47,6 +51,7 @@ fun Discover(
     }
     DiscoverContent(
         categoryDataMap = categoryDataMap.map,
+        authedUser = authedUser.value,
         modifier = modifier,
     )
 }
@@ -55,6 +60,7 @@ fun Discover(
 @Composable
 fun DiscoverContent(
     categoryDataMap: Map<MediaCategory, List<MediaModel>>,
+    authedUser: UserModel?,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -62,6 +68,15 @@ fun DiscoverContent(
         topBar = {
             TopAppBar(
                 title = { Text(text = "Discover") },
+                actions = {
+                    if (authedUser != null) {
+                        AvatarIcon(
+                            modifier = Modifier.size(48.dp),
+                            avatarUrl = authedUser.avatar,
+                            onClick = {},
+                        )
+                    }
+                },
             )
         },
     ) {
