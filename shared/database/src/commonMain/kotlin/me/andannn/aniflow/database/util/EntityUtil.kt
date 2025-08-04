@@ -5,6 +5,7 @@
 package me.andannn.aniflow.database.util
 
 import me.andannn.aniflow.database.schema.MediaEntity
+import me.andannn.aniflow.database.schema.UserEntity
 
 @Suppress("ktlint:standard:function-naming")
 fun MediaEntityWithDefault(
@@ -73,4 +74,21 @@ fun MediaEntityWithDefault(
     timeUntilAiring = timeUntilAiring,
     isFavourite = isFavourite,
     siteUrl = siteUrl,
+)
+
+@Suppress("ktlint:standard:function-naming")
+fun UserEntityWithDefault(
+    id: String,
+    name: String? = null,
+    avatarImage: String? = null,
+    bannerImage: String? = null,
+    profileColor: String? = null,
+    unreadNotificationCount: Long? = null,
+) = UserEntity(
+    id = id,
+    name = name,
+    bannerImage = bannerImage,
+    avatarImage = avatarImage,
+    profileColor = profileColor,
+    unreadNotificationCount = unreadNotificationCount,
 )

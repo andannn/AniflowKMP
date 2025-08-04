@@ -6,9 +6,11 @@ package me.andannn.aniflow.database
 
 import app.cash.sqldelight.db.SqlDriver
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import me.andannn.aniflow.database.util.MediaEntityWithDefault
+import me.andannn.aniflow.database.util.UserEntityWithDefault
 import org.junit.Test
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -96,6 +98,24 @@ class MediaLibraryDaoTest {
                     assertEquals(2, it.size)
                     assertEquals("1", it[0].id)
                     assertEquals("2", it[1].id)
+                }
+            }
+        }
+
+    @Test
+    fun testUpsertUser() =
+        testScope.runTest {
+            with(mediaLibraryDao) {
+                upsertUser(
+                    listOf(
+                        UserEntityWithDefault(id = "user1", name = "User One"),
+                        UserEntityWithDefault(id = "user2", name = "User Two"),
+                    ),
+                )
+
+                getUserFlow("user1").firstOrNull()?.let {
+                    assertEquals("user1", it.id)
+                    assertEquals("User One", it.name)
                 }
             }
         }

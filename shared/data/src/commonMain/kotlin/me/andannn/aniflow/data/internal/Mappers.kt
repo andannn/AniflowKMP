@@ -8,7 +8,9 @@ import kotlinx.serialization.json.Json
 import me.andannn.aniflow.data.model.EpisodeModel
 import me.andannn.aniflow.data.model.MediaCategory
 import me.andannn.aniflow.data.model.MediaModel
+import me.andannn.aniflow.data.model.Title
 import me.andannn.aniflow.data.model.Trailer
+import me.andannn.aniflow.data.model.UserModel
 import me.andannn.aniflow.data.model.define.MediaFormat
 import me.andannn.aniflow.data.model.define.MediaSeason
 import me.andannn.aniflow.data.model.define.MediaSort
@@ -16,7 +18,9 @@ import me.andannn.aniflow.data.model.define.MediaSource
 import me.andannn.aniflow.data.model.define.MediaStatus
 import me.andannn.aniflow.data.model.define.MediaType
 import me.andannn.aniflow.database.schema.MediaEntity
+import me.andannn.aniflow.database.schema.UserEntity
 import me.andannn.aniflow.service.dto.Media
+import me.andannn.aniflow.service.dto.User
 import me.andannn.aniflow.service.dto.enums.MediaRankType
 
 internal fun MediaType.allCategories(): List<MediaCategory> =
@@ -193,7 +197,7 @@ internal fun MediaEntity.toDomain() =
         id = id,
         type = mediaType?.let { Json.decodeFromString(it) },
         title =
-            me.andannn.aniflow.data.model.Title(
+            Title(
                 english = englishTitle,
                 romaji = romajiTitle,
                 native = nativeTitle,
@@ -223,4 +227,23 @@ internal fun MediaEntity.toDomain() =
                 site = trailerSite,
                 thumbnail = trailerThumbnail,
             ),
+    )
+
+internal fun User.toEntity() =
+    UserEntity(
+        id = id.toString(),
+        name = name,
+        avatarImage = avatar?.large ?: avatar?.medium,
+        bannerImage = bannerImage,
+        profileColor = options?.profileColor,
+        unreadNotificationCount = unreadNotificationCount?.toLong(),
+    )
+
+internal fun UserEntity.toDomain(): UserModel =
+    UserModel(
+        id = id,
+        name = name,
+        avatar = avatarImage,
+        bannerImage = bannerImage,
+        unreadNotificationCount = unreadNotificationCount?.toInt() ?: 0,
     )

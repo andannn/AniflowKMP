@@ -9,6 +9,9 @@ import android.content.Context
 import me.andannn.aniflow.components.KoinLauncher
 import me.andannn.aniflow.components.Logger
 import me.andannn.aniflow.components.Modules
+import me.andannn.aniflow.data.BrowserAuthOperationHandler
+import me.andannn.aniflow.platform.BrowserAuthOperationHandlerImpl
+import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
@@ -25,16 +28,18 @@ class AniflowApplication : Application() {
                 listOf(
                     *Modules.toTypedArray(),
                     androidContextModule(this@AniflowApplication),
+                    platformModule(),
                 ),
         )
-//        startKoin {
-//            androidContext(this@AniflowApplication)
-//            modules(dataModule)
-//        }
     }
 }
 
 private fun androidContextModule(application: AniflowApplication) =
     module {
         single { application } bind Context::class
+    }
+
+private fun platformModule() =
+    module {
+        singleOf(::BrowserAuthOperationHandlerImpl).bind(BrowserAuthOperationHandler::class)
     }

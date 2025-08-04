@@ -16,6 +16,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                implementation(project(":shared:datastore"))
                 implementation(project(":shared:database"))
                 implementation(project(":shared:network:service"))
                 implementation(libs.kotlinx.serialization.json)
@@ -25,8 +26,10 @@ kotlin {
 
         androidUnitTest.dependencies {
             implementation(project(":shared:database"))
+            implementation(project(":shared:datastore"))
             implementation(project(":shared:network:service"))
             implementation(project(":shared:network:engine-mock"))
+            implementation(libs.datastore.preferences)
             implementation(libs.sqldelight.sqlite.driver)
             implementation(libs.sqldelight.jdbc.driver)
         }

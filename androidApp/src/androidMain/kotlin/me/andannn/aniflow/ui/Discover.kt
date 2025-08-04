@@ -21,12 +21,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
+import kotlinx.coroutines.delay
 import me.andannn.aniflow.components.discover.DiscoverComponent
 import me.andannn.aniflow.data.model.MediaCategory
 import me.andannn.aniflow.data.model.MediaModel
@@ -38,6 +40,11 @@ fun Discover(
     modifier: Modifier = Modifier,
 ) {
     val categoryDataMap by component.categoryDataMap.subscribeAsState()
+
+    LaunchedEffect(Unit) {
+        delay(2000)
+        component.onStartLoginProcess()
+    }
     DiscoverContent(
         categoryDataMap = categoryDataMap.map,
         modifier = modifier,

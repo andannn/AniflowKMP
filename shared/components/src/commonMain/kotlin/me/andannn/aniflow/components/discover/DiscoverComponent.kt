@@ -10,6 +10,8 @@ import me.andannn.aniflow.data.model.MediaModel
 
 interface DiscoverComponent {
     val categoryDataMap: Value<CategoryDataModel>
+
+    fun onStartLoginProcess()
 }
 
 data class CategoryDataModel(

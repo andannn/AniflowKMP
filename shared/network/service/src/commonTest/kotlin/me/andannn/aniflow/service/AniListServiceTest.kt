@@ -18,7 +18,6 @@ import me.andannn.aniflow.service.dto.Page
 import me.andannn.aniflow.service.dto.Staff
 import me.andannn.aniflow.service.dto.StaffConnection
 import me.andannn.aniflow.service.dto.Studio
-import me.andannn.aniflow.service.dto.UpdateUserRespond
 import me.andannn.aniflow.service.dto.User
 import me.andannn.aniflow.service.dto.enums.MediaType
 import me.andannn.aniflow.service.dto.enums.ScoreFormat
@@ -71,7 +70,7 @@ class AniListServiceTest {
     fun testGetAuthedUserWithDummyToken() =
         testScope.runTest {
             val respond = serviceWithDummyToken.getAuthedUserData()
-            assertIs<UpdateUserRespond>(respond)
+            assertIs<User>(respond)
         }
 
     @Test
