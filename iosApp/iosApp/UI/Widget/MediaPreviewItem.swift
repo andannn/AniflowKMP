@@ -66,3 +66,14 @@ struct MediaPreviewItem: View {
         .buttonStyle(PlainButtonStyle())
     }
 }
+
+#Preview
+{
+    MediaPreviewItem(
+        title: "Title",
+        isFollowing: false,
+        coverImage: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx151799-igwbH3AffgHc.jpg",
+        onClick: {}
+    )
+}
+

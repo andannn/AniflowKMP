@@ -27,6 +27,7 @@ include(":androidApp")
 // sharded modules
 include(":shared:components")
 include(":shared:data")
+include(":shared:datastore")
 include(":shared:network:service")
 include(":shared:network:engine-mock")
 include(":shared:network:common")

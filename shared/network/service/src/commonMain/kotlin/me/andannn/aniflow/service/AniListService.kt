@@ -41,7 +41,6 @@ import me.andannn.aniflow.service.dto.Page
 import me.andannn.aniflow.service.dto.Staff
 import me.andannn.aniflow.service.dto.StaffConnection
 import me.andannn.aniflow.service.dto.Studio
-import me.andannn.aniflow.service.dto.UpdateUserRespond
 import me.andannn.aniflow.service.dto.User
 import me.andannn.aniflow.service.dto.enums.ActivityType
 import me.andannn.aniflow.service.dto.enums.MediaFormat
@@ -161,7 +160,7 @@ class AniListService(
      *
      * @throws UnauthorizedException if no access token is available or the token is invalid.
      */
-    suspend fun getAuthedUserData(): UpdateUserRespond = doGraphQlQuery(query = GetUserDataQuery)
+    suspend fun getAuthedUserData(): User = doGraphQlQuery(query = GetUserDataQuery).user
 
     /**
      * Fetches detailed media information by its ID.

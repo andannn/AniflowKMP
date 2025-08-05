@@ -7,6 +7,7 @@ package me.andannn.aniflow.ui
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,22 +15,35 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
+import kotlinx.coroutines.delay
+import me.andannn.aniflow.components.discover.CategoryWithContents
 import me.andannn.aniflow.components.discover.DiscoverComponent
 import me.andannn.aniflow.data.model.MediaCategory
 import me.andannn.aniflow.data.model.MediaModel
+import me.andannn.aniflow.data.model.UserModel
 import me.andannn.aniflow.ui.widget.MediaPreviewItem
 
 @Composable
@@ -38,8 +52,15 @@ fun Discover(
     modifier: Modifier = Modifier,
 ) {
     val categoryDataMap by component.categoryDataMap.subscribeAsState()
+    val authedUser by component.authedUser.subscribeAsState()
+
+    LaunchedEffect(Unit) {
+        delay(2000)
+        component.onStartLoginProcess()
+    }
     DiscoverContent(
-        categoryDataMap = categoryDataMap.map,
+        categoryDataList = categoryDataMap.content,
+        authedUser = authedUser.value,
         modifier = modifier,
     )
 }
@@ -47,7 +68,8 @@ fun Discover(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DiscoverContent(
-    categoryDataMap: Map<MediaCategory, List<MediaModel>>,
+    categoryDataList: List<CategoryWithContents>,
+    authedUser: UserModel?,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -55,6 +77,24 @@ fun DiscoverContent(
         topBar = {
             TopAppBar(
                 title = { Text(text = "Discover") },
+                actions = {
+                    IconButton(
+                        onClick = {},
+                    ) {
+                        if (authedUser != null) {
+                            AsyncImage(
+                                model = authedUser.avatar,
+                                contentDescription = null,
+                                contentScale = ContentScale.FillBounds,
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Outlined.Person,
+                                contentDescription = null,
+                            )
+                        }
+                    }
+                },
             )
         },
     ) {
@@ -62,8 +102,8 @@ fun DiscoverContent(
             modifier = Modifier.padding(top = it.calculateTopPadding()),
         ) {
             items(
-                items = categoryDataMap.entries.toList(),
-                key = { it.key },
+                items = categoryDataList,
+                key = { it.category },
             ) { (category, items) ->
                 TitleWithContent(
                     modifier = Modifier.fillMaxWidth(),
@@ -85,22 +125,34 @@ private fun MediaPreviewSector(
     modifier: Modifier = Modifier,
     onMediaClick: (MediaModel) -> Unit = {},
 ) {
-    val isLoading = rememberUpdatedState(mediaList.isEmpty())
+    val isLoading by rememberUpdatedState(mediaList.isEmpty())
 
     LazyRow(
         modifier = modifier.fillMaxWidth(),
     ) {
-        items(
-            mediaList,
-            key = { it.id },
-        ) {
-            MediaPreviewItem(
-                modifier = Modifier.width(240.dp),
-                title = it.title?.english ?: "EEEEEEEEEE",
-                isFollowing = false,
-                coverImage = it.coverImage,
-                ooClick = { onMediaClick(it) },
-            )
+        if (isLoading) {
+            repeat(6) {
+                item {
+                    Surface(
+                        modifier = Modifier.width(240.dp).aspectRatio(3 / 4f),
+                        shape = RoundedCornerShape(24.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                    ) {}
+                }
+            }
+        } else {
+            items(
+                mediaList,
+                key = { it.id },
+            ) {
+                MediaPreviewItem(
+                    modifier = Modifier.width(240.dp),
+                    title = it.title?.english ?: "EEEEEEEEEE",
+                    isFollowing = false,
+                    coverImage = it.coverImage,
+                    ooClick = { onMediaClick(it) },
+                )
+            }
         }
     }
 }

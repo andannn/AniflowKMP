@@ -2,7 +2,7 @@
  * Copyright 2025, the AniflowKMP project contributors
  * SPDX-License-Identifier: Apache-2.0
  */
-package me.andannn.aniflow.data
+package me.andannn.aniflow.data.internal
 
 import app.cash.sqldelight.async.coroutines.synchronous
 import app.cash.sqldelight.db.SqlDriver
@@ -10,7 +10,7 @@ import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
-import me.andannn.aniflow.data.internal.MediaRepositoryImpl
+import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.model.define.MediaType
 import me.andannn.aniflow.database.AniflowDatabase
 import me.andannn.aniflow.database.MediaLibraryDao

@@ -53,13 +53,12 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.napier)
             implementation(libs.coil3.compose)
-            implementation(libs.coil.network.ktor3)
+            implementation(libs.coil.network.okhttp)
             implementation(project(":shared:data"))
             implementation(project(":shared:components"))
 
             implementation(libs.decompose)
             implementation(libs.decompose.extensions.compose)
-            implementation(libs.ktor.client.okhttp)
 
             implementation(libs.androidx.core.ktx)
             implementation(libs.androidx.activity.compose)
