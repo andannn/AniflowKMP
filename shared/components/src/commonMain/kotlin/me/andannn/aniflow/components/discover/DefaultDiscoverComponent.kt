@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.MediaRepository
+import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.UserModel
 import me.andannn.aniflow.data.model.define.MediaType
 import org.koin.mp.KoinPlatform.getKoin
@@ -33,7 +34,7 @@ class DefaultDiscoverComponent(
     override val authedUser: MutableValue<Optional<UserModel>> =
         MutableValue(Optional(null))
 
-    override fun onStartLoginProcess() {
+    override fun onMediaClick(media: MediaModel) {
         scope.launch {
             authRepository.startLoginProcessAndWaitResult()
         }
@@ -42,14 +43,10 @@ class DefaultDiscoverComponent(
     init {
         scope.launch {
             mediaRepository
-                .getAllMediasWithCategory(MediaType.ANIME)
-                .map {
-                    it.data ?: emptyMap()
-                }.collect { newState ->
-                    categoryDataMap.value =
-                        CategoryDataModel(
-                            newState,
-                        )
+                .getAllMediasWithCategoryFlow(MediaType.ANIME)
+                .map { it.data ?: emptyMap() }
+                .collect { newState ->
+                    categoryDataMap.value = CategoryDataModel(newState)
                 }
         }
 

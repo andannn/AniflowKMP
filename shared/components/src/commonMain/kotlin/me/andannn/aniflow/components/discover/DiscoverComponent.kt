@@ -5,16 +5,16 @@
 package me.andannn.aniflow.components.discover
 
 import com.arkivanov.decompose.value.Value
-import me.andannn.aniflow.data.model.MediaCategory
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.UserModel
+import me.andannn.aniflow.data.model.define.MediaCategory
 
 interface DiscoverComponent {
     val categoryDataMap: Value<CategoryDataModel>
 
     val authedUser: Value<Optional<UserModel>>
 
-    fun onStartLoginProcess()
+    fun onMediaClick(media: MediaModel)
 }
 
 data class CategoryDataModel(
