@@ -21,7 +21,7 @@ struct DiscoverView: View {
                         TitleWithContent(title: categoryWithContents.category.title, onMoreClick: {}) {
                             MediaPreviewSector(mediaList: categoryWithContents.medias) { item in
                                 // onMediaClick
-//                                component.onStartLoginProcess()
+                                component.onMediaClick(media: item)
                             }
                         }
                     }

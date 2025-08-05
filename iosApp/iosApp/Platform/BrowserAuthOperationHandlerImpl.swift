@@ -22,13 +22,18 @@ class BrowserAuthOperationHandlerImpl: DataBrowserAuthOperationHandler {
     }
     
     func awaitAuthResult() async throws -> DataAuthToken {
-        return try await withCheckedThrowingContinuation { cont in
-            if self.continuation != nil {
-                cont.resume(throwing: NSError(domain: "AuthAlreadyInProgress", code: 1, userInfo: nil))
-                return
+        return try await withTaskCancellationHandler(operation: {
+            try await withCheckedThrowingContinuation { cont in
+                if self.continuation != nil {
+                    cont.resume(throwing: NSError(domain: "AuthAlreadyInProgress", code: 1, userInfo: nil))
+                    return
+                }
+                self.continuation = cont
             }
-            self.continuation = cont
-        }
+        }, onCancel: {
+            print("[\(TAG)] awaitAuthResult task canceled.")
+
+        })
     }
     
     func handleOpenURL(_ url: URL) {
