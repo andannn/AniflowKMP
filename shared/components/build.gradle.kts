@@ -24,9 +24,6 @@ kotlin {
             api(libs.decompose)
             api(libs.essenty.lifecycle.coroutines)
             api(project(":shared:data"))
-            api(project(":shared:database"))
-            api(project(":shared:network:common"))
-            api(project(":shared:network:service"))
         }
     }
 }

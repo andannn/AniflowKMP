@@ -1,0 +1,114 @@
+/*
+ * Copyright 2025, the AniflowKMP project contributors
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package me.andannn.aniflow.database.relation
+
+import me.andannn.aniflow.database.schema.MediaEntity
+import me.andannn.aniflow.database.schema.MediaListEntity
+
+data class MediaListAndMediaRelation(
+    val mediaEntity: MediaEntity,
+    val mediaListEntity: MediaListEntity,
+) {
+    companion object {
+        fun mapTo(
+            mediaListId: String,
+            userId: String?,
+            mediaId: String?,
+            listStatus: String?,
+            notes: String?,
+            progress: Long?,
+            progressVolumes: Long?,
+            startedAt: String?,
+            completedAt: String?,
+            updatedAt: Long?,
+            repeat: Long?,
+            score: Double?,
+            isPrivate: Boolean?,
+            id: String,
+            mediaType: String?,
+            englishTitle: String?,
+            romajiTitle: String?,
+            nativeTitle: String?,
+            coverImageExtraLarge: String?,
+            coverImageLarge: String?,
+            coverImageMedium: String?,
+            coverImageColor: String?,
+            description: String?,
+            episodes: Long?,
+            seasonYear: Long?,
+            season: String?,
+            source: String?,
+            status: String?,
+            hashtag: String?,
+            bannerImage: String?,
+            averageScore: Long?,
+            trailerId: String?,
+            trailerSite: String?,
+            trailerThumbnail: String?,
+            genres: String?,
+            format: String?,
+            trending: Long?,
+            favourites: Long?,
+            popularRanking: Long?,
+            ratedRanking: Long?,
+            nextAiringEpisode: Long?,
+            timeUntilAiring: Long?,
+            isFavourite: Boolean?,
+            siteUrl: Long?,
+        ): MediaListAndMediaRelation =
+            MediaListAndMediaRelation(
+                mediaEntity =
+                    MediaEntity(
+                        id = id,
+                        mediaType = mediaType,
+                        englishTitle = englishTitle,
+                        romajiTitle = romajiTitle,
+                        nativeTitle = nativeTitle,
+                        coverImageExtraLarge = coverImageExtraLarge,
+                        coverImageLarge = coverImageLarge,
+                        coverImageMedium = coverImageMedium,
+                        coverImageColor = coverImageColor,
+                        description = description,
+                        episodes = episodes,
+                        seasonYear = seasonYear,
+                        season = season,
+                        source = source,
+                        status = status,
+                        hashtag = hashtag,
+                        bannerImage = bannerImage,
+                        averageScore = averageScore,
+                        trailerId = trailerId,
+                        trailerSite = trailerSite,
+                        trailerThumbnail = trailerThumbnail,
+                        genres = genres,
+                        format = format,
+                        trending = trending,
+                        favourites = favourites,
+                        popularRanking = popularRanking,
+                        ratedRanking = ratedRanking,
+                        nextAiringEpisode = nextAiringEpisode,
+                        timeUntilAiring = timeUntilAiring,
+                        isFavourite = isFavourite,
+                        siteUrl = siteUrl,
+                    ),
+                mediaListEntity =
+                    MediaListEntity(
+                        mediaListId = mediaListId,
+                        userId = userId,
+                        mediaId = mediaId,
+                        listStatus = listStatus,
+                        notes = notes,
+                        progress = progress,
+                        progressVolumes = progressVolumes,
+                        startedAt = startedAt,
+                        completedAt = completedAt,
+                        updatedAt = updatedAt,
+                        repeat = repeat,
+                        score = score,
+                        isPrivate = isPrivate,
+                    ),
+            )
+    }
+}

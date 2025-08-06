@@ -1,4 +1,4 @@
-CREATE TABLE mediaCategoryWithMediaIdEntity (
+CREATE TABLE IF NOT EXISTS mediaCategoryWithMediaIdEntity (
       mediaId TEXT NOT NULL,
       category TEXT NOT NULL,
       PRIMARY KEY (mediaId, category)

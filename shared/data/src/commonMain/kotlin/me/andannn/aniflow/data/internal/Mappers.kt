@@ -6,20 +6,28 @@ package me.andannn.aniflow.data.internal
 
 import kotlinx.serialization.json.Json
 import me.andannn.aniflow.data.model.EpisodeModel
-import me.andannn.aniflow.data.model.MediaCategory
+import me.andannn.aniflow.data.model.MediaListModel
 import me.andannn.aniflow.data.model.MediaModel
+import me.andannn.aniflow.data.model.SimpleDate
 import me.andannn.aniflow.data.model.Title
 import me.andannn.aniflow.data.model.Trailer
 import me.andannn.aniflow.data.model.UserModel
+import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.MediaFormat
+import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.model.define.MediaSeason
 import me.andannn.aniflow.data.model.define.MediaSort
 import me.andannn.aniflow.data.model.define.MediaSource
 import me.andannn.aniflow.data.model.define.MediaStatus
 import me.andannn.aniflow.data.model.define.MediaType
+import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
+import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
 import me.andannn.aniflow.database.schema.MediaEntity
+import me.andannn.aniflow.database.schema.MediaListEntity
 import me.andannn.aniflow.database.schema.UserEntity
+import me.andannn.aniflow.service.dto.FuzzyDate
 import me.andannn.aniflow.service.dto.Media
+import me.andannn.aniflow.service.dto.MediaList
 import me.andannn.aniflow.service.dto.User
 import me.andannn.aniflow.service.dto.enums.MediaRankType
 
@@ -72,6 +80,17 @@ internal fun me.andannn.aniflow.service.dto.enums.MediaType.toDomainType() =
         me.andannn.aniflow.service.dto.enums.MediaType.UNKNOWN__ -> null
     }
 
+internal fun me.andannn.aniflow.service.dto.enums.MediaListStatus.toDomainType() =
+    when (this) {
+        me.andannn.aniflow.service.dto.enums.MediaListStatus.CURRENT -> MediaListStatus.CURRENT
+        me.andannn.aniflow.service.dto.enums.MediaListStatus.PLANNING -> MediaListStatus.PLANNING
+        me.andannn.aniflow.service.dto.enums.MediaListStatus.COMPLETED -> MediaListStatus.COMPLETED
+        me.andannn.aniflow.service.dto.enums.MediaListStatus.DROPPED -> MediaListStatus.DROPPED
+        me.andannn.aniflow.service.dto.enums.MediaListStatus.PAUSED -> MediaListStatus.PAUSED
+        me.andannn.aniflow.service.dto.enums.MediaListStatus.REPEATING -> MediaListStatus.REPEATING
+        me.andannn.aniflow.service.dto.enums.MediaListStatus.UNKNOWN__ -> null
+    }
+
 internal fun me.andannn.aniflow.service.dto.enums.MediaSource.toDomainType() =
     when (this) {
         me.andannn.aniflow.service.dto.enums.MediaSource.ORIGINAL -> MediaSource.ORIGINAL
@@ -98,6 +117,16 @@ internal fun MediaSeason.toServiceType() =
         MediaSeason.SPRING -> me.andannn.aniflow.service.dto.enums.MediaSeason.SPRING
         MediaSeason.SUMMER -> me.andannn.aniflow.service.dto.enums.MediaSeason.SUMMER
         MediaSeason.FALL -> me.andannn.aniflow.service.dto.enums.MediaSeason.FALL
+    }
+
+internal fun MediaListStatus.toServiceType() =
+    when (this) {
+        MediaListStatus.CURRENT -> me.andannn.aniflow.service.dto.enums.MediaListStatus.CURRENT
+        MediaListStatus.PLANNING -> me.andannn.aniflow.service.dto.enums.MediaListStatus.PLANNING
+        MediaListStatus.COMPLETED -> me.andannn.aniflow.service.dto.enums.MediaListStatus.COMPLETED
+        MediaListStatus.DROPPED -> me.andannn.aniflow.service.dto.enums.MediaListStatus.DROPPED
+        MediaListStatus.PAUSED -> me.andannn.aniflow.service.dto.enums.MediaListStatus.PAUSED
+        MediaListStatus.REPEATING -> me.andannn.aniflow.service.dto.enums.MediaListStatus.REPEATING
     }
 
 internal fun me.andannn.aniflow.service.dto.enums.MediaSeason.toDomainType() =
@@ -246,4 +275,58 @@ internal fun UserEntity.toDomain(): UserModel =
         avatar = avatarImage,
         bannerImage = bannerImage,
         unreadNotificationCount = unreadNotificationCount?.toInt() ?: 0,
+    )
+
+internal fun MediaList.toRelation() =
+    MediaListAndMediaRelation(
+        mediaEntity =
+            media?.toEntity()
+                ?: error("Media cannot be null when converting to relation"),
+        mediaListEntity = toEntity(media!!.id.toString()),
+    )
+
+internal fun MediaList.toEntity(mediaId: String) =
+    MediaListEntity(
+        mediaId = mediaId,
+        mediaListId = id.toString(),
+        userId = userId.toString(),
+        listStatus = status?.toDomainType()?.let { Json.encodeToString(it) },
+        progress = progress?.toLong(),
+        notes = notes,
+        repeat = repeat?.toLong(),
+        isPrivate = private,
+        updatedAt = updatedAt?.toLong(),
+        score = score,
+        progressVolumes = progressVolumes?.toLong(),
+        startedAt = startedAt?.toSimpleDate()?.let { Json.encodeToString(it) },
+        completedAt = completedAt?.toSimpleDate()?.let { Json.encodeToString(it) },
+    )
+
+internal fun MediaListEntity.toDomain() =
+    MediaListModel(
+        id = mediaListId,
+        status = listStatus?.let { Json.decodeFromString<MediaListStatus>(it) },
+        progress = progress?.toInt(),
+        notes = notes,
+        repeat = repeat?.toInt(),
+        isPrivate = isPrivate ?: false,
+        updatedAt = updatedAt?.toInt(),
+        score = score,
+        progressVolumes = progressVolumes?.toInt(),
+        startedAt = startedAt?.let { Json.decodeFromString<SimpleDate>(it) },
+        completedAt = completedAt?.let { Json.decodeFromString<SimpleDate>(it) },
+    )
+
+internal fun FuzzyDate.toSimpleDate(): SimpleDate? {
+    return SimpleDate(
+        year = year ?: return null,
+        month = month ?: 1,
+        day = day ?: 1,
+    )
+}
+
+internal fun MediaListAndMediaRelation.toDomain() =
+    MediaWithMediaListItem(
+        mediaModel = mediaEntity.toDomain(),
+        mediaListModel = mediaListEntity.toDomain(),
     )

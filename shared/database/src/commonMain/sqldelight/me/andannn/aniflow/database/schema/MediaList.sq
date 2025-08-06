@@ -1,0 +1,39 @@
+import kotlin.Boolean;
+
+CREATE TABLE IF NOT EXISTS mediaListEntity (
+  mediaListId TEXT PRIMARY KEY NOT NULL,
+  userId TEXT DEFAULT NULL,
+  mediaId TEXT DEFAULT NULL,
+  listStatus TEXT DEFAULT NULL,
+  notes TEXT DEFAULT NULL,
+  progress INTEGER DEFAULT NULL,
+  progressVolumes INTEGER DEFAULT NULL,
+  startedAt TEXT DEFAULT NULL,
+  completedAt TEXT DEFAULT NULL,
+  updatedAt INTEGER DEFAULT NULL,
+  repeat INTEGER DEFAULT NULL,
+  score REAL DEFAULT NULL,
+  isPrivate INTEGER AS Boolean DEFAULT NULL
+);
+
+upsertMediaList:
+INSERT OR REPLACE INTO mediaListEntity (
+  mediaListId,
+  userId,
+  mediaId,
+  listStatus,
+  notes,
+  progress,
+  progressVolumes,
+  startedAt,
+  completedAt,
+  updatedAt,
+  repeat,
+  score,
+  isPrivate
+) VALUES ?;
+
+getMediaListAndMediaRelationList:
+SELECT * FROM mediaListEntity
+INNER JOIN mediaEntity ON mediaListEntity.mediaId = mediaEntity.id
+WHERE mediaListEntity.userId = ? AND mediaEntity.mediaType = ? AND mediaListEntity.listStatus IN ?;

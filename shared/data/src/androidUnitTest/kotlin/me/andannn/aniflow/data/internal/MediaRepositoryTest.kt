@@ -55,11 +55,25 @@ class MediaRepositoryTest {
     }
 
     @Test
-    fun testGetAllMediasWithCategory() =
+    fun testGetAllMediasWithCategoryFlow() =
         testScope.runTest {
             repo
-                .getAllMediasWithCategory(
+                .getAllMediasWithCategoryFlow(
                     mediaType = MediaType.ANIME,
+                ).first()
+                .let {
+                    println(it)
+                }
+        }
+
+    @Test
+    fun testGetMediaListFlowByUserId() =
+        testScope.runTest {
+            repo
+                .getMediaListFlowByUserId(
+                    userId = "1",
+                    mediaType = MediaType.ANIME,
+                    mediaListStatus = emptyList(),
                 ).first()
                 .let {
                     println(it)

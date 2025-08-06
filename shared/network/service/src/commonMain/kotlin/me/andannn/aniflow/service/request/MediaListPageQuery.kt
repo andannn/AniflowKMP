@@ -4,6 +4,7 @@
  */
 package me.andannn.aniflow.service.request
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import me.andannn.aniflow.service.dto.DataWrapper
 import me.andannn.aniflow.service.dto.MediaList
@@ -18,6 +19,7 @@ internal data class MediaListPageQuery(
     val page: Int,
     val perPage: Int,
     val userId: Int,
+    @SerialName("status_in")
     val statusIn: List<MediaListStatus>,
     val type: MediaType,
     val format: ScoreFormat,

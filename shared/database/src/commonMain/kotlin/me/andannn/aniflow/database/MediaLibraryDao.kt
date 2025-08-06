@@ -14,6 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
+import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
 import me.andannn.aniflow.database.schema.MediaEntity
 import me.andannn.aniflow.database.schema.UserEntity
 
@@ -89,6 +90,32 @@ class MediaLibraryDao(
                 .asFlow()
                 .mapToOneOrNull(dispatcher)
                 .filterNotNull()
+        }
+
+    suspend fun upsertMediaListEntities(mediaListEntities: List<MediaListAndMediaRelation>) =
+        withDatabase {
+            transaction(true) {
+                mediaListEntities.forEach { mediaListAndMediaRelation ->
+                    mediaListQueries.upsertMediaList(mediaListAndMediaRelation.mediaListEntity)
+                    mediaQueries.upsertMedia(mediaListAndMediaRelation.mediaEntity)
+                }
+            }
+        }
+
+    fun getMediaListFlow(
+        userId: String,
+        mediaType: String,
+        listStatus: List<String>,
+    ): Flow<List<MediaListAndMediaRelation>> =
+        withDatabase {
+            mediaListQueries
+                .getMediaListAndMediaRelationList(
+                    userId = userId,
+                    mediaType = mediaType,
+                    listStatus = listStatus,
+                    mapper = MediaListAndMediaRelation::mapTo,
+                ).asFlow()
+                .mapToList(dispatcher)
         }
 
     private inline fun <T> withDatabase(block: AniflowDatabase.() -> T): T = block.invoke(aniflowDatabase)

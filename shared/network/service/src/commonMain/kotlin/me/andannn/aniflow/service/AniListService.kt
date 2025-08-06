@@ -319,8 +319,8 @@ class AniListService(
      * @param format The format of the score to return.
      */
     suspend fun getMediaListPage(
-        page: Int = 1,
-        perPage: Int = 10,
+        page: Int,
+        perPage: Int,
         userId: Int,
         statusIn: List<MediaListStatus>,
         type: MediaType,

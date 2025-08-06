@@ -9,7 +9,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
+import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
 import me.andannn.aniflow.database.util.MediaEntityWithDefault
+import me.andannn.aniflow.database.util.MediaListEntityWithDefault
 import me.andannn.aniflow.database.util.UserEntityWithDefault
 import org.junit.Test
 import kotlin.test.AfterTest
@@ -116,6 +118,40 @@ class MediaLibraryDaoTest {
                 getUserFlow("user1").firstOrNull()?.let {
                     assertEquals("user1", it.id)
                     assertEquals("User One", it.name)
+                }
+            }
+        }
+
+    @Test
+    fun testGetMediaList() =
+        testScope.runTest {
+            with(mediaLibraryDao) {
+                upsertMediaListEntities(
+                    listOf(
+                        MediaListAndMediaRelation(
+                            mediaEntity =
+                                MediaEntityWithDefault(
+                                    id = "media1",
+                                    englishTitle = "Media One",
+                                    mediaType = "ANIME",
+                                ),
+                            mediaListEntity =
+                                MediaListEntityWithDefault(
+                                    mediaListId = "list1",
+                                    userId = "user1",
+                                    mediaId = "media1",
+                                    listStatus = "CURRENT",
+                                ),
+                        ),
+                    ),
+                )
+
+                getMediaListFlow(
+                    userId = "user1",
+                    mediaType = "ANIME",
+                    listStatus = listOf("CURRENT", "PLANNING"),
+                ).first().let { mediaList ->
+                    assertEquals(1, mediaList.size)
                 }
             }
         }

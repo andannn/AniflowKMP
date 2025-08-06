@@ -8,9 +8,13 @@ struct DiscoverView: View {
     @StateValue
     private var categoryDataMapHolder: CategoryDataModel
     
+    @StateValue
+    private var authedUser: Optional<DataUserModel>
+    
     init(_ component: DiscoverComponent) {
         self.component = component
         _categoryDataMapHolder = StateValue(component.categoryDataMap)
+        _authedUser = StateValue(component.authedUser)
     }
     
     var body: some View {
@@ -21,7 +25,7 @@ struct DiscoverView: View {
                         TitleWithContent(title: categoryWithContents.category.title, onMoreClick: {}) {
                             MediaPreviewSector(mediaList: categoryWithContents.medias) { item in
                                 // onMediaClick
-//                                component.onStartLoginProcess()
+                                component.onMediaClick(media: item)
                             }
                         }
                     }
@@ -30,6 +34,28 @@ struct DiscoverView: View {
             }
         }
         .navigationTitle("Discover")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: {
+                    // TODO:
+                }) {
+                    if let avatarUrl = authedUser.value?.avatar {
+                        AsyncImage(url: URL(string: avatarUrl)) { image in
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                        } placeholder: {
+                            ProgressView()
+                        }
+                        .frame(width: 32, height: 32)
+                        .clipShape(Circle())
+                    } else {
+                        Image(systemName: "person.crop.circle")
+                            .font(.system(size: 24))
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -92,11 +118,17 @@ extension DataMediaCategory {
             return "Trending now"
         case .movieAnime:
             return "Movie"
-        case .trendingManga, .allTimePopularManga, .topManhwa, .theNewAddedManga:
-            return "Popular this season"
         case .theNewAddedAnime:
             return "New Added Anime"
-        default: return ""
+        case .trendingManga:
+            return "TODO"
+        case .allTimePopularManga:
+            return "TODO"
+        case .topManhwa:
+            return "TODO"
+        case .theNewAddedManga:
+            return "TODO"
+        default: fatalError("NEVER")
         }
     }
 }

@@ -5,6 +5,7 @@
 package me.andannn.aniflow.database.util
 
 import me.andannn.aniflow.database.schema.MediaEntity
+import me.andannn.aniflow.database.schema.MediaListEntity
 import me.andannn.aniflow.database.schema.UserEntity
 
 @Suppress("ktlint:standard:function-naming")
@@ -91,4 +92,35 @@ fun UserEntityWithDefault(
     avatarImage = avatarImage,
     profileColor = profileColor,
     unreadNotificationCount = unreadNotificationCount,
+)
+
+@Suppress("ktlint:standard:function-naming")
+fun MediaListEntityWithDefault(
+    mediaListId: String,
+    userId: String? = null,
+    mediaId: String? = null,
+    listStatus: String? = null,
+    notes: String? = null,
+    progress: Long? = null,
+    progressVolumes: Long? = null,
+    startedAt: String? = null,
+    completedAt: String? = null,
+    updatedAt: Long? = null,
+    repeat: Long? = null,
+    score: Double? = null,
+    isPrivate: Boolean? = null,
+) = MediaListEntity(
+    mediaListId = mediaListId,
+    userId = userId,
+    mediaId = mediaId,
+    listStatus = listStatus,
+    notes = notes,
+    progress = progress,
+    progressVolumes = progressVolumes,
+    startedAt = startedAt,
+    completedAt = completedAt,
+    updatedAt = updatedAt,
+    repeat = repeat,
+    score = score,
+    isPrivate = isPrivate,
 )

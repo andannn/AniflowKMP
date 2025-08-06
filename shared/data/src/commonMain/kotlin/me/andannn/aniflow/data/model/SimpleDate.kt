@@ -4,6 +4,9 @@
  */
 package me.andannn.aniflow.data.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 public data class SimpleDate(
     /**
      * Numeric Year (2017)

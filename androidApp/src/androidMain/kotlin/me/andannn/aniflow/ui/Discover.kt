@@ -17,7 +17,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -29,7 +28,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
@@ -38,12 +36,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
-import kotlinx.coroutines.delay
 import me.andannn.aniflow.components.discover.CategoryWithContents
 import me.andannn.aniflow.components.discover.DiscoverComponent
-import me.andannn.aniflow.data.model.MediaCategory
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.UserModel
+import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.ui.widget.MediaPreviewItem
 
 @Composable
@@ -54,13 +51,10 @@ fun Discover(
     val categoryDataMap by component.categoryDataMap.subscribeAsState()
     val authedUser by component.authedUser.subscribeAsState()
 
-    LaunchedEffect(Unit) {
-        delay(2000)
-        component.onStartLoginProcess()
-    }
     DiscoverContent(
         categoryDataList = categoryDataMap.content,
         authedUser = authedUser.value,
+        onMediaClick = component::onMediaClick,
         modifier = modifier,
     )
 }
@@ -71,6 +65,7 @@ fun DiscoverContent(
     categoryDataList: List<CategoryWithContents>,
     authedUser: UserModel?,
     modifier: Modifier = Modifier,
+    onMediaClick: (MediaModel) -> Unit,
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -111,7 +106,7 @@ fun DiscoverContent(
                 ) {
                     MediaPreviewSector(
                         mediaList = items,
-                        onMediaClick = {},
+                        onMediaClick = onMediaClick,
                     )
                 }
             }
