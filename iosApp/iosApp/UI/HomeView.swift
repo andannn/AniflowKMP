@@ -37,6 +37,7 @@ private struct ChildView: View {
     var body: some View {
         switch child {
         case let child as HomeComponentChildDiscover: DiscoverView(child.component)
+        case let child as HomeComponentChildTrack: TrackView(child.component)
         default: EmptyView()
         }
     }
