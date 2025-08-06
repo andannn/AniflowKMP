@@ -10,6 +10,12 @@ struct iOSApp: App {
     var body: some Scene {
         WindowGroup {
             RootView(appDelegate.root)
+                .onOpenURL { url in
+                    appDelegate.authHandler.onOpenURL(url)
+                }
+                .onReceive(NotificationCenter.default.publisher(for: UIScene.didActivateNotification)) { _ in
+                    appDelegate.authHandler.onSceneDidBecomeActive()
+                }
         }
     }
 }
@@ -21,13 +27,13 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         )
     )
     
-    let browserAuthOperationHandler:BrowserAuthOperationHandlerImpl = BrowserAuthOperationHandlerImpl()
+    let authHandler: BrowserAuthOperationHandlerImpl = BrowserAuthOperationHandlerImpl()
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
 
         KoinLauncher().startKoin(
             modules: KoinLauncherKt.Modules,
-            browserAuthOperationHandler: browserAuthOperationHandler
+            browserAuthOperationHandler: authHandler
         )
         
         #if DEBUG
@@ -38,14 +44,5 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         #endif
 
         return true
-    }
-
-    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-        browserAuthOperationHandler.handleOpenURL(url)
-        return true
-    }
-    
-    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
-        browserAuthOperationHandler.onSceneDidBecomeActive()
     }
 }

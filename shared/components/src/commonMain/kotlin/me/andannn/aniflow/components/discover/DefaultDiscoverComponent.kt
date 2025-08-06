@@ -7,6 +7,7 @@ package me.andannn.aniflow.components.discover
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.essenty.lifecycle.coroutines.coroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.map
@@ -19,7 +20,7 @@ import me.andannn.aniflow.data.model.define.MediaType
 import org.koin.mp.KoinPlatform.getKoin
 import kotlin.coroutines.CoroutineContext
 
-class DefaultDiscoverComponent(
+internal class DefaultDiscoverComponent(
     componentContext: ComponentContext,
     mainContext: CoroutineContext = Dispatchers.Main,
     mediaRepository: MediaRepository = getKoin().get(),
@@ -27,6 +28,7 @@ class DefaultDiscoverComponent(
 ) : DiscoverComponent,
     ComponentContext by componentContext {
     private val scope = coroutineScope(mainContext + SupervisorJob())
+    private var authJob: Deferred<Unit>? = null
 
     override val categoryDataMap: MutableValue<CategoryDataModel> =
         MutableValue(CategoryDataModel())
@@ -35,9 +37,12 @@ class DefaultDiscoverComponent(
         MutableValue(Optional(null))
 
     override fun onMediaClick(media: MediaModel) {
-        scope.launch {
-            authRepository.startLoginProcessAndWaitResult()
-        }
+        cancelLastAndStartLoginProcess()
+    }
+
+    private fun cancelLastAndStartLoginProcess() {
+        authJob?.cancel()
+        authJob = authRepository.startLoginProcessAndWaitResult(scope)
     }
 
     init {

@@ -18,7 +18,7 @@ import me.andannn.aniflow.components.track.DefaultTrackComponent
 
 private const val TAG = "DefaultHomeComponent"
 
-class DefaultHomeComponent(
+internal class DefaultHomeComponent(
     componentContext: ComponentContext,
 ) : HomeComponent,
     ComponentContext by componentContext {

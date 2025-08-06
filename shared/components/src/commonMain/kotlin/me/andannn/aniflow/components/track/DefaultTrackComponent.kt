@@ -24,7 +24,7 @@ import kotlin.coroutines.CoroutineContext
 private const val TAG = "DefaultTrackComponent"
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class DefaultTrackComponent(
+internal class DefaultTrackComponent(
     componentContext: ComponentContext,
     mainContext: CoroutineContext = Dispatchers.Main,
     private val mediaRepo: MediaRepository = getKoin().get(),
