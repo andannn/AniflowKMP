@@ -9,6 +9,7 @@ import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.backhandler.BackHandlerOwner
 import me.andannn.aniflow.components.discover.DiscoverComponent
 import me.andannn.aniflow.components.track.TrackComponent
+import me.andannn.aniflow.data.model.define.MediaCategory
 
 interface HomeComponent : BackHandlerOwner {
     val stack: Value<ChildStack<*, Child>>
@@ -16,6 +17,8 @@ interface HomeComponent : BackHandlerOwner {
     val selectedNavigationItem: Value<TopLevelNavigation>
 
     fun onBackClicked()
+
+    fun onMoreClicked(category: MediaCategory)
 
     fun onSelectNavigationItem(navigationItem: TopLevelNavigation)
 

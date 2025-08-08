@@ -52,10 +52,11 @@ fun Discover(
     val authedUser by component.authedUser.subscribeAsState()
 
     DiscoverContent(
+        modifier = modifier,
         categoryDataList = categoryDataMap.content,
         authedUser = authedUser.value,
         onMediaClick = component::onMediaClick,
-        modifier = modifier,
+        onMoreClick = component::onMoreClick,
     )
 }
 
@@ -66,6 +67,7 @@ fun DiscoverContent(
     authedUser: UserModel?,
     modifier: Modifier = Modifier,
     onMediaClick: (MediaModel) -> Unit,
+    onMoreClick: (MediaCategory) -> Unit,
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -102,6 +104,9 @@ fun DiscoverContent(
             ) { (category, items) ->
                 TitleWithContent(
                     modifier = Modifier.fillMaxWidth(),
+                    onMoreClick = {
+                        onMoreClick(category)
+                    },
                     title = category.title,
                 ) {
                     MediaPreviewSector(

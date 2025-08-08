@@ -15,6 +15,8 @@ interface DiscoverComponent {
     val authedUser: Value<Optional<UserModel>>
 
     fun onMediaClick(media: MediaModel)
+
+    fun onMoreClick(category: MediaCategory)
 }
 
 data class CategoryDataModel(

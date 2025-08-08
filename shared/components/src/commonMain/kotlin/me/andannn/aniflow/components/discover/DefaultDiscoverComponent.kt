@@ -16,6 +16,7 @@ import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.UserModel
+import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.MediaType
 import org.koin.mp.KoinPlatform.getKoin
 import kotlin.coroutines.CoroutineContext
@@ -25,6 +26,7 @@ internal class DefaultDiscoverComponent(
     mainContext: CoroutineContext = Dispatchers.Main,
     mediaRepository: MediaRepository = getKoin().get(),
     private val authRepository: AuthRepository = getKoin().get(),
+    private val onNavigateToMediaCategoryPage: (MediaCategory) -> Unit,
 ) : DiscoverComponent,
     ComponentContext by componentContext {
     private val scope = coroutineScope(mainContext + SupervisorJob())
@@ -38,6 +40,10 @@ internal class DefaultDiscoverComponent(
 
     override fun onMediaClick(media: MediaModel) {
         cancelLastAndStartLoginProcess()
+    }
+
+    override fun onMoreClick(category: MediaCategory) {
+        onNavigateToMediaCategoryPage.invoke(category)
     }
 
     private fun cancelLastAndStartLoginProcess() {

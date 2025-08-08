@@ -15,11 +15,13 @@ import io.github.aakira.napier.Napier
 import kotlinx.serialization.Serializable
 import me.andannn.aniflow.components.discover.DefaultDiscoverComponent
 import me.andannn.aniflow.components.track.DefaultTrackComponent
+import me.andannn.aniflow.data.model.define.MediaCategory
 
 private const val TAG = "DefaultHomeComponent"
 
 internal class DefaultHomeComponent(
     componentContext: ComponentContext,
+    private val onNavigateToMediaCategoryPage: (MediaCategory) -> Unit,
 ) : HomeComponent,
     ComponentContext by componentContext {
     private val nav = StackNavigation<Config>()
@@ -36,6 +38,10 @@ internal class DefaultHomeComponent(
 
     override fun onBackClicked() {
         TODO("Not yet implemented")
+    }
+
+    override fun onMoreClicked(category: MediaCategory) {
+        onNavigateToMediaCategoryPage.invoke(category)
     }
 
     override fun onSelectNavigationItem(navigationItem: TopLevelNavigation) {
@@ -59,6 +65,7 @@ internal class DefaultHomeComponent(
                 HomeComponent.Child.Discover(
                     DefaultDiscoverComponent(
                         componentContext = componentContext,
+                        onNavigateToMediaCategoryPage = onNavigateToMediaCategoryPage,
                     ),
                 )
 

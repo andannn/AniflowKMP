@@ -5,12 +5,17 @@
 package me.andannn.aniflow.components.root
 
 import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.decompose.DelicateDecomposeApi
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.childStack
+import com.arkivanov.decompose.router.stack.pop
+import com.arkivanov.decompose.router.stack.pushNew
 import com.arkivanov.decompose.value.Value
 import kotlinx.serialization.Serializable
+import me.andannn.aniflow.components.common.paging.DefaultMediaCategoryPageComponent
 import me.andannn.aniflow.components.home.DefaultHomeComponent
+import me.andannn.aniflow.data.model.define.MediaCategory
 
 class DefaultRootComponent(
     componentContext: ComponentContext,
@@ -29,27 +34,43 @@ class DefaultRootComponent(
     override val stack: Value<ChildStack<*, RootComponent.Child>> = _stack
 
     override fun onBackClicked() {
-        TODO("Not yet implemented")
+        nav.pop()
     }
 
+    @OptIn(DelicateDecomposeApi::class)
     private fun child(
         config: Config,
         componentContext: ComponentContext,
-    ): RootComponent.Child {
+    ): RootComponent.Child =
         when (config) {
             is Config.Home -> {
-                return RootComponent.Child.Home(
+                RootComponent.Child.Home(
                     DefaultHomeComponent(
                         componentContext = componentContext,
+                        onNavigateToMediaCategoryPage = { mediaCategory ->
+                            nav.pushNew(Config.MediaCategoryPage(mediaCategory))
+                        },
                     ),
                 )
             }
+
+            is Config.MediaCategoryPage ->
+                RootComponent.Child.MediaCategoryPage(
+                    DefaultMediaCategoryPageComponent(
+                        componentContext = componentContext,
+                        category = config.mediaCategory,
+                    ),
+                )
         }
-    }
 
     @Serializable
-    private sealed interface Config {
+    internal sealed interface Config {
         @Serializable
         data object Home : Config
+
+        @Serializable
+        data class MediaCategoryPage(
+            val mediaCategory: MediaCategory,
+        ) : Config
     }
 }

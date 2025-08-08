@@ -7,6 +7,7 @@ package me.andannn.aniflow.data
 import kotlinx.coroutines.flow.Flow
 import me.andannn.aniflow.data.model.DataWithErrors
 import me.andannn.aniflow.data.model.MediaModel
+import me.andannn.aniflow.data.model.Page
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.model.define.MediaType
@@ -23,6 +24,7 @@ interface MediaRepository {
 
     suspend fun loadMediaPageByCategory(
         category: MediaCategory,
-        displayAdultContent: Boolean,
-    )
+        page: Int,
+        perPage: Int,
+    ): Page<MediaModel>
 }

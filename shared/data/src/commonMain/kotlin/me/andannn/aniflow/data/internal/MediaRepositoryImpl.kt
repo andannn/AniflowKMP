@@ -32,6 +32,7 @@ import me.andannn.aniflow.service.AniListService
 import me.andannn.aniflow.service.ServerException
 import me.andannn.aniflow.service.dto.Media
 import me.andannn.aniflow.service.dto.MediaList
+import me.andannn.aniflow.service.dto.Page
 
 private const val TAG = "MediaRepository"
 
@@ -123,8 +124,15 @@ class MediaRepositoryImpl(
 
     override suspend fun loadMediaPageByCategory(
         category: MediaCategory,
-        displayAdultContent: Boolean,
-    ) {
+        page: Int,
+        perPage: Int,
+    ) = with(mediaService) {
+        category
+            .getMediaOfCategoryFromRemote(
+                page = page,
+                perPage = perPage,
+                displayAdultContent = false,
+            ).toDomain(Media::toDomain)
     }
 }
 
@@ -191,7 +199,7 @@ private fun MediaCategory.syncLocalWithService(scope: CoroutineScope): Deferred<
                     page = 1,
                     perPage = DEFAULT_CACHED_SIZE,
                     displayAdultContent = false,
-                )
+                ).items
             database.upsertMediasWithCategory(
                 category = Json.encodeToString(category),
                 mediaList = items.map(Media::toEntity),
@@ -209,7 +217,7 @@ private suspend fun MediaCategory.getMediaOfCategoryFromRemote(
     page: Int,
     perPage: Int,
     displayAdultContent: Boolean,
-): List<Media> {
+): Page<Media> {
     var status: MediaStatus?
     var seasonParam: AnimeSeasonParam?
     val type = this.mediaType()
@@ -307,5 +315,5 @@ private suspend fun MediaCategory.getMediaOfCategoryFromRemote(
             type = type.toServiceType(),
             formatIn = format?.map { it.toServiceType() },
             sort = sorts?.map { it.toServiceType() },
-        ).items
+        )
 }

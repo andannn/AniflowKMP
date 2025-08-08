@@ -47,6 +47,7 @@ private fun Children(
         Surface(modifier = Modifier.fillMaxSize()) {
             when (val child = it.instance) {
                 is RootComponent.Child.Home -> Home(child.component)
+                is RootComponent.Child.MediaCategoryPage -> MediaCategory(child.component)
             }
         }
     }
