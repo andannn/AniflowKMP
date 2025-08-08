@@ -14,6 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.withContext
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
 import me.andannn.aniflow.database.schema.MediaEntity
 import me.andannn.aniflow.database.schema.UserEntity
@@ -25,7 +26,7 @@ class MediaLibraryDao(
 
     suspend fun getMediaById(mediaId: String): MediaEntity? =
         withDatabase {
-            mediaQueries.getMedia(mediaId).awaitAsOneOrNull()
+            withContext(dispatcher) { mediaQueries.getMedia(mediaId).awaitAsOneOrNull() }
         }
 
     fun getMediaFlow(mediaId: String): Flow<MediaEntity> =
@@ -39,14 +40,18 @@ class MediaLibraryDao(
 
     suspend fun getMediasById(mediaIds: List<String>): List<MediaEntity> =
         withDatabase {
-            mediaQueries.getMediaListById(mediaIds).awaitAsList()
+            withContext(dispatcher) {
+                mediaQueries.getMediaListById(mediaIds).awaitAsList()
+            }
         }
 
     suspend fun upsertMedias(mediaList: List<MediaEntity>) =
         withDatabase {
-            transaction(true) {
-                mediaList.forEach { mediaEntity ->
-                    mediaQueries.upsertMedia(mediaEntity)
+            withContext(dispatcher) {
+                transaction(true) {
+                    mediaList.forEach { mediaEntity ->
+                        mediaQueries.upsertMedia(mediaEntity)
+                    }
                 }
             }
         }
@@ -55,13 +60,16 @@ class MediaLibraryDao(
         category: String,
         mediaList: List<MediaEntity>,
     ) = withDatabase {
-        transaction(true) {
-            mediaList.forEach { mediaEntity ->
-                mediaQueries.upsertMedia(mediaEntity)
-                mediaCategoryWithMediaIdEntityQueries.upsertMediaCategoryWithMediaId(
-                    category = category,
-                    mediaId = mediaEntity.id,
-                )
+        withContext(dispatcher) {
+            transaction(true) {
+                mediaCategoryWithMediaIdEntityQueries.deleteByCategory(category)
+                mediaList.forEach { mediaEntity ->
+                    mediaQueries.upsertMedia(mediaEntity)
+                    mediaCategoryWithMediaIdEntityQueries.upsertMediaCategoryWithMediaId(
+                        category = category,
+                        mediaId = mediaEntity.id,
+                    )
+                }
             }
         }
     }
@@ -76,9 +84,11 @@ class MediaLibraryDao(
 
     suspend fun upsertUser(userList: List<UserEntity>) =
         withDatabase {
-            transaction(true) {
-                userList.forEach { user ->
-                    userQueries.upsertUser(user)
+            withContext(dispatcher) {
+                transaction(true) {
+                    userList.forEach { user ->
+                        userQueries.upsertUser(user)
+                    }
                 }
             }
         }
@@ -94,10 +104,12 @@ class MediaLibraryDao(
 
     suspend fun upsertMediaListEntities(mediaListEntities: List<MediaListAndMediaRelation>) =
         withDatabase {
-            transaction(true) {
-                mediaListEntities.forEach { mediaListAndMediaRelation ->
-                    mediaListQueries.upsertMediaList(mediaListAndMediaRelation.mediaListEntity)
-                    mediaQueries.upsertMedia(mediaListAndMediaRelation.mediaEntity)
+            withContext(dispatcher) {
+                transaction(true) {
+                    mediaListEntities.forEach { mediaListAndMediaRelation ->
+                        mediaListQueries.upsertMediaList(mediaListAndMediaRelation.mediaListEntity)
+                        mediaQueries.upsertMedia(mediaListAndMediaRelation.mediaEntity)
+                    }
                 }
             }
         }

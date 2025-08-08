@@ -87,7 +87,7 @@ class MediaLibraryDaoTest {
     fun testUpsertMediasWithCategory() =
         testScope.runTest {
             with(mediaLibraryDao) {
-                upsertMediasWithCategory(
+                clearAndUpsertMediasWithCategory(
                     category = "testCategory",
                     mediaList =
                         listOf(

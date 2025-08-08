@@ -20,4 +20,9 @@ interface MediaRepository {
         mediaType: MediaType,
         mediaListStatus: List<MediaListStatus>,
     ): Flow<DataWithErrors<List<MediaWithMediaListItem>>>
+
+    suspend fun loadMediaPageByCategory(
+        category: MediaCategory,
+        displayAdultContent: Boolean,
+    )
 }
