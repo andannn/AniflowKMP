@@ -34,27 +34,74 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewModelScope
 import coil3.compose.AsyncImage
-import com.arkivanov.decompose.extensions.compose.subscribeAsState
-import me.andannn.aniflow.components.discover.CategoryWithContents
-import me.andannn.aniflow.components.discover.DiscoverComponent
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import me.andannn.aniflow.data.AuthRepository
+import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.UserModel
 import me.andannn.aniflow.data.model.define.MediaCategory
+import me.andannn.aniflow.data.model.define.MediaType
+import me.andannn.aniflow.data.model.relation.CategoryDataModel
+import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.ui.widget.MediaPreviewItem
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.mp.KoinPlatform.getKoin
+
+class DiscoverViewModel(
+    private val mediaRepository: MediaRepository = getKoin().get(),
+    private val authRepository: AuthRepository = getKoin().get(),
+) : ViewModel() {
+    private val _state = MutableStateFlow(UiState())
+    val state = _state.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            mediaRepository
+                .getAllMediasWithCategoryFlow(MediaType.ANIME)
+                .map { it.data ?: emptyMap() }
+                .collect { newState ->
+                    _state.update {
+                        it.copy(
+                            categoryDataMap = CategoryDataModel(newState),
+                        )
+                    }
+                }
+        }
+
+        viewModelScope.launch {
+            authRepository.getAuthedUser().collect { user ->
+                _state.update {
+                    it.copy(authedUser = user)
+                }
+            }
+        }
+    }
+
+    data class UiState(
+        val categoryDataMap: CategoryDataModel = CategoryDataModel(),
+        val authedUser: UserModel? = null,
+    )
+}
 
 @Composable
 fun Discover(
-    component: DiscoverComponent,
     modifier: Modifier = Modifier,
+    discoverViewModel: DiscoverViewModel = koinViewModel(),
 ) {
-    val categoryDataMap by component.categoryDataMap.subscribeAsState()
-    val authedUser by component.authedUser.subscribeAsState()
+    val state by discoverViewModel.state.collectAsStateWithLifecycle()
 
     DiscoverContent(
-        categoryDataList = categoryDataMap.content,
-        authedUser = authedUser.value,
-        onMediaClick = component::onMediaClick,
+        categoryDataList = state.categoryDataMap.content,
+        authedUser = state.authedUser,
+        onMediaClick = {},
         modifier = modifier,
     )
 }
@@ -129,7 +176,10 @@ private fun MediaPreviewSector(
             repeat(6) {
                 item {
                     Surface(
-                        modifier = Modifier.width(240.dp).aspectRatio(3 / 4f),
+                        modifier =
+                            Modifier
+                                .width(240.dp)
+                                .aspectRatio(3 / 4f),
                         shape = RoundedCornerShape(24.dp),
                         color = MaterialTheme.colorScheme.surfaceVariant,
                     ) {}

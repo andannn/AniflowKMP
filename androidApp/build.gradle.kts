@@ -55,10 +55,9 @@ kotlin {
             implementation(libs.coil3.compose)
             implementation(libs.coil.network.okhttp)
             implementation(project(":shared:data"))
-            implementation(project(":shared:components"))
 
-            implementation(libs.decompose)
-            implementation(libs.decompose.extensions.compose)
+            implementation(libs.androidx.lifecycle.viewmodel.navigation3)
+            implementation(libs.androidx.navigation3.ui)
 
             implementation(libs.androidx.core.ktx)
             implementation(libs.androidx.activity.compose)

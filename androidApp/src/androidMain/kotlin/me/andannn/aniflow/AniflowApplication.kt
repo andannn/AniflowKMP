@@ -10,6 +10,9 @@ import me.andannn.aniflow.components.KoinLauncher
 import me.andannn.aniflow.components.Logger
 import me.andannn.aniflow.components.Modules
 import me.andannn.aniflow.platform.BrowserAuthOperationHandlerImpl
+import me.andannn.aniflow.ui.DiscoverViewModel
+import me.andannn.aniflow.ui.TrackViewModel
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
@@ -35,4 +38,6 @@ class AniflowApplication : Application() {
 private fun androidContextModule(application: AniflowApplication) =
     module {
         single { application } bind Context::class
+        viewModelOf(::DiscoverViewModel)
+        viewModelOf(::TrackViewModel)
     }

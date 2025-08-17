@@ -19,71 +19,92 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
-import com.arkivanov.decompose.ExperimentalDecomposeApi
-import com.arkivanov.decompose.extensions.compose.stack.Children
-import com.arkivanov.decompose.extensions.compose.stack.animation.fade
-import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
-import com.arkivanov.decompose.extensions.compose.subscribeAsState
-import me.andannn.aniflow.components.home.HomeComponent
-import me.andannn.aniflow.components.home.TopLevelNavigation
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.entry
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
+import androidx.navigation3.ui.NavDisplay
+import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
+import io.github.aakira.napier.Napier
+import kotlinx.serialization.Serializable
+
+private const val TAG = "Home"
+
+@Serializable
+private sealed interface HomeNestedScreen {
+    @Serializable
+    data object Discover : HomeNestedScreen
+
+    @Serializable
+    data object Track : HomeNestedScreen
+
+    @Serializable
+    data object Social : HomeNestedScreen
+
+    @Serializable
+    data object Profile : HomeNestedScreen
+}
 
 @Composable
-fun Home(
-    component: HomeComponent,
-    modifier: Modifier = Modifier,
-) {
-    val selectedNavigation by component.selectedNavigationItem.subscribeAsState()
+fun Home(modifier: Modifier = Modifier) {
+    val navigator =
+        remember {
+            NestedNavigator(
+                mutableStateListOf(HomeNestedScreen.Discover),
+            )
+        }
     Scaffold(
         modifier = modifier.fillMaxSize(),
         bottomBar = {
             NavigationArea(
-                selected = selectedNavigation,
-                onItemClick = component::onSelectNavigationItem,
+                selected = navigator.currentTopLevelNavigation,
+                onItemClick = { item ->
+                    navigator.navigateTo(item)
+                },
             )
         },
         content = { paddingValues ->
-            Surface(
+            NestNavigation(
                 modifier =
                     Modifier
                         .fillMaxSize()
                         .padding(bottom = paddingValues.calculateBottomPadding()),
-            ) {
-                Children(component, modifier)
-            }
+                nestedBackStack = navigator.backStack,
+            )
         },
     )
 }
 
-@OptIn(ExperimentalDecomposeApi::class)
 @Composable
-private fun Children(
-    component: HomeComponent,
+private fun NestNavigation(
     modifier: Modifier = Modifier,
+    nestedBackStack: SnapshotStateList<HomeNestedScreen>,
 ) {
-    Children(
-        stack = component.stack,
+    NavDisplay(
         modifier = modifier,
-        animation = stackAnimation(fade()),
-    ) {
-        Surface(modifier = Modifier.fillMaxSize()) {
-            when (val child = it.instance) {
-                is HomeComponent.Child.Discover ->
-                    Discover(
-                        component = child.component,
-                    )
-
-                is HomeComponent.Child.Track ->
-                    Track(
-                        component = child.component,
-                    )
-            }
-        }
-    }
+        backStack = nestedBackStack,
+        entryDecorators =
+            listOf(
+                rememberSceneSetupNavEntryDecorator(),
+                rememberSavedStateNavEntryDecorator(),
+                rememberViewModelStoreNavEntryDecorator(),
+            ),
+        entryProvider =
+            entryProvider {
+                entry(HomeNestedScreen.Discover) {
+                    Discover()
+                }
+                entry(HomeNestedScreen.Track) {
+                    Track()
+                }
+            },
+    )
 }
 
 @Composable
@@ -108,6 +129,13 @@ fun NavigationArea(
             )
         }
     }
+}
+
+enum class TopLevelNavigation {
+    DISCOVER,
+    TRACK,
+    SOCIAL,
+    PROFILE,
 }
 
 private val TopLevelNavigation.selectedIcon
@@ -136,3 +164,46 @@ private val TopLevelNavigation.label
             TopLevelNavigation.SOCIAL -> "Social"
             TopLevelNavigation.PROFILE -> "Profile"
         }
+
+private class NestedNavigator(
+    val backStack: SnapshotStateList<HomeNestedScreen>,
+) {
+    val currentTopLevelNavigation: TopLevelNavigation
+        get() =
+            backStack.lastOrNull()?.toTopLevelNavigation()
+                ?: TopLevelNavigation.DISCOVER
+
+    fun navigateTo(topLevelNavigation: TopLevelNavigation) {
+        val toScreen = topLevelNavigation.toScreen()
+        Napier.d(tag = TAG) { "Navigated to $toScreen before : ${backStack.toList()}" }
+        if (backStack.lastOrNull() == toScreen) {
+            Napier.d(tag = TAG) { "Already on $topLevelNavigation" }
+            return
+        }
+
+        backStack.clear()
+        backStack.add(HomeNestedScreen.Discover)
+
+        if (toScreen != HomeNestedScreen.Discover) {
+            backStack.add(toScreen)
+        }
+
+        Napier.d(tag = TAG) { "Navigated to $toScreen after : ${backStack.toList()}" }
+    }
+
+    private fun TopLevelNavigation.toScreen() =
+        when (this) {
+            TopLevelNavigation.DISCOVER -> HomeNestedScreen.Discover
+            TopLevelNavigation.TRACK -> HomeNestedScreen.Track
+            TopLevelNavigation.SOCIAL -> HomeNestedScreen.Social
+            TopLevelNavigation.PROFILE -> HomeNestedScreen.Profile
+        }
+
+    fun HomeNestedScreen.toTopLevelNavigation() =
+        when (this) {
+            HomeNestedScreen.Discover -> TopLevelNavigation.DISCOVER
+            HomeNestedScreen.Profile -> TopLevelNavigation.PROFILE
+            HomeNestedScreen.Social -> TopLevelNavigation.SOCIAL
+            HomeNestedScreen.Track -> TopLevelNavigation.TRACK
+        }
+}
