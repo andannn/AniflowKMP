@@ -4,6 +4,8 @@
  */
 package me.andannn.aniflow.data
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.Flow
 import me.andannn.aniflow.data.model.UserModel
 
@@ -13,9 +15,17 @@ data class AuthToken(
 )
 
 interface BrowserAuthOperationHandler {
-    fun openBrowser()
+    /**
+     * Wait for the authentication result.
+     *
+     * callBack will be invoked with the authentication result, Or null if the user cancelled the authentication.
+     */
+    fun getAuthResult(callBack: (AuthToken?) -> Unit)
 
-    suspend fun awaitAuthResult(): AuthToken
+    /**
+     * Cancel the authentication process.
+     */
+    fun cancel()
 }
 
 interface AuthRepository {
@@ -25,7 +35,7 @@ interface AuthRepository {
      *
      * @throws me.andannn.aniflow.data.exceptions.RemoteApiException server error
      */
-    suspend fun startLoginProcessAndWaitResult()
+    fun startLoginProcessAndWaitResult(scope: CoroutineScope): Deferred<Unit>
 
     fun getAuthedUser(): Flow<UserModel?>
 }

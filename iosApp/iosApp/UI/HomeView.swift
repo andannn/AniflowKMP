@@ -21,15 +21,9 @@ struct HomeView: View {
     
     var body: some View {
         VStack {
-            StackView(
-                stackValue: _stack,
-                getTitle: { _ in "Heh" },
-                onBack: { a in  }
-            ) { child in
-                ChildView(child: child)
-                    .frame(maxHeight: .infinity)
-            }
-            
+            ChildView(child: activeChild)
+                .frame(maxHeight: .infinity)
+
             NavigationArea(selected: selectedNavigationItem) { newItem in
                 component.onSelectNavigationItem(navigationItem: newItem)
             }
@@ -43,6 +37,7 @@ private struct ChildView: View {
     var body: some View {
         switch child {
         case let child as HomeComponentChildDiscover: DiscoverView(child.component)
+        case let child as HomeComponentChildTrack: TrackView(child.component)
         default: EmptyView()
         }
     }
@@ -88,7 +83,8 @@ extension TopLevelNavigation {
         case .track: return "bookmark.fill"
         case .social: return "bubble.left.and.bubble.right.fill"
         case .profile: return "person.fill"
-        default: return ""
+        default: fatalError("NEVER")
+            
         }
     }
     
@@ -98,7 +94,8 @@ extension TopLevelNavigation {
         case .track: return "bookmark"
         case .social: return "bubble.left.and.bubble.right"
         case .profile: return "person"
-        default: return ""
+        default: fatalError("NEVER")
+            
         }
     }
     
@@ -108,7 +105,7 @@ extension TopLevelNavigation {
         case .track: return "Track"
         case .social: return "Social"
         case .profile: return "Profile"
-        default: return ""
+        default: fatalError("NEVER")
         }
     }
 }

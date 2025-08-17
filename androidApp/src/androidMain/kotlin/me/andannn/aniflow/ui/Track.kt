@@ -1,9 +1,13 @@
 package me.andannn.aniflow.ui
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -23,6 +27,7 @@ import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.model.define.MediaType
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
+import me.andannn.aniflow.ui.widget.MediaRowItem
 import org.koin.compose.viewmodel.koinViewModel
 
 private const val TAG = "TrackViewModel"
@@ -83,18 +88,31 @@ fun Track(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TrackContent(
     content: List<MediaWithMediaListItem>,
     modifier: Modifier = Modifier,
 ) {
-    LazyColumn(modifier) {
-        items(
-            content,
-            key = { it.hashCode() },
-        ) { item ->
-            Text(item.toString())
-            Divider()
+    Scaffold(
+        modifier = modifier,
+        topBar = {
+            TopAppBar(
+                title = { Text("Track") },
+            )
+        },
+    ) {
+        LazyColumn(Modifier.padding(top = it.calculateTopPadding())) {
+            items(
+                items = content,
+                key = { it.mediaListModel.id },
+            ) { item ->
+                val media = item.mediaModel
+                MediaRowItem(
+                    title = media.title?.romaji.toString(),
+                    coverImage = media.coverImage,
+                )
+            }
         }
     }
 }

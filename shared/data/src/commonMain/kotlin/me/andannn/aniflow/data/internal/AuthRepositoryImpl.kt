@@ -6,12 +6,15 @@ package me.andannn.aniflow.data.internal
 
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.suspendCancellableCoroutine
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.BrowserAuthOperationHandler
 import me.andannn.aniflow.data.exceptions.toDataException
@@ -21,6 +24,8 @@ import me.andannn.aniflow.database.schema.UserEntity
 import me.andannn.aniflow.datastore.UserSettingPreferences
 import me.andannn.aniflow.service.AniListService
 import me.andannn.aniflow.service.ServerException
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -33,35 +38,26 @@ class AuthRepositoryImpl(
     private val authHandler: BrowserAuthOperationHandler,
 ) : AuthRepository {
     @OptIn(ExperimentalTime::class)
-    override suspend fun startLoginProcessAndWaitResult() {
-        authHandler.openBrowser()
+    override fun startLoginProcessAndWaitResult(scope: CoroutineScope) =
+        scope.async {
+            val authResult = authHandler.awaitAuthResult()
 
-        val authResult =
+            Napier.d(tag = TAG) { "token received: ${authResult.token}, expires in: ${authResult.expiresInTime} seconds" }
+            userPref.setAuthToken(
+                token = authResult.token,
+                expiredTime = Clock.System.now().epochSeconds + authResult.expiresInTime,
+            )
+
             try {
-                authHandler.awaitAuthResult()
-            } catch (exception: CancellationException) {
-                // if the user cancelled the login process, we should not throw an exception
-                // just log the cancellation and return
-                Napier.w(tag = TAG) { "Login process was cancelled by user." }
-                return
+                // retrieve user data from ani list api
+
+                val authedUser = service.getAuthedUserData()
+                userPref.setAuthedUserId(authedUser.id.toString())
+                database.upsertUser(listOf(authedUser.toEntity()))
+            } catch (exception: ServerException) {
+                throw exception.toDataException()
             }
-
-        Napier.d(tag = TAG) { "token received: ${authResult.token}, expires in: ${authResult.expiresInTime} seconds" }
-        userPref.setAuthToken(
-            token = authResult.token,
-            expiredTime = Clock.System.now().epochSeconds + authResult.expiresInTime,
-        )
-
-        try {
-            // retrieve user data from ani list api
-
-            val authedUser = service.getAuthedUserData()
-            userPref.setAuthedUserId(authedUser.id.toString())
-            database.upsertUser(listOf(authedUser.toEntity()))
-        } catch (exception: ServerException) {
-            throw exception.toDataException()
         }
-    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun getAuthedUser(): Flow<UserModel?> =
@@ -77,3 +73,20 @@ class AuthRepositoryImpl(
                 }
             }
 }
+
+private suspend fun BrowserAuthOperationHandler.awaitAuthResult() =
+    suspendCancellableCoroutine { cont ->
+        cont.invokeOnCancellation {
+            cancel()
+        }
+
+        getAuthResult { authToken ->
+            if (authToken == null) {
+                Napier.d(tag = TAG) { "Authentication cancelled" }
+                cont.resumeWithException(CancellationException("Authentication cancelled."))
+            } else {
+                Napier.d(tag = TAG) { "Authentication successful: $authToken" }
+                cont.resume(authToken)
+            }
+        }
+    }
