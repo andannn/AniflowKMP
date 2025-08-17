@@ -4,19 +4,14 @@ import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.define.MediaCategory
 
 data class CategoryDataModel(
-    private val map: Map<MediaCategory, List<MediaModel>> = emptyMap(),
+    private val map: List<CategoryWithContents> = emptyList(),
 ) {
     val content: List<CategoryWithContents>
         get() =
             map
                 .toList()
                 .sortedBy {
-                    it.first.orderIndex()
-                }.map {
-                    CategoryWithContents(
-                        category = it.first,
-                        medias = it.second,
-                    )
+                    it.category.orderIndex()
                 }
 }
 

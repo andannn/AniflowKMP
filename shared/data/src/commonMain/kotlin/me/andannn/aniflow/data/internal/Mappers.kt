@@ -31,7 +31,7 @@ import me.andannn.aniflow.service.dto.MediaList
 import me.andannn.aniflow.service.dto.User
 import me.andannn.aniflow.service.dto.enums.MediaRankType
 
-internal fun MediaType.allCategories(): List<MediaCategory> =
+fun MediaType.allCategories(): List<MediaCategory> =
     when (this) {
         MediaType.ANIME ->
             listOf(

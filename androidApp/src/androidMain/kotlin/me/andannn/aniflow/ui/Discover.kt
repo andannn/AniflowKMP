@@ -40,11 +40,12 @@ import androidx.lifecycle.viewModelScope
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.MediaRepository
+import me.andannn.aniflow.data.internal.allCategories
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.UserModel
 import me.andannn.aniflow.data.model.define.MediaCategory
@@ -64,16 +65,23 @@ class DiscoverViewModel(
 
     init {
         viewModelScope.launch {
-            mediaRepository
-                .getAllMediasWithCategoryFlow(MediaType.ANIME)
-                .map { it.data ?: emptyMap() }
-                .collect { newState ->
-                    _state.update {
-                        it.copy(
-                            categoryDataMap = CategoryDataModel(newState),
-                        )
-                    }
+            val allCategories = MediaType.ANIME.allCategories()
+            val flows =
+                allCategories.map { category ->
+                    mediaRepository.getMediasFlow(category)
                 }
+
+            combine(
+                flows.map { it.dataFlow },
+            ) {
+                it.toList()
+            }.collect { data ->
+                _state.update {
+                    it.copy(
+                        categoryDataMap = CategoryDataModel(data),
+                    )
+                }
+            }
         }
 
         viewModelScope.launch {
