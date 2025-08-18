@@ -25,7 +25,6 @@ rootProject.name = "AniFlowKMP"
 include(":androidApp")
 
 // sharded modules
-include(":shared:components")
 include(":shared:data")
 include(":shared:datastore")
 include(":shared:network:service")

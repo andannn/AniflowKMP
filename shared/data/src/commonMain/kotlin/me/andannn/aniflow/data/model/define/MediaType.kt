@@ -20,4 +20,26 @@ enum class MediaType {
      * Asian comic
      */
     MANGA,
+
+    ;
+
+    fun allCategories(): List<MediaCategory> =
+        when (this) {
+            ANIME ->
+                listOf(
+                    MediaCategory.CURRENT_SEASON_ANIME,
+                    MediaCategory.NEXT_SEASON_ANIME,
+                    MediaCategory.TRENDING_ANIME,
+                    MediaCategory.MOVIE_ANIME,
+                    MediaCategory.NEW_ADDED_ANIME,
+                )
+
+            MANGA ->
+                listOf(
+                    MediaCategory.TRENDING_MANGA,
+                    MediaCategory.ALL_TIME_POPULAR_MANGA,
+                    MediaCategory.TOP_MANHWA,
+                    MediaCategory.NEW_ADDED_MANGA,
+                )
+        }
 }

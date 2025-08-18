@@ -2,30 +2,42 @@ import UIKit
 import SwiftUI
 import Shared
 
-struct DiscoverView: View {
-    private let component: DiscoverComponent
+@MainActor
+class DiscoverViewModel: ObservableObject {
+    private let dataProvider: DataProviderWrapper
+    @Published public var uiState: DiscoverUiState = DiscoverUiState.companion.Empty
     
-    @StateValue
-    private var categoryDataMapHolder: CategoryDataModel
-    
-    @StateValue
-    private var authedUser: Optional<DataUserModel>
-    
-    init(_ component: DiscoverComponent) {
-        self.component = component
-        _categoryDataMapHolder = StateValue(component.categoryDataMap)
-        _authedUser = StateValue(component.authedUser)
+    init() {
+        print("DiscoverViewModel init")
+        dataProvider = DataProviderWrapper(ktDataProvider: KoinHelper.shared.dataProvider())
+        Task {
+            do {
+                for try await dataWithError in dataProvider.getdiscoverUiStateAsyncSequence() {
+                    uiState = dataWithError.data ?? DiscoverUiState.companion.Empty
+                }
+            } catch {
+                print("Failed with error: \(error)")
+            }
+        }
     }
+    
+    deinit {
+        print("DiscoverViewModel deinit")
+    }
+}
+
+struct DiscoverView: View {
+    @StateObject private var viewModel = DiscoverViewModel()
     
     var body: some View {
         NavigationStack {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 16) {
-                    ForEach(Array(categoryDataMapHolder.content), id: \.category) { categoryWithContents in
+                    ForEach(Array(viewModel.uiState.categoryDataMap.content), id: \.category) { categoryWithContents in
                         TitleWithContent(title: categoryWithContents.category.title, onMoreClick: {}) {
                             MediaPreviewSector(mediaList: categoryWithContents.medias) { item in
                                 // onMediaClick
-                                component.onMediaClick(media: item)
+                                // component.onMediaClick(media: item)
                             }
                         }
                     }
@@ -39,7 +51,7 @@ struct DiscoverView: View {
                 Button(action: {
                     // TODO:
                 }) {
-                    if let avatarUrl = authedUser.value?.avatar {
+                    if let avatarUrl = viewModel.uiState.authedUser?.avatar {
                         AsyncImage(url: URL(string: avatarUrl)) { image in
                             image
                                 .resizable()
@@ -60,8 +72,8 @@ struct DiscoverView: View {
 }
 
 struct MediaPreviewSector: View {
-    let mediaList: [DataMediaModel]
-    let onMediaClick: (DataMediaModel) -> Void
+    let mediaList: [MediaModel]
+    let onMediaClick: (MediaModel) -> Void
     
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -107,7 +119,7 @@ struct TitleWithContent<Content: View>: View {
     }
 }
 
-extension DataMediaCategory {
+extension MediaCategory {
     var title: String {
         switch self {
         case .currentSeasonAnime:

@@ -43,6 +43,7 @@ fun Project.configureKotlinMultiplatform(extension: KotlinMultiplatformExtension
 
             androidMain.dependencies {
                 implementation(libs.findLibrary("koin.android").get())
+                implementation(libs.findLibrary("koin.compose.viewmodel").get())
             }
 
             commonTest.dependencies {

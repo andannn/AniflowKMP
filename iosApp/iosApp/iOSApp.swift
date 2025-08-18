@@ -9,7 +9,7 @@ struct iOSApp: App {
     
     var body: some Scene {
         WindowGroup {
-            RootView(appDelegate.root)
+            RootView()
                 .onOpenURL { url in
                     appDelegate.authHandler.onOpenURL(url)
                 }
@@ -21,18 +21,12 @@ struct iOSApp: App {
 }
 
 class AppDelegate: NSObject, UIApplicationDelegate {
-    lazy var root: RootComponent = DefaultRootComponent(
-        componentContext: DefaultComponentContext(
-            lifecycle: ApplicationLifecycle()
-        )
-    )
-    
     let authHandler: BrowserAuthOperationHandlerImpl = BrowserAuthOperationHandlerImpl()
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
 
-        KoinLauncher().startKoin(
-            modules: KoinLauncherKt.Modules,
+        KoinHelper.shared.startKoin(
+            modules: KoinHelper.shared.Modules,
             browserAuthOperationHandler: authHandler
         )
         

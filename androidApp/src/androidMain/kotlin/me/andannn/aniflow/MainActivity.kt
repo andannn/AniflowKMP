@@ -9,12 +9,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.arkivanov.decompose.defaultComponentContext
 import io.github.aakira.napier.Napier
-import me.andannn.aniflow.components.root.DefaultRootComponent
 import me.andannn.aniflow.data.BrowserAuthOperationHandler
 import me.andannn.aniflow.platform.BrowserAuthOperationHandlerImpl
-import me.andannn.aniflow.ui.Root
+import me.andannn.aniflow.ui.App
 import org.koin.android.ext.android.getKoin
 
 private const val TAG = "MainActivity"
@@ -28,13 +26,13 @@ class MainActivity : ComponentActivity() {
         browserAuthOperationHandler.setUpContext(this)
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        val root =
-            DefaultRootComponent(
-                componentContext = defaultComponentContext(),
-            )
+//        val root =
+//            DefaultRootComponent(
+//                componentContext = defaultComponentContext(),
+//            )
 
         setContent {
-            Root(root)
+            App()
         }
     }
 

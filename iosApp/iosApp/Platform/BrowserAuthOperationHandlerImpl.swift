@@ -5,17 +5,17 @@ import UIKit
 import Foundation
 import UIKit
 
-class BrowserAuthOperationHandlerImpl: DataBrowserAuthOperationHandler {
+class BrowserAuthOperationHandlerImpl: BrowserAuthOperationHandler {
     private enum AuthState {
         case initial
-        case waiting(callback: (DataAuthToken?) -> Void)
+        case waiting(callback: (AuthToken?) -> Void)
     }
 
     private var authState: AuthState = .initial
     private let clientId = "14409"
     private let callbackScheme = "animetracker"
 
-    func getAuthResult(callBack callback: @escaping (DataAuthToken?) -> Void) {
+    func getAuthResult(callBack callback: @escaping (AuthToken?) -> Void) {
         if case .waiting = authState {
             fatalError("Auth operation already in progress")
         }
@@ -71,7 +71,7 @@ class BrowserAuthOperationHandlerImpl: DataBrowserAuthOperationHandler {
             return
         }
 
-        callback(DataAuthToken(token: token, expiresInTime: Int32(expires)))
+        callback(AuthToken(token: token, expiresInTime: Int32(expires)))
     }
     
     func onSceneDidBecomeActive() {

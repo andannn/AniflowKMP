@@ -31,26 +31,6 @@ import me.andannn.aniflow.service.dto.MediaList
 import me.andannn.aniflow.service.dto.User
 import me.andannn.aniflow.service.dto.enums.MediaRankType
 
-internal fun MediaType.allCategories(): List<MediaCategory> =
-    when (this) {
-        MediaType.ANIME ->
-            listOf(
-                MediaCategory.CURRENT_SEASON_ANIME,
-                MediaCategory.NEXT_SEASON_ANIME,
-                MediaCategory.TRENDING_ANIME,
-                MediaCategory.MOVIE_ANIME,
-                MediaCategory.NEW_ADDED_ANIME,
-            )
-
-        MediaType.MANGA ->
-            listOf(
-                MediaCategory.TRENDING_MANGA,
-                MediaCategory.ALL_TIME_POPULAR_MANGA,
-                MediaCategory.TOP_MANHWA,
-                MediaCategory.NEW_ADDED_MANGA,
-            )
-    }
-
 internal fun MediaCategory.mediaType(): MediaType =
     when (this) {
         MediaCategory.CURRENT_SEASON_ANIME,

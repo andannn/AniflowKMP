@@ -5,6 +5,7 @@
 package me.andannn.aniflow.data.di
 
 import me.andannn.aniflow.data.AuthRepository
+import me.andannn.aniflow.data.DataProvider
 import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.internal.AuthRepositoryImpl
 import me.andannn.aniflow.data.internal.MediaRepositoryImpl
@@ -19,6 +20,7 @@ val dataModule =
     module {
         singleOf(::MediaRepositoryImpl).bind(MediaRepository::class)
         singleOf(::AuthRepositoryImpl).bind(AuthRepository::class)
+        singleOf(::DataProvider)
         includes(
             databaseModule,
             serviceModule,

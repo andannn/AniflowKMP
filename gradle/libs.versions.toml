@@ -2,7 +2,6 @@
 agp = "8.10.1"
 circuit = "0.27.1"
 coil = "3.3.0"
-decompose = "3.3.0"
 kotlin = "2.2.0"
 coreKtx = "1.16.0"
 junit = "4.13.2"
@@ -41,12 +40,11 @@ licensee = "1.13.0"
 workRuntimeKtx = "2.10.2"
 apollo = "4.1.0"
 sqldelight = "2.1.0"
+lifecycleViewmodelNav3 = "1.0.0-alpha04"
+nav3Core = "1.0.0-alpha07"
+nativecoroutines = "1.0.0-ALPHA-46"
 
 [libraries]
-decompose = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
-decompose-extensions-compose = { module = "com.arkivanov.decompose:extensions-compose", version.ref = "decompose" }
-essenty-lifecycle-coroutines = { module = "com.arkivanov.essenty:lifecycle-coroutines", version.ref = "essenty" }
-essenty-lifecycle = { module = "com.arkivanov.essenty:lifecycle", version.ref = "essenty" }
 sqldelight-coroutines-extensions = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
 sqldelight-native-driver = { module = "app.cash.sqldelight:native-driver", version.ref = "sqldelight" }
 sqldelight-sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }
@@ -111,6 +109,8 @@ androidx-test-runner = { group = "androidx.test", name = "runner", version.ref =
 androidx-test-core-ktx = { group = "androidx.test", name = "core-ktx", version.ref = "testCoreKtx" }
 androidx-test-monitor = { group = "androidx.test", name = "monitor", version.ref = "testMonitor" }
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtx" }
+androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodelNav3" }
+androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3Core" }
 
 # dependecy in build-logic
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
@@ -140,3 +140,4 @@ room = { id = "androidx.room", version.ref = "androidxRoom" }
 licensee = { id = "app.cash.licensee", version.ref = "licensee" }
 apollo = { id = "com.apollographql.apollo", version.ref = "apollo" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
+nativecoroutines = { id = "com.rickclephas.kmp.nativecoroutines", version.ref = "nativecoroutines" }

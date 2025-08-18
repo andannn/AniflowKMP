@@ -58,10 +58,10 @@ class MediaRepositoryTest {
     fun testGetAllMediasWithCategoryFlow() =
         testScope.runTest {
             repo
-                .getAllMediasWithCategoryFlow(
+                .getMediasFlow(
                     mediaType = MediaType.ANIME,
-                ).first()
-                .let {
+                ).dataFlow
+                .collect {
                     println(it)
                 }
         }

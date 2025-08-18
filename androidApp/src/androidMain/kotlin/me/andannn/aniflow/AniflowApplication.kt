@@ -6,10 +6,13 @@ package me.andannn.aniflow
 
 import android.app.Application
 import android.content.Context
-import me.andannn.aniflow.components.KoinLauncher
-import me.andannn.aniflow.components.Logger
-import me.andannn.aniflow.components.Modules
+import me.andannn.aniflow.data.util.KoinHelper
+import me.andannn.aniflow.data.util.KoinHelper.Modules
+import me.andannn.aniflow.data.util.Logger
 import me.andannn.aniflow.platform.BrowserAuthOperationHandlerImpl
+import me.andannn.aniflow.ui.DiscoverViewModel
+import me.andannn.aniflow.ui.TrackViewModel
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
@@ -21,7 +24,7 @@ class AniflowApplication : Application() {
             Logger.enableDebugLog()
         }
 
-        KoinLauncher.startKoin(
+        KoinHelper.startKoin(
             modules =
                 listOf(
                     *Modules.toTypedArray(),
@@ -35,4 +38,6 @@ class AniflowApplication : Application() {
 private fun androidContextModule(application: AniflowApplication) =
     module {
         single { application } bind Context::class
+        viewModelOf(::DiscoverViewModel)
+        viewModelOf(::TrackViewModel)
     }

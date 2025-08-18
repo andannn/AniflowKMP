@@ -2,42 +2,22 @@
  * Copyright 2025, the AniflowKMP project contributors
  * SPDX-License-Identifier: Apache-2.0
  */
-package me.andannn.aniflow.components.discover
+package me.andannn.aniflow.data.model.relation
 
-import com.arkivanov.decompose.value.Value
 import me.andannn.aniflow.data.model.MediaModel
-import me.andannn.aniflow.data.model.UserModel
 import me.andannn.aniflow.data.model.define.MediaCategory
 
-interface DiscoverComponent {
-    val categoryDataMap: Value<CategoryDataModel>
-
-    val authedUser: Value<Optional<UserModel>>
-
-    fun onMediaClick(media: MediaModel)
-}
-
 data class CategoryDataModel(
-    private val map: Map<MediaCategory, List<MediaModel>> = emptyMap(),
+    private val map: List<CategoryWithContents> = emptyList(),
 ) {
     val content: List<CategoryWithContents>
         get() =
             map
                 .toList()
                 .sortedBy {
-                    it.first.orderIndex()
-                }.map {
-                    CategoryWithContents(
-                        category = it.first,
-                        medias = it.second,
-                    )
+                    it.category.orderIndex()
                 }
 }
-
-data class CategoryWithContents(
-    val category: MediaCategory,
-    val medias: List<MediaModel>,
-)
 
 private fun MediaCategory.orderIndex(): Int =
     when (this) {
@@ -52,6 +32,7 @@ private fun MediaCategory.orderIndex(): Int =
         MediaCategory.NEW_ADDED_MANGA -> 8
     }
 
-data class Optional<T>(
-    val value: T?,
+data class CategoryWithContents(
+    val category: MediaCategory,
+    val medias: List<MediaModel>,
 )

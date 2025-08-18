@@ -8,17 +8,18 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.supervisorScope
 import kotlinx.serialization.json.Json
 import me.andannn.aniflow.data.MediaRepository
+import me.andannn.aniflow.data.model.DataAndErrorFlow
 import me.andannn.aniflow.data.model.DataWithErrors
-import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.MediaFormat
 import me.andannn.aniflow.data.model.define.MediaListStatus
@@ -26,6 +27,7 @@ import me.andannn.aniflow.data.model.define.MediaSeason
 import me.andannn.aniflow.data.model.define.MediaSort
 import me.andannn.aniflow.data.model.define.MediaStatus
 import me.andannn.aniflow.data.model.define.MediaType
+import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.database.MediaLibraryDao
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
@@ -41,50 +43,38 @@ class MediaRepositoryImpl(
     private val mediaLibraryDao: MediaLibraryDao,
     private val mediaService: AniListService,
 ) : MediaRepository {
-    override fun getAllMediasWithCategoryFlow(mediaType: MediaType): Flow<DataWithErrors<Map<MediaCategory, List<MediaModel>>>> =
-        channelFlow {
-            with(mediaService) {
-                with(mediaLibraryDao) {
-                    val categories = mediaType.allCategories()
+    override fun getMediasFlow(category: MediaCategory) =
+        with(mediaService) {
+            with(mediaLibraryDao) {
+                val dataFlow =
+                    mediaLibraryDao
+                        .getMediaOfCategoryFlow(Json.encodeToString(category))
+                        .map { list ->
+                            CategoryWithContents(
+                                category,
+                                list.map(MediaEntity::toDomain),
+                            )
+                        }.distinctUntilChanged()
 
-                    var dataMap = mapOf<MediaCategory, List<MediaModel>>()
-                    val errorList = mutableListOf<Throwable>()
-                    // sync data from service
-                    launch {
-                        supervisorScope {
-                            val deferredList =
-                                categories.map {
-                                    it.syncLocalWithService(this)
-                                }
-
-                            deferredList
-                                .awaitAll()
-                                .filterNotNull()
-                                .takeIf { it.isNotEmpty() }
-                                ?.let { errors ->
-                                    errorList.addAll(errors)
-                                    send(DataWithErrors(dataMap, errors))
-                                }
-                        }
-                    }
-
-                    // emit data from database
-                    val categoryToItemsFlowList =
-                        categories.map { category ->
-                            getMediaOfCategoryFlow(Json.encodeToString(category)).map {
-                                category to it.map(MediaEntity::toDomain)
+                val errorsFlow = MutableSharedFlow<Throwable?>(replay = 1)
+                val syncedDataFlow =
+                    dataFlow.onStart {
+                        coroutineScope {
+                            errorsFlow.emit(null)
+                            val error =
+                                category
+                                    .syncLocalWithService(this)
+                                    .await()
+                            if (error != null) {
+                                errorsFlow.emit(error)
                             }
                         }
-
-                    combine(
-                        categoryToItemsFlowList,
-                    ) { pairs ->
-                        pairs.toMap()
-                    }.collect {
-                        dataMap = it
-                        send(DataWithErrors(dataMap, errorList))
                     }
-                }
+
+                DataAndErrorFlow(
+                    syncedDataFlow,
+                    errorsFlow,
+                )
             }
         }
 

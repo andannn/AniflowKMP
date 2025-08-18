@@ -3,22 +3,31 @@ import SwiftUI
 import Shared
 
 struct RootView: View {
-    private let root: RootComponent
+    @StateObject private var router = Router()
     
-    init(_ root: RootComponent) {
-        self.root = root
-    }
-
     var body: some View {
-        StackView(
-            stackValue: StateValue(root.stack),
-            getTitle: { _ in "Heh" },
-            onBack: { a in  }
-        ) { child in
-            switch child {
-            case let child as RootComponentChildHome: HomeView(child.component)
-            default: EmptyView()
-            }
+        NavigationStack(path: $router.path) {
+            HomeView()
+                .environmentObject(router)
+                .navigationDestination(for: AppRoute.self) { route in
+                    switch route {
+                        
+                    default:
+                        fatalError()
+                    }
+                }
         }
     }
+}
+
+@MainActor
+final class Router: ObservableObject {
+    @Published var path = NavigationPath()
+    
+    func pop() { path.removeLast() }
+    func popToRoot() { path = NavigationPath() }
+}
+
+enum AppRoute: Hashable {
+    case home
 }

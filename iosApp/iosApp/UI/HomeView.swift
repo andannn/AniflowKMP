@@ -3,88 +3,60 @@ import SwiftUI
 import Shared
 
 struct HomeView: View {
-    private let component: HomeComponent
-    
-    @StateValue
-    private var stack: ChildStack<AnyObject, HomeComponentChild>
-    
-    @StateValue
-    private var selectedNavigationItem: TopLevelNavigation
-    
-    private var activeChild: HomeComponentChild { stack.active.instance }
-    
-    init(_ component: HomeComponent) {
-        self.component = component
-        _stack = StateValue(component.stack)
-        _selectedNavigationItem = StateValue(component.selectedNavigationItem)
-    }
+    @State
+    private var selection: TopLevelNavigation = .discover
     
     var body: some View {
-        VStack {
-            ChildView(child: activeChild)
-                .frame(maxHeight: .infinity)
-
-            NavigationArea(selected: selectedNavigationItem) { newItem in
-                component.onSelectNavigationItem(navigationItem: newItem)
-            }
-        }
-    }
-}
-
-private struct ChildView: View {
-    let child: HomeComponentChild
-    
-    var body: some View {
-        switch child {
-        case let child as HomeComponentChildDiscover: DiscoverView(child.component)
-        case let child as HomeComponentChildTrack: TrackView(child.component)
-        default: EmptyView()
-        }
-    }
-}
-
-private struct NavigationArea: View {
-    let selected: TopLevelNavigation
-    let onItemClick: (TopLevelNavigation) -> Void
-    
-    var body: some View {
-        HStack {
-            ForEach(TopLevelNavigation.entries, id: \.self) { item in
-                Button(action: { onItemClick(item) }) {
-                    VStack(spacing: 4) {
-                        Image(systemName: selected == item ? item.selectedIcon : item.unselectedIcon)
-                            .imageScale(.large)
-                        Text(item.label)
-                            .font(.caption)
-                    }
-                    .foregroundColor(selected == item ? .blue : .gray)
+        NavigationStack {
+            TabView(selection: $selection) {
+                ForEach([TopLevelNavigation.discover,
+                         .track,
+                         .social,
+                         .profile
+                ], id: \.self) { tab in
+                    screen(for: tab)
+                        .tabItem {
+                            Image(systemName: selection == tab ? tab.selectedIcon : tab.unselectedIcon)
+                            Text(tab.label)
+                        }
+                        .tag(tab)
                 }
-                .frame(maxWidth: .infinity)
+            }
+            .navigationTitle(selection.label)
+        }
+    }
+    
+    @ViewBuilder
+    private func screen(for tab: TopLevelNavigation) -> some View {
+        switch tab {
+        case .discover:
+            DiscoverView()
+            //        case .track:
+            //            TrackView()
+            //        case .social:
+            //            SocialView()
+            //        case .profile:
+            //            ProfileView()
+        default:
+            VStack {
+                Text("Dummy")
             }
         }
-        .padding(.vertical, 8)
-        .background(Color(.systemGray6))
     }
 }
 
-private struct VerticalLabelStyle: LabelStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        VStack(alignment: .center, spacing: 8) {
-            configuration.icon
-            configuration.title
-        }
-    }
-}
-
-extension TopLevelNavigation {
+enum TopLevelNavigation {
+    case discover
+    case track
+    case social
+    case profile
+    
     var selectedIcon: String {
         switch self {
         case .discover: return "sparkles"
         case .track: return "bookmark.fill"
         case .social: return "bubble.left.and.bubble.right.fill"
         case .profile: return "person.fill"
-        default: fatalError("NEVER")
-            
         }
     }
     
@@ -94,8 +66,6 @@ extension TopLevelNavigation {
         case .track: return "bookmark"
         case .social: return "bubble.left.and.bubble.right"
         case .profile: return "person"
-        default: fatalError("NEVER")
-            
         }
     }
     
@@ -105,7 +75,7 @@ extension TopLevelNavigation {
         case .track: return "Track"
         case .social: return "Social"
         case .profile: return "Profile"
-        default: fatalError("NEVER")
         }
     }
 }
+

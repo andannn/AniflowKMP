@@ -34,27 +34,49 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewModelScope
 import coil3.compose.AsyncImage
-import com.arkivanov.decompose.extensions.compose.subscribeAsState
-import me.andannn.aniflow.components.discover.CategoryWithContents
-import me.andannn.aniflow.components.discover.DiscoverComponent
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import me.andannn.aniflow.data.DataProvider
+import me.andannn.aniflow.data.DiscoverUiState
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.UserModel
 import me.andannn.aniflow.data.model.define.MediaCategory
+import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.ui.widget.MediaPreviewItem
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.mp.KoinPlatform.getKoin
+
+class DiscoverViewModel(
+    private val dataProvider: DataProvider = getKoin().get(),
+) : ViewModel() {
+    private val _state = MutableStateFlow(DiscoverUiState.Empty)
+    val state = _state.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            dataProvider.discoverUiDataFlow().collect {
+                _state.value = it.data
+            }
+        }
+    }
+}
 
 @Composable
 fun Discover(
-    component: DiscoverComponent,
     modifier: Modifier = Modifier,
+    discoverViewModel: DiscoverViewModel = koinViewModel(),
 ) {
-    val categoryDataMap by component.categoryDataMap.subscribeAsState()
-    val authedUser by component.authedUser.subscribeAsState()
+    val state by discoverViewModel.state.collectAsStateWithLifecycle()
 
     DiscoverContent(
-        categoryDataList = categoryDataMap.content,
-        authedUser = authedUser.value,
-        onMediaClick = component::onMediaClick,
+        categoryDataList = state.categoryDataMap.content,
+        authedUser = state.authedUser,
+        onMediaClick = {},
         modifier = modifier,
     )
 }
@@ -129,7 +151,10 @@ private fun MediaPreviewSector(
             repeat(6) {
                 item {
                     Surface(
-                        modifier = Modifier.width(240.dp).aspectRatio(3 / 4f),
+                        modifier =
+                            Modifier
+                                .width(240.dp)
+                                .aspectRatio(3 / 4f),
                         shape = RoundedCornerShape(24.dp),
                         color = MaterialTheme.colorScheme.surfaceVariant,
                     ) {}
