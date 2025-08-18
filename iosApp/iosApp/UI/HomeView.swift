@@ -31,8 +31,8 @@ struct HomeView: View {
         switch tab {
         case .discover:
             DiscoverView()
-            //        case .track:
-            //            TrackView()
+        case .track:
+            TrackView()
             //        case .social:
             //            SocialView()
             //        case .profile:

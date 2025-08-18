@@ -21,62 +21,38 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import me.andannn.aniflow.data.AuthRepository
-import me.andannn.aniflow.data.MediaRepository
-import me.andannn.aniflow.data.model.define.MediaListStatus
-import me.andannn.aniflow.data.model.define.MediaType
+import me.andannn.aniflow.data.DataProvider
+import me.andannn.aniflow.data.TrackUiState
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.ui.widget.MediaRowItem
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.mp.KoinPlatform.getKoin
 
 private const val TAG = "TrackViewModel"
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TrackViewModel(
-    private val mediaRepo: MediaRepository,
-    private val authRepo: AuthRepository,
+    private val dataProvider: DataProvider = getKoin().get(),
 ) : ViewModel() {
-    private val _state = MutableStateFlow(UiState())
+    private val _state = MutableStateFlow(TrackUiState())
     val state = _state.asStateFlow()
 
     init {
-        Napier.d(tag = TAG) { "DefaultTrackComponent initialized" }
+        Napier.d(tag = TAG) { "TrackViewModel initialized" }
         viewModelScope.launch {
-            authRepo
-                .getAuthedUser()
-                .flatMapLatest { authUser ->
-                    if (authUser == null) {
-                        // If not authenticated, return an empty flow
-                        emptyFlow()
-                    } else {
-                        mediaRepo.getMediaListFlowByUserId(
-                            userId = authUser.id,
-                            mediaListStatus =
-                                listOf(
-                                    MediaListStatus.PLANNING,
-                                    MediaListStatus.CURRENT,
-                                ),
-                            mediaType = MediaType.ANIME,
-                        )
-                    }
-                }.collect { (data, errors) ->
-                    Napier.d(tag = TAG) { "data $data" }
-                    _state.update {
-                        it.copy(
-                            items = data ?: emptyList(),
-                        )
-                    }
-                }
+            dataProvider.trackUiDataFlow().collect {
+                Napier.d(tag = TAG) { "Track data updated: ${it.hashCode()}" }
+                _state.value = it
+            }
+        }
+
+        viewModelScope.launch {
+            dataProvider.trackUiSideEffect().collect {
+                Napier.d(tag = TAG) { "Track error: $it" }
+            }
         }
     }
-
-    data class UiState(
-        val items: List<MediaWithMediaListItem> = emptyList(),
-    )
 }
 
 @Composable

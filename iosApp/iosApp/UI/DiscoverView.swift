@@ -12,8 +12,19 @@ class DiscoverViewModel: ObservableObject {
         dataProvider = DataProviderWrapper(ktDataProvider: KoinHelper.shared.dataProvider())
         Task {
             do {
-                for try await dataWithError in dataProvider.getdiscoverUiStateAsyncSequence() {
-                    uiState = dataWithError.data ?? DiscoverUiState.companion.Empty
+                for try await state in dataProvider.getdiscoverUiStateAsyncSequence() {
+                    uiState = state
+                }
+            } catch {
+                print("Failed with error: \(error)")
+            }
+        }
+        
+        Task {
+            do {
+                for try await error in dataProvider.discoverUiSideEffectErrorSequence() {
+                    // handle side effect error.
+                    print("error \(error)")
                 }
             } catch {
                 print("Failed with error: \(error)")

@@ -8,18 +8,10 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import me.andannn.aniflow.data.MediaRepository
-import me.andannn.aniflow.data.model.DataAndErrorFlow
-import me.andannn.aniflow.data.model.DataWithErrors
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.MediaFormat
 import me.andannn.aniflow.data.model.define.MediaListStatus
@@ -36,6 +28,7 @@ import me.andannn.aniflow.service.AniListService
 import me.andannn.aniflow.service.ServerException
 import me.andannn.aniflow.service.dto.Media
 import me.andannn.aniflow.service.dto.MediaList
+import kotlin.with
 
 private const val TAG = "MediaRepository"
 
@@ -43,73 +36,69 @@ class MediaRepositoryImpl(
     private val mediaLibraryDao: MediaLibraryDao,
     private val mediaService: AniListService,
 ) : MediaRepository {
-    override fun getMediasFlow(category: MediaCategory) =
-        with(mediaService) {
-            with(mediaLibraryDao) {
-                val dataFlow =
-                    mediaLibraryDao
-                        .getMediaOfCategoryFlow(Json.encodeToString(category))
-                        .map { list ->
-                            CategoryWithContents(
-                                category,
-                                list.map(MediaEntity::toDomain),
-                            )
-                        }.distinctUntilChanged()
-
-                val errorsFlow = MutableSharedFlow<Throwable?>(replay = 1)
-                val syncedDataFlow =
-                    dataFlow.onStart {
-                        coroutineScope {
-                            errorsFlow.emit(null)
-                            val error =
-                                category
-                                    .syncLocalWithService(this)
-                                    .await()
-                            if (error != null) {
-                                errorsFlow.emit(error)
-                            }
-                        }
-                    }
-
-                DataAndErrorFlow(
-                    syncedDataFlow,
-                    errorsFlow,
-                )
-            }
+    override fun syncMediaCategory(
+        scope: CoroutineScope,
+        category: MediaCategory,
+    ) = with(mediaService) {
+        with(mediaLibraryDao) {
+            category.syncLocalWithService(scope)
         }
+    }
+
+    override fun getMediasFlow(category: MediaCategory) =
+        with(mediaLibraryDao) {
+            getMediaOfCategoryFlow(Json.encodeToString(category))
+                .map { list ->
+                    CategoryWithContents(
+                        category,
+                        list.map(MediaEntity::toDomain),
+                    )
+                }
+        }
+
+    override fun syncMediaListByUserId(
+        scope: CoroutineScope,
+        userId: String,
+        status: List<MediaListStatus>,
+        mediaType: MediaType,
+    ) = with(mediaService) {
+        with(mediaLibraryDao) {
+            // sync data from service
+            syncMediaListInfoToLocal(
+                userId = userId,
+                status = status,
+                mediaType = mediaType,
+                scope = scope,
+            )
+        }
+    }
 
     override fun getMediaListFlowByUserId(
         userId: String,
         mediaType: MediaType,
         mediaListStatus: List<MediaListStatus>,
-    ): Flow<DataWithErrors<List<MediaWithMediaListItem>>> =
-        channelFlow {
-            with(mediaService) {
-                with(mediaLibraryDao) {
-                    var data: List<MediaWithMediaListItem> = emptyList()
-                    val errorList = mutableListOf<Throwable>()
+    ): Flow<List<MediaWithMediaListItem>> =
+        with(mediaService) {
+            with(mediaLibraryDao) {
+                // sync data from service
+//                    launch {
+//                        syncMediaListInfoToLocal(
+//                            userId = userId,
+//                            status = mediaListStatus,
+//                            mediaType = mediaType,
+//                            scope = this@channelFlow,
+//                        ).await()?.let { error ->
+//                            errorList.add(error)
+//                            send(DataWithErrors(data, errorList))
+//                        }
+//                    }
 
-                    // sync data from service
-                    launch {
-                        syncMediaListInfoToLocal(
-                            userId = userId,
-                            status = mediaListStatus,
-                            mediaType = mediaType,
-                            scope = this@channelFlow,
-                        ).await()?.let { error ->
-                            errorList.add(error)
-                            send(DataWithErrors(data, errorList))
-                        }
-                    }
-
-                    getMediaListFlow(
-                        userId = userId,
-                        mediaType = Json.encodeToString(mediaType),
-                        listStatus = mediaListStatus.map { Json.encodeToString(it) },
-                    ).collect {
-                        data = it.map(MediaListAndMediaRelation::toDomain)
-                        send(DataWithErrors(data, errorList))
-                    }
+                getMediaListFlow(
+                    userId = userId,
+                    mediaType = Json.encodeToString(mediaType),
+                    listStatus = mediaListStatus.map { Json.encodeToString(it) },
+                ).map {
+                    it.map(MediaListAndMediaRelation::toDomain)
                 }
             }
         }
