@@ -4,16 +4,16 @@ import Shared
 
 @MainActor
 class DiscoverViewModel: ObservableObject {
-    private let mediaRepository: MediaRepositoryWrapper
-    @Published public var data: CategoryWithContents? = nil
+    private let dataProvider: DataProviderWrapper
+    @Published public var uiState: DiscoverUiState = DiscoverUiState.companion.Empty
     
     init() {
         print("DiscoverViewModel init")
-        mediaRepository = MediaRepositoryWrapper(ktRepository: KoinHelper.shared.getMediaRepository())
+        dataProvider = DataProviderWrapper(ktDataProvider: KoinHelper.shared.dataProvider())
         Task {
             do {
-                for try await dataWithError in mediaRepository.getMediaAsyncSequence(category: MediaCategory.currentSeasonAnime) {
-                    data = dataWithError.data
+                for try await dataWithError in dataProvider.getdiscoverUiStateAsyncSequence() {
+                    uiState = dataWithError.data ?? DiscoverUiState.companion.Empty
                 }
             } catch {
                 print("Failed with error: \(error)")
@@ -29,59 +29,44 @@ class DiscoverViewModel: ObservableObject {
 struct DiscoverView: View {
     @StateObject private var viewModel = DiscoverViewModel()
     
-    //
-    //    @StateValue
-    //    private var categoryDataMapHolder: CategoryDataModel
-    //
-    //    @StateValue
-    //    private var authedUser: Optional<DataUserModel>
-    //
-    init() {
-        //        _categoryDataMapHolder = StateValue(component.categoryDataMap)
-        //        _authedUser = StateValue(component.authedUser)
-    }
-    
     var body: some View {
         NavigationStack {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 16) {
-                    //                    ForEach(Array(categoryDataMapHolder.content), id: \.category) { categoryWithContents in
-                    if let data = viewModel.data {
-                        TitleWithContent(title: data.category.title, onMoreClick: {}) {
-                            MediaPreviewSector(mediaList: data.medias) { item in
+                    ForEach(Array(viewModel.uiState.categoryDataMap.content), id: \.category) { categoryWithContents in
+                        TitleWithContent(title: categoryWithContents.category.title, onMoreClick: {}) {
+                            MediaPreviewSector(mediaList: categoryWithContents.medias) { item in
                                 // onMediaClick
-                                //                                 component.onMediaClick(media: item)
+                                // component.onMediaClick(media: item)
                             }
                         }
                     }
-                    
-                    //                    }
                 }
                 .padding()
             }
         }
         .navigationTitle("Discover")
         .toolbar {
-            //            ToolbarItem(placement: .navigationBarTrailing) {
-            //                Button(action: {
-            //                    // TODO:
-            //                }) {
-            //                    if let avatarUrl = authedUser.value?.avatar {
-            //                        AsyncImage(url: URL(string: avatarUrl)) { image in
-            //                            image
-            //                                .resizable()
-            //                                .aspectRatio(contentMode: .fill)
-            //                        } placeholder: {
-            //                            ProgressView()
-            //                        }
-            //                        .frame(width: 32, height: 32)
-            //                        .clipShape(Circle())
-            //                    } else {
-            //                        Image(systemName: "person.crop.circle")
-            //                            .font(.system(size: 24))
-            //                    }
-            //                }
-            //            }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: {
+                    // TODO:
+                }) {
+                    if let avatarUrl = viewModel.uiState.authedUser?.avatar {
+                        AsyncImage(url: URL(string: avatarUrl)) { image in
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                        } placeholder: {
+                            ProgressView()
+                        }
+                        .frame(width: 32, height: 32)
+                        .clipShape(Circle())
+                    } else {
+                        Image(systemName: "person.crop.circle")
+                            .font(.system(size: 24))
+                    }
+                }
+            }
         }
     }
 }

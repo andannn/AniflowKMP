@@ -4,9 +4,8 @@
  */
 package me.andannn.aniflow.data
 
-import com.rickclephas.kmp.nativecoroutines.NativeCoroutines
 import kotlinx.coroutines.flow.Flow
-import me.andannn.aniflow.data.model.DataWithError
+import me.andannn.aniflow.data.model.DataAndErrorFlow
 import me.andannn.aniflow.data.model.DataWithErrors
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.MediaListStatus
@@ -15,8 +14,7 @@ import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 
 interface MediaRepository {
-    @NativeCoroutines
-    fun getMediasFlow(category: MediaCategory): Flow<DataWithError<CategoryWithContents>>
+    fun getMediasFlow(category: MediaCategory): DataAndErrorFlow<CategoryWithContents>
 
     fun getMediaListFlowByUserId(
         userId: String,

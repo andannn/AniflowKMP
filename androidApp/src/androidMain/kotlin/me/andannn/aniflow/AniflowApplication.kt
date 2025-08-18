@@ -7,8 +7,8 @@ package me.andannn.aniflow
 import android.app.Application
 import android.content.Context
 import me.andannn.aniflow.data.util.KoinHelper
+import me.andannn.aniflow.data.util.KoinHelper.Modules
 import me.andannn.aniflow.data.util.Logger
-import me.andannn.aniflow.data.util.Modules
 import me.andannn.aniflow.platform.BrowserAuthOperationHandlerImpl
 import me.andannn.aniflow.ui.DiscoverViewModel
 import me.andannn.aniflow.ui.TrackViewModel

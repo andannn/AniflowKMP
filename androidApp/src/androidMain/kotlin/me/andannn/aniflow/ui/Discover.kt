@@ -40,64 +40,30 @@ import androidx.lifecycle.viewModelScope
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import me.andannn.aniflow.data.AuthRepository
-import me.andannn.aniflow.data.MediaRepository
-import me.andannn.aniflow.data.internal.allCategories
+import me.andannn.aniflow.data.DataProvider
+import me.andannn.aniflow.data.DiscoverUiState
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.UserModel
 import me.andannn.aniflow.data.model.define.MediaCategory
-import me.andannn.aniflow.data.model.define.MediaType
-import me.andannn.aniflow.data.model.relation.CategoryDataModel
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.ui.widget.MediaPreviewItem
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.mp.KoinPlatform.getKoin
 
 class DiscoverViewModel(
-    private val mediaRepository: MediaRepository = getKoin().get(),
-    private val authRepository: AuthRepository = getKoin().get(),
+    private val dataProvider: DataProvider = getKoin().get(),
 ) : ViewModel() {
-    private val _state = MutableStateFlow(UiState())
+    private val _state = MutableStateFlow(DiscoverUiState.Empty)
     val state = _state.asStateFlow()
 
     init {
         viewModelScope.launch {
-            val allCategories = MediaType.ANIME.allCategories()
-            val flows =
-                allCategories.map { category ->
-                    mediaRepository.getMediasFlow(category)
-                }
-
-            combine(
-                flows.map { it.map { it.data } },
-            ) {
-                it.toList()
-            }.collect { data ->
-                _state.update {
-                    it.copy(
-                        categoryDataMap = CategoryDataModel(data),
-                    )
-                }
-            }
-        }
-
-        viewModelScope.launch {
-            authRepository.getAuthedUser().collect { user ->
-                _state.update {
-                    it.copy(authedUser = user)
-                }
+            dataProvider.discoverUiDataFlow().collect {
+                _state.value = it.data
             }
         }
     }
-
-    data class UiState(
-        val categoryDataMap: CategoryDataModel = CategoryDataModel(),
-        val authedUser: UserModel? = null,
-    )
 }
 
 @Composable

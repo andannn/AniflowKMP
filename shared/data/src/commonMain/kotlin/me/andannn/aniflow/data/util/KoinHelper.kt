@@ -30,7 +30,7 @@ object KoinHelper {
 
     fun koinInstance() = getKoin()
 
-    fun getMediaRepository() = koinInstance().get<me.andannn.aniflow.data.MediaRepository>()
+    fun dataProvider() = koinInstance().get<me.andannn.aniflow.data.DataProvider>()
 
     private fun platformModule(browserAuthOperationHandler: BrowserAuthOperationHandler) =
         module {

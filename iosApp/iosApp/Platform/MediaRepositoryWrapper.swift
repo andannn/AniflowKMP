@@ -2,16 +2,16 @@
 import Shared
 import KMPNativeCoroutinesAsync
 
-class MediaRepositoryWrapper {
-    private let ktRepository: MediaRepository
+class DataProviderWrapper {
+    private let ktDataProvider: DataProvider
     
-    init(ktRepository: MediaRepository) {
-        self.ktRepository = ktRepository
+    init(ktDataProvider: DataProvider) {
+        self.ktDataProvider = ktDataProvider
     }
     
     @available(iOS 13.0, *)
-    func getMediaAsyncSequence(category: MediaCategory)
-    -> NativeFlowAsyncSequence<DataWithError<CategoryWithContents>, Error, KotlinUnit> {
-        asyncSequence(for: ktRepository.getMediasFlow(category: category))
+    func getdiscoverUiStateAsyncSequence()
+    -> NativeFlowAsyncSequence<DataWithError<DiscoverUiState>, Error, KotlinUnit> {
+        asyncSequence(for: ktDataProvider.discoverUiDataFlow())
     }
 }

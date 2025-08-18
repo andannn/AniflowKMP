@@ -49,6 +49,11 @@ android {
 }
 
 kotlin {
+    compilerOptions {
+        // https://kotlinlang.org/docs/whatsnew22.html#preview-of-context-parameters
+        freeCompilerArgs.add("-Xcontext-parameters")
+    }
+
     sourceSets {
         androidMain.dependencies {
             implementation(libs.napier)
