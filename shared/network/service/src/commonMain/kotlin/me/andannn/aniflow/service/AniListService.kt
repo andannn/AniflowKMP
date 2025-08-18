@@ -678,10 +678,11 @@ class AniListService(
                     dataWrapper.data
                 }
         } catch (exception: ResponseException) {
+            Napier.e { "ResponseException when doing GraphQL query: $exception" }
             throw exception.toAniListException()
         } catch (throwable: Throwable) {
-            Napier.e { "Error when doing GraphQL query: $throwable" }
-            throw throwable
+            Napier.e { "Unknown Error when doing GraphQL query: $throwable" }
+            throw ServerException("${throwable.message}")
         }
 }
 

@@ -38,9 +38,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import coil3.compose.AsyncImage
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.DataProvider
 import me.andannn.aniflow.data.DiscoverUiState
 import me.andannn.aniflow.data.model.MediaModel
@@ -49,20 +51,31 @@ import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.ui.widget.MediaPreviewItem
 import org.koin.compose.viewmodel.koinViewModel
-import org.koin.mp.KoinPlatform.getKoin
 
 class DiscoverViewModel(
-    private val dataProvider: DataProvider = getKoin().get(),
+    private val dataProvider: DataProvider,
+    private val authRepository: AuthRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(DiscoverUiState.Empty)
     val state = _state.asStateFlow()
 
     init {
         viewModelScope.launch {
-            dataProvider.discoverUiDataFlow().collect {
-                _state.value = it.data
+            dataProvider.discoverUiSideEffect().collect { error ->
+                Napier.d("Error in Discover: $error")
             }
         }
+
+        viewModelScope.launch {
+            dataProvider.discoverUiDataFlow().collect {
+                _state.value = it
+            }
+        }
+    }
+
+    fun onMediaClick(media: MediaModel) {
+        Napier.d("Media clicked:")
+        authRepository.startLoginProcessAndWaitResult(viewModelScope)
     }
 }
 
@@ -76,7 +89,7 @@ fun Discover(
     DiscoverContent(
         categoryDataList = state.categoryDataMap.content,
         authedUser = state.authedUser,
-        onMediaClick = {},
+        onMediaClick = discoverViewModel::onMediaClick,
         modifier = modifier,
     )
 }

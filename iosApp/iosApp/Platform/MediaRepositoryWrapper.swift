@@ -11,7 +11,27 @@ class DataProviderWrapper {
     
     @available(iOS 13.0, *)
     func getdiscoverUiStateAsyncSequence()
-    -> NativeFlowAsyncSequence<DataWithError<DiscoverUiState>, Error, KotlinUnit> {
+    -> NativeFlowAsyncSequence<DiscoverUiState, Error, KotlinUnit> {
         asyncSequence(for: ktDataProvider.discoverUiDataFlow())
     }
+    
+    @available(iOS 13.0, *)
+    func discoverUiSideEffectErrorSequence()
+    -> NativeFlowAsyncSequence<AppError, Error, KotlinUnit> {
+        asyncSequence(for: ktDataProvider.discoverUiSideEffect())
+    }
+    
+    
+    @available(iOS 13.0, *)
+    func gettrackUiStateAsyncSequence()
+    -> NativeFlowAsyncSequence<TrackUiState, Error, KotlinUnit> {
+        asyncSequence(for: ktDataProvider.trackUiDataFlow())
+    }
+    
+    @available(iOS 13.0, *)
+    func trackUiSideEffectErrorSequence()
+    -> NativeFlowAsyncSequence<AppError, Error, KotlinUnit> {
+        asyncSequence(for: ktDataProvider.trackUiSideEffect())
+    }
+    
 }
