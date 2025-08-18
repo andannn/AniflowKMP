@@ -24,6 +24,14 @@ import me.andannn.aniflow.data.model.relation.CategoryDataModel
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.service.ServerException
 
+sealed class RefreshStatus {
+    data object Idle : RefreshStatus()
+    data class Error(val error: List<AppError>) : RefreshStatus()
+    data object Loading : RefreshStatus()
+
+    fun isLoading(): Boolean = this is Loading
+}
+
 sealed class AppError(
     open val message: String,
 ) {
@@ -66,8 +74,9 @@ class DataProvider(
         }
 
     @NativeCoroutines
-    fun discoverUiSideEffect(): Flow<AppError> =
+    fun discoverUiSideEffect(): Flow<RefreshStatus> =
         flow {
+            emit(RefreshStatus.Loading)
             val categories = MediaType.ANIME.allCategories()
             supervisorScope {
                 val deferredList =
@@ -81,8 +90,10 @@ class DataProvider(
                         .map(Throwable::toError)
                         .distinct()
 
-                for (error in errors) {
-                    emit(error)
+                if (errors.isEmpty()) {
+                    emit(RefreshStatus.Idle)
+                } else {
+                    emit(RefreshStatus.Error(errors))
                 }
             }
         }

@@ -27,6 +27,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
@@ -39,6 +40,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import coil3.compose.AsyncImage
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -52,20 +54,21 @@ import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.ui.widget.MediaPreviewItem
 import org.koin.compose.viewmodel.koinViewModel
 
+private const val TAG = "Discover"
+
 class DiscoverViewModel(
     private val dataProvider: DataProvider,
     private val authRepository: AuthRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(DiscoverUiState.Empty)
+    private val _isRefreshing = MutableStateFlow(false)
     val state = _state.asStateFlow()
+    val isRefreshing = _isRefreshing.asStateFlow()
+
+    private var sideEffectJob: Job? = null
 
     init {
-        viewModelScope.launch {
-            dataProvider.discoverUiSideEffect().collect { error ->
-                Napier.d("Error in Discover: $error")
-            }
-        }
-
+        cancelLastAndRegisterUiSideEffect()
         viewModelScope.launch {
             dataProvider.discoverUiDataFlow().collect {
                 _state.value = it
@@ -74,8 +77,25 @@ class DiscoverViewModel(
     }
 
     fun onMediaClick(media: MediaModel) {
-        Napier.d("Media clicked:")
+        Napier.d(tag = TAG) { "Media clicked:" }
         authRepository.startLoginProcessAndWaitResult(viewModelScope)
+    }
+
+    fun onPullRefresh() {
+        Napier.d(tag = TAG) { "onPullRefresh:" }
+        cancelLastAndRegisterUiSideEffect()
+    }
+
+    private fun cancelLastAndRegisterUiSideEffect() {
+        Napier.d(tag = TAG) { "cancelLastAndRegisterUiSideEffect:" }
+        sideEffectJob?.cancel()
+        sideEffectJob =
+            viewModelScope.launch {
+                dataProvider.discoverUiSideEffect().collect { status ->
+                    Napier.d(tag = TAG) { "cancelLastAndRegisterUiSideEffect: sync status $status" }
+                    _isRefreshing.value = status.isLoading()
+                }
+            }
     }
 }
 
@@ -85,11 +105,14 @@ fun Discover(
     discoverViewModel: DiscoverViewModel = koinViewModel(),
 ) {
     val state by discoverViewModel.state.collectAsStateWithLifecycle()
+    val isRefreshing by discoverViewModel.isRefreshing.collectAsStateWithLifecycle()
 
     DiscoverContent(
+        isRefreshing = isRefreshing,
         categoryDataList = state.categoryDataMap.content,
         authedUser = state.authedUser,
         onMediaClick = discoverViewModel::onMediaClick,
+        onPullRefresh = discoverViewModel::onPullRefresh,
         modifier = modifier,
     )
 }
@@ -97,10 +120,12 @@ fun Discover(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DiscoverContent(
+    isRefreshing: Boolean,
     categoryDataList: List<CategoryWithContents>,
     authedUser: UserModel?,
     modifier: Modifier = Modifier,
     onMediaClick: (MediaModel) -> Unit,
+    onPullRefresh: () -> Unit,
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -128,21 +153,25 @@ fun DiscoverContent(
             )
         },
     ) {
-        LazyColumn(
+        PullToRefreshBox(
             modifier = Modifier.padding(top = it.calculateTopPadding()),
+            onRefresh = onPullRefresh,
+            isRefreshing = isRefreshing,
         ) {
-            items(
-                items = categoryDataList,
-                key = { it.category },
-            ) { (category, items) ->
-                TitleWithContent(
-                    modifier = Modifier.fillMaxWidth(),
-                    title = category.title,
-                ) {
-                    MediaPreviewSector(
-                        mediaList = items,
-                        onMediaClick = onMediaClick,
-                    )
+            LazyColumn {
+                items(
+                    items = categoryDataList,
+                    key = { it.category },
+                ) { (category, items) ->
+                    TitleWithContent(
+                        modifier = Modifier.fillMaxWidth(),
+                        title = category.title,
+                    ) {
+                        MediaPreviewSector(
+                            mediaList = items,
+                            onMediaClick = onMediaClick,
+                        )
+                    }
                 }
             }
         }
