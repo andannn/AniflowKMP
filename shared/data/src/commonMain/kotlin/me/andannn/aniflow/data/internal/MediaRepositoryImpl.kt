@@ -12,13 +12,14 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import me.andannn.aniflow.data.MediaRepository
-import me.andannn.aniflow.data.model.DataWithErrorFlow
+import me.andannn.aniflow.data.model.DataWithError
 import me.andannn.aniflow.data.model.DataWithErrors
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.MediaFormat
@@ -56,10 +57,11 @@ class MediaRepositoryImpl(
                             )
                         }.distinctUntilChanged()
 
-                val errorsFlow = MutableSharedFlow<Throwable>(replay = 1)
+                val errorsFlow = MutableSharedFlow<Throwable?>(replay = 1)
                 val syncedDataFlow =
                     dataFlow.onStart {
                         coroutineScope {
+                            errorsFlow.emit(null)
                             val error =
                                 category
                                     .syncLocalWithService(this)
@@ -70,10 +72,12 @@ class MediaRepositoryImpl(
                         }
                     }
 
-                DataWithErrorFlow(
-                    dataFlow = syncedDataFlow,
-                    errorFlow = errorsFlow,
-                )
+                combine(
+                    syncedDataFlow,
+                    errorsFlow,
+                ) { data, error ->
+                    DataWithError(data, error)
+                }
             }
         }
 

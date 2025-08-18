@@ -42,6 +42,7 @@ apollo = "4.1.0"
 sqldelight = "2.1.0"
 lifecycleViewmodelNav3 = "1.0.0-alpha04"
 nav3Core = "1.0.0-alpha07"
+nativecoroutines = "1.0.0-ALPHA-46"
 
 [libraries]
 sqldelight-coroutines-extensions = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
@@ -139,3 +140,4 @@ room = { id = "androidx.room", version.ref = "androidxRoom" }
 licensee = { id = "app.cash.licensee", version.ref = "licensee" }
 apollo = { id = "com.apollographql.apollo", version.ref = "apollo" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
+nativecoroutines = { id = "com.rickclephas.kmp.nativecoroutines", version.ref = "nativecoroutines" }

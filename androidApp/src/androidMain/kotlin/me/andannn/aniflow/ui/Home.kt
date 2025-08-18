@@ -108,7 +108,7 @@ private fun NestNavigation(
 }
 
 @Composable
-fun NavigationArea(
+private fun NavigationArea(
     selected: TopLevelNavigation,
     modifier: Modifier = Modifier,
     onItemClick: (TopLevelNavigation) -> Unit = {},

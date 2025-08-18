@@ -6,9 +6,9 @@ package me.andannn.aniflow
 
 import android.app.Application
 import android.content.Context
-import me.andannn.aniflow.components.KoinLauncher
-import me.andannn.aniflow.components.Logger
-import me.andannn.aniflow.components.Modules
+import me.andannn.aniflow.data.util.KoinHelper
+import me.andannn.aniflow.data.util.Logger
+import me.andannn.aniflow.data.util.Modules
 import me.andannn.aniflow.platform.BrowserAuthOperationHandlerImpl
 import me.andannn.aniflow.ui.DiscoverViewModel
 import me.andannn.aniflow.ui.TrackViewModel
@@ -24,7 +24,7 @@ class AniflowApplication : Application() {
             Logger.enableDebugLog()
         }
 
-        KoinLauncher.startKoin(
+        KoinHelper.startKoin(
             modules =
                 listOf(
                     *Modules.toTypedArray(),

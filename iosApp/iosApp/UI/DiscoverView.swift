@@ -2,66 +2,93 @@ import UIKit
 import SwiftUI
 import Shared
 
+@MainActor
+class DiscoverViewModel: ObservableObject {
+    private let mediaRepository: MediaRepositoryWrapper
+    @Published public var data: CategoryWithContents? = nil
+    
+    init() {
+        print("DiscoverViewModel init")
+        mediaRepository = MediaRepositoryWrapper(ktRepository: KoinHelper.shared.getMediaRepository())
+        Task {
+            do {
+                for try await dataWithError in mediaRepository.getMediaAsyncSequence(category: MediaCategory.currentSeasonAnime) {
+                    data = dataWithError.data
+                }
+            } catch {
+                print("Failed with error: \(error)")
+            }
+        }
+    }
+    
+    deinit {
+        print("DiscoverViewModel deinit")
+    }
+}
+
 struct DiscoverView: View {
-    private let component: DiscoverComponent
+    @StateObject private var viewModel = DiscoverViewModel()
     
-    @StateValue
-    private var categoryDataMapHolder: CategoryDataModel
-    
-    @StateValue
-    private var authedUser: Optional<DataUserModel>
-    
-    init(_ component: DiscoverComponent) {
-        self.component = component
-        _categoryDataMapHolder = StateValue(component.categoryDataMap)
-        _authedUser = StateValue(component.authedUser)
+    //
+    //    @StateValue
+    //    private var categoryDataMapHolder: CategoryDataModel
+    //
+    //    @StateValue
+    //    private var authedUser: Optional<DataUserModel>
+    //
+    init() {
+        //        _categoryDataMapHolder = StateValue(component.categoryDataMap)
+        //        _authedUser = StateValue(component.authedUser)
     }
     
     var body: some View {
         NavigationStack {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 16) {
-                    ForEach(Array(categoryDataMapHolder.content), id: \.category) { categoryWithContents in
-                        TitleWithContent(title: categoryWithContents.category.title, onMoreClick: {}) {
-                            MediaPreviewSector(mediaList: categoryWithContents.medias) { item in
+                    //                    ForEach(Array(categoryDataMapHolder.content), id: \.category) { categoryWithContents in
+                    if let data = viewModel.data {
+                        TitleWithContent(title: data.category.title, onMoreClick: {}) {
+                            MediaPreviewSector(mediaList: data.medias) { item in
                                 // onMediaClick
-                                component.onMediaClick(media: item)
+                                //                                 component.onMediaClick(media: item)
                             }
                         }
                     }
+                    
+                    //                    }
                 }
                 .padding()
             }
         }
         .navigationTitle("Discover")
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: {
-                    // TODO:
-                }) {
-                    if let avatarUrl = authedUser.value?.avatar {
-                        AsyncImage(url: URL(string: avatarUrl)) { image in
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                        } placeholder: {
-                            ProgressView()
-                        }
-                        .frame(width: 32, height: 32)
-                        .clipShape(Circle())
-                    } else {
-                        Image(systemName: "person.crop.circle")
-                            .font(.system(size: 24))
-                    }
-                }
-            }
+            //            ToolbarItem(placement: .navigationBarTrailing) {
+            //                Button(action: {
+            //                    // TODO:
+            //                }) {
+            //                    if let avatarUrl = authedUser.value?.avatar {
+            //                        AsyncImage(url: URL(string: avatarUrl)) { image in
+            //                            image
+            //                                .resizable()
+            //                                .aspectRatio(contentMode: .fill)
+            //                        } placeholder: {
+            //                            ProgressView()
+            //                        }
+            //                        .frame(width: 32, height: 32)
+            //                        .clipShape(Circle())
+            //                    } else {
+            //                        Image(systemName: "person.crop.circle")
+            //                            .font(.system(size: 24))
+            //                    }
+            //                }
+            //            }
         }
     }
 }
 
 struct MediaPreviewSector: View {
-    let mediaList: [DataMediaModel]
-    let onMediaClick: (DataMediaModel) -> Void
+    let mediaList: [MediaModel]
+    let onMediaClick: (MediaModel) -> Void
     
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -107,7 +134,7 @@ struct TitleWithContent<Content: View>: View {
     }
 }
 
-extension DataMediaCategory {
+extension MediaCategory {
     var title: String {
         switch self {
         case .currentSeasonAnime:

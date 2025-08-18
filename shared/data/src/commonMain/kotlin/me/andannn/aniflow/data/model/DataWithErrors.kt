@@ -4,11 +4,9 @@
  */
 package me.andannn.aniflow.data.model
 
-import kotlinx.coroutines.flow.Flow
-
-data class DataWithErrorFlow<T>(
-    val dataFlow: Flow<T>,
-    val errorFlow: Flow<Throwable>,
+data class DataWithError<T>(
+    val data: T,
+    val error: Throwable? = null,
 )
 
 data class DataWithErrors<T>(

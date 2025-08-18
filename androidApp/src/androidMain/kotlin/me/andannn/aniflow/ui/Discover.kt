@@ -41,6 +41,7 @@ import coil3.compose.AsyncImage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.AuthRepository
@@ -72,7 +73,7 @@ class DiscoverViewModel(
                 }
 
             combine(
-                flows.map { it.dataFlow },
+                flows.map { it.map { it.data } },
             ) {
                 it.toList()
             }.collect { data ->
