@@ -30,9 +30,7 @@ class MediaCategoryPagingViewModel(
     }
 
     override fun onCleared() {
-        super.onCleared()
         Napier.d(tag = TAG) { "MediaCategoryPagingViewModel cleared. category: $category" }
-
         dispose()
     }
 }

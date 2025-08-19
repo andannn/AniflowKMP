@@ -7,23 +7,21 @@ struct HomeView: View {
     private var selection: TopLevelNavigation = .discover
     
     var body: some View {
-        NavigationStack {
-            TabView(selection: $selection) {
-                ForEach([TopLevelNavigation.discover,
-                         .track,
-                         .social,
-                         .profile
-                ], id: \.self) { tab in
-                    screen(for: tab)
-                        .tabItem {
-                            Image(systemName: selection == tab ? tab.selectedIcon : tab.unselectedIcon)
-                            Text(tab.label)
-                        }
-                        .tag(tab)
-                }
+        TabView(selection: $selection) {
+            ForEach([TopLevelNavigation.discover,
+                     .track,
+                     .social,
+                     .profile
+            ], id: \.self) { tab in
+                screen(for: tab)
+                    .tabItem {
+                        Image(systemName: selection == tab ? tab.selectedIcon : tab.unselectedIcon)
+                        Text(tab.label)
+                    }
+                    .tag(tab)
             }
-            .navigationTitle(selection.label)
         }
+        .navigationTitle(selection.label)
     }
     
     @ViewBuilder

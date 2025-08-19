@@ -1,5 +1,6 @@
 package me.andannn.aniflow.data.paging
 
+import com.rickclephas.kmp.nativecoroutines.NativeCoroutines
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,8 +24,10 @@ sealed interface LoadingStatus {
 }
 
 interface PageComponent<T> {
+    @NativeCoroutines
     val items: StateFlow<List<T>>
 
+    @NativeCoroutines
     val status: StateFlow<LoadingStatus>
 
     fun loadNextPage()
@@ -98,7 +101,7 @@ internal class DefaultPageComponent<T>(
         Napier.d(tag = TAG) { "loadPage start $page" }
         try {
             val page = onLoadPage(page, config.perPage)
-            Napier.d(tag = TAG) { "loadPage api returned $page" }
+            Napier.d(tag = TAG) { "loadPage api returned ${page.items.size}" }
             items.value = items.value + page.items
             currentPageInfo.value = page
             if (page.hasNextPage) {

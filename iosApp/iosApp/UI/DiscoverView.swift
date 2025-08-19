@@ -4,15 +4,15 @@ import Shared
 
 @MainActor
 class DiscoverViewModel: ObservableObject {
-    private let dataProvider: DataProviderWrapper
+    private let dataProvider: DataProvider
     @Published public var uiState: DiscoverUiState = DiscoverUiState.companion.Empty
     
     private var sideEffectTask: Task<Void, Never>? = nil
     private var refreshCompleter: OneShotCompleter<Void>? = nil
-
+    
     init() {
         print("DiscoverViewModel init")
-        dataProvider = DataProviderWrapper(ktDataProvider: KoinHelper.shared.dataProvider())
+        dataProvider = KoinHelper.shared.dataProvider()
         Task {
             do {
                 for try await state in dataProvider.getdiscoverUiStateAsyncSequence() {
@@ -62,28 +62,30 @@ class DiscoverViewModel: ObservableObject {
 
 struct DiscoverView: View {
     @StateObject private var viewModel = DiscoverViewModel()
+    @EnvironmentObject var router: Router
     
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 16) {
-                    ForEach(Array(viewModel.uiState.categoryDataMap.content), id: \.category) { categoryWithContents in
-                        TitleWithContent(title: categoryWithContents.category.title, onMoreClick: {}) {
-                            MediaPreviewSector(mediaList: categoryWithContents.medias) { item in
-                                // onMediaClick
-                                // component.onMediaClick(media: item)
-                            }
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 16) {
+                ForEach(Array(viewModel.uiState.categoryDataMap.content), id: \.category) { categoryWithContents in
+                    TitleWithContent(title: categoryWithContents.category.title, onMoreClick: {
+                        let category = categoryWithContents.category
+                        router.navigateTo(route: AppRoute.mediaCategoryPaingList(category: category))
+                    }) {
+                        MediaPreviewSector(mediaList: categoryWithContents.medias) { item in
+                            // onMediaClick
+                            // component.onMediaClick(media: item)
                         }
                     }
                 }
-                .padding()
             }
-            .refreshable {
-                do {
-                    try await viewModel.doRefreshAndAwait()
-                } catch {
-                    print("Discover error when refresh \(error)")
-                }
+            .padding()
+        }
+        .refreshable {
+            do {
+                try await viewModel.doRefreshAndAwait()
+            } catch {
+                print("Discover error when refresh \(error)")
             }
         }
         .navigationTitle("Discover")

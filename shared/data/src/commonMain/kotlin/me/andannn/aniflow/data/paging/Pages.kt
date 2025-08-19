@@ -5,6 +5,10 @@ import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.define.MediaCategory
 import org.koin.mp.KoinPlatform.getKoin
 
+object PageComponentFactory {
+    fun createMediaCategoryPageComponent(category: MediaCategory): MediaCategoryPageComponent = MediaCategoryPageComponent(category)
+}
+
 class MediaCategoryPageComponent(
     category: MediaCategory,
     config: PageConfig = DEFAULT_CONFIG,
