@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.model.Page
+import me.andannn.aniflow.data.model.PageInfo
 
 sealed interface LoadingStatus {
     data object Idle : LoadingStatus
@@ -61,7 +62,7 @@ internal class DefaultPageComponent<T>(
 
     override val status = MutableStateFlow<LoadingStatus>(LoadingStatus.Idle)
 
-    private val currentPageInfo = MutableStateFlow<Page<T>?>(null)
+    private val currentPageInfo = MutableStateFlow<PageInfo?>(null)
 
     private val currentPageIndex: Int
         get() = currentPageInfo.value?.currentPage ?: 0
@@ -101,10 +102,10 @@ internal class DefaultPageComponent<T>(
         Napier.d(tag = TAG) { "loadPage start $page" }
         try {
             val page = onLoadPage(page, config.perPage)
-            Napier.d(tag = TAG) { "loadPage api returned ${page.items.size}" }
+            Napier.d(tag = TAG) { "loadPage api returned ${page.pageInfo}" }
             items.value = items.value + page.items
-            currentPageInfo.value = page
-            if (page.hasNextPage) {
+            currentPageInfo.value = page.pageInfo
+            if (page.pageInfo.hasNextPage) {
                 status.value = LoadingStatus.Idle
             } else {
                 status.value = LoadingStatus.AllLoaded

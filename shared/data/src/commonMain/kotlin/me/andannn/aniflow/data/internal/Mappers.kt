@@ -8,6 +8,7 @@ import kotlinx.serialization.json.Json
 import me.andannn.aniflow.data.model.EpisodeModel
 import me.andannn.aniflow.data.model.MediaListModel
 import me.andannn.aniflow.data.model.MediaModel
+import me.andannn.aniflow.data.model.PageInfo
 import me.andannn.aniflow.data.model.SimpleDate
 import me.andannn.aniflow.data.model.Title
 import me.andannn.aniflow.data.model.Trailer
@@ -316,10 +317,13 @@ internal fun MediaListAndMediaRelation.toDomain() =
 
 internal fun <T, R> Page<T>.toDomain(mapper: (T) -> R) =
     me.andannn.aniflow.data.model.Page(
-        total = pageInfo?.total ?: error("page info parameter is null"),
-        perPage = pageInfo?.perPage ?: error("page info parameter is null"),
-        currentPage = pageInfo?.currentPage ?: error("page info parameter is null"),
-        lastPage = pageInfo?.lastPage ?: error("page info parameter is null"),
-        hasNextPage = pageInfo?.hasNextPage ?: error("page info parameter is null"),
+        pageInfo =
+            PageInfo(
+                total = pageInfo?.total ?: error("page info parameter is null"),
+                perPage = pageInfo?.perPage ?: error("page info parameter is null"),
+                currentPage = pageInfo?.currentPage ?: error("page info parameter is null"),
+                lastPage = pageInfo?.lastPage ?: error("page info parameter is null"),
+                hasNextPage = pageInfo?.hasNextPage ?: error("page info parameter is null"),
+            ),
         items = items.map(mapper),
     )

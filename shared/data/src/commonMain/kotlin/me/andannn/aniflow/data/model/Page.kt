@@ -1,6 +1,6 @@
 package me.andannn.aniflow.data.model
 
-data class Page<T>(
+data class PageInfo(
     public val total: Int,
     /**
      * The count on a page
@@ -18,6 +18,13 @@ data class Page<T>(
      * If there is another page
      */
     public val hasNextPage: Boolean,
+)
+
+data class Page<T>(
+    /**
+     * The page info
+     */
+    val pageInfo: PageInfo,
     /**
      * The items on the page
      */
