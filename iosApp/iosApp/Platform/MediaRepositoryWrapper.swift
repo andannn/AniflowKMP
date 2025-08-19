@@ -16,8 +16,8 @@ class DataProviderWrapper {
     }
     
     @available(iOS 13.0, *)
-    func discoverUiSideEffectErrorSequence()
-    -> NativeFlowAsyncSequence<AppError, Error, KotlinUnit> {
+    func discoverUiSideEffectStatusSequence()
+    -> NativeFlowAsyncSequence<RefreshStatus, Error, KotlinUnit> {
         asyncSequence(for: ktDataProvider.discoverUiSideEffect())
     }
     
