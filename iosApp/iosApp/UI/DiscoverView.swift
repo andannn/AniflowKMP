@@ -7,6 +7,9 @@ class DiscoverViewModel: ObservableObject {
     private let dataProvider: DataProviderWrapper
     @Published public var uiState: DiscoverUiState = DiscoverUiState.companion.Empty
     
+    private var sideEffectTask: Task<Void, Never>? = nil
+    private var refreshCompleter: OneShotCompleter<Void>? = nil
+
     init() {
         print("DiscoverViewModel init")
         dataProvider = DataProviderWrapper(ktDataProvider: KoinHelper.shared.dataProvider())
@@ -20,20 +23,40 @@ class DiscoverViewModel: ObservableObject {
             }
         }
         
-        Task {
-            do {
-                for try await error in dataProvider.discoverUiSideEffectErrorSequence() {
-                    // handle side effect error.
-                    print("error \(error)")
-                }
-            } catch {
-                print("Failed with error: \(error)")
-            }
-        }
+        cancelLastAndRegisterUiSideEffect(completer: nil)
     }
     
     deinit {
         print("DiscoverViewModel deinit")
+    }
+    
+    func doRefreshAndAwait() async throws {
+        refreshCompleter?.cancel()
+        refreshCompleter = OneShotCompleter<Void>()
+        cancelLastAndRegisterUiSideEffect(completer: refreshCompleter)
+        try await refreshCompleter?.wait()
+    }
+    
+    func cancelLastAndRegisterUiSideEffect(completer: OneShotCompleter<Void>?) {
+        sideEffectTask?.cancel()
+        var isCompleted = false
+        sideEffectTask = Task {
+            do {
+                for try await status in dataProvider.discoverUiSideEffectStatusSequence() {
+                    // handle side effect status.
+                    print("Discover cancelLastAndRegisterUiSideEffect status: \(status)")
+                    if completer != nil && !status.isLoading() && !isCompleted {
+                        print("Discover cancelLastAndRegisterUiSideEffect refresh completed")
+                        completer?.complete(())
+                        isCompleted = true
+                    }
+                }
+            } catch is CancellationError {
+                print("Discover cancelLastAndRegisterUiSideEffect Canceled.")
+            } catch {
+                print("Discover cancelLastAndRegisterUiSideEffect Failed with error: \(error)")
+            }
+        }
     }
 }
 
@@ -54,6 +77,13 @@ struct DiscoverView: View {
                     }
                 }
                 .padding()
+            }
+            .refreshable {
+                do {
+                    try await viewModel.doRefreshAndAwait()
+                } catch {
+                    print("Discover error when refresh \(error)")
+                }
             }
         }
         .navigationTitle("Discover")
