@@ -103,6 +103,7 @@ class DiscoverViewModel(
 fun Discover(
     modifier: Modifier = Modifier,
     discoverViewModel: DiscoverViewModel = koinViewModel(),
+    navigator: RootNavigator = LocalRootNavigator.current,
 ) {
     val state by discoverViewModel.state.collectAsStateWithLifecycle()
     val isRefreshing by discoverViewModel.isRefreshing.collectAsStateWithLifecycle()
@@ -113,6 +114,9 @@ fun Discover(
         authedUser = state.authedUser,
         onMediaClick = discoverViewModel::onMediaClick,
         onPullRefresh = discoverViewModel::onPullRefresh,
+        onNavigateToMediaCategory = { category ->
+            navigator.navigateTo(Screen.MediaCategoryList(category))
+        },
         modifier = modifier,
     )
 }
@@ -126,6 +130,7 @@ fun DiscoverContent(
     modifier: Modifier = Modifier,
     onMediaClick: (MediaModel) -> Unit,
     onPullRefresh: () -> Unit,
+    onNavigateToMediaCategory: (MediaCategory) -> Unit = {},
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -166,6 +171,9 @@ fun DiscoverContent(
                     TitleWithContent(
                         modifier = Modifier.fillMaxWidth(),
                         title = category.title,
+                        onMoreClick = {
+                            onNavigateToMediaCategory(category)
+                        },
                     ) {
                         MediaPreviewSector(
                             mediaList = items,
