@@ -15,7 +15,6 @@ import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.MediaFormat
 import me.andannn.aniflow.data.model.define.MediaListStatus
-import me.andannn.aniflow.data.model.define.MediaSeason
 import me.andannn.aniflow.data.model.define.MediaSort
 import me.andannn.aniflow.data.model.define.MediaStatus
 import me.andannn.aniflow.data.model.define.MediaType
@@ -28,6 +27,7 @@ import me.andannn.aniflow.service.AniListService
 import me.andannn.aniflow.service.ServerException
 import me.andannn.aniflow.service.dto.Media
 import me.andannn.aniflow.service.dto.MediaList
+import me.andannn.aniflow.service.dto.Page
 import kotlin.with
 
 private const val TAG = "MediaRepository"
@@ -80,19 +80,6 @@ class MediaRepositoryImpl(
     ): Flow<List<MediaWithMediaListItem>> =
         with(mediaService) {
             with(mediaLibraryDao) {
-                // sync data from service
-//                    launch {
-//                        syncMediaListInfoToLocal(
-//                            userId = userId,
-//                            status = mediaListStatus,
-//                            mediaType = mediaType,
-//                            scope = this@channelFlow,
-//                        ).await()?.let { error ->
-//                            errorList.add(error)
-//                            send(DataWithErrors(data, errorList))
-//                        }
-//                    }
-
                 getMediaListFlow(
                     userId = userId,
                     mediaType = Json.encodeToString(mediaType),
@@ -102,6 +89,19 @@ class MediaRepositoryImpl(
                 }
             }
         }
+
+    override suspend fun loadMediaPageByCategory(
+        category: MediaCategory,
+        page: Int,
+        perPage: Int,
+    ) = with(mediaService) {
+        category
+            .getMediaOfCategoryFromRemote(
+                page = page,
+                perPage = perPage,
+                displayAdultContent = false,
+            ).toDomain(Media::toDomain)
+    }
 }
 
 private const val DEFAULT_CACHED_SIZE = 20
@@ -162,7 +162,12 @@ private fun MediaCategory.syncLocalWithService(scope: CoroutineScope): Deferred<
         val category = this@syncLocalWithService
         Napier.d(tag = TAG) { "syncLocalWithService start: $category" }
         try {
-            val items = getMediaOfCategoryFromRemote(MediaSeason.SUMMER, 2025)
+            val items =
+                getMediaOfCategoryFromRemote(
+                    page = 1,
+                    perPage = DEFAULT_CACHED_SIZE,
+                    displayAdultContent = false,
+                ).items
             database.upsertMediasWithCategory(
                 category = Json.encodeToString(category),
                 mediaList = items.map(Media::toEntity),
@@ -177,21 +182,18 @@ private fun MediaCategory.syncLocalWithService(scope: CoroutineScope): Deferred<
 
 context(service: AniListService)
 private suspend fun MediaCategory.getMediaOfCategoryFromRemote(
-    currentSeason: MediaSeason,
-    currentSeasonYear: Int,
-): List<Media> {
+    page: Int,
+    perPage: Int,
+    displayAdultContent: Boolean,
+): Page<Media> {
     var status: MediaStatus?
     var seasonParam: AnimeSeasonParam?
     val type = this.mediaType()
-    var sorts: List<MediaSort> = emptyList()
-    var format: List<MediaFormat> = emptyList()
+    var sorts: List<MediaSort>? = null
+    var format: List<MediaFormat>? = null
     var code: String? = null
 
-    val currentSeasonParam =
-        AnimeSeasonParam(
-            seasonYear = currentSeasonYear,
-            season = currentSeason,
-        )
+    val currentSeasonParam = currentSeasonByLocalDataTime()
 
     when (this) {
         MediaCategory.CURRENT_SEASON_ANIME -> {
@@ -209,7 +211,7 @@ private suspend fun MediaCategory.getMediaOfCategoryFromRemote(
 
         MediaCategory.NEXT_SEASON_ANIME -> {
             status = null
-            seasonParam = currentSeasonParam.getNextSeasonParam()
+            seasonParam = currentSeasonParam.nextSeasonParam()
             format =
                 listOf(
                     MediaFormat.TV,
@@ -258,7 +260,6 @@ private suspend fun MediaCategory.getMediaOfCategoryFromRemote(
         MediaCategory.NEW_ADDED_ANIME -> {
             status = null
             seasonParam = null
-            format = emptyList()
             sorts = listOf(MediaSort.START_DATE_DESC)
         }
 
@@ -272,15 +273,15 @@ private suspend fun MediaCategory.getMediaOfCategoryFromRemote(
 
     return service
         .getMediaPage(
-            page = 1,
-            perPage = DEFAULT_CACHED_SIZE,
+            page = page,
+            perPage = perPage,
             seasonYear = seasonParam?.seasonYear,
             season = seasonParam?.season?.toServiceType(),
             status = status,
             countryCode = code,
-            isAdult = false,
+            isAdult = displayAdultContent,
             type = type.toServiceType(),
-            formatIn = format.map { it.toServiceType() },
-            sort = sorts.map { it.toServiceType() },
-        ).items
+            formatIn = format?.map { it.toServiceType() },
+            sort = sorts?.map { it.toServiceType() },
+        )
 }
