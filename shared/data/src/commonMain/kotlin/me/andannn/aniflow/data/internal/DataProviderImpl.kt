@@ -87,7 +87,7 @@ private fun discoverUiStateFlow(): Flow<DiscoverUiState> {
             authedUser = authedUser,
             contentMode = contentMode,
         )
-    }
+    }.distinctUntilChanged()
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)

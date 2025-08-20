@@ -34,6 +34,8 @@ object KoinHelper {
 
     fun discoverDataProvider() = koinInstance().get<me.andannn.aniflow.data.DiscoverUiDataProvider>()
 
+    fun mediaRepository() = koinInstance().get<me.andannn.aniflow.data.MediaRepository>()
+
     private fun platformModule(browserAuthOperationHandler: BrowserAuthOperationHandler) =
         module {
             single<BrowserAuthOperationHandler> { browserAuthOperationHandler }

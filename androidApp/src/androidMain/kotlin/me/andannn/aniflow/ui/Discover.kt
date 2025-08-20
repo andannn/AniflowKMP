@@ -51,8 +51,8 @@ import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.model.DiscoverUiState
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.UserModel
-import me.andannn.aniflow.data.model.define.ContentMode
 import me.andannn.aniflow.data.model.define.MediaCategory
+import me.andannn.aniflow.data.model.define.MediaContentMode
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.ui.widget.MediaPreviewItem
 import org.koin.compose.viewmodel.koinViewModel
@@ -90,7 +90,7 @@ class DiscoverViewModel(
         cancelLastAndRegisterUiSideEffect()
     }
 
-    fun changeContentMode(mode: ContentMode) {
+    fun changeContentMode(mode: MediaContentMode) {
         Napier.d(tag = TAG) { "changeContentMode: $mode" }
         viewModelScope.launch {
             mediaRepository.setContentMode(mode)
@@ -139,11 +139,11 @@ fun Discover(
 fun DiscoverContent(
     isRefreshing: Boolean,
     categoryDataList: List<CategoryWithContents>,
-    contentMode: ContentMode,
+    contentMode: MediaContentMode,
     authedUser: UserModel?,
     modifier: Modifier = Modifier,
     onMediaClick: (MediaModel) -> Unit,
-    onContentTypeChange: (ContentMode) -> Unit,
+    onContentTypeChange: (MediaContentMode) -> Unit,
     onPullRefresh: () -> Unit,
     onNavigateToMediaCategory: (MediaCategory) -> Unit = {},
 ) {
@@ -154,12 +154,12 @@ fun DiscoverContent(
                 title = { Text(text = "Discover") },
                 actions = {
                     Switch(
-                        contentMode == ContentMode.ANIME,
+                        contentMode == MediaContentMode.ANIME,
                         onCheckedChange = { check ->
                             if (check) {
-                                onContentTypeChange(ContentMode.ANIME)
+                                onContentTypeChange(MediaContentMode.ANIME)
                             } else {
-                                onContentTypeChange(ContentMode.MANGA)
+                                onContentTypeChange(MediaContentMode.MANGA)
                             }
                         },
                     )

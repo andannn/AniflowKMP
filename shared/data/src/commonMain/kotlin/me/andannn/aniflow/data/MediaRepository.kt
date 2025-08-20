@@ -4,13 +4,14 @@
  */
 package me.andannn.aniflow.data
 
+import com.rickclephas.kmp.nativecoroutines.NativeCoroutines
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.Flow
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.Page
-import me.andannn.aniflow.data.model.define.ContentMode
 import me.andannn.aniflow.data.model.define.MediaCategory
+import me.andannn.aniflow.data.model.define.MediaContentMode
 import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.model.define.MediaType
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
@@ -24,9 +25,10 @@ interface MediaRepository {
 
     fun getMediasFlow(category: MediaCategory): Flow<CategoryWithContents>
 
-    fun getContentModeFlow(): Flow<ContentMode>
+    fun getContentModeFlow(): Flow<MediaContentMode>
 
-    suspend fun setContentMode(mode: ContentMode)
+    @NativeCoroutines
+    suspend fun setContentMode(mode: MediaContentMode)
 
     fun syncMediaListByUserId(
         scope: CoroutineScope,

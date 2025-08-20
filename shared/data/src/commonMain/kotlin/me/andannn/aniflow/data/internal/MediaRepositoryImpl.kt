@@ -13,8 +13,8 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
 import me.andannn.aniflow.data.MediaRepository
-import me.andannn.aniflow.data.model.define.ContentMode
 import me.andannn.aniflow.data.model.define.MediaCategory
+import me.andannn.aniflow.data.model.define.MediaContentMode
 import me.andannn.aniflow.data.model.define.MediaFormat
 import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.model.define.MediaSort
@@ -60,19 +60,20 @@ class MediaRepositoryImpl(
                 }
         }
 
-    override fun getContentModeFlow(): Flow<ContentMode> =
+    override fun getContentModeFlow(): Flow<MediaContentMode> =
         userPreference.userData
             .map { it.contentMode }
             .map { modeString ->
                 if (modeString == null) {
                     Napier.w(tag = TAG) { "Content mode is null, using default value: ContentMode.LIST" }
-                    ContentMode.ANIME
+                    MediaContentMode.ANIME
                 } else {
                     Json.decodeFromString(modeString)
                 }
             }.distinctUntilChanged()
 
-    override suspend fun setContentMode(mode: ContentMode) {
+    override suspend fun setContentMode(mode: MediaContentMode) {
+        Napier.d(tag = TAG) { "Setting content mode to: $mode" }
         userPreference.setContentMode(Json.encodeToString(mode))
     }
 
@@ -152,7 +153,7 @@ private fun syncMediaListInfoToLocal(
     }
 
 context(service: AniListService)
-suspend fun fetchAllMediaList(
+private suspend fun fetchAllMediaList(
     userId: String,
     status: List<MediaListStatus>,
     mediaType: MediaType,

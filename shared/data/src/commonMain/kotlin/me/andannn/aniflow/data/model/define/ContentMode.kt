@@ -7,13 +7,13 @@ package me.andannn.aniflow.data.model.define
 import kotlinx.serialization.Serializable
 
 @Serializable
-enum class ContentMode {
+enum class MediaContentMode {
     ANIME,
     MANGA,
 }
 
-fun ContentMode.toMediaType(): MediaType =
+fun MediaContentMode.toMediaType(): MediaType =
     when (this) {
-        ContentMode.ANIME -> MediaType.ANIME
-        ContentMode.MANGA -> MediaType.MANGA
+        MediaContentMode.ANIME -> MediaType.ANIME
+        MediaContentMode.MANGA -> MediaType.MANGA
     }
