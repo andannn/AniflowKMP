@@ -27,7 +27,7 @@ struct MediaCategoryPaging: View {
     }
     
     var body: some View {
-        VerticalGridPaging<MediaModel, MediaPreviewItem>(
+        VerticalGridPaging<MediaModel, _>(
             pageComponent: viewModel.pagingComponent,
             columns: cols,
             contentPadding: .init(top: 0, leading: 16, bottom: 0, trailing: 16),
@@ -41,5 +41,7 @@ struct MediaCategoryPaging: View {
                 )
             }
         )
+        .navigationTitle(category.title)
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
