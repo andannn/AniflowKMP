@@ -4,17 +4,43 @@
  */
 package me.andannn.aniflow.data.internal
 
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.number
+import kotlinx.datetime.toLocalDateTime
 import me.andannn.aniflow.data.model.define.MediaSeason
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
-internal data class AnimeSeasonParam(
+data class AnimeSeasonParam(
     val seasonYear: Int,
     val season: MediaSeason,
-) {
-    fun getNextSeasonParam(): AnimeSeasonParam =
-        when (season) {
-            MediaSeason.WINTER -> AnimeSeasonParam(seasonYear, MediaSeason.SPRING)
-            MediaSeason.SPRING -> AnimeSeasonParam(seasonYear, MediaSeason.SUMMER)
-            MediaSeason.SUMMER -> AnimeSeasonParam(seasonYear, MediaSeason.FALL)
-            MediaSeason.FALL -> AnimeSeasonParam(seasonYear + 1, MediaSeason.WINTER)
+)
+
+fun AnimeSeasonParam.nextSeasonParam(): AnimeSeasonParam {
+    val (nextSeasonYear, nextSeason) =
+        when (this.season) {
+            MediaSeason.WINTER -> seasonYear to MediaSeason.SPRING
+            MediaSeason.SPRING -> seasonYear to MediaSeason.SUMMER
+            MediaSeason.SUMMER -> seasonYear to MediaSeason.FALL
+            MediaSeason.FALL -> (seasonYear + 1) to MediaSeason.WINTER
         }
+    return AnimeSeasonParam(nextSeasonYear, nextSeason)
+}
+
+@OptIn(ExperimentalTime::class)
+fun currentSeasonByLocalDataTime(): AnimeSeasonParam {
+    val currentLocalDatetime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+    val year = currentLocalDatetime.year
+    val month = currentLocalDatetime.month.number
+
+    val season =
+        when (month) {
+            in 1..3 -> MediaSeason.WINTER
+            in 4..6 -> MediaSeason.SPRING
+            in 7..9 -> MediaSeason.SUMMER
+            in 10..12 -> MediaSeason.FALL
+            else -> throw IllegalStateException("Impossible month: $month")
+        }
+
+    return AnimeSeasonParam(seasonYear = year, season = season)
 }

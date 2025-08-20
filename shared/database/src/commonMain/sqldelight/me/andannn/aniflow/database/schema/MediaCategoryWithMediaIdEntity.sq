@@ -4,6 +4,9 @@ CREATE TABLE IF NOT EXISTS mediaCategoryWithMediaIdEntity (
       PRIMARY KEY (mediaId, category)
 );
 
+deleteByCategory:
+DELETE FROM mediaCategoryWithMediaIdEntity WHERE category = ?;
+
 upsertMediaCategoryWithMediaId:
 INSERT OR REPLACE INTO mediaCategoryWithMediaIdEntity (
       mediaId,

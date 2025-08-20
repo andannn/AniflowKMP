@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
     id("kmp.application")
-    id("compose.multiplatform.application")
+    alias(libs.plugins.kotlin.compose)
 }
 
 android {
@@ -56,10 +56,18 @@ kotlin {
 
     sourceSets {
         androidMain.dependencies {
+            implementation(project(":shared:data"))
+
+            implementation(project.dependencies.platform(libs.compose.bom))
+            implementation(libs.compose.foundation)
+            implementation(libs.compose.material3)
+            implementation(libs.compose.ui)
+            implementation(libs.compose.ui.tooling.preview)
+            implementation(libs.compose.material.icons.extended)
+
             implementation(libs.napier)
             implementation(libs.coil3.compose)
             implementation(libs.coil.network.okhttp)
-            implementation(project(":shared:data"))
 
             implementation(libs.androidx.lifecycle.viewmodel.navigation3)
             implementation(libs.androidx.navigation3.ui)

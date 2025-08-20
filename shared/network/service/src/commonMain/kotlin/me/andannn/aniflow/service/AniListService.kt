@@ -672,7 +672,11 @@ class AniListService(
         try {
             client
                 .post {
-                    setBody(query.toQueryBody())
+                    setBody(
+                        query.toQueryBody().also {
+                            Napier.d(tag = TAG) { "doGraphQlQuery: $it" }
+                        },
+                    )
                 }.let { response ->
                     val dataWrapper = response.body<DataWrapper<U>>()
                     dataWrapper.data

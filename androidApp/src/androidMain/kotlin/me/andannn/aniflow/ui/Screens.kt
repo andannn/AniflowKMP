@@ -5,9 +5,15 @@
 package me.andannn.aniflow.ui
 
 import kotlinx.serialization.Serializable
+import me.andannn.aniflow.data.model.define.MediaCategory
 
 @Serializable
 sealed interface Screen {
     @Serializable
     object Home : Screen
+
+    @Serializable
+    data class MediaCategoryList(
+        val category: MediaCategory,
+    ) : Screen
 }

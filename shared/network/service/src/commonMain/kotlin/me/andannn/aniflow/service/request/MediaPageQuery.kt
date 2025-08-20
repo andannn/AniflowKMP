@@ -4,6 +4,7 @@
  */
 package me.andannn.aniflow.service.request
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import me.andannn.aniflow.service.dto.DataWrapper
 import me.andannn.aniflow.service.dto.Media
@@ -25,6 +26,7 @@ internal data class MediaPageQuery(
     val season: MediaSeason?,
     val status: MediaStatus?,
     val sort: List<MediaSort>?,
+    @SerialName("format_in")
     val formatIn: List<MediaFormat>?,
     val isAdult: Boolean?,
     val startDateGreater: String?,

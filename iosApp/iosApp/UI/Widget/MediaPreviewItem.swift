@@ -14,11 +14,11 @@ struct MediaPreviewItem: View {
                     case .success(let image):
                         image
                             .resizable()
-                            .aspectRatio(3/4, contentMode: .fill)
+                            .aspectRatio(3/4, contentMode: .fit)
                             .clipped()
                     default:
                         Color.gray
-                            .aspectRatio(3/4, contentMode: .fill)
+                            .aspectRatio(3/4, contentMode: .fit)
                     }
                 }
 
@@ -28,7 +28,6 @@ struct MediaPreviewItem: View {
                     endPoint: .bottom
                 )
                 .frame(height: 50)
-                .frame(maxWidth: .infinity, alignment: .bottom)
                 .alignmentGuide(.bottom) { d in d[.bottom] }
 
                 Text(title)
@@ -39,7 +38,6 @@ struct MediaPreviewItem: View {
                     .padding(.leading, 8)
                     .padding(.bottom, 12)
             }
-            .frame(width: 240)
             .clipShape(RoundedRectangle(cornerRadius: 24))
             .contentShape(RoundedRectangle(cornerRadius: 24))
             .overlay(alignment: .topTrailing) {

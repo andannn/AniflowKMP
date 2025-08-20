@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS UserEntity (
+CREATE TABLE IF NOT EXISTS userEntity (
   id TEXT PRIMARY KEY NOT NULL,
   name TEXT DEFAULT NULL,
   avatarImage TEXT DEFAULT NULL,
@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS UserEntity (
 );
 
 upsertUser:
-INSERT OR REPLACE INTO UserEntity (
+INSERT OR REPLACE INTO userEntity (
   id,
   name,
   avatarImage,
@@ -18,4 +18,4 @@ INSERT OR REPLACE INTO UserEntity (
 ) VALUES ?;
 
 getUserById:
-SELECT * FROM UserEntity WHERE id = ?;
+SELECT * FROM userEntity WHERE id = ?;

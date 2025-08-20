@@ -8,6 +8,7 @@ import kotlinx.serialization.json.Json
 import me.andannn.aniflow.data.model.EpisodeModel
 import me.andannn.aniflow.data.model.MediaListModel
 import me.andannn.aniflow.data.model.MediaModel
+import me.andannn.aniflow.data.model.PageInfo
 import me.andannn.aniflow.data.model.SimpleDate
 import me.andannn.aniflow.data.model.Title
 import me.andannn.aniflow.data.model.Trailer
@@ -28,6 +29,7 @@ import me.andannn.aniflow.database.schema.UserEntity
 import me.andannn.aniflow.service.dto.FuzzyDate
 import me.andannn.aniflow.service.dto.Media
 import me.andannn.aniflow.service.dto.MediaList
+import me.andannn.aniflow.service.dto.Page
 import me.andannn.aniflow.service.dto.User
 import me.andannn.aniflow.service.dto.enums.MediaRankType
 
@@ -165,6 +167,8 @@ internal fun me.andannn.aniflow.service.dto.enums.MediaStatus.toDomainType() =
         me.andannn.aniflow.service.dto.enums.MediaStatus.HIATUS -> MediaStatus.HIATUS
         me.andannn.aniflow.service.dto.enums.MediaStatus.UNKNOWN__ -> null
     }
+
+internal fun Media.toDomain() = toEntity().toDomain()
 
 internal fun Media.toEntity() =
     MediaEntity(
@@ -309,4 +313,17 @@ internal fun MediaListAndMediaRelation.toDomain() =
     MediaWithMediaListItem(
         mediaModel = mediaEntity.toDomain(),
         mediaListModel = mediaListEntity.toDomain(),
+    )
+
+internal fun <T, R> Page<T>.toDomain(mapper: (T) -> R) =
+    me.andannn.aniflow.data.model.Page(
+        pageInfo =
+            PageInfo(
+                total = pageInfo?.total ?: error("page info parameter is null"),
+                perPage = pageInfo?.perPage ?: error("page info parameter is null"),
+                currentPage = pageInfo?.currentPage ?: error("page info parameter is null"),
+                lastPage = pageInfo?.lastPage ?: error("page info parameter is null"),
+                hasNextPage = pageInfo?.hasNextPage ?: error("page info parameter is null"),
+            ),
+        items = items.map(mapper),
     )
