@@ -9,7 +9,7 @@ extension DataProvider {
     }
     
     func discoverUiSideEffectStatusSequence()
-    -> NativeFlowAsyncSequence<RefreshStatus, Error, KotlinUnit> {
+    -> NativeFlowAsyncSequence<SyncStatus, Error, KotlinUnit> {
         asyncSequence(for: discoverUiSideEffect())
     }
     
@@ -20,7 +20,7 @@ extension DataProvider {
     }
     
     func trackUiSideEffectErrorSequence()
-    -> NativeFlowAsyncSequence<AppError, Error, KotlinUnit> {
+    -> NativeFlowAsyncSequence<SyncStatus, Error, KotlinUnit> {
         asyncSequence(for: trackUiSideEffect())
     }
 }
