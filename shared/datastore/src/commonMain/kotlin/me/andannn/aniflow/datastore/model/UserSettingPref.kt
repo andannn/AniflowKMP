@@ -8,4 +8,5 @@ data class UserSettingPref(
     val authToken: String?,
     val authExpiredTimeInSecond: Int?,
     val authedUserId: String?,
+    val contentMode: String?,
 )

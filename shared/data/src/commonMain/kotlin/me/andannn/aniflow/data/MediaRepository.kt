@@ -9,6 +9,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.Flow
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.Page
+import me.andannn.aniflow.data.model.define.ContentMode
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.model.define.MediaType
@@ -22,6 +23,10 @@ interface MediaRepository {
     ): Deferred<Throwable?>
 
     fun getMediasFlow(category: MediaCategory): Flow<CategoryWithContents>
+
+    fun getContentModeFlow(): Flow<ContentMode>
+
+    suspend fun setContentMode(mode: ContentMode)
 
     fun syncMediaListByUserId(
         scope: CoroutineScope,

@@ -22,18 +22,17 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import me.andannn.aniflow.data.DataProvider
-import me.andannn.aniflow.data.TrackUiState
+import me.andannn.aniflow.data.TrackUiDataProvider
+import me.andannn.aniflow.data.model.TrackUiState
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.ui.widget.MediaRowItem
 import org.koin.compose.viewmodel.koinViewModel
-import org.koin.mp.KoinPlatform.getKoin
 
 private const val TAG = "TrackViewModel"
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TrackViewModel(
-    private val dataProvider: DataProvider = getKoin().get(),
+    private val dataProvider: TrackUiDataProvider,
 ) : ViewModel() {
     private val _state = MutableStateFlow(TrackUiState())
     val state = _state.asStateFlow()

@@ -26,6 +26,8 @@ class UserSettingPreferences(
                         preferences[intPreferencesKey(PreferencesKeyName.AUTH_EXPIRED_TIME_KEY_NAME)],
                     authedUserId =
                         preferences[stringPreferencesKey(PreferencesKeyName.AUTHED_USER_ID_KEY_NAME)],
+                    contentMode =
+                        preferences[stringPreferencesKey(PreferencesKeyName.CONTENTS_MODE_KEY_NAME)],
                 )
             }
 
@@ -54,6 +56,14 @@ class UserSettingPreferences(
         preferences.updateData { currentPreferences ->
             currentPreferences.toMutablePreferences().apply {
                 this[stringPreferencesKey(PreferencesKeyName.AUTHED_USER_ID_KEY_NAME)] = userId
+            }
+        }
+    }
+
+    suspend fun setContentMode(contentMode: String) {
+        preferences.updateData { currentPreferences ->
+            currentPreferences.toMutablePreferences().apply {
+                this[stringPreferencesKey(PreferencesKeyName.CONTENTS_MODE_KEY_NAME)] = contentMode
             }
         }
     }

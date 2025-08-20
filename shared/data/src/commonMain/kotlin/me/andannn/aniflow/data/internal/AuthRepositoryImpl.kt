@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.suspendCancellableCoroutine
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.BrowserAuthOperationHandler
-import me.andannn.aniflow.data.exceptions.toDataException
+import me.andannn.aniflow.data.internal.exceptions.toError
 import me.andannn.aniflow.data.model.UserModel
 import me.andannn.aniflow.database.MediaLibraryDao
 import me.andannn.aniflow.database.schema.UserEntity
@@ -50,12 +50,12 @@ class AuthRepositoryImpl(
 
             try {
                 // retrieve user data from ani list api
-
                 val authedUser = service.getAuthedUserData()
                 userPref.setAuthedUserId(authedUser.id.toString())
                 database.upsertUser(listOf(authedUser.toEntity()))
+                null
             } catch (exception: ServerException) {
-                throw exception.toDataException()
+                exception.toError()
             }
         }
 
