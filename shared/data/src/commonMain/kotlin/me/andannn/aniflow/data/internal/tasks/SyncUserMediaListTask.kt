@@ -33,7 +33,7 @@ internal class SyncUserMediaListTask :
     override suspend fun WrappedProducerScope<SyncStatus>.run() {
         Napier.d(tag = TAG) { "SyncUserMediaListTask run" }
         combine(
-            authRepo.getAuthedUser(),
+            authRepo.getAuthedUserFlow(),
             mediaRepo.getContentModeFlow(),
         ) { authedUser, contentMode -> Pair(authedUser, contentMode) }
             .distinctUntilChanged()

@@ -14,8 +14,12 @@ import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDe
 import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
+import androidx.navigation3.ui.DialogSceneStrategy
+import androidx.navigation3.ui.DialogSceneStrategy.Companion.dialog
 import androidx.navigation3.ui.NavDisplay
+import androidx.navigation3.ui.SinglePaneSceneStrategy
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
+import java.util.Map.entry
 
 @Composable
 fun App() {
@@ -27,6 +31,7 @@ fun App() {
         NavDisplay(
             modifier = Modifier,
             backStack = backStack,
+            sceneStrategy = DialogSceneStrategy<Screen>() then SinglePaneSceneStrategy(),
             entryDecorators =
                 listOf(
                     rememberSceneSetupNavEntryDecorator(),
@@ -44,6 +49,12 @@ fun App() {
                             category = it.category,
                         )
                     }
+
+                    entry<Screen.Dialog.Login>(
+                        metadata = dialog(),
+                    ) {
+                        LoginDialog()
+                    }
                 },
         )
     }
@@ -59,5 +70,13 @@ class RootNavigator(
 ) {
     fun navigateTo(screen: Screen) {
         backStack.add(screen)
+    }
+
+    fun popBackStack() {
+        with(backStack) {
+            if (isNotEmpty()) {
+                removeAt(lastIndex)
+            }
+        }
     }
 }

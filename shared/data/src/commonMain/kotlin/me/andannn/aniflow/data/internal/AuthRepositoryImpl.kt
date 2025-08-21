@@ -6,15 +6,16 @@ package me.andannn.aniflow.data.internal
 
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
+import me.andannn.aniflow.data.AppError
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.BrowserAuthOperationHandler
 import me.andannn.aniflow.data.internal.exceptions.toError
@@ -38,8 +39,8 @@ class AuthRepositoryImpl(
     private val authHandler: BrowserAuthOperationHandler,
 ) : AuthRepository {
     @OptIn(ExperimentalTime::class)
-    override fun startLoginProcessAndWaitResult(scope: CoroutineScope) =
-        scope.async {
+    override suspend fun startLoginProcessAndWaitResult(): AppError? =
+        withContext(Dispatchers.Main) {
             val authResult = authHandler.awaitAuthResult()
 
             Napier.d(tag = TAG) { "token received: ${authResult.token}, expires in: ${authResult.expiresInTime} seconds" }
@@ -60,7 +61,7 @@ class AuthRepositoryImpl(
         }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun getAuthedUser(): Flow<UserModel?> =
+    override fun getAuthedUserFlow(): Flow<UserModel?> =
         userPref.userData
             .map { it.authedUserId }
             .distinctUntilChanged()

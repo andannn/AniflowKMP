@@ -25,3 +25,12 @@ data class TrackUiState(
         val Empty = TrackUiState()
     }
 }
+
+data class HomeAppBarUiState(
+    val authedUser: UserModel? = null,
+    val contentMode: MediaContentMode = MediaContentMode.ANIME,
+) {
+    companion object {
+        val Empty = HomeAppBarUiState()
+    }
+}

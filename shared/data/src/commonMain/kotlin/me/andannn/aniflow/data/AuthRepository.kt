@@ -4,8 +4,7 @@
  */
 package me.andannn.aniflow.data
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
+import com.rickclephas.kmp.nativecoroutines.NativeCoroutines
 import kotlinx.coroutines.flow.Flow
 import me.andannn.aniflow.data.model.UserModel
 
@@ -32,8 +31,12 @@ interface AuthRepository {
     /**
      * Start the login process, which will open a browser for user authentication.
      * This function should be called when the user initiates the login process.
+     *
+     * @return returns an [AppError] if the login process fails, or null if it succeeds.
      */
-    fun startLoginProcessAndWaitResult(scope: CoroutineScope): Deferred<AppError?>
+    @NativeCoroutines()
+    suspend fun startLoginProcessAndWaitResult(): AppError?
 
-    fun getAuthedUser(): Flow<UserModel?>
+    @NativeCoroutines
+    fun getAuthedUserFlow(): Flow<UserModel?>
 }

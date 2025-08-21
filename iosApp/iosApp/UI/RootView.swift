@@ -18,6 +18,9 @@ struct RootView: View {
                 }
         }
         .environmentObject(router)
+        .customDialog(isPresented: $router.isAuthDialogShowing, content: {
+            LoginDialogView()
+        })
     }
 }
 
@@ -25,12 +28,24 @@ struct RootView: View {
 final class Router: ObservableObject {
     @Published var path = NavigationPath()
     
+    @Published var isAuthDialogShowing = false
+    
     func navigateTo(route: AppRoute) {
         path.append(route)
     }
     
-    func pop() { path.removeLast() }
-    func popToRoot() { path = NavigationPath() }
+    func showAuthDialog() {
+        isAuthDialogShowing = true
+    }
+    
+    func pop() {
+        if (isAuthDialogShowing) {
+            isAuthDialogShowing = false
+            return
+        }
+
+        path.removeLast()
+    }
 }
 
 enum AppRoute: Hashable {

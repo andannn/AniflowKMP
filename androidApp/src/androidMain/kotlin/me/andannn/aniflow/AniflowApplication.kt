@@ -6,12 +6,13 @@ package me.andannn.aniflow
 
 import android.app.Application
 import android.content.Context
-import androidx.lifecycle.viewmodel.compose.viewModel
 import me.andannn.aniflow.data.util.KoinHelper
 import me.andannn.aniflow.data.util.KoinHelper.Modules
 import me.andannn.aniflow.data.util.Logger
 import me.andannn.aniflow.platform.BrowserAuthOperationHandlerImpl
 import me.andannn.aniflow.ui.DiscoverViewModel
+import me.andannn.aniflow.ui.HomeViewModel
+import me.andannn.aniflow.ui.LoginDialogViewModel
 import me.andannn.aniflow.ui.MediaCategoryPagingViewModel
 import me.andannn.aniflow.ui.TrackViewModel
 import org.koin.core.module.dsl.viewModel
@@ -42,7 +43,9 @@ private fun androidContextModule(application: AniflowApplication) =
     module {
         single { application } bind Context::class
         viewModelOf(::DiscoverViewModel)
+        viewModelOf(::HomeViewModel)
         viewModelOf(::TrackViewModel)
+        viewModelOf(::LoginDialogViewModel)
         viewModel {
             MediaCategoryPagingViewModel(it.get())
         }

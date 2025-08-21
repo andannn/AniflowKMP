@@ -16,14 +16,11 @@ class DiscoverViewModel: ObservableObject {
         dataProvider = KoinHelper.shared.discoverDataProvider()
         mediaRepository = KoinHelper.shared.mediaRepository()
         Task {
-            do {
-                for try await state in dataProvider.getdiscoverUiStateAsyncSequence() {
-                    print("Discover contentMode change: \(state.contentMode)")
-                    uiState = state
-                }
-            } catch {
-                print("Failed with error: \(error)")
+            for try await state in dataProvider.getdiscoverUiStateAsyncSequence() {
+                print("Discover contentMode change: \(state.contentMode)")
+                uiState = state
             }
+            
         }
         
         cancelLastAndRegisterUiSideEffect(completer: nil)
@@ -61,13 +58,6 @@ class DiscoverViewModel: ObservableObject {
             }
         }
     }
-    
-    func setContentMode(mode: MediaContentMode) {
-        print("Discover setContentMode \(mode)")
-        Task {
-            try await mediaRepository.setContentMode(mode: mode)
-        }
-    }
 }
 
 struct DiscoverView: View {
@@ -77,22 +67,6 @@ struct DiscoverView: View {
     var body: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 16) {
-                Toggle(
-                    isOn: Binding(
-                        get: { viewModel.uiState.contentMode == .anime },
-                        set: { check in
-                            if check {
-                                viewModel.setContentMode(mode: .anime)
-                            } else {
-                                viewModel.setContentMode(mode: .manga)
-                            }
-                        }
-                    )
-                ) {
-                    Text("AAAAA")
-                }
-                .toggleStyle(SwitchToggleStyle(tint: .blue))
-                
                 ForEach(Array(viewModel.uiState.categoryDataMap.content), id: \.category) { categoryWithContents in
                     TitleWithContent(title: categoryWithContents.category.title, onMoreClick: {
                         let category = categoryWithContents.category
@@ -112,29 +86,6 @@ struct DiscoverView: View {
                 try await viewModel.doRefreshAndAwait()
             } catch {
                 print("Discover error when refresh \(error)")
-            }
-        }
-        .navigationTitle("Discover")
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: {
-                    // TODO:
-                }) {
-                    if let avatarUrl = viewModel.uiState.authedUser?.avatar {
-                        AsyncImage(url: URL(string: avatarUrl)) { image in
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                        } placeholder: {
-                            ProgressView()
-                        }
-                        .frame(width: 32, height: 32)
-                        .clipShape(Circle())
-                    } else {
-                        Image(systemName: "person.crop.circle")
-                            .font(.system(size: 24))
-                    }
-                }
             }
         }
     }
