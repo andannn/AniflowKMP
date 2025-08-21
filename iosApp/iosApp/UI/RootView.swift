@@ -19,7 +19,7 @@ struct RootView: View {
         }
         .environmentObject(router)
         .customDialog(isPresented: $router.isAuthDialogShowing, content: {
-            Text("AAAAAA")
+            LoginDialogView()
         })
     }
 }

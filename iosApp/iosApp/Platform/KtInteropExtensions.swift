@@ -44,8 +44,26 @@ extension TrackUiDataProvider {
     }
 }
 
+extension HomeAppBarUiDataProvider {
+    func appBarFlow()
+    -> NativeFlowAsyncSequence<HomeAppBarUiState, Error, KotlinUnit> {
+        asyncSequence(for: appBarFlow())
+    }
+}
+
 extension MediaRepository {
     func setContentMode(mode: MediaContentMode) async throws {
         try await asyncFunction(for: setContentMode(mode: mode))
+    }
+}
+
+extension AuthRepository {
+    func getAuthedUserFlow()
+    -> NativeFlowAsyncSequence<Optional<UserModel>, Error, KotlinUnit> {
+        asyncSequence(for: getAuthedUserFlow())
+    }
+    
+    func startLoginProcessAndWaitResult() async throws -> AppError? {
+        try await asyncFunction(for: startLoginProcessAndWaitResult())
     }
 }
