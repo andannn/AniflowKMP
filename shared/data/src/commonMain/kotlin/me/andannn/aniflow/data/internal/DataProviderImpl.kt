@@ -75,7 +75,7 @@ private fun discoverUiStateFlow(): Flow<DiscoverUiState> {
             }
         }
 
-    val authedUserFlow = authRepo.getAuthedUser()
+    val authedUserFlow = authRepo.getAuthedUserFlow()
     val contentModeFlow = mediaRepo.getContentModeFlow()
     return combine(
         categoryDataFlow,
@@ -94,7 +94,7 @@ private fun discoverUiStateFlow(): Flow<DiscoverUiState> {
 context(mediaRepo: MediaRepository, authRepo: AuthRepository)
 private fun trackUiStateFlow(): Flow<TrackUiState> {
     val userWithContentModeFlow = combine(
-        authRepo.getAuthedUser(),
+        authRepo.getAuthedUserFlow(),
         mediaRepo.getContentModeFlow(),
     ) { authedUser, contentMode -> Pair(authedUser, contentMode) }
 

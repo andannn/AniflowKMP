@@ -65,8 +65,8 @@ class DiscoverViewModel(
     private val mediaRepository: MediaRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(DiscoverUiState.Empty)
-    private val _isRefreshing = MutableStateFlow(false)
     val state = _state.asStateFlow()
+    private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing = _isRefreshing.asStateFlow()
 
     private var sideEffectJob: Job? = null
@@ -82,7 +82,9 @@ class DiscoverViewModel(
 
     fun onMediaClick(media: MediaModel) {
         Napier.d(tag = TAG) { "Media clicked:" }
-        authRepository.startLoginProcessAndWaitResult(viewModelScope)
+        viewModelScope.launch {
+            authRepository.startLoginProcessAndWaitResult()
+        }
     }
 
     fun onPullRefresh() {
@@ -118,7 +120,6 @@ fun Discover(
 ) {
     val state by discoverViewModel.state.collectAsStateWithLifecycle()
     val isRefreshing by discoverViewModel.isRefreshing.collectAsStateWithLifecycle()
-
     DiscoverContent(
         isRefreshing = isRefreshing,
         contentMode = state.contentMode,
@@ -130,6 +131,9 @@ fun Discover(
             navigator.navigateTo(Screen.MediaCategoryList(category))
         },
         onContentTypeChange = discoverViewModel::changeContentMode,
+        onAuthIconClick = {
+            navigator.navigateTo(Screen.Dialog.Login)
+        },
         modifier = modifier,
     )
 }
@@ -146,6 +150,7 @@ fun DiscoverContent(
     onContentTypeChange: (MediaContentMode) -> Unit,
     onPullRefresh: () -> Unit,
     onNavigateToMediaCategory: (MediaCategory) -> Unit = {},
+    onAuthIconClick: () -> Unit = {},
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -164,7 +169,7 @@ fun DiscoverContent(
                         },
                     )
                     IconButton(
-                        onClick = {},
+                        onClick = onAuthIconClick,
                     ) {
                         if (authedUser != null) {
                             AsyncImage(

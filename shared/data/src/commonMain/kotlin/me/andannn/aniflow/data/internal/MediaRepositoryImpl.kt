@@ -65,7 +65,6 @@ class MediaRepositoryImpl(
             .map { it.contentMode }
             .map { modeString ->
                 if (modeString == null) {
-                    Napier.w(tag = TAG) { "Content mode is null, using default value: ContentMode.LIST" }
                     MediaContentMode.ANIME
                 } else {
                     Json.decodeFromString(modeString)

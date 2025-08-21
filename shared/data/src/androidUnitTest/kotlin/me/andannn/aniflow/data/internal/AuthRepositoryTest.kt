@@ -82,7 +82,7 @@ class AuthRepositoryTest {
     fun testGetAuthedUser() =
         testScope.runTest {
             repo
-                .getAuthedUser()
+                .getAuthedUserFlow()
                 .first()
                 .let {
                     println(it)

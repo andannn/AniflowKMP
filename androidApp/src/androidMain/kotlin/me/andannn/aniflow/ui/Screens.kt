@@ -16,4 +16,9 @@ sealed interface Screen {
     data class MediaCategoryList(
         val category: MediaCategory,
     ) : Screen
+
+    sealed interface Dialog : Screen {
+        @Serializable
+        data object Login : Dialog
+    }
 }
