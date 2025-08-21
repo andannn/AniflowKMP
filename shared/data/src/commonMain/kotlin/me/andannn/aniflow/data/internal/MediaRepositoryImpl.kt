@@ -9,10 +9,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
 import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.model.define.MediaCategory
+import me.andannn.aniflow.data.model.define.MediaContentMode
 import me.andannn.aniflow.data.model.define.MediaFormat
 import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.model.define.MediaSort
@@ -23,6 +25,7 @@ import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.database.MediaLibraryDao
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
 import me.andannn.aniflow.database.schema.MediaEntity
+import me.andannn.aniflow.datastore.UserSettingPreferences
 import me.andannn.aniflow.service.AniListService
 import me.andannn.aniflow.service.ServerException
 import me.andannn.aniflow.service.dto.Media
@@ -35,6 +38,7 @@ private const val TAG = "MediaRepository"
 class MediaRepositoryImpl(
     private val mediaLibraryDao: MediaLibraryDao,
     private val mediaService: AniListService,
+    private val userPreference: UserSettingPreferences,
 ) : MediaRepository {
     override fun syncMediaCategory(
         scope: CoroutineScope,
@@ -55,6 +59,23 @@ class MediaRepositoryImpl(
                     )
                 }
         }
+
+    override fun getContentModeFlow(): Flow<MediaContentMode> =
+        userPreference.userData
+            .map { it.contentMode }
+            .map { modeString ->
+                if (modeString == null) {
+                    Napier.w(tag = TAG) { "Content mode is null, using default value: ContentMode.LIST" }
+                    MediaContentMode.ANIME
+                } else {
+                    Json.decodeFromString(modeString)
+                }
+            }.distinctUntilChanged()
+
+    override suspend fun setContentMode(mode: MediaContentMode) {
+        Napier.d(tag = TAG) { "Setting content mode to: $mode" }
+        userPreference.setContentMode(Json.encodeToString(mode))
+    }
 
     override fun syncMediaListByUserId(
         scope: CoroutineScope,
@@ -132,7 +153,7 @@ private fun syncMediaListInfoToLocal(
     }
 
 context(service: AniListService)
-suspend fun fetchAllMediaList(
+private suspend fun fetchAllMediaList(
     userId: String,
     status: List<MediaListStatus>,
     mediaType: MediaType,
@@ -172,7 +193,7 @@ private fun MediaCategory.syncLocalWithService(scope: CoroutineScope): Deferred<
                 category = Json.encodeToString(category),
                 mediaList = items.map(Media::toEntity),
             )
-            Napier.d(tag = TAG) { "syncLocalWithService finished: $category" }
+            Napier.d(tag = TAG) { "syncLocalWithService finished: $category. size ${items.size}" }
             null
         } catch (exception: ServerException) {
             Napier.e { "Error when syncing local with remote: $exception" }
@@ -238,14 +259,12 @@ private suspend fun MediaCategory.getMediaOfCategoryFromRemote(
         MediaCategory.TRENDING_MANGA -> {
             status = null
             seasonParam = null
-            format = emptyList()
             sorts = listOf(MediaSort.TRENDING_DESC)
         }
 
         MediaCategory.ALL_TIME_POPULAR_MANGA -> {
             status = null
             seasonParam = null
-            format = emptyList()
             sorts = listOf(MediaSort.POPULARITY_DESC)
         }
 
@@ -253,7 +272,6 @@ private suspend fun MediaCategory.getMediaOfCategoryFromRemote(
             status = null
             seasonParam = null
             code = "KR"
-            format = emptyList()
             sorts = listOf(MediaSort.POPULARITY_DESC)
         }
 
@@ -266,7 +284,6 @@ private suspend fun MediaCategory.getMediaOfCategoryFromRemote(
         MediaCategory.NEW_ADDED_MANGA -> {
             status = null
             seasonParam = null
-            format = emptyList()
             sorts = listOf(MediaSort.START_DATE_DESC)
         }
     }

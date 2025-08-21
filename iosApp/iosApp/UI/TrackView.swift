@@ -3,12 +3,12 @@ import SwiftUI
 
 @MainActor
 class TrackViewModel : ObservableObject {
-    private let dataProvider: DataProvider
+    private let dataProvider: TrackUiDataProvider
     @Published var uiState: TrackUiState = TrackUiState.companion.Empty
     
     init() {
         print("TrackViewModel init")
-        dataProvider = KoinHelper.shared.dataProvider()
+        dataProvider = KoinHelper.shared.trackDataProvider()
         Task {
             do {
                 for try await state in dataProvider.gettrackUiStateAsyncSequence() {
@@ -22,7 +22,6 @@ class TrackViewModel : ObservableObject {
     
     deinit {
         print("TrackViewModel deinit")
-
     }
 }
 

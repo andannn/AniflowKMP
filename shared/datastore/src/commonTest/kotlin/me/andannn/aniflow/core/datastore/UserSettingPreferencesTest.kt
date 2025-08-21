@@ -54,4 +54,16 @@ class UserSettingPreferencesTest {
                 assertEquals(null, userSettingPref.authExpiredTimeInSecond)
             }
         }
+
+    @Test
+    fun setContentModeTest() =
+        testScope.runTest {
+            preferences.userData.first().let { userSettingPref ->
+                assertEquals(null, userSettingPref.contentMode)
+            }
+            preferences.setContentMode("testMode")
+            preferences.userData.first().let { userSettingPref ->
+                assertEquals("testMode", userSettingPref.contentMode)
+            }
+        }
 }

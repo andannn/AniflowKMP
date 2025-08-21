@@ -24,6 +24,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -45,11 +46,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.AuthRepository
-import me.andannn.aniflow.data.DataProvider
-import me.andannn.aniflow.data.DiscoverUiState
+import me.andannn.aniflow.data.DiscoverUiDataProvider
+import me.andannn.aniflow.data.MediaRepository
+import me.andannn.aniflow.data.model.DiscoverUiState
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.UserModel
 import me.andannn.aniflow.data.model.define.MediaCategory
+import me.andannn.aniflow.data.model.define.MediaContentMode
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.ui.widget.MediaPreviewItem
 import org.koin.compose.viewmodel.koinViewModel
@@ -57,8 +60,9 @@ import org.koin.compose.viewmodel.koinViewModel
 private const val TAG = "Discover"
 
 class DiscoverViewModel(
-    private val dataProvider: DataProvider,
+    private val dataProvider: DiscoverUiDataProvider,
     private val authRepository: AuthRepository,
+    private val mediaRepository: MediaRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(DiscoverUiState.Empty)
     private val _isRefreshing = MutableStateFlow(false)
@@ -86,6 +90,13 @@ class DiscoverViewModel(
         cancelLastAndRegisterUiSideEffect()
     }
 
+    fun changeContentMode(mode: MediaContentMode) {
+        Napier.d(tag = TAG) { "changeContentMode: $mode" }
+        viewModelScope.launch {
+            mediaRepository.setContentMode(mode)
+        }
+    }
+
     private fun cancelLastAndRegisterUiSideEffect() {
         Napier.d(tag = TAG) { "cancelLastAndRegisterUiSideEffect:" }
         sideEffectJob?.cancel()
@@ -110,6 +121,7 @@ fun Discover(
 
     DiscoverContent(
         isRefreshing = isRefreshing,
+        contentMode = state.contentMode,
         categoryDataList = state.categoryDataMap.content,
         authedUser = state.authedUser,
         onMediaClick = discoverViewModel::onMediaClick,
@@ -117,6 +129,7 @@ fun Discover(
         onNavigateToMediaCategory = { category ->
             navigator.navigateTo(Screen.MediaCategoryList(category))
         },
+        onContentTypeChange = discoverViewModel::changeContentMode,
         modifier = modifier,
     )
 }
@@ -126,9 +139,11 @@ fun Discover(
 fun DiscoverContent(
     isRefreshing: Boolean,
     categoryDataList: List<CategoryWithContents>,
+    contentMode: MediaContentMode,
     authedUser: UserModel?,
     modifier: Modifier = Modifier,
     onMediaClick: (MediaModel) -> Unit,
+    onContentTypeChange: (MediaContentMode) -> Unit,
     onPullRefresh: () -> Unit,
     onNavigateToMediaCategory: (MediaCategory) -> Unit = {},
 ) {
@@ -138,6 +153,16 @@ fun DiscoverContent(
             TopAppBar(
                 title = { Text(text = "Discover") },
                 actions = {
+                    Switch(
+                        contentMode == MediaContentMode.ANIME,
+                        onCheckedChange = { check ->
+                            if (check) {
+                                onContentTypeChange(MediaContentMode.ANIME)
+                            } else {
+                                onContentTypeChange(MediaContentMode.MANGA)
+                            }
+                        },
+                    )
                     IconButton(
                         onClick = {},
                     ) {
@@ -259,9 +284,9 @@ private val MediaCategory.title
             MediaCategory.NEXT_SEASON_ANIME -> "Upcoming next season"
             MediaCategory.TRENDING_ANIME -> "Trending now"
             MediaCategory.MOVIE_ANIME -> "Movie"
-            MediaCategory.TRENDING_MANGA -> "Popular this season"
-            MediaCategory.ALL_TIME_POPULAR_MANGA -> "Popular this season"
-            MediaCategory.TOP_MANHWA -> "Popular this season"
+            MediaCategory.TRENDING_MANGA -> "Trending manga"
+            MediaCategory.ALL_TIME_POPULAR_MANGA -> "All time popular manga"
+            MediaCategory.TOP_MANHWA -> "Top manhwa"
             MediaCategory.NEW_ADDED_ANIME -> "New Added Anime"
-            MediaCategory.NEW_ADDED_MANGA -> "Popular this season"
+            MediaCategory.NEW_ADDED_MANGA -> "New added manga"
         }

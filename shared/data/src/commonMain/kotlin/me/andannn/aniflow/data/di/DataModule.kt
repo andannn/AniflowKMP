@@ -5,9 +5,11 @@
 package me.andannn.aniflow.data.di
 
 import me.andannn.aniflow.data.AuthRepository
-import me.andannn.aniflow.data.DataProvider
+import me.andannn.aniflow.data.DiscoverUiDataProvider
 import me.andannn.aniflow.data.MediaRepository
+import me.andannn.aniflow.data.TrackUiDataProvider
 import me.andannn.aniflow.data.internal.AuthRepositoryImpl
+import me.andannn.aniflow.data.internal.DataProviderImpl
 import me.andannn.aniflow.data.internal.MediaRepositoryImpl
 import me.andannn.aniflow.database.di.databaseModule
 import me.andannn.aniflow.datastore.di.userPreferencesModule
@@ -20,7 +22,8 @@ val dataModule =
     module {
         singleOf(::MediaRepositoryImpl).bind(MediaRepository::class)
         singleOf(::AuthRepositoryImpl).bind(AuthRepository::class)
-        singleOf(::DataProvider)
+        singleOf(::DataProviderImpl).bind(DiscoverUiDataProvider::class)
+        singleOf(::DataProviderImpl).bind(TrackUiDataProvider::class)
         includes(
             databaseModule,
             serviceModule,

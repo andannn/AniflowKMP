@@ -32,10 +32,8 @@ interface AuthRepository {
     /**
      * Start the login process, which will open a browser for user authentication.
      * This function should be called when the user initiates the login process.
-     *
-     * @throws me.andannn.aniflow.data.exceptions.RemoteApiException server error
      */
-    fun startLoginProcessAndWaitResult(scope: CoroutineScope): Deferred<Unit>
+    fun startLoginProcessAndWaitResult(scope: CoroutineScope): Deferred<AppError?>
 
     fun getAuthedUser(): Flow<UserModel?>
 }
