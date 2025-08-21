@@ -11,9 +11,11 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.DiscoverUiDataProvider
+import me.andannn.aniflow.data.HomeAppBarUiDataProvider
 import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.SyncStatus
 import me.andannn.aniflow.data.TrackUiDataProvider
@@ -21,6 +23,7 @@ import me.andannn.aniflow.data.internal.tasks.RefreshAllCategoriesTask
 import me.andannn.aniflow.data.internal.tasks.SyncUserMediaListTask
 import me.andannn.aniflow.data.internal.tasks.createSideEffectFlow
 import me.andannn.aniflow.data.model.DiscoverUiState
+import me.andannn.aniflow.data.model.HomeAppBarUiState
 import me.andannn.aniflow.data.model.TrackUiState
 import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.model.define.toMediaType
@@ -29,7 +32,7 @@ import me.andannn.aniflow.data.model.relation.CategoryDataModel
 internal class DataProviderImpl(
     private val mediaRepo: MediaRepository,
     private val authRepo: AuthRepository,
-) : DiscoverUiDataProvider, TrackUiDataProvider {
+) : DiscoverUiDataProvider, TrackUiDataProvider, HomeAppBarUiDataProvider {
     @NativeCoroutines
     override fun discoverUiDataFlow(): Flow<DiscoverUiState> =
         with(mediaRepo) {
@@ -56,6 +59,23 @@ internal class DataProviderImpl(
     override fun trackUiSideEffect(): Flow<SyncStatus> = createSideEffectFlow(
         SyncUserMediaListTask()
     )
+
+    override fun appBarFlow(): Flow<HomeAppBarUiState> = flow {
+        val authUserFlow = authRepo.getAuthedUserFlow()
+        val contentModeFlow = mediaRepo.getContentModeFlow()
+
+        combine(
+            authUserFlow,
+            contentModeFlow,
+        ) { authedUser, contentMode ->
+            HomeAppBarUiState(
+                authedUser = authedUser,
+                contentMode = contentMode,
+            )
+        }.distinctUntilChanged().collect {
+            emit(it)
+        }
+    }
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)

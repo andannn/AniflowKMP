@@ -5,7 +5,8 @@ import Shared
 struct HomeView: View {
     @State
     private var selection: TopLevelNavigation = .discover
-    
+    @EnvironmentObject var router: Router
+
     var body: some View {
         TabView(selection: $selection) {
             ForEach([TopLevelNavigation.discover,
@@ -22,6 +23,28 @@ struct HomeView: View {
             }
         }
         .navigationTitle(selection.label)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: {
+                    router.showAuthDialog()
+                }) {
+//                    if let avatarUrl = viewModel.uiState.authedUser?.avatar {
+//                        AsyncImage(url: URL(string: avatarUrl)) { image in
+//                            image
+//                                .resizable()
+//                                .aspectRatio(contentMode: .fill)
+//                        } placeholder: {
+//                            ProgressView()
+//                        }
+//                        .frame(width: 32, height: 32)
+//                        .clipShape(Circle())
+//                    } else {
+                        Image(systemName: "person.crop.circle")
+                            .font(.system(size: 24))
+//                    }
+                }
+            }
+        }
     }
     
     @ViewBuilder

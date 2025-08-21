@@ -4,6 +4,7 @@
  */
 package me.andannn.aniflow.data
 
+import com.rickclephas.kmp.nativecoroutines.NativeCoroutines
 import kotlinx.coroutines.flow.Flow
 import me.andannn.aniflow.data.model.UserModel
 
@@ -33,6 +34,7 @@ interface AuthRepository {
      *
      * @return returns an [AppError] if the login process fails, or null if it succeeds.
      */
+    @NativeCoroutines
     suspend fun startLoginProcessAndWaitResult(): AppError?
 
     fun getAuthedUserFlow(): Flow<UserModel?>

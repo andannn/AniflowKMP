@@ -15,24 +15,42 @@ import androidx.compose.material.icons.outlined.CollectionsBookmark
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.Forum
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
+import coil3.compose.AsyncImage
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import me.andannn.aniflow.data.HomeAppBarUiDataProvider
+import me.andannn.aniflow.data.MediaRepository
+import me.andannn.aniflow.data.model.HomeAppBarUiState
+import me.andannn.aniflow.data.model.define.MediaContentMode
+import org.koin.compose.viewmodel.koinViewModel
 
 private const val TAG = "Home"
 
@@ -51,16 +69,95 @@ private sealed interface HomeNestedScreen {
     data object Profile : HomeNestedScreen
 }
 
-@Composable
-fun Home(modifier: Modifier = Modifier) {
-    val navigator =
-        remember {
-            NestedNavigator(
-                mutableStateListOf(HomeNestedScreen.Discover),
-            )
+class HomeViewModel(
+    val homeUiDataProvider: HomeAppBarUiDataProvider,
+    private val mediaRepository: MediaRepository,
+) : ViewModel() {
+    private val _state = MutableStateFlow(HomeAppBarUiState.Empty)
+    val state = _state.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            homeUiDataProvider.appBarFlow().collect { uiState ->
+                _state.value = uiState
+            }
         }
+    }
+
+    fun changeContentMode(mode: MediaContentMode) {
+        Napier.d(tag = TAG) { "changeContentMode: $mode" }
+        viewModelScope.launch {
+            mediaRepository.setContentMode(mode)
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun Home(homeViewModel: HomeViewModel = koinViewModel()) {
+    val state by homeViewModel.state.collectAsStateWithLifecycle()
+    val navigator = LocalRootNavigator.current
+
+    HomeContent(
+        state = state,
+        navigator =
+            remember {
+                NestedNavigator(
+                    mutableStateListOf(HomeNestedScreen.Discover),
+                )
+            },
+        onContentTypeChange = homeViewModel::changeContentMode,
+        onAuthIconClick = {
+            navigator.navigateTo(Screen.Dialog.Login)
+        },
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HomeContent(
+    modifier: Modifier = Modifier,
+    state: HomeAppBarUiState,
+    navigator: NestedNavigator,
+    onContentTypeChange: (MediaContentMode) -> Unit = {},
+    onAuthIconClick: () -> Unit = {},
+) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
+        topBar = {
+            TopAppBar(
+                title = { Text(text = navigator.currentTopLevelNavigation.label) },
+                actions = {
+                    Switch(
+                        state.contentMode == MediaContentMode.ANIME,
+                        onCheckedChange = { check ->
+                            if (check) {
+                                onContentTypeChange(MediaContentMode.ANIME)
+                            } else {
+                                onContentTypeChange(MediaContentMode.MANGA)
+                            }
+                        },
+                    )
+                    IconButton(
+                        onClick = onAuthIconClick,
+                    ) {
+                        val user = state.authedUser
+                        if (user != null) {
+                            AsyncImage(
+                                model = user.avatar,
+                                contentDescription = null,
+                                contentScale = ContentScale.FillBounds,
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Outlined.Person,
+                                contentDescription = null,
+                            )
+                        }
+                    }
+                },
+            )
+        },
         bottomBar = {
             NavigationArea(
                 selected = navigator.currentTopLevelNavigation,

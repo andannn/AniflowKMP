@@ -7,6 +7,7 @@ package me.andannn.aniflow.data
 import com.rickclephas.kmp.nativecoroutines.NativeCoroutines
 import kotlinx.coroutines.flow.Flow
 import me.andannn.aniflow.data.model.DiscoverUiState
+import me.andannn.aniflow.data.model.HomeAppBarUiState
 import me.andannn.aniflow.data.model.TrackUiState
 
 /**
@@ -47,6 +48,11 @@ sealed class AppError(
     data class OtherError(
         override val message: String,
     ) : AppError(message)
+}
+
+interface HomeAppBarUiDataProvider {
+    @NativeCoroutines
+    fun appBarFlow(): Flow<HomeAppBarUiState>
 }
 
 /**

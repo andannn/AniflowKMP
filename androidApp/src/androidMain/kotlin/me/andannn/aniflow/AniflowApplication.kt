@@ -11,6 +11,7 @@ import me.andannn.aniflow.data.util.KoinHelper.Modules
 import me.andannn.aniflow.data.util.Logger
 import me.andannn.aniflow.platform.BrowserAuthOperationHandlerImpl
 import me.andannn.aniflow.ui.DiscoverViewModel
+import me.andannn.aniflow.ui.HomeViewModel
 import me.andannn.aniflow.ui.LoginDialogViewModel
 import me.andannn.aniflow.ui.MediaCategoryPagingViewModel
 import me.andannn.aniflow.ui.TrackViewModel
@@ -42,6 +43,7 @@ private fun androidContextModule(application: AniflowApplication) =
     module {
         single { application } bind Context::class
         viewModelOf(::DiscoverViewModel)
+        viewModelOf(::HomeViewModel)
         viewModelOf(::TrackViewModel)
         viewModelOf(::LoginDialogViewModel)
         viewModel {

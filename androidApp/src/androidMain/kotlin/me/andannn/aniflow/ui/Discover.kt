@@ -16,30 +16,22 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
-import coil3.compose.AsyncImage
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -50,9 +42,7 @@ import me.andannn.aniflow.data.DiscoverUiDataProvider
 import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.model.DiscoverUiState
 import me.andannn.aniflow.data.model.MediaModel
-import me.andannn.aniflow.data.model.UserModel
 import me.andannn.aniflow.data.model.define.MediaCategory
-import me.andannn.aniflow.data.model.define.MediaContentMode
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.ui.widget.MediaPreviewItem
 import org.koin.compose.viewmodel.koinViewModel
@@ -92,13 +82,6 @@ class DiscoverViewModel(
         cancelLastAndRegisterUiSideEffect()
     }
 
-    fun changeContentMode(mode: MediaContentMode) {
-        Napier.d(tag = TAG) { "changeContentMode: $mode" }
-        viewModelScope.launch {
-            mediaRepository.setContentMode(mode)
-        }
-    }
-
     private fun cancelLastAndRegisterUiSideEffect() {
         Napier.d(tag = TAG) { "cancelLastAndRegisterUiSideEffect:" }
         sideEffectJob?.cancel()
@@ -122,17 +105,11 @@ fun Discover(
     val isRefreshing by discoverViewModel.isRefreshing.collectAsStateWithLifecycle()
     DiscoverContent(
         isRefreshing = isRefreshing,
-        contentMode = state.contentMode,
         categoryDataList = state.categoryDataMap.content,
-        authedUser = state.authedUser,
         onMediaClick = discoverViewModel::onMediaClick,
         onPullRefresh = discoverViewModel::onPullRefresh,
         onNavigateToMediaCategory = { category ->
             navigator.navigateTo(Screen.MediaCategoryList(category))
-        },
-        onContentTypeChange = discoverViewModel::changeContentMode,
-        onAuthIconClick = {
-            navigator.navigateTo(Screen.Dialog.Login)
         },
         modifier = modifier,
     )
@@ -143,50 +120,13 @@ fun Discover(
 fun DiscoverContent(
     isRefreshing: Boolean,
     categoryDataList: List<CategoryWithContents>,
-    contentMode: MediaContentMode,
-    authedUser: UserModel?,
     modifier: Modifier = Modifier,
     onMediaClick: (MediaModel) -> Unit,
-    onContentTypeChange: (MediaContentMode) -> Unit,
     onPullRefresh: () -> Unit,
     onNavigateToMediaCategory: (MediaCategory) -> Unit = {},
-    onAuthIconClick: () -> Unit = {},
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        topBar = {
-            TopAppBar(
-                title = { Text(text = "Discover") },
-                actions = {
-                    Switch(
-                        contentMode == MediaContentMode.ANIME,
-                        onCheckedChange = { check ->
-                            if (check) {
-                                onContentTypeChange(MediaContentMode.ANIME)
-                            } else {
-                                onContentTypeChange(MediaContentMode.MANGA)
-                            }
-                        },
-                    )
-                    IconButton(
-                        onClick = onAuthIconClick,
-                    ) {
-                        if (authedUser != null) {
-                            AsyncImage(
-                                model = authedUser.avatar,
-                                contentDescription = null,
-                                contentScale = ContentScale.FillBounds,
-                            )
-                        } else {
-                            Icon(
-                                imageVector = Icons.Outlined.Person,
-                                contentDescription = null,
-                            )
-                        }
-                    }
-                },
-            )
-        },
     ) {
         PullToRefreshBox(
             modifier = Modifier.padding(top = it.calculateTopPadding()),

@@ -114,29 +114,6 @@ struct DiscoverView: View {
                 print("Discover error when refresh \(error)")
             }
         }
-        .navigationTitle("Discover")
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: {
-                    // TODO:
-                }) {
-                    if let avatarUrl = viewModel.uiState.authedUser?.avatar {
-                        AsyncImage(url: URL(string: avatarUrl)) { image in
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                        } placeholder: {
-                            ProgressView()
-                        }
-                        .frame(width: 32, height: 32)
-                        .clipShape(Circle())
-                    } else {
-                        Image(systemName: "person.crop.circle")
-                            .font(.system(size: 24))
-                    }
-                }
-            }
-        }
     }
 }
 
