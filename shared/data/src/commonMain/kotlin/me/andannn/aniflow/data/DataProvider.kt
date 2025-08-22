@@ -63,7 +63,7 @@ interface DiscoverUiDataProvider {
     fun discoverUiDataFlow(): Flow<DiscoverUiState>
 
     @NativeCoroutines
-    fun discoverUiSideEffect(): Flow<SyncStatus>
+    fun discoverUiSideEffect(forceRefreshFirstTime: Boolean): Flow<SyncStatus>
 }
 
 /**
@@ -74,5 +74,5 @@ interface TrackUiDataProvider {
     fun trackUiDataFlow(): Flow<TrackUiState>
 
     @NativeCoroutines
-    fun trackUiSideEffect(): Flow<SyncStatus>
+    fun trackUiSideEffect(forceRefreshFirstTime: Boolean): Flow<SyncStatus>
 }

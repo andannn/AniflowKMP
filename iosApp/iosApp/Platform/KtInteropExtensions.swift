@@ -25,11 +25,10 @@ extension DiscoverUiDataProvider {
         asyncSequence(for: discoverUiDataFlow())
     }
     
-    func discoverUiSideEffectStatusSequence()
+    func discoverUiSideEffectStatusSequence(_ forceRefreshFirstTime: Bool)
     -> NativeFlowAsyncSequence<SyncStatus, Error, KotlinUnit> {
-        asyncSequence(for: discoverUiSideEffect())
+        asyncSequence(for: discoverUiSideEffect(forceRefreshFirstTime: forceRefreshFirstTime))
     }
-    
 }
 
 extension TrackUiDataProvider {
@@ -38,9 +37,9 @@ extension TrackUiDataProvider {
         asyncSequence(for: trackUiDataFlow())
     }
     
-    func trackUiSideEffectErrorSequence()
+    func trackUiSideEffectErrorSequence(_ forceRefreshFirstTime: Bool)
     -> NativeFlowAsyncSequence<SyncStatus, Error, KotlinUnit> {
-        asyncSequence(for: trackUiSideEffect())
+        asyncSequence(for: trackUiSideEffect(forceRefreshFirstTime: forceRefreshFirstTime))
     }
 }
 

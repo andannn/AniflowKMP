@@ -23,7 +23,7 @@ class DiscoverViewModel: ObservableObject {
             
         }
         
-        cancelLastAndRegisterUiSideEffect(completer: nil)
+        cancelLastAndRegisterUiSideEffect(force: false, completer: nil)
     }
     
     deinit {
@@ -33,16 +33,16 @@ class DiscoverViewModel: ObservableObject {
     func doRefreshAndAwait() async throws {
         refreshCompleter?.cancel()
         refreshCompleter = OneShotCompleter<Void>()
-        cancelLastAndRegisterUiSideEffect(completer: refreshCompleter)
+        cancelLastAndRegisterUiSideEffect(force: true, completer: refreshCompleter)
         try await refreshCompleter?.wait()
     }
     
-    func cancelLastAndRegisterUiSideEffect(completer: OneShotCompleter<Void>?) {
+    func cancelLastAndRegisterUiSideEffect(force: Bool, completer: OneShotCompleter<Void>?) {
         sideEffectTask?.cancel()
         var isCompleted = false
         sideEffectTask = Task {
             do {
-                for try await status in dataProvider.discoverUiSideEffectStatusSequence() {
+                for try await status in dataProvider.discoverUiSideEffectStatusSequence(force) {
                     // handle side effect status.
                     print("Discover cancelLastAndRegisterUiSideEffect status: \(status)")
                     if completer != nil && !status.isLoading() && !isCompleted {

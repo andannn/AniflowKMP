@@ -4,46 +4,77 @@
  */
 package me.andannn.aniflow.data.internal.tasks
 
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.channels.ProducerScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import me.andannn.aniflow.data.AppError
 import me.andannn.aniflow.data.SyncStatus
+import me.andannn.aniflow.data.model.define.MediaContentMode
+import me.andannn.aniflow.database.MediaLibraryDao
+import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
-internal fun createSideEffectFlow(vararg tasks: SideEffectTask<SyncStatus>) =
+internal const val TAG = "SideEffectTask"
+
+internal fun createSideEffectFlow(forceRefreshFirstTime: Boolean, vararg tasks: SideEffectTask<SyncStatus>) =
     channelFlow {
         supervisorScope {
             tasks.forEach { task ->
                 launch {
-                    with(WrappedProducerScope(this@channelFlow)) {
-                        with(task) {
-                            run()
-                        }
+                    with(task) {
+                        WrappedProducerScope(this@channelFlow).register(forceRefreshFirstTime)
                     }
                 }
             }
         }
     }.aggregateStatus()
 
-internal interface SideEffectTask<T> {
-    val tag: String
+@Serializable
+internal sealed class TaskRefreshKey {
+    @Serializable
+    data class AllCategories(
+        val mediaContentMode: MediaContentMode,
+    ) : TaskRefreshKey()
 
-    suspend fun WrappedProducerScope<T>.run()
+    @Serializable
+    data class SyncUserMediaList(
+        val mediaContentMode: MediaContentMode,
+        val userId: String,
+    ) : TaskRefreshKey()
+
+    fun key() = Json.encodeToString(this)
+}
+
+internal interface SideEffectTask<T> {
+    /**
+     * Run the task in a [WrappedProducerScope].
+     *
+     * @param forceRefresh If true, the task will refresh data regardless of the last refresh time.
+     */
+    suspend fun WrappedProducerScope<T>.register(forceRefresh: Boolean)
 }
 
 internal class WrappedProducerScope<T>(
     internal val producerScope: ProducerScope<DataWithKey<T>>,
 ) {
-    suspend fun SideEffectTask<*>.send(value: T) {
-        producerScope.send(DataWithKey(tag, value))
+    suspend fun send(
+        refreshKey: TaskRefreshKey,
+        value: T,
+    ) {
+        producerScope.send(DataWithKey(refreshKey, value))
     }
 }
 
 internal data class DataWithKey<T>(
-    val key: String,
+    val key: TaskRefreshKey,
     val data: T,
 )
 
@@ -79,3 +110,63 @@ internal fun Flow<DataWithKey<SyncStatus>>.aggregateStatus(): Flow<SyncStatus> =
             }
         }
     }
+
+context(_: MediaLibraryDao)
+internal suspend inline fun WrappedProducerScope<SyncStatus>.doRefreshIfNeeded(
+    taskRefreshKey: TaskRefreshKey,
+    force: Boolean,
+    crossinline block: suspend () -> List<AppError>,
+) {
+    if (!force && !taskRefreshKey.needRefresh()) {
+        Napier.d(tag = TAG) { "doRefreshIfNeeded: skip $taskRefreshKey" }
+        return
+    }
+
+    Napier.d(tag = TAG) { "doRefreshIfNeeded: E $taskRefreshKey" }
+    send(taskRefreshKey, SyncStatus.Loading)
+
+    try {
+        val errors = block()
+        if (errors.isEmpty()) {
+            taskRefreshKey.markAsRefreshed()
+            send(taskRefreshKey, SyncStatus.Idle())
+            Napier.d(tag = TAG) { "doRefreshIfNeeded finish success: $taskRefreshKey" }
+        } else {
+            send(taskRefreshKey, SyncStatus.Idle(errors))
+            Napier.d(tag = TAG) { "doRefreshIfNeeded finish error: $errors $taskRefreshKey" }
+        }
+    } catch (_: CancellationException) {
+        send(taskRefreshKey, SyncStatus.Idle())
+    }
+    Napier.d(tag = TAG) { "doRefreshIfNeeded: X $taskRefreshKey" }
+}
+
+@OptIn(ExperimentalTime::class)
+context(mediaDao: MediaLibraryDao)
+internal suspend fun TaskRefreshKey.needRefresh(): Boolean {
+    val lastRefreshTimeStamp = mediaDao.getRefreshTimeStamp(key()) ?: return true
+
+    val currentTime = Clock.System.now().toEpochMilliseconds()
+    val refreshInterval = refreshIntervalMs()
+
+    val elapsedTime = currentTime - lastRefreshTimeStamp
+
+    return elapsedTime >= refreshInterval
+}
+
+@OptIn(ExperimentalTime::class)
+context(mediaDao: MediaLibraryDao)
+internal suspend fun TaskRefreshKey.markAsRefreshed() {
+    val currentTime = Clock.System.now().toEpochMilliseconds()
+    mediaDao.upsertRefreshTimeStamp(key(), currentTime)
+    Napier.d(tag = TAG) { "Marked as refreshed: ${key()} at $currentTime" }
+}
+
+internal fun TaskRefreshKey.refreshIntervalMs(): Long {
+    fun hoursToMillis(hours: Long): Long = hours * 60 * 60 * 1000
+
+    return when (this) {
+        is TaskRefreshKey.AllCategories -> hoursToMillis(12)
+        is TaskRefreshKey.SyncUserMediaList -> hoursToMillis(12)
+    }
+}

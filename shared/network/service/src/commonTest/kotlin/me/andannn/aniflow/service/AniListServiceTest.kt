@@ -61,7 +61,7 @@ class AniListServiceTest {
     @Test
     fun testGetAuthedUserWithNoToken() =
         testScope.runTest {
-            assertFailsWith<UnauthorizedException>(message = "No access token available") {
+            assertFailsWith<ServerException>(message = "No access token available") {
                 serviceWithNoToken.getAuthedUserData()
             }
         }

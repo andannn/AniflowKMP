@@ -42,7 +42,8 @@ internal class DataProviderImpl(
         }
 
     @NativeCoroutines
-    override fun discoverUiSideEffect(): Flow<SyncStatus> = createSideEffectFlow(
+    override fun discoverUiSideEffect(forceRefreshFirstTime: Boolean): Flow<SyncStatus> = createSideEffectFlow(
+        forceRefreshFirstTime,
         RefreshAllCategoriesTask(),
         SyncUserMediaListTask()
     )
@@ -56,7 +57,8 @@ internal class DataProviderImpl(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @NativeCoroutines
-    override fun trackUiSideEffect(): Flow<SyncStatus> = createSideEffectFlow(
+    override fun trackUiSideEffect(forceRefreshFirstTime: Boolean): Flow<SyncStatus> = createSideEffectFlow(
+        forceRefreshFirstTime,
         SyncUserMediaListTask()
     )
 

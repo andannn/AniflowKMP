@@ -84,9 +84,11 @@ class MediaLibraryDao(
 
     suspend fun upsertUser(userList: List<UserEntity>) =
         withDatabase {
-            transaction(true) {
-                userList.forEach { user ->
-                    userQueries.upsertUser(user)
+            withContext(dispatcher) {
+                transaction(true) {
+                    userList.forEach { user ->
+                        userQueries.upsertUser(user)
+                    }
                 }
             }
         }
@@ -102,10 +104,12 @@ class MediaLibraryDao(
 
     suspend fun upsertMediaListEntities(mediaListEntities: List<MediaListAndMediaRelation>) =
         withDatabase {
-            transaction(true) {
-                mediaListEntities.forEach { mediaListAndMediaRelation ->
-                    mediaListQueries.upsertMediaList(mediaListAndMediaRelation.mediaListEntity)
-                    mediaQueries.upsertMedia(mediaListAndMediaRelation.mediaEntity)
+            withContext(dispatcher) {
+                transaction(true) {
+                    mediaListEntities.forEach { mediaListAndMediaRelation ->
+                        mediaListQueries.upsertMediaList(mediaListAndMediaRelation.mediaListEntity)
+                        mediaQueries.upsertMedia(mediaListAndMediaRelation.mediaEntity)
+                    }
                 }
             }
         }
@@ -124,6 +128,25 @@ class MediaLibraryDao(
                     mapper = MediaListAndMediaRelation::mapTo,
                 ).asFlow()
                 .mapToList(dispatcher)
+        }
+
+    suspend fun upsertRefreshTimeStamp(
+        key: String,
+        timestamp: Long,
+    ) = withDatabase {
+        withContext(dispatcher) {
+            refreshTimeStampQueries.upsertRefreshTimeStamp(
+                key = key,
+                timestamp = timestamp,
+            )
+        }
+    }
+
+    suspend fun getRefreshTimeStamp(key: String): Long? =
+        withDatabase {
+            withContext(dispatcher) {
+                refreshTimeStampQueries.getRefreshTimeStamp(key).awaitAsOneOrNull()?.timestamp
+            }
         }
 
     private inline fun <T> withDatabase(block: AniflowDatabase.() -> T): T = block.invoke(aniflowDatabase)

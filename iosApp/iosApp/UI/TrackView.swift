@@ -10,12 +10,8 @@ class TrackViewModel : ObservableObject {
         print("TrackViewModel init")
         dataProvider = KoinHelper.shared.trackDataProvider()
         Task {
-            do {
-                for try await state in dataProvider.gettrackUiStateAsyncSequence() {
-                    uiState = state
-                }
-            } catch {
-                print("Failed with error: \(error)")
+            for try await state in dataProvider.gettrackUiStateAsyncSequence() {
+                uiState = state
             }
         }
     }
@@ -29,7 +25,7 @@ class TrackViewModel : ObservableObject {
 struct TrackView: View {
     @StateObject
     private var viewModel: TrackViewModel = TrackViewModel()
-
+    
     var body: some View {
         TrackContent(
             viewModel.uiState.items
@@ -39,11 +35,11 @@ struct TrackView: View {
 
 struct TrackContent: View {
     private let items: [MediaWithMediaListItem]
-
+    
     init(_ items:  [MediaWithMediaListItem]) {
         self.items = items
     }
-
+    
     var body: some View {
         List(items, id: \.self.mediaListModel.id) { item in
             Text(item.mediaModel.title?.romaji ?? "value")

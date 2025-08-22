@@ -170,8 +170,8 @@ private fun HomeContent(
             NestNavigation(
                 modifier =
                     Modifier
-                        .fillMaxSize()
-                        .padding(bottom = paddingValues.calculateBottomPadding()),
+                        .padding(paddingValues)
+                        .fillMaxSize(),
                 nestedBackStack = navigator.backStack,
             )
         },
