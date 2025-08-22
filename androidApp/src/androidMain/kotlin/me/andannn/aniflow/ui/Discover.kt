@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -18,7 +17,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -125,31 +123,27 @@ fun DiscoverContent(
     onPullRefresh: () -> Unit,
     onNavigateToMediaCategory: (MediaCategory) -> Unit = {},
 ) {
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
+    PullToRefreshBox(
+        modifier = modifier,
+        onRefresh = onPullRefresh,
+        isRefreshing = isRefreshing,
     ) {
-        PullToRefreshBox(
-            modifier = Modifier.padding(top = it.calculateTopPadding()),
-            onRefresh = onPullRefresh,
-            isRefreshing = isRefreshing,
-        ) {
-            LazyColumn {
-                items(
-                    items = categoryDataList,
-                    key = { it.category },
-                ) { (category, items) ->
-                    TitleWithContent(
-                        modifier = Modifier.fillMaxWidth(),
-                        title = category.title,
-                        onMoreClick = {
-                            onNavigateToMediaCategory(category)
-                        },
-                    ) {
-                        MediaPreviewSector(
-                            mediaList = items,
-                            onMediaClick = onMediaClick,
-                        )
-                    }
+        LazyColumn {
+            items(
+                items = categoryDataList,
+                key = { it.category },
+            ) { (category, items) ->
+                TitleWithContent(
+                    modifier = Modifier.fillMaxWidth(),
+                    title = category.title,
+                    onMoreClick = {
+                        onNavigateToMediaCategory(category)
+                    },
+                ) {
+                    MediaPreviewSector(
+                        mediaList = items,
+                        onMediaClick = onMediaClick,
+                    )
                 }
             }
         }
