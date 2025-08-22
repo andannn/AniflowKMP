@@ -12,7 +12,8 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ContainedLoadingIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -26,6 +27,7 @@ import me.andannn.aniflow.data.paging.PageComponent
 
 private const val TAG = "PagingView"
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun <T> VerticalGridPaging(
     modifier: Modifier = Modifier,
@@ -56,7 +58,7 @@ fun <T> VerticalGridPaging(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .height(48.dp)
+                            .height(96.dp)
                             .onVisibilityChanged(
                                 minFractionVisible = 0.3f,
                                 callback = { visible ->
@@ -78,10 +80,10 @@ fun <T> VerticalGridPaging(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .height(48.dp),
+                            .height(96.dp),
                     contentAlignment = Alignment.Center,
                 ) {
-                    CircularProgressIndicator()
+                    ContainedLoadingIndicator()
                 }
             }
         }

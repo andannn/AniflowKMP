@@ -19,7 +19,6 @@ import androidx.navigation3.ui.DialogSceneStrategy.Companion.dialog
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.SinglePaneSceneStrategy
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
-import java.util.Map.entry
 
 @Composable
 fun App() {

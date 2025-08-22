@@ -15,21 +15,27 @@ import androidx.compose.material.icons.outlined.CollectionsBookmark
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.Forum
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material3.BottomAppBarDefaults
+import androidx.compose.material3.BottomAppBarScrollBehavior
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FlexibleBottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -113,7 +119,7 @@ fun Home(homeViewModel: HomeViewModel = koinViewModel()) {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun HomeContent(
     modifier: Modifier = Modifier,
@@ -122,11 +128,25 @@ private fun HomeContent(
     onContentTypeChange: (MediaContentMode) -> Unit = {},
     onAuthIconClick: () -> Unit = {},
 ) {
+    val appBarScrollBehavior =
+        TopAppBarDefaults.pinnedScrollBehavior()
+    val bottomBarScrollBehavior = BottomAppBarDefaults.exitAlwaysScrollBehavior()
+
     Scaffold(
-        modifier = modifier.fillMaxSize(),
+        modifier =
+            modifier
+                .nestedScroll(appBarScrollBehavior.nestedScrollConnection)
+                .nestedScroll(bottomBarScrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
-                title = { Text(text = navigator.currentTopLevelNavigation.label) },
+                scrollBehavior = appBarScrollBehavior,
+                colors = TopAppBarDefaults.topAppBarColors(),
+                title = {
+                    Text(
+                        text = navigator.currentTopLevelNavigation.label,
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                },
                 actions = {
                     Switch(
                         state.contentMode == MediaContentMode.ANIME,
@@ -160,6 +180,7 @@ private fun HomeContent(
         },
         bottomBar = {
             NavigationArea(
+                scrollBehavior = bottomBarScrollBehavior,
                 selected = navigator.currentTopLevelNavigation,
                 onItemClick = { item ->
                     navigator.navigateTo(item)
@@ -204,28 +225,36 @@ private fun NestNavigation(
     )
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun NavigationArea(
+    scrollBehavior: BottomAppBarScrollBehavior,
     selected: TopLevelNavigation,
     modifier: Modifier = Modifier,
     onItemClick: (TopLevelNavigation) -> Unit = {},
 ) {
-    NavigationBar(modifier = modifier) {
-        TopLevelNavigation.entries.forEach { item ->
-            NavigationBarItem(
-                selected = selected == item,
-                label = { Text(item.label) },
-                icon = {
-                    if (selected == item) {
-                        Icon(item.selectedIcon, contentDescription = null)
-                    } else {
-                        Icon(item.unselectedIcon, contentDescription = null)
-                    }
-                },
-                onClick = { onItemClick(item) },
-            )
-        }
-    }
+    FlexibleBottomAppBar(
+        modifier = modifier,
+        horizontalArrangement = BottomAppBarDefaults.FlexibleFixedHorizontalArrangement,
+        scrollBehavior = scrollBehavior,
+        containerColor = MaterialTheme.colorScheme.primaryContainer,
+        content = {
+            TopLevelNavigation.entries.forEach { item ->
+                NavigationBarItem(
+                    selected = selected == item,
+                    label = { Text(item.label) },
+                    icon = {
+                        if (selected == item) {
+                            Icon(item.selectedIcon, contentDescription = null)
+                        } else {
+                            Icon(item.unselectedIcon, contentDescription = null)
+                        }
+                    },
+                    onClick = { onItemClick(item) },
+                )
+            }
+        },
+    )
 }
 
 enum class TopLevelNavigation {

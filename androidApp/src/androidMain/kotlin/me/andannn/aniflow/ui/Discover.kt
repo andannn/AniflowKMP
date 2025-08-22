@@ -15,12 +15,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
@@ -113,7 +118,7 @@ fun Discover(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun DiscoverContent(
     isRefreshing: Boolean,
@@ -123,10 +128,28 @@ fun DiscoverContent(
     onPullRefresh: () -> Unit,
     onNavigateToMediaCategory: (MediaCategory) -> Unit = {},
 ) {
+    val state = rememberPullToRefreshState()
     PullToRefreshBox(
         modifier = modifier,
-        onRefresh = onPullRefresh,
         isRefreshing = isRefreshing,
+        onRefresh = onPullRefresh,
+        state = state,
+        indicator = {
+            PullToRefreshDefaults.IndicatorBox(
+                state = state,
+                isRefreshing = isRefreshing,
+                modifier = Modifier.align(Alignment.TopCenter),
+                elevation = 0.dp,
+            ) {
+                if (isRefreshing) {
+                    ContainedLoadingIndicator()
+                } else {
+                    ContainedLoadingIndicator(
+                        progress = { state.distanceFraction },
+                    )
+                }
+            }
+        },
     ) {
         LazyColumn {
             items(
@@ -191,6 +214,7 @@ private fun MediaPreviewSector(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun TitleWithContent(
     title: String,
@@ -208,7 +232,7 @@ fun TitleWithContent(
         ) {
             Text(title, maxLines = 1, style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.weight(1f))
-            TextButton(onMoreClick) {
+            TextButton(onMoreClick, shapes = ButtonDefaults.shapes()) {
                 Text("More")
             }
         }
