@@ -13,61 +13,64 @@ import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.SyncStatus
 import me.andannn.aniflow.data.internal.exceptions.toError
+import me.andannn.aniflow.data.model.define.MediaContentMode
 import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.model.define.toMediaType
+import me.andannn.aniflow.database.MediaLibraryDao
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import kotlin.coroutines.cancellation.CancellationException
 import kotlin.getValue
-
-private const val TAG = "SyncUserMediaListTask"
 
 internal class SyncUserMediaListTask :
     SideEffectTask<SyncStatus>,
     KoinComponent {
     private val mediaRepo: MediaRepository by inject()
     private val authRepo: AuthRepository by inject()
+    private val mediaLibraryDao: MediaLibraryDao by inject()
 
-    override val tag: String = "SyncUserMediaListTask"
+    private fun createKey(
+        mediaContentMode: MediaContentMode,
+        userId: String,
+    ): TaskRefreshKey =
+        TaskRefreshKey.SyncUserMediaList(
+            mediaContentMode = mediaContentMode,
+            userId = userId,
+        )
 
-    override suspend fun WrappedProducerScope<SyncStatus>.run() {
+    override suspend fun WrappedProducerScope<SyncStatus>.register(forceRefresh: Boolean) {
         Napier.d(tag = TAG) { "SyncUserMediaListTask run" }
-        combine(
-            authRepo.getAuthedUserFlow(),
-            mediaRepo.getContentModeFlow(),
-        ) { authedUser, contentMode -> Pair(authedUser, contentMode) }
-            .distinctUntilChanged()
-            .collectLatest { (authedUser, contentMode) ->
-                if (authedUser != null) {
-                    try {
-                        send(SyncStatus.Loading)
-                        val deferred =
-                            coroutineScope {
-                                mediaRepo.syncMediaListByUserId(
-                                    scope = this,
-                                    userId = authedUser.id,
-                                    status =
-                                        listOf(
-                                            MediaListStatus.PLANNING,
-                                            MediaListStatus.CURRENT,
-                                        ),
-                                    mediaType = contentMode.toMediaType(),
-                                )
-                            }
+        var innerForceRefresh = forceRefresh
 
-                        val error = deferred.await()
+        with(mediaLibraryDao) {
+            combine(
+                authRepo.getAuthedUserFlow(),
+                mediaRepo.getContentModeFlow(),
+            ) { authedUser, contentMode -> Pair(authedUser, contentMode) }
+                .distinctUntilChanged()
+                .collectLatest { (authedUser, contentMode) ->
+                    if (authedUser != null) {
+                        val refreshKey = createKey(contentMode, authedUser.id)
+                        doRefreshIfNeeded(refreshKey, innerForceRefresh) {
+                            val deferred =
+                                coroutineScope {
+                                    mediaRepo.syncMediaListByUserId(
+                                        scope = this,
+                                        userId = authedUser.id,
+                                        status =
+                                            listOf(
+                                                MediaListStatus.PLANNING,
+                                                MediaListStatus.CURRENT,
+                                            ),
+                                        mediaType = contentMode.toMediaType(),
+                                    )
+                                }
 
-                        if (error == null) {
-                            send(SyncStatus.Idle())
-                        } else {
-                            send(SyncStatus.Idle(listOf(error.toError())))
+                            val error = deferred.await()
+                            error?.let { listOf(it.toError()) } ?: emptyList()
                         }
-                    } catch (cancelled: CancellationException) {
-                        // Task was cancelled, do nothing
-                        Napier.d(tag = TAG) { "SyncUserMediaListTask cancelled" }
-                        send(SyncStatus.Idle())
                     }
+                    innerForceRefresh = false
                 }
-            }
+        }
     }
 }

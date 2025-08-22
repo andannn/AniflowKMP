@@ -155,4 +155,18 @@ class MediaLibraryDaoTest {
                 }
             }
         }
+
+    @Test
+    fun testGetAndInsertRefreshTimestamp() =
+        testScope.runTest {
+            with(mediaLibraryDao) {
+                val initialTimestamp = getRefreshTimeStamp("testCategory")
+                assertNull(initialTimestamp)
+
+                upsertRefreshTimeStamp("testCategory", 1234567890L)
+
+                val updatedTimestamp = getRefreshTimeStamp("testCategory")
+                assertEquals(1234567890L, updatedTimestamp)
+            }
+        }
 }

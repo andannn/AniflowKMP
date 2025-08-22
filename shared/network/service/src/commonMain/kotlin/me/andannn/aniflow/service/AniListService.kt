@@ -85,11 +85,11 @@ open class AniListException(
 
 class UnauthorizedException(
     override val message: String,
-) : AniListException(message)
+) : ServerException(message)
 
 class TokenExpiredException(
     override val message: String,
-) : AniListException(message)
+) : ServerException(message)
 
 /**
  * Service for interacting with AniList GraphQL API.

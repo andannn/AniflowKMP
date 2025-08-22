@@ -77,15 +77,15 @@ class DiscoverViewModel(
 
     fun onPullRefresh() {
         Napier.d(tag = TAG) { "onPullRefresh:" }
-        cancelLastAndRegisterUiSideEffect()
+        cancelLastAndRegisterUiSideEffect(force = true)
     }
 
-    private fun cancelLastAndRegisterUiSideEffect() {
+    private fun cancelLastAndRegisterUiSideEffect(force: Boolean = false) {
         Napier.d(tag = TAG) { "cancelLastAndRegisterUiSideEffect:" }
         sideEffectJob?.cancel()
         sideEffectJob =
             viewModelScope.launch {
-                dataProvider.discoverUiSideEffect().collect { status ->
+                dataProvider.discoverUiSideEffect(force).collect { status ->
                     Napier.d(tag = TAG) { "cancelLastAndRegisterUiSideEffect: sync status $status" }
                     _isRefreshing.value = status.isLoading()
                 }

@@ -1,0 +1,13 @@
+CREATE TABLE refreshTimeStampEntity (
+  key TEXT PRIMARY KEY NOT NULL,
+  timestamp INTEGER DEFAULT NULL
+);
+
+upsertRefreshTimeStamp:
+INSERT OR REPLACE INTO refreshTimeStampEntity (
+  key,
+  timestamp
+) VALUES (?, ?);
+
+getRefreshTimeStamp:
+SELECT * FROM refreshTimeStampEntity WHERE key = ?;
