@@ -64,6 +64,7 @@ kotlin {
             implementation(libs.compose.ui)
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.compose.material.icons.extended)
+            implementation(libs.androidx.ui.tooling)
 
             implementation(libs.napier)
             implementation(libs.coil3.compose)

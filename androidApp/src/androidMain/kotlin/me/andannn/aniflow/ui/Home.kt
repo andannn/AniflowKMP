@@ -237,7 +237,6 @@ private fun NavigationArea(
         modifier = modifier,
         horizontalArrangement = BottomAppBarDefaults.FlexibleFixedHorizontalArrangement,
         scrollBehavior = scrollBehavior,
-        containerColor = MaterialTheme.colorScheme.primaryContainer,
         content = {
             TopLevelNavigation.entries.forEach { item ->
                 NavigationBarItem(

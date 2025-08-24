@@ -240,7 +240,7 @@ fun TitleWithContent(
     }
 }
 
-private val MediaCategory.title
+val MediaCategory.title
     get() =
         when (this) {
             MediaCategory.CURRENT_SEASON_ANIME -> "Popular this season"

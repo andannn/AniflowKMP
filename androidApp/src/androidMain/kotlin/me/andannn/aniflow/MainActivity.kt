@@ -27,10 +27,6 @@ class MainActivity : ComponentActivity() {
         browserAuthOperationHandler.setUpContext(this)
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-//        val root =
-//            DefaultRootComponent(
-//                componentContext = defaultComponentContext(),
-//            )
 
         setContent {
             AniflowTheme {
