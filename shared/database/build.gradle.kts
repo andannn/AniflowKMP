@@ -10,6 +10,7 @@ android {
 sqldelight {
     databases {
         create("AniflowDatabase") {
+            dialect(libs.sqldelight.dialect.sqlite)
             generateAsync = true
             packageName.set("me.andannn.aniflow.database")
         }
