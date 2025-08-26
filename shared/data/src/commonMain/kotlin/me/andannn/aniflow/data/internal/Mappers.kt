@@ -23,6 +23,7 @@ import me.andannn.aniflow.data.model.define.MediaStatus
 import me.andannn.aniflow.data.model.define.MediaType
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
+import me.andannn.aniflow.database.relation.MediaListAndMediaRelationWithUpdateLog
 import me.andannn.aniflow.database.schema.MediaEntity
 import me.andannn.aniflow.database.schema.MediaListEntity
 import me.andannn.aniflow.database.schema.UserEntity
@@ -32,6 +33,8 @@ import me.andannn.aniflow.service.dto.MediaList
 import me.andannn.aniflow.service.dto.Page
 import me.andannn.aniflow.service.dto.User
 import me.andannn.aniflow.service.dto.enums.MediaRankType
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 internal fun MediaCategory.mediaType(): MediaType =
     when (this) {
@@ -309,10 +312,12 @@ internal fun FuzzyDate.toSimpleDate(): SimpleDate? {
     )
 }
 
-internal fun MediaListAndMediaRelation.toDomain() =
+@OptIn(ExperimentalTime::class)
+internal fun MediaListAndMediaRelationWithUpdateLog.toDomain() =
     MediaWithMediaListItem(
-        mediaModel = mediaEntity.toDomain(),
-        mediaListModel = mediaListEntity.toDomain(),
+        mediaModel = mediaListAndMediaRelation.mediaEntity.toDomain(),
+        mediaListModel = mediaListAndMediaRelation.mediaListEntity.toDomain(),
+        airingScheduleUpdateTime = updateTime?.let { Instant.fromEpochSeconds(it) },
     )
 
 internal fun <T, R> Page<T>.toDomain(mapper: (T) -> R) =

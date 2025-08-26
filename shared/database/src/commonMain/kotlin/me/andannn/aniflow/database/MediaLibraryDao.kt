@@ -16,10 +16,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.withContext
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
+import me.andannn.aniflow.database.relation.MediaListAndMediaRelationWithUpdateLog
 import me.andannn.aniflow.database.schema.MediaEntity
 import me.andannn.aniflow.database.schema.UserEntity
 
-class MediaLibraryDao(
+class MediaLibraryDao constructor(
     private val aniflowDatabase: AniflowDatabase,
 ) {
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
@@ -118,14 +119,14 @@ class MediaLibraryDao(
         userId: String,
         mediaType: String,
         listStatus: List<String>,
-    ): Flow<List<MediaListAndMediaRelation>> =
+    ): Flow<List<MediaListAndMediaRelationWithUpdateLog>> =
         withDatabase {
-            mediaListQueries
-                .getMediaListAndMediaRelationList(
+            airingUpdatedLogQueries
+                .getMediaListRelationWithAiringUpdatedLog(
                     userId = userId,
                     mediaType = mediaType,
                     listStatus = listStatus,
-                    mapper = MediaListAndMediaRelation::mapTo,
+                    mapper = MediaListAndMediaRelationWithUpdateLog::mapTo,
                 ).asFlow()
                 .mapToList(dispatcher)
         }

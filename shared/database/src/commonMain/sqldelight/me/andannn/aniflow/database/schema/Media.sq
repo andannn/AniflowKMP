@@ -44,7 +44,7 @@ getMediaListById:
 SELECT * FROM mediaEntity WHERE id IN ?;
 
 upsertMedia:
-INSERT OR REPLACE INTO mediaEntity (
+INSERT INTO mediaEntity (
   id,
   mediaType,
   englishTitle,
@@ -76,4 +76,35 @@ INSERT OR REPLACE INTO mediaEntity (
   timeUntilAiring,
   isFavourite,
   siteUrl
-) VALUES ?;
+) VALUES ?
+ON CONFLICT(id) DO UPDATE SET
+  mediaType            = excluded.mediaType,
+  englishTitle         = excluded.englishTitle,
+  romajiTitle          = excluded.romajiTitle,
+  nativeTitle          = excluded.nativeTitle,
+  coverImageExtraLarge = excluded.coverImageExtraLarge,
+  coverImageLarge      = excluded.coverImageLarge,
+  coverImageMedium     = excluded.coverImageMedium,
+  coverImageColor      = excluded.coverImageColor,
+  description          = excluded.description,
+  episodes             = excluded.episodes,
+  seasonYear           = excluded.seasonYear,
+  season               = excluded.season,
+  source               = excluded.source,
+  status               = excluded.status,
+  hashtag              = excluded.hashtag,
+  bannerImage          = excluded.bannerImage,
+  averageScore         = excluded.averageScore,
+  trailerId            = excluded.trailerId,
+  trailerSite          = excluded.trailerSite,
+  trailerThumbnail     = excluded.trailerThumbnail,
+  genres               = excluded.genres,
+  format               = excluded.format,
+  trending             = excluded.trending,
+  favourites           = excluded.favourites,
+  popularRanking       = excluded.popularRanking,
+  ratedRanking         = excluded.ratedRanking,
+  nextAiringEpisode    = excluded.nextAiringEpisode,
+  timeUntilAiring      = excluded.timeUntilAiring,
+  isFavourite          = excluded.isFavourite,
+  siteUrl              = excluded.siteUrl;

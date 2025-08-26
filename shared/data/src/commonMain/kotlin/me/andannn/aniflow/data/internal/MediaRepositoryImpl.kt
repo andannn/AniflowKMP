@@ -24,6 +24,7 @@ import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.database.MediaLibraryDao
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
+import me.andannn.aniflow.database.relation.MediaListAndMediaRelationWithUpdateLog
 import me.andannn.aniflow.database.schema.MediaEntity
 import me.andannn.aniflow.datastore.UserSettingPreferences
 import me.andannn.aniflow.service.AniListService
@@ -105,7 +106,7 @@ class MediaRepositoryImpl(
                     mediaType = Json.encodeToString(mediaType),
                     listStatus = mediaListStatus.map { Json.encodeToString(it) },
                 ).map {
-                    it.map(MediaListAndMediaRelation::toDomain)
+                    it.map(MediaListAndMediaRelationWithUpdateLog::toDomain).sorted()
                 }
             }
         }
@@ -301,3 +302,17 @@ private suspend fun MediaCategory.getMediaOfCategoryFromRemote(
             sort = sorts?.map { it.toServiceType() },
         )
 }
+
+private fun List<MediaWithMediaListItem>.sorted() =
+    sortedWith(
+        compareByDescending<MediaWithMediaListItem> { it.priority }
+            .thenByDescending { it.mediaListModel.updatedAt },
+    )
+
+private val MediaWithMediaListItem.priority: Int
+    get() =
+        when {
+            isNewReleased -> 3
+            haveNextEpisode -> 2
+            else -> 1
+        }

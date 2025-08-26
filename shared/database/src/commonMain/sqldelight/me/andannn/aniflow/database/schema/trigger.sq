@@ -7,6 +7,6 @@ WHEN (
 BEGIN
   INSERT INTO AiringUpdatedLogEntity
   (updatedMediaId, updateTime)
-  VALUES (old.id, DATETIME('now'))
-  ON CONFLICT("updatedMediaId") DO UPDATE SET updateTime = DATETIME('now');
+  VALUES (old.id, unixepoch('now'))
+  ON CONFLICT(updatedMediaId) DO UPDATE SET updateTime = unixepoch('now');
 END;
