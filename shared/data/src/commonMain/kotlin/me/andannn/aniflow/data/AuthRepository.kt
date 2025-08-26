@@ -7,6 +7,7 @@ package me.andannn.aniflow.data
 import com.rickclephas.kmp.nativecoroutines.NativeCoroutines
 import kotlinx.coroutines.flow.Flow
 import me.andannn.aniflow.data.model.UserModel
+import me.andannn.aniflow.data.model.UserOptions
 
 data class AuthToken(
     val token: String,
@@ -39,4 +40,13 @@ interface AuthRepository {
 
     @NativeCoroutines
     fun getAuthedUserFlow(): Flow<UserModel?>
+
+    /**
+     * Sync the authenticated user's data from the remote source.
+     *
+     * @return returns an [AppError] if the sync process fails, or null if it succeeds.
+     */
+    suspend fun syncUserCondition(): AppError?
+
+    fun getUserOptionsFlow(): Flow<UserOptions>
 }

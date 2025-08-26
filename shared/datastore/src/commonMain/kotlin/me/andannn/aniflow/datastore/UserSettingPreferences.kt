@@ -28,6 +28,10 @@ class UserSettingPreferences(
                         preferences[stringPreferencesKey(PreferencesKeyName.AUTHED_USER_ID_KEY_NAME)],
                     contentMode =
                         preferences[stringPreferencesKey(PreferencesKeyName.CONTENTS_MODE_KEY_NAME)],
+                    titleLanguage =
+                        preferences[stringPreferencesKey(PreferencesKeyName.TITLE_LANGUAGE_KEY_NAME)],
+                    staffNameLanguage =
+                        preferences[stringPreferencesKey(PreferencesKeyName.STAFF_NAME_LANGUAGE_KEY_NAME)],
                 )
             }
 
@@ -64,6 +68,22 @@ class UserSettingPreferences(
         preferences.updateData { currentPreferences ->
             currentPreferences.toMutablePreferences().apply {
                 this[stringPreferencesKey(PreferencesKeyName.CONTENTS_MODE_KEY_NAME)] = contentMode
+            }
+        }
+    }
+
+    suspend fun setTitleLanguage(language: String) {
+        preferences.updateData { currentPreferences ->
+            currentPreferences.toMutablePreferences().apply {
+                this[stringPreferencesKey(PreferencesKeyName.TITLE_LANGUAGE_KEY_NAME)] = language
+            }
+        }
+    }
+
+    suspend fun setStaffNameLanguage(language: String) {
+        preferences.updateData { currentPreferences ->
+            currentPreferences.toMutablePreferences().apply {
+                this[stringPreferencesKey(PreferencesKeyName.STAFF_NAME_LANGUAGE_KEY_NAME)] = language
             }
         }
     }

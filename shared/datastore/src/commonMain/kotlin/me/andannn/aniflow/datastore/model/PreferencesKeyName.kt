@@ -10,4 +10,8 @@ object PreferencesKeyName {
     const val AUTHED_USER_ID_KEY_NAME = "authed_user_id"
 
     const val CONTENTS_MODE_KEY_NAME = "contents_mode"
+
+    const val TITLE_LANGUAGE_KEY_NAME = "title_language"
+
+    const val STAFF_NAME_LANGUAGE_KEY_NAME = "staff_name_language"
 }

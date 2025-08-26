@@ -24,18 +24,20 @@ import kotlin.time.ExperimentalTime
 
 internal const val TAG = "SideEffectTask"
 
-internal fun createSideEffectFlow(forceRefreshFirstTime: Boolean, vararg tasks: SideEffectTask<SyncStatus>) =
-    channelFlow {
-        supervisorScope {
-            tasks.forEach { task ->
-                launch {
-                    with(task) {
-                        WrappedProducerScope(this@channelFlow).register(forceRefreshFirstTime)
-                    }
+internal fun createSideEffectFlow(
+    forceRefreshFirstTime: Boolean,
+    vararg tasks: SideEffectTask<SyncStatus>,
+) = channelFlow {
+    supervisorScope {
+        tasks.forEach { task ->
+            launch {
+                with(task) {
+                    WrappedProducerScope(this@channelFlow).register(forceRefreshFirstTime)
                 }
             }
         }
-    }.aggregateStatus()
+    }
+}.aggregateStatus()
 
 @Serializable
 internal sealed class TaskRefreshKey {
@@ -47,6 +49,11 @@ internal sealed class TaskRefreshKey {
     @Serializable
     data class SyncUserMediaList(
         val mediaContentMode: MediaContentMode,
+        val userId: String,
+    ) : TaskRefreshKey()
+
+    @Serializable
+    data class SyncUserCondition(
         val userId: String,
     ) : TaskRefreshKey()
 
@@ -112,6 +119,18 @@ internal fun Flow<DataWithKey<SyncStatus>>.aggregateStatus(): Flow<SyncStatus> =
     }
 
 context(_: MediaLibraryDao)
+internal suspend inline fun WrappedProducerScope<SyncStatus>.doRefreshIfNeeded2(
+    taskRefreshKey: TaskRefreshKey,
+    force: Boolean,
+    crossinline block: suspend () -> AppError?,
+) {
+    doRefreshIfNeeded(taskRefreshKey, force) {
+        val error = block()
+        if (error != null) listOf(error) else emptyList()
+    }
+}
+
+context(_: MediaLibraryDao)
 internal suspend inline fun WrappedProducerScope<SyncStatus>.doRefreshIfNeeded(
     taskRefreshKey: TaskRefreshKey,
     force: Boolean,
@@ -168,5 +187,6 @@ internal fun TaskRefreshKey.refreshIntervalMs(): Long {
     return when (this) {
         is TaskRefreshKey.AllCategories -> hoursToMillis(12)
         is TaskRefreshKey.SyncUserMediaList -> hoursToMillis(12)
+        is TaskRefreshKey.SyncUserCondition -> hoursToMillis(1)
     }
 }

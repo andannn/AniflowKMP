@@ -21,6 +21,8 @@ import me.andannn.aniflow.data.model.define.MediaSort
 import me.andannn.aniflow.data.model.define.MediaSource
 import me.andannn.aniflow.data.model.define.MediaStatus
 import me.andannn.aniflow.data.model.define.MediaType
+import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
+import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelationWithUpdateLog
@@ -169,6 +171,25 @@ internal fun me.andannn.aniflow.service.dto.enums.MediaStatus.toDomainType() =
         me.andannn.aniflow.service.dto.enums.MediaStatus.CANCELLED -> MediaStatus.CANCELLED
         me.andannn.aniflow.service.dto.enums.MediaStatus.HIATUS -> MediaStatus.HIATUS
         me.andannn.aniflow.service.dto.enums.MediaStatus.UNKNOWN__ -> null
+    }
+
+internal fun me.andannn.aniflow.service.dto.enums.UserTitleLanguage.toDomainType() =
+    when (this) {
+        me.andannn.aniflow.service.dto.enums.UserTitleLanguage.ROMAJI -> UserTitleLanguage.ROMAJI
+        me.andannn.aniflow.service.dto.enums.UserTitleLanguage.ENGLISH -> UserTitleLanguage.ENGLISH
+        me.andannn.aniflow.service.dto.enums.UserTitleLanguage.NATIVE -> UserTitleLanguage.NATIVE
+        me.andannn.aniflow.service.dto.enums.UserTitleLanguage.ROMAJI_STYLISED -> UserTitleLanguage.ROMAJI
+        me.andannn.aniflow.service.dto.enums.UserTitleLanguage.ENGLISH_STYLISED -> UserTitleLanguage.ENGLISH
+        me.andannn.aniflow.service.dto.enums.UserTitleLanguage.NATIVE_STYLISED -> UserTitleLanguage.NATIVE
+        me.andannn.aniflow.service.dto.enums.UserTitleLanguage.UNKNOWN__ -> null
+    }
+
+internal fun me.andannn.aniflow.service.dto.enums.UserStaffNameLanguage.toDomainType() =
+    when (this) {
+        me.andannn.aniflow.service.dto.enums.UserStaffNameLanguage.NATIVE -> UserStaffNameLanguage.NATIVE
+        me.andannn.aniflow.service.dto.enums.UserStaffNameLanguage.ROMAJI -> UserStaffNameLanguage.ROMAJI
+        me.andannn.aniflow.service.dto.enums.UserStaffNameLanguage.ROMAJI_WESTERN -> UserStaffNameLanguage.ROMAJI_WESTERN
+        me.andannn.aniflow.service.dto.enums.UserStaffNameLanguage.UNKNOWN__ -> null
     }
 
 internal fun Media.toDomain() = toEntity().toDomain()

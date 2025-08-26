@@ -4,7 +4,6 @@
  */
 package me.andannn.aniflow.data.internal
 
-import com.rickclephas.kmp.nativecoroutines.NativeCoroutines
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -20,6 +19,7 @@ import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.SyncStatus
 import me.andannn.aniflow.data.TrackUiDataProvider
 import me.andannn.aniflow.data.internal.tasks.RefreshAllCategoriesTask
+import me.andannn.aniflow.data.internal.tasks.SyncUserConditionTask
 import me.andannn.aniflow.data.internal.tasks.SyncUserMediaListTask
 import me.andannn.aniflow.data.internal.tasks.createSideEffectFlow
 import me.andannn.aniflow.data.model.DiscoverUiState
@@ -28,7 +28,6 @@ import me.andannn.aniflow.data.model.TrackUiState
 import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.model.define.toMediaType
 import me.andannn.aniflow.data.model.relation.CategoryDataModel
-import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 
 internal class DataProviderImpl(
     private val mediaRepo: MediaRepository,
@@ -36,32 +35,28 @@ internal class DataProviderImpl(
 ) : DiscoverUiDataProvider,
     TrackUiDataProvider,
     HomeAppBarUiDataProvider {
-    @NativeCoroutines
     override fun discoverUiDataFlow(): Flow<DiscoverUiState> =
         with(mediaRepo) {
             with(authRepo) {
-                return discoverUiStateFlow()
+                discoverUiStateFlow()
             }
         }
 
-    @NativeCoroutines
     override fun discoverUiSideEffect(forceRefreshFirstTime: Boolean): Flow<SyncStatus> =
         createSideEffectFlow(
             forceRefreshFirstTime,
             RefreshAllCategoriesTask(),
             SyncUserMediaListTask(),
+            SyncUserConditionTask(),
         )
 
-    @NativeCoroutines
     override fun trackUiDataFlow(): Flow<TrackUiState> =
         with(mediaRepo) {
             with(authRepo) {
-                return trackUiStateFlow()
+                trackUiStateFlow()
             }
         }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    @NativeCoroutines
     override fun trackUiSideEffect(forceRefreshFirstTime: Boolean): Flow<SyncStatus> =
         createSideEffectFlow(
             forceRefreshFirstTime,
