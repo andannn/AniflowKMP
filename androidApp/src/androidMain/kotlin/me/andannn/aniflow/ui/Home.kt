@@ -4,8 +4,10 @@
  */
 package me.andannn.aniflow.ui
 
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CollectionsBookmark
 import androidx.compose.material.icons.filled.Explore
@@ -15,6 +17,8 @@ import androidx.compose.material.icons.outlined.CollectionsBookmark
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.Forum
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.BottomAppBarScrollBehavior
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,6 +41,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
@@ -131,6 +136,7 @@ private fun HomeContent(
     val appBarScrollBehavior =
         TopAppBarDefaults.pinnedScrollBehavior()
     val bottomBarScrollBehavior = BottomAppBarDefaults.exitAlwaysScrollBehavior()
+    val user = state.authedUser
 
     Scaffold(
         modifier =
@@ -158,23 +164,40 @@ private fun HomeContent(
                             }
                         },
                     )
-                    IconButton(
-                        onClick = onAuthIconClick,
-                    ) {
-                        val user = state.authedUser
-                        if (user != null) {
-                            AsyncImage(
-                                model = user.avatar,
-                                contentDescription = null,
-                                contentScale = ContentScale.FillBounds,
-                            )
-                        } else {
+                    if (user != null) {
+                        BadgedBox(
+                            badge = {
+                                val badgeNumber = user.unreadNotificationCount
+                                if (badgeNumber != 0) {
+                                    Badge {
+                                        Text(
+                                            badgeNumber.toString(),
+                                        )
+                                    }
+                                }
+                            },
+                        ) {
+                            IconButton(
+                                onClick = onAuthIconClick,
+                            ) {
+                                AsyncImage(
+                                    model = user.avatar,
+                                    contentDescription = null,
+                                    contentScale = ContentScale.FillBounds,
+                                )
+                            }
+                        }
+                    } else {
+                        IconButton(
+                            onClick = onAuthIconClick,
+                        ) {
                             Icon(
                                 imageVector = Icons.Outlined.Person,
                                 contentDescription = null,
                             )
                         }
                     }
+                    Spacer(modifier = Modifier.width(12.dp))
                 },
             )
         },
