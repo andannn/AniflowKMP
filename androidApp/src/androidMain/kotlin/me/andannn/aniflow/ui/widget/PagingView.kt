@@ -8,10 +8,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
@@ -80,6 +82,65 @@ fun <T> VerticalGridPaging(
             item(
                 span = { GridItemSpan(maxLineSpan) },
             ) {
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(96.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    ContainedLoadingIndicator()
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun <T> VerticalListPaging(
+    modifier: Modifier = Modifier,
+    pageComponent: PageComponent<T>,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    key: (T) -> Any,
+    itemContent: @Composable (T) -> Unit,
+) {
+    val items by pageComponent.items.collectAsStateWithLifecycle()
+    val status by pageComponent.status.collectAsStateWithLifecycle()
+
+    LazyColumn(
+        modifier = modifier,
+        contentPadding = contentPadding,
+    ) {
+        items(
+            items = items,
+            key = key,
+        ) { item ->
+            itemContent(item)
+        }
+
+        if (status is LoadingStatus.Idle) {
+            item {
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(96.dp)
+                            .onVisibilityChanged(
+                                minFractionVisible = 0.3f,
+                                callback = { visible ->
+                                    Napier.d(tag = TAG) { "Bottom widget visibility changed: $visible" }
+                                    if (visible) {
+                                        pageComponent.loadNextPage()
+                                    }
+                                },
+                            ),
+                )
+            }
+        }
+
+        if (status is LoadingStatus.Loading) {
+            item {
                 Box(
                     modifier =
                         Modifier

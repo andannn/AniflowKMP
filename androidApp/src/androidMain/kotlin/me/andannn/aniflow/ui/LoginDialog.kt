@@ -115,7 +115,7 @@ fun LoginDialogContent(
                         AsyncImage(
                             model = authedUser.avatar,
                             contentDescription = null,
-                            contentScale = ContentScale.FillBounds,
+                            contentScale = ContentScale.Crop,
                         )
                     } else {
                         Icon(

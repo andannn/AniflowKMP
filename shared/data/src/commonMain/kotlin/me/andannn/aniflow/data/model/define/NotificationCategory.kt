@@ -4,11 +4,10 @@
  */
 package me.andannn.aniflow.data.model.define
 
-import kotlinx.serialization.Serializable
-
-@Serializable
-enum class TrackedMediaCategory {
+enum class NotificationCategory {
     ALL,
-    NEW_AIRED,
-    HAS_NEXT,
+    AIRING,
+    ACTIVITY,
+    FOLLOWS,
+    MEDIA,
 }

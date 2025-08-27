@@ -28,6 +28,7 @@ import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.paging.MediaCategoryPageComponent
 import me.andannn.aniflow.data.paging.PageComponent
+import me.andannn.aniflow.ui.util.rememberUserTitle
 import me.andannn.aniflow.ui.widget.MediaItemFilledCard
 import me.andannn.aniflow.ui.widget.StaggeredGridPaging
 import org.koin.compose.viewmodel.koinViewModel
@@ -89,9 +90,10 @@ fun MediaCategoryPaging(
             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
             key = { it.id },
         ) { item ->
+            val title = rememberUserTitle(item.title!!)
             MediaItemFilledCard(
                 modifier = Modifier.padding(4.dp),
-                title = item.title?.english ?: "EEEEEEEEEE",
+                title = title,
                 coverImage = item.coverImage,
             )
         }

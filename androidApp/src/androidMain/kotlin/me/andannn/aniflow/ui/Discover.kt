@@ -47,6 +47,7 @@ import me.andannn.aniflow.data.model.DiscoverUiState
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
+import me.andannn.aniflow.ui.util.rememberUserTitle
 import me.andannn.aniflow.ui.widget.MediaPreviewItem
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -75,9 +76,6 @@ class DiscoverViewModel(
 
     fun onMediaClick(media: MediaModel) {
         Napier.d(tag = TAG) { "Media clicked:" }
-        viewModelScope.launch {
-            authRepository.startLoginProcessAndWaitResult()
-        }
     }
 
     fun onPullRefresh() {
@@ -109,7 +107,9 @@ fun Discover(
     DiscoverContent(
         isRefreshing = isRefreshing,
         categoryDataList = state.categoryDataMap.content,
-        onMediaClick = discoverViewModel::onMediaClick,
+        onMediaClick = {
+            navigator.navigateTo(Screen.Notification)
+        },
         onPullRefresh = discoverViewModel::onPullRefresh,
         onNavigateToMediaCategory = { category ->
             navigator.navigateTo(Screen.MediaCategoryList(category))
@@ -202,9 +202,10 @@ private fun MediaPreviewSector(
                 mediaList,
                 key = { it.id },
             ) {
+                val title = rememberUserTitle(it.title!!)
                 MediaPreviewItem(
                     modifier = Modifier.width(240.dp),
-                    title = it.title?.english ?: "EEEEEEEEEE",
+                    title = title,
                     isFollowing = false,
                     coverImage = it.coverImage,
                     ooClick = { onMediaClick(it) },

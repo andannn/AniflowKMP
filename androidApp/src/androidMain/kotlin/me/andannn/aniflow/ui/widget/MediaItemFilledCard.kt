@@ -1,3 +1,7 @@
+/*
+ * Copyright 2025, the AniflowKMP project contributors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package me.andannn.aniflow.ui.widget
 
 import androidx.compose.foundation.background
@@ -53,7 +57,7 @@ fun MediaItemFilledCard(
                         .fillMaxSize(),
                 model = coverImage,
                 contentDescription = null,
-                contentScale = ContentScale.FillBounds,
+                contentScale = ContentScale.Crop,
             )
         }
 

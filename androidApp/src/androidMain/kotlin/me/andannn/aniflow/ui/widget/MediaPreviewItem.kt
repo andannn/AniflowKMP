@@ -53,7 +53,7 @@ fun MediaPreviewItem(
                 modifier = Modifier.aspectRatio(3f / 4f).fillMaxSize(),
                 model = coverImage,
                 contentDescription = null,
-                contentScale = ContentScale.FillBounds,
+                contentScale = ContentScale.Crop,
             )
             Spacer(
                 modifier =

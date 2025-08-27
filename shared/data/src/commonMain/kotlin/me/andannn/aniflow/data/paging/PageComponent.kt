@@ -61,6 +61,10 @@ internal class DefaultPageComponent<T>(
     private val onLoadPage: suspend (page: Int, perPage: Int) -> Pair<Page<T>, AppError?>,
 ) : PageComponent<T>,
     CoroutineScope {
+    init {
+        Napier.d(tag = TAG) { "DefaultPageComponent init. ${this.hashCode()}" }
+    }
+
     override val coroutineContext = Dispatchers.Main + Job()
 
     override val items = MutableStateFlow<List<T>>(emptyList())
@@ -124,6 +128,7 @@ internal class DefaultPageComponent<T>(
     }
 
     override fun dispose() {
+        Napier.d(tag = TAG) { "dispose ${this.hashCode()}" }
         cancel()
     }
 }

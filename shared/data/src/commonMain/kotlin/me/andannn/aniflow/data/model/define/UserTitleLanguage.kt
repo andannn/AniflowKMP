@@ -25,4 +25,10 @@ enum class UserTitleLanguage {
      * Official title in it's native language
      */
     NATIVE,
+
+    ;
+
+    companion object {
+        val Default = NATIVE
+    }
 }

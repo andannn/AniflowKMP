@@ -25,4 +25,10 @@ enum class UserStaffNameLanguage {
      * The staff or character's name in their native language
      */
     NATIVE,
+
+    ;
+
+    companion object {
+        val Default = NATIVE
+    }
 }

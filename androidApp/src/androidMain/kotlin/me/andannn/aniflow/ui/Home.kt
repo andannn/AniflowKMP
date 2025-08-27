@@ -183,7 +183,7 @@ private fun HomeContent(
                                 AsyncImage(
                                     model = user.avatar,
                                     contentDescription = null,
-                                    contentScale = ContentScale.FillBounds,
+                                    contentScale = ContentScale.Crop,
                                 )
                             }
                         }

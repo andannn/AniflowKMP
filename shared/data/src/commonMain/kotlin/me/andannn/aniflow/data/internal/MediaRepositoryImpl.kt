@@ -12,9 +12,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
+import me.andannn.aniflow.data.AppError
 import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.internal.exceptions.toError
 import me.andannn.aniflow.data.model.MediaModel
+import me.andannn.aniflow.data.model.NotificationModel
 import me.andannn.aniflow.data.model.Page
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.MediaContentMode
@@ -23,6 +25,7 @@ import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.model.define.MediaSort
 import me.andannn.aniflow.data.model.define.MediaStatus
 import me.andannn.aniflow.data.model.define.MediaType
+import me.andannn.aniflow.data.model.define.NotificationCategory
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.database.MediaLibraryDao
@@ -33,11 +36,14 @@ import me.andannn.aniflow.service.AniListService
 import me.andannn.aniflow.service.ServerException
 import me.andannn.aniflow.service.dto.Media
 import me.andannn.aniflow.service.dto.MediaList
+import me.andannn.aniflow.service.dto.NotificationUnion
+import me.andannn.aniflow.service.dto.enums.NotificationType
+import me.andannn.aniflow.service.dto.enums.ScoreFormat
 import kotlin.with
 
 private const val TAG = "MediaRepository"
 
-class MediaRepositoryImpl(
+internal class MediaRepositoryImpl(
     private val mediaLibraryDao: MediaLibraryDao,
     private val mediaService: AniListService,
     private val userPreference: UserSettingPreferences,
@@ -129,6 +135,25 @@ class MediaRepositoryImpl(
             Page.empty<MediaModel>() to exception.toError()
         }
     }
+
+    override suspend fun loadNotificationByPage(
+        page: Int,
+        perPage: Int,
+        category: NotificationCategory,
+        resetNotificationCount: Boolean,
+    ) = with(mediaService) {
+        try {
+            category
+                .getNotificationPage(
+                    page = page,
+                    perPage = perPage,
+                    resetNotificationCount = resetNotificationCount,
+                ).toDomain(NotificationUnion::toDomain) to null
+        } catch (exception: ServerException) {
+            Napier.e { "Error when loading media page: $exception" }
+            Page.empty<NotificationModel>() to exception.toError()
+        }
+    }
 }
 
 private const val DEFAULT_CACHED_SIZE = 20
@@ -175,7 +200,7 @@ private suspend fun fetchAllMediaList(
                 perPage = 50,
                 statusIn = status.map(MediaListStatus::toServiceType),
                 type = mediaType.toServiceType(),
-                format = me.andannn.aniflow.service.dto.enums.ScoreFormat.POINT_10_DECIMAL,
+                format = ScoreFormat.POINT_10_DECIMAL,
             )
         acc += res.items
     } while (res.pageInfo?.hasNextPage == true)
@@ -322,3 +347,48 @@ private val MediaWithMediaListItem.priority: Int
             haveNextEpisode -> 2
             else -> 1
         }
+
+context(service: AniListService)
+private suspend fun NotificationCategory.getNotificationPage(
+    page: Int,
+    perPage: Int,
+    resetNotificationCount: Boolean,
+) = run {
+    val category = this
+    val types =
+        when (category) {
+            NotificationCategory.ALL -> NotificationType.entries
+            NotificationCategory.AIRING ->
+                listOf(
+                    NotificationType.AIRING,
+                )
+
+            NotificationCategory.ACTIVITY ->
+                listOf(
+                    NotificationType.ACTIVITY_LIKE,
+                    NotificationType.ACTIVITY_REPLY,
+                    NotificationType.ACTIVITY_MENTION,
+                    NotificationType.ACTIVITY_REPLY_LIKE,
+                    NotificationType.ACTIVITY_MESSAGE,
+                )
+
+            NotificationCategory.FOLLOWS ->
+                listOf(
+                    NotificationType.FOLLOWING,
+                )
+
+            NotificationCategory.MEDIA ->
+                listOf(
+                    NotificationType.MEDIA_DATA_CHANGE,
+                    NotificationType.RELATED_MEDIA_ADDITION,
+                    NotificationType.MEDIA_MERGE,
+                )
+        }
+
+    service.getNotificationPage(
+        page = page,
+        perPage = perPage,
+        notificationTypeIn = types,
+        resetNotificationCount = resetNotificationCount,
+    )
+}

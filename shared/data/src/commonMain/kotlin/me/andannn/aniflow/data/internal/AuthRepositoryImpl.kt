@@ -10,7 +10,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -38,7 +37,7 @@ import kotlin.time.ExperimentalTime
 
 private const val TAG = "AuthRepository"
 
-class AuthRepositoryImpl(
+internal class AuthRepositoryImpl(
     private val service: AniListService,
     private val userPref: UserSettingPreferences,
     private val database: MediaLibraryDao,
@@ -103,10 +102,10 @@ class AuthRepositoryImpl(
                 UserOptions(
                     titleLanguage =
                         it.titleLanguage?.let { Json.decodeFromString(it) }
-                            ?: UserTitleLanguage.NATIVE,
+                            ?: UserTitleLanguage.Default,
                     staffNameLanguage =
                         it.staffNameLanguage?.let { Json.decodeFromString(it) }
-                            ?: UserStaffNameLanguage.NATIVE,
+                            ?: UserStaffNameLanguage.Default,
                 )
             }.distinctUntilChanged()
 

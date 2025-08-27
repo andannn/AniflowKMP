@@ -585,9 +585,9 @@ class AniListService(
     suspend fun getNotificationPage(
         page: Int,
         perPage: Int,
-        notificationTypeIn: List<NotificationType> = emptyList(),
+        notificationTypeIn: List<NotificationType>,
         resetNotificationCount: Boolean = false,
-    ): Page<NotificationUnion>? =
+    ): Page<NotificationUnion> =
         doGraphQlQuery(
             query =
                 NotificationQuery(
