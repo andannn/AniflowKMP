@@ -48,5 +48,6 @@ interface AuthRepository {
      */
     suspend fun syncUserCondition(): AppError?
 
+    @NativeCoroutines
     fun getUserOptionsFlow(): Flow<UserOptions>
 }

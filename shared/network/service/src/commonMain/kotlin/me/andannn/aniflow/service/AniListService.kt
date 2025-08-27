@@ -25,6 +25,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.utils.io.CancellationException
 import kotlinx.serialization.json.Json
 import me.andannn.aniflow.service.dto.ActivityUnion
 import me.andannn.aniflow.service.dto.AiringSchedule
@@ -674,13 +675,16 @@ class AniListService(
                 .post {
                     setBody(
                         query.toQueryBody().also {
-                            Napier.d(tag = TAG) { "doGraphQlQuery: $it" }
+                            Napier.v(tag = TAG) { "doGraphQlQuery: $it" }
                         },
                     )
                 }.let { response ->
                     val dataWrapper = response.body<DataWrapper<U>>()
                     dataWrapper.data
                 }
+        } catch (cancellation: CancellationException) {
+            Napier.w { "service api request operation canceled." }
+            throw cancellation
         } catch (exception: ResponseException) {
             Napier.e { "ResponseException when doing GraphQL query: $exception" }
             throw exception.toAniListException()
