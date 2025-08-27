@@ -13,6 +13,9 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
 import me.andannn.aniflow.data.MediaRepository
+import me.andannn.aniflow.data.internal.exceptions.toError
+import me.andannn.aniflow.data.model.MediaModel
+import me.andannn.aniflow.data.model.Page
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.MediaContentMode
 import me.andannn.aniflow.data.model.define.MediaFormat
@@ -23,7 +26,6 @@ import me.andannn.aniflow.data.model.define.MediaType
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.database.MediaLibraryDao
-import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelationWithUpdateLog
 import me.andannn.aniflow.database.schema.MediaEntity
 import me.andannn.aniflow.datastore.UserSettingPreferences
@@ -31,7 +33,6 @@ import me.andannn.aniflow.service.AniListService
 import me.andannn.aniflow.service.ServerException
 import me.andannn.aniflow.service.dto.Media
 import me.andannn.aniflow.service.dto.MediaList
-import me.andannn.aniflow.service.dto.Page
 import kotlin.with
 
 private const val TAG = "MediaRepository"
@@ -116,12 +117,17 @@ class MediaRepositoryImpl(
         page: Int,
         perPage: Int,
     ) = with(mediaService) {
-        category
-            .getMediaOfCategoryFromRemote(
-                page = page,
-                perPage = perPage,
-                displayAdultContent = false,
-            ).toDomain(Media::toDomain)
+        try {
+            category
+                .getMediaOfCategoryFromRemote(
+                    page = page,
+                    perPage = perPage,
+                    displayAdultContent = false,
+                ).toDomain(Media::toDomain) to null
+        } catch (exception: ServerException) {
+            Napier.e { "Error when loading media page: $exception" }
+            Page.empty<MediaModel>() to exception.toError()
+        }
     }
 }
 
@@ -206,7 +212,7 @@ private suspend fun MediaCategory.getMediaOfCategoryFromRemote(
     page: Int,
     perPage: Int,
     displayAdultContent: Boolean,
-): Page<Media> {
+) = run {
     var status: MediaStatus?
     var seasonParam: AnimeSeasonParam?
     val type = this.mediaType()
@@ -288,7 +294,7 @@ private suspend fun MediaCategory.getMediaOfCategoryFromRemote(
         }
     }
 
-    return service
+    service
         .getMediaPage(
             page = page,
             perPage = perPage,

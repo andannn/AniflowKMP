@@ -33,4 +33,8 @@ data class Page<T>(
      * The items on the page
      */
     val items: List<T>,
-)
+) {
+    companion object {
+        fun <T> empty(): Page<T> = Page(PageInfo(0, 0, 0, 0, false), emptyList())
+    }
+}

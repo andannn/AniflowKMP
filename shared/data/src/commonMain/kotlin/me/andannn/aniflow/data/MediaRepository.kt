@@ -43,9 +43,12 @@ interface MediaRepository {
         mediaListStatus: List<MediaListStatus>,
     ): Flow<List<MediaWithMediaListItem>>
 
+    /**
+     * Load media page by category from remote.
+     */
     suspend fun loadMediaPageByCategory(
         category: MediaCategory,
         page: Int,
         perPage: Int,
-    ): Page<MediaModel>
+    ): Pair<Page<MediaModel>, AppError?>
 }
