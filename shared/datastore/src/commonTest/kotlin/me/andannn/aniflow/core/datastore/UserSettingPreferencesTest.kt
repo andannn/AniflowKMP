@@ -66,4 +66,25 @@ class UserSettingPreferencesTest {
                 assertEquals("testMode", userSettingPref.contentMode)
             }
         }
+
+    @Test
+    fun addSentNotificationIdTest() =
+        testScope.runTest {
+            preferences.userData.first().let { userSettingPref ->
+                assertEquals(emptyList(), userSettingPref.sentNotificationIds)
+            }
+            preferences.addSentNotificationId(listOf("id1"))
+            preferences.userData.first().let { userSettingPref ->
+                assertEquals(listOf("id1"), userSettingPref.sentNotificationIds)
+            }
+            preferences.addSentNotificationId(listOf("id2"))
+            preferences.userData.first().let { userSettingPref ->
+                assertEquals(listOf("id1", "id2"), userSettingPref.sentNotificationIds)
+            }
+            // adding duplicate id should not change the list
+            preferences.addSentNotificationId(listOf("id1"))
+            preferences.userData.first().let { userSettingPref ->
+                assertEquals(listOf("id1", "id2"), userSettingPref.sentNotificationIds)
+            }
+        }
 }

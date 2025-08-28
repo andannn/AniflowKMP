@@ -14,6 +14,7 @@ import me.andannn.aniflow.data.BrowserAuthOperationHandler
 import me.andannn.aniflow.platform.BrowserAuthOperationHandlerImpl
 import me.andannn.aniflow.ui.App
 import me.andannn.aniflow.ui.theme.AniflowTheme
+import me.andannn.aniflow.worker.SyncWorkHelper
 import org.koin.android.ext.android.getKoin
 
 private const val TAG = "MainActivity"
@@ -26,6 +27,13 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         browserAuthOperationHandler.setUpContext(this)
         enableEdgeToEdge()
+
+        // Ensure the periodic sync worker is registered
+        SyncWorkHelper.registerPeriodicSyncWork(this)
+
+// TODO : Remove this in production
+        SyncWorkHelper.doOneTimeSyncWork(this)
+
         super.onCreate(savedInstanceState)
 
         setContent {

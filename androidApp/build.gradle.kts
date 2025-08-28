@@ -81,6 +81,7 @@ kotlin {
             implementation(libs.firebase.crashlytics)
 
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.androidx.work.runtime.ktx)
         }
     }
 

@@ -14,4 +14,6 @@ object PreferencesKeyName {
     const val TITLE_LANGUAGE_KEY_NAME = "title_language"
 
     const val STAFF_NAME_LANGUAGE_KEY_NAME = "staff_name_language"
+
+    const val SENT_NOTIFICATION_ID_KEY_NAME = "sent_notification_id"
 }

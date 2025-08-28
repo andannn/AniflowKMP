@@ -23,7 +23,7 @@ import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 
 @Composable
 fun App() {
-    val backStack = rememberSaveable { mutableStateListOf<Screen>(Screen.Home) }
+    val backStack = remember { mutableStateListOf<Screen>(Screen.Home) }
     val navigator = remember { RootNavigator(backStack) }
     CompositionLocalProvider(
         LocalRootNavigator provides navigator,
