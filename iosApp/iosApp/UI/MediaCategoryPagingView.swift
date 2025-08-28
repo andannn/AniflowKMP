@@ -33,11 +33,9 @@ struct MediaCategoryPaging: View {
             contentPadding: .init(top: 0, leading: 16, bottom: 0, trailing: 16),
             key: { AnyHashable($0.id) },
             itemContent: { media in
-                MediaPreviewItem(
-                    title: media.title?.english ?? "EEEEEEEEEE",
-                    isFollowing: false,
-                    coverImage: media.coverImage,
-                    onClick: {  }
+                MediaPreviewItemWrapper(
+                    media: media,
+                    onMediaClick: { media in  }
                 )
             }
         )

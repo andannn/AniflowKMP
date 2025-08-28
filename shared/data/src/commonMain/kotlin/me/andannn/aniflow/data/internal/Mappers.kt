@@ -5,9 +5,14 @@
 package me.andannn.aniflow.data.internal
 
 import kotlinx.serialization.json.Json
+import me.andannn.aniflow.data.model.ActivityNotification
 import me.andannn.aniflow.data.model.EpisodeModel
+import me.andannn.aniflow.data.model.FollowNotification
+import me.andannn.aniflow.data.model.MediaDeletion
 import me.andannn.aniflow.data.model.MediaListModel
 import me.andannn.aniflow.data.model.MediaModel
+import me.andannn.aniflow.data.model.MediaNotification
+import me.andannn.aniflow.data.model.NotificationModel
 import me.andannn.aniflow.data.model.PageInfo
 import me.andannn.aniflow.data.model.SimpleDate
 import me.andannn.aniflow.data.model.Title
@@ -21,17 +26,35 @@ import me.andannn.aniflow.data.model.define.MediaSort
 import me.andannn.aniflow.data.model.define.MediaSource
 import me.andannn.aniflow.data.model.define.MediaStatus
 import me.andannn.aniflow.data.model.define.MediaType
+import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
+import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
+import me.andannn.aniflow.database.relation.MediaListAndMediaRelationWithUpdateLog
 import me.andannn.aniflow.database.schema.MediaEntity
 import me.andannn.aniflow.database.schema.MediaListEntity
 import me.andannn.aniflow.database.schema.UserEntity
+import me.andannn.aniflow.service.dto.ActivityLikeNotification
+import me.andannn.aniflow.service.dto.ActivityMentionNotification
+import me.andannn.aniflow.service.dto.ActivityMessageNotification
+import me.andannn.aniflow.service.dto.ActivityReplyLikeNotification
+import me.andannn.aniflow.service.dto.ActivityReplyNotification
+import me.andannn.aniflow.service.dto.ActivityReplySubscribedNotification
+import me.andannn.aniflow.service.dto.AiringNotification
+import me.andannn.aniflow.service.dto.FollowingNotification
 import me.andannn.aniflow.service.dto.FuzzyDate
 import me.andannn.aniflow.service.dto.Media
+import me.andannn.aniflow.service.dto.MediaDataChangeNotification
+import me.andannn.aniflow.service.dto.MediaDeletionNotification
 import me.andannn.aniflow.service.dto.MediaList
+import me.andannn.aniflow.service.dto.MediaMergeNotification
+import me.andannn.aniflow.service.dto.NotificationUnion
 import me.andannn.aniflow.service.dto.Page
+import me.andannn.aniflow.service.dto.RelatedMediaAdditionNotification
 import me.andannn.aniflow.service.dto.User
 import me.andannn.aniflow.service.dto.enums.MediaRankType
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 internal fun MediaCategory.mediaType(): MediaType =
     when (this) {
@@ -166,6 +189,25 @@ internal fun me.andannn.aniflow.service.dto.enums.MediaStatus.toDomainType() =
         me.andannn.aniflow.service.dto.enums.MediaStatus.CANCELLED -> MediaStatus.CANCELLED
         me.andannn.aniflow.service.dto.enums.MediaStatus.HIATUS -> MediaStatus.HIATUS
         me.andannn.aniflow.service.dto.enums.MediaStatus.UNKNOWN__ -> null
+    }
+
+internal fun me.andannn.aniflow.service.dto.enums.UserTitleLanguage.toDomainType() =
+    when (this) {
+        me.andannn.aniflow.service.dto.enums.UserTitleLanguage.ROMAJI -> UserTitleLanguage.ROMAJI
+        me.andannn.aniflow.service.dto.enums.UserTitleLanguage.ENGLISH -> UserTitleLanguage.ENGLISH
+        me.andannn.aniflow.service.dto.enums.UserTitleLanguage.NATIVE -> UserTitleLanguage.NATIVE
+        me.andannn.aniflow.service.dto.enums.UserTitleLanguage.ROMAJI_STYLISED -> UserTitleLanguage.ROMAJI
+        me.andannn.aniflow.service.dto.enums.UserTitleLanguage.ENGLISH_STYLISED -> UserTitleLanguage.ENGLISH
+        me.andannn.aniflow.service.dto.enums.UserTitleLanguage.NATIVE_STYLISED -> UserTitleLanguage.NATIVE
+        me.andannn.aniflow.service.dto.enums.UserTitleLanguage.UNKNOWN__ -> null
+    }
+
+internal fun me.andannn.aniflow.service.dto.enums.UserStaffNameLanguage.toDomainType() =
+    when (this) {
+        me.andannn.aniflow.service.dto.enums.UserStaffNameLanguage.NATIVE -> UserStaffNameLanguage.NATIVE
+        me.andannn.aniflow.service.dto.enums.UserStaffNameLanguage.ROMAJI -> UserStaffNameLanguage.ROMAJI
+        me.andannn.aniflow.service.dto.enums.UserStaffNameLanguage.ROMAJI_WESTERN -> UserStaffNameLanguage.ROMAJI_WESTERN
+        me.andannn.aniflow.service.dto.enums.UserStaffNameLanguage.UNKNOWN__ -> null
     }
 
 internal fun Media.toDomain() = toEntity().toDomain()
@@ -309,10 +351,12 @@ internal fun FuzzyDate.toSimpleDate(): SimpleDate? {
     )
 }
 
-internal fun MediaListAndMediaRelation.toDomain() =
+@OptIn(ExperimentalTime::class)
+internal fun MediaListAndMediaRelationWithUpdateLog.toDomain() =
     MediaWithMediaListItem(
-        mediaModel = mediaEntity.toDomain(),
-        mediaListModel = mediaListEntity.toDomain(),
+        mediaModel = mediaListAndMediaRelation.mediaEntity.toDomain(),
+        mediaListModel = mediaListAndMediaRelation.mediaListEntity.toDomain(),
+        airingScheduleUpdateTime = updateTime?.let { Instant.fromEpochSeconds(it) },
     )
 
 internal fun <T, R> Page<T>.toDomain(mapper: (T) -> R) =
@@ -327,3 +371,111 @@ internal fun <T, R> Page<T>.toDomain(mapper: (T) -> R) =
             ),
         items = items.map(mapper),
     )
+
+internal fun NotificationUnion.toDomain(): NotificationModel =
+    when (this) {
+        is ActivityLikeNotification ->
+            ActivityNotification.Like(
+                id = id.toString(),
+                context = context ?: "",
+                createdAt = createdAt ?: 0,
+                user = user!!.toEntity().toDomain(),
+                activityId = activityId,
+            )
+
+        is ActivityMentionNotification ->
+            ActivityNotification.Mention(
+                id = id.toString(),
+                context = context ?: "",
+                createdAt = createdAt ?: 0,
+                user = user!!.toEntity().toDomain(),
+                activityId = activityId,
+            )
+
+        is ActivityMessageNotification ->
+            ActivityNotification.Message(
+                id = id.toString(),
+                context = context ?: "",
+                createdAt = createdAt ?: 0,
+                user = user!!.toEntity().toDomain(),
+                activityId = activityId,
+            )
+
+        is ActivityReplyLikeNotification ->
+            ActivityNotification.ReplyLike(
+                id = id.toString(),
+                context = context ?: "",
+                createdAt = createdAt ?: 0,
+                user = user!!.toEntity().toDomain(),
+                activityId = activityId,
+            )
+
+        is ActivityReplyNotification ->
+            ActivityNotification.Reply(
+                id = id.toString(),
+                context = context ?: "",
+                createdAt = createdAt ?: 0,
+                user = user!!.toEntity().toDomain(),
+                activityId = activityId,
+            )
+
+        is ActivityReplySubscribedNotification ->
+            ActivityNotification.ReplySubscribed(
+                id = id.toString(),
+                context = context ?: "",
+                createdAt = createdAt ?: 0,
+                user = user!!.toEntity().toDomain(),
+                activityId = activityId,
+            )
+
+        is AiringNotification ->
+            me.andannn.aniflow.data.model.AiringNotification(
+                id = id.toString(),
+                context = contexts?.let { Json.encodeToString(it) } ?: "",
+                createdAt = createdAt ?: 0,
+                episode = episode,
+                media = media!!.toDomain(),
+            )
+
+        is FollowingNotification ->
+            FollowNotification(
+                id = id.toString(),
+                context = context ?: "",
+                createdAt = createdAt ?: 0,
+                user = user!!.toEntity().toDomain(),
+            )
+
+        is MediaDataChangeNotification ->
+            MediaNotification.MediaDataChange(
+                id = id.toString(),
+                context = context ?: "",
+                createdAt = createdAt ?: 0,
+                media = media!!.toDomain(),
+                reason = reason ?: "",
+            )
+
+        is MediaDeletionNotification ->
+            MediaDeletion(
+                id = id.toString(),
+                context = context ?: "",
+                createdAt = createdAt ?: 0,
+                deletedMediaTitle = deletedMediaTitle ?: "",
+                reason = reason ?: "",
+            )
+
+        is MediaMergeNotification ->
+            MediaNotification.MediaMerge(
+                id = id.toString(),
+                context = context ?: "",
+                createdAt = createdAt ?: 0,
+                media = media!!.toDomain(),
+            )
+
+        is RelatedMediaAdditionNotification ->
+            MediaNotification.RelatedMediaAddition(
+                id = id.toString(),
+                context = context ?: "",
+                createdAt = createdAt ?: 0,
+                media = media!!.toDomain(),
+            )
+    }

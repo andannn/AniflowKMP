@@ -9,11 +9,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.Flow
 import me.andannn.aniflow.data.model.MediaModel
+import me.andannn.aniflow.data.model.NotificationModel
 import me.andannn.aniflow.data.model.Page
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.MediaContentMode
 import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.model.define.MediaType
+import me.andannn.aniflow.data.model.define.NotificationCategory
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 
@@ -43,9 +45,22 @@ interface MediaRepository {
         mediaListStatus: List<MediaListStatus>,
     ): Flow<List<MediaWithMediaListItem>>
 
+    /**
+     * Load media page by category from remote.
+     */
     suspend fun loadMediaPageByCategory(
         category: MediaCategory,
         page: Int,
         perPage: Int,
-    ): Page<MediaModel>
+    ): Pair<Page<MediaModel>, AppError?>
+
+    /**
+     * Load notification page by category from remote.
+     */
+    suspend fun loadNotificationByPage(
+        page: Int,
+        perPage: Int,
+        category: NotificationCategory,
+        resetNotificationCount: Boolean,
+    ): Pair<Page<NotificationModel>, AppError?>
 }

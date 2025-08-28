@@ -9,4 +9,6 @@ data class UserSettingPref(
     val authExpiredTimeInSecond: Int?,
     val authedUserId: String?,
     val contentMode: String?,
+    val titleLanguage: String?,
+    val staffNameLanguage: String?,
 )

@@ -13,9 +13,9 @@ import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
 import me.andannn.aniflow.database.util.MediaEntityWithDefault
 import me.andannn.aniflow.database.util.MediaListEntityWithDefault
 import me.andannn.aniflow.database.util.UserEntityWithDefault
-import org.junit.Test
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -28,7 +28,7 @@ class MediaLibraryDaoTest {
 
     @BeforeTest
     fun setup() {
-        driver = inMemoryDriver()
+        driver = testDriver()
         db = AniflowDatabase(driver)
         mediaLibraryDao = MediaLibraryDao(db)
     }
@@ -167,6 +167,62 @@ class MediaLibraryDaoTest {
 
                 val updatedTimestamp = getRefreshTimeStamp("testCategory")
                 assertEquals(1234567890L, updatedTimestamp)
+            }
+        }
+
+    @Test
+    fun getTrigger() =
+        testScope.runTest {
+            with(mediaLibraryDao) {
+                upsertMediaListEntities(
+                    listOf(
+                        MediaListAndMediaRelation(
+                            mediaEntity =
+                                MediaEntityWithDefault(
+                                    id = "media1",
+                                    englishTitle = "Media One",
+                                    mediaType = "ANIME",
+                                    nextAiringEpisode = 1L,
+                                ),
+                            mediaListEntity =
+                                MediaListEntityWithDefault(
+                                    mediaListId = "list1",
+                                    userId = "user1",
+                                    mediaId = "media1",
+                                    listStatus = "CURRENT",
+                                ),
+                        ),
+                    ),
+                )
+
+                getMediaListFlow(
+                    userId = "user1",
+                    mediaType = "ANIME",
+                    listStatus = listOf("CURRENT", "PLANNING"),
+                ).first().let { mediaList ->
+                    assertEquals(1, mediaList.size)
+                    assertEquals(null, mediaList.first().updateTime)
+                }
+
+                upsertMedias(
+                    listOf(
+                        MediaEntityWithDefault(
+                            id = "media1",
+                            englishTitle = "Media One",
+                            mediaType = "ANIME",
+                            nextAiringEpisode = 2L,
+                        ),
+                    ),
+                )
+
+                getMediaListFlow(
+                    userId = "user1",
+                    mediaType = "ANIME",
+                    listStatus = listOf("CURRENT", "PLANNING"),
+                ).first().let { mediaList ->
+                    println(mediaList)
+                    assertNotNull(mediaList.first().updateTime)
+                }
             }
         }
 }

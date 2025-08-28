@@ -10,12 +10,15 @@ import me.andannn.aniflow.data.model.define.MediaCategory
 @Serializable
 sealed interface Screen {
     @Serializable
-    object Home : Screen
+    data object Home : Screen
 
     @Serializable
     data class MediaCategoryList(
         val category: MediaCategory,
     ) : Screen
+
+    @Serializable
+    data object Notification : Screen
 
     sealed interface Dialog : Screen {
         @Serializable

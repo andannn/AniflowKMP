@@ -13,6 +13,7 @@ import io.github.aakira.napier.Napier
 import me.andannn.aniflow.data.BrowserAuthOperationHandler
 import me.andannn.aniflow.platform.BrowserAuthOperationHandlerImpl
 import me.andannn.aniflow.ui.App
+import me.andannn.aniflow.ui.theme.AniflowTheme
 import org.koin.android.ext.android.getKoin
 
 private const val TAG = "MainActivity"
@@ -26,13 +27,11 @@ class MainActivity : ComponentActivity() {
         browserAuthOperationHandler.setUpContext(this)
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-//        val root =
-//            DefaultRootComponent(
-//                componentContext = defaultComponentContext(),
-//            )
 
         setContent {
-            App()
+            AniflowTheme {
+                App()
+            }
         }
     }
 

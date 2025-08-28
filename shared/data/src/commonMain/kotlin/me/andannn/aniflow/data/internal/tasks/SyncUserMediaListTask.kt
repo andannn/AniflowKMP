@@ -50,7 +50,7 @@ internal class SyncUserMediaListTask :
                 .collectLatest { (authedUser, contentMode) ->
                     if (authedUser != null) {
                         val refreshKey = createKey(contentMode, authedUser.id)
-                        doRefreshIfNeeded(refreshKey, innerForceRefresh) {
+                        doRefreshIfNeeded2(refreshKey, innerForceRefresh) {
                             val deferred =
                                 coroutineScope {
                                     mediaRepo.syncMediaListByUserId(
@@ -65,8 +65,7 @@ internal class SyncUserMediaListTask :
                                     )
                                 }
 
-                            val error = deferred.await()
-                            error?.let { listOf(it.toError()) } ?: emptyList()
+                            deferred.await()?.toError()
                         }
                     }
                     innerForceRefresh = false

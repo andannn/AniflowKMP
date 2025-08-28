@@ -97,9 +97,4 @@ enum class NotificationType(
      * An anime or manga on the user's list has been deleted from the site
      */
     MEDIA_DELETION("MEDIA_DELETION"),
-
-    /**
-     * Auto generated constant for unknown enum values
-     */
-    UNKNOWN__("UNKNOWN__"),
 }

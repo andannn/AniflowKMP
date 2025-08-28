@@ -12,6 +12,8 @@ struct RootView: View {
                     switch route {
                     case .mediaCategoryPaingList(let category):
                         MediaCategoryPaging(category: category)
+                    case .notification:
+                        Notification()
                     default:
                         fatalError()
                     }
@@ -51,4 +53,5 @@ final class Router: ObservableObject {
 enum AppRoute: Hashable {
     case home
     case mediaCategoryPaingList(category: MediaCategory)
+    case notification
 }

@@ -4,8 +4,10 @@
  */
 package me.andannn.aniflow.ui
 
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CollectionsBookmark
 import androidx.compose.material.icons.filled.Explore
@@ -15,22 +17,31 @@ import androidx.compose.material.icons.outlined.CollectionsBookmark
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.Forum
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.BottomAppBarDefaults
+import androidx.compose.material3.BottomAppBarScrollBehavior
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FlexibleBottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
@@ -113,7 +124,7 @@ fun Home(homeViewModel: HomeViewModel = koinViewModel()) {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun HomeContent(
     modifier: Modifier = Modifier,
@@ -122,11 +133,26 @@ private fun HomeContent(
     onContentTypeChange: (MediaContentMode) -> Unit = {},
     onAuthIconClick: () -> Unit = {},
 ) {
+    val appBarScrollBehavior =
+        TopAppBarDefaults.pinnedScrollBehavior()
+    val bottomBarScrollBehavior = BottomAppBarDefaults.exitAlwaysScrollBehavior()
+    val user = state.authedUser
+
     Scaffold(
-        modifier = modifier.fillMaxSize(),
+        modifier =
+            modifier
+                .nestedScroll(appBarScrollBehavior.nestedScrollConnection)
+                .nestedScroll(bottomBarScrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
-                title = { Text(text = navigator.currentTopLevelNavigation.label) },
+                scrollBehavior = appBarScrollBehavior,
+                colors = TopAppBarDefaults.topAppBarColors(),
+                title = {
+                    Text(
+                        text = navigator.currentTopLevelNavigation.label,
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                },
                 actions = {
                     Switch(
                         state.contentMode == MediaContentMode.ANIME,
@@ -138,28 +164,46 @@ private fun HomeContent(
                             }
                         },
                     )
-                    IconButton(
-                        onClick = onAuthIconClick,
-                    ) {
-                        val user = state.authedUser
-                        if (user != null) {
-                            AsyncImage(
-                                model = user.avatar,
-                                contentDescription = null,
-                                contentScale = ContentScale.FillBounds,
-                            )
-                        } else {
+                    if (user != null) {
+                        BadgedBox(
+                            badge = {
+                                val badgeNumber = user.unreadNotificationCount
+                                if (badgeNumber != 0) {
+                                    Badge {
+                                        Text(
+                                            badgeNumber.toString(),
+                                        )
+                                    }
+                                }
+                            },
+                        ) {
+                            IconButton(
+                                onClick = onAuthIconClick,
+                            ) {
+                                AsyncImage(
+                                    model = user.avatar,
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                )
+                            }
+                        }
+                    } else {
+                        IconButton(
+                            onClick = onAuthIconClick,
+                        ) {
                             Icon(
                                 imageVector = Icons.Outlined.Person,
                                 contentDescription = null,
                             )
                         }
                     }
+                    Spacer(modifier = Modifier.width(12.dp))
                 },
             )
         },
         bottomBar = {
             NavigationArea(
+                scrollBehavior = bottomBarScrollBehavior,
                 selected = navigator.currentTopLevelNavigation,
                 onItemClick = { item ->
                     navigator.navigateTo(item)
@@ -204,28 +248,35 @@ private fun NestNavigation(
     )
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun NavigationArea(
+    scrollBehavior: BottomAppBarScrollBehavior,
     selected: TopLevelNavigation,
     modifier: Modifier = Modifier,
     onItemClick: (TopLevelNavigation) -> Unit = {},
 ) {
-    NavigationBar(modifier = modifier) {
-        TopLevelNavigation.entries.forEach { item ->
-            NavigationBarItem(
-                selected = selected == item,
-                label = { Text(item.label) },
-                icon = {
-                    if (selected == item) {
-                        Icon(item.selectedIcon, contentDescription = null)
-                    } else {
-                        Icon(item.unselectedIcon, contentDescription = null)
-                    }
-                },
-                onClick = { onItemClick(item) },
-            )
-        }
-    }
+    FlexibleBottomAppBar(
+        modifier = modifier,
+        horizontalArrangement = BottomAppBarDefaults.FlexibleFixedHorizontalArrangement,
+        scrollBehavior = scrollBehavior,
+        content = {
+            TopLevelNavigation.entries.forEach { item ->
+                NavigationBarItem(
+                    selected = selected == item,
+                    label = { Text(item.label) },
+                    icon = {
+                        if (selected == item) {
+                            Icon(item.selectedIcon, contentDescription = null)
+                        } else {
+                            Icon(item.unselectedIcon, contentDescription = null)
+                        }
+                    },
+                    onClick = { onItemClick(item) },
+                )
+            }
+        },
+    )
 }
 
 enum class TopLevelNavigation {

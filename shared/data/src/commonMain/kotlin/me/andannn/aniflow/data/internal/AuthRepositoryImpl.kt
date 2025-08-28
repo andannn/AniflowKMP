@@ -15,11 +15,16 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import me.andannn.aniflow.data.AppError
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.BrowserAuthOperationHandler
 import me.andannn.aniflow.data.internal.exceptions.toError
 import me.andannn.aniflow.data.model.UserModel
+import me.andannn.aniflow.data.model.UserOptions
+import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
+import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import me.andannn.aniflow.database.MediaLibraryDao
 import me.andannn.aniflow.database.schema.UserEntity
 import me.andannn.aniflow.datastore.UserSettingPreferences
@@ -32,7 +37,7 @@ import kotlin.time.ExperimentalTime
 
 private const val TAG = "AuthRepository"
 
-class AuthRepositoryImpl(
+internal class AuthRepositoryImpl(
     private val service: AniListService,
     private val userPref: UserSettingPreferences,
     private val database: MediaLibraryDao,
@@ -73,21 +78,51 @@ class AuthRepositoryImpl(
                     database.getUserFlow(authedUserId).map(UserEntity::toDomain)
                 }
             }
-}
 
-private suspend fun BrowserAuthOperationHandler.awaitAuthResult() =
-    suspendCancellableCoroutine { cont ->
-        cont.invokeOnCancellation {
-            cancel()
+    override suspend fun syncUserCondition(): AppError? =
+        try {
+            val user = service.getAuthedUserData()
+            database.upsertUser(listOf(user.toEntity()))
+            val options = user.options ?: error("User options is null")
+            options.titleLanguage?.toDomainType()?.let {
+                userPref.setTitleLanguage(Json.encodeToString(it))
+            }
+            options.staffNameLanguage?.toDomainType()?.let {
+                userPref.setStaffNameLanguage(Json.encodeToString(it))
+            }
+// TODO: save options
+            null
+        } catch (exception: ServerException) {
+            exception.toError()
         }
 
-        getAuthResult { authToken ->
-            if (authToken == null) {
-                Napier.d(tag = TAG) { "Authentication cancelled" }
-                cont.resumeWithException(CancellationException("Authentication cancelled."))
-            } else {
-                Napier.d(tag = TAG) { "Authentication successful: $authToken" }
-                cont.resume(authToken)
+    override fun getUserOptionsFlow(): Flow<UserOptions> =
+        userPref.userData
+            .map {
+                UserOptions(
+                    titleLanguage =
+                        it.titleLanguage?.let { Json.decodeFromString(it) }
+                            ?: UserTitleLanguage.Default,
+                    staffNameLanguage =
+                        it.staffNameLanguage?.let { Json.decodeFromString(it) }
+                            ?: UserStaffNameLanguage.Default,
+                )
+            }.distinctUntilChanged()
+
+    private suspend fun BrowserAuthOperationHandler.awaitAuthResult() =
+        suspendCancellableCoroutine { cont ->
+            cont.invokeOnCancellation {
+                cancel()
+            }
+
+            getAuthResult { authToken ->
+                if (authToken == null) {
+                    Napier.d(tag = TAG) { "Authentication cancelled" }
+                    cont.resumeWithException(CancellationException("Authentication cancelled."))
+                } else {
+                    Napier.d(tag = TAG) { "Authentication successful: $authToken" }
+                    cont.resume(authToken)
+                }
             }
         }
-    }
+}

@@ -4,9 +4,11 @@
  */
 package me.andannn.aniflow.ui
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -74,10 +76,13 @@ fun TrackContent(
             key = { it.mediaListModel.id },
         ) { item ->
             val media = item.mediaModel
-            MediaRowItem(
-                title = media.title?.romaji.toString(),
-                coverImage = media.coverImage,
-            )
+            Column {
+                Text("hasNextEpisode: ${item.haveNextEpisode}, isNewReleased: ${item.isNewReleased}")
+                MediaRowItem(
+                    title = media.title?.romaji.toString(),
+                    coverImage = media.coverImage,
+                )
+            }
         }
     }
 }

@@ -73,6 +73,7 @@ struct DiscoverView: View {
                         router.navigateTo(route: AppRoute.mediaCategoryPaingList(category: category))
                     }) {
                         MediaPreviewSector(mediaList: categoryWithContents.medias) { item in
+                            router.navigateTo(route: .notification)
                             // onMediaClick
                             // component.onMediaClick(media: item)
                         }
@@ -99,16 +100,34 @@ struct MediaPreviewSector: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 0) {
                 ForEach(mediaList, id: \.id) { media in
-                    MediaPreviewItem(
-                        title: media.title?.english ?? "EEEEEEEEEE",
-                        isFollowing: false,
-                        coverImage: media.coverImage,
-                        onClick: { onMediaClick(media) }
+                    MediaPreviewItemWrapper(
+                        media: media,
+                        onMediaClick: { media in onMediaClick(media) }
                     )
                     .frame(width: 240)
                 }
             }
             .frame(maxWidth: .infinity)
+        }
+    }
+}
+
+struct MediaPreviewItemWrapper: View {
+    let media: MediaModel
+    let onMediaClick: (MediaModel) -> Void
+    @State private var titleText: String = ""
+
+    var body: some View {
+        MediaPreviewItem(
+            title: titleText,
+            isFollowing: false,
+            coverImage: media.coverImage,
+            onClick: { onMediaClick(media) }
+        )
+        .task {
+            for await t in userTitleStream(title: media.title!) {
+                titleText = t
+            }
         }
     }
 }

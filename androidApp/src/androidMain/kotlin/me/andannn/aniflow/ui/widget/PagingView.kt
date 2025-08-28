@@ -8,11 +8,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
+import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.material3.ContainedLoadingIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -26,6 +33,7 @@ import me.andannn.aniflow.data.paging.PageComponent
 
 private const val TAG = "PagingView"
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun <T> VerticalGridPaging(
     modifier: Modifier = Modifier,
@@ -56,7 +64,7 @@ fun <T> VerticalGridPaging(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .height(48.dp)
+                            .height(96.dp)
                             .onVisibilityChanged(
                                 minFractionVisible = 0.3f,
                                 callback = { visible ->
@@ -78,10 +86,132 @@ fun <T> VerticalGridPaging(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .height(48.dp),
+                            .height(96.dp),
                     contentAlignment = Alignment.Center,
                 ) {
-                    CircularProgressIndicator()
+                    ContainedLoadingIndicator()
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun <T> VerticalListPaging(
+    modifier: Modifier = Modifier,
+    pageComponent: PageComponent<T>,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    key: (T) -> Any,
+    itemContent: @Composable (T) -> Unit,
+) {
+    val items by pageComponent.items.collectAsStateWithLifecycle()
+    val status by pageComponent.status.collectAsStateWithLifecycle()
+
+    LazyColumn(
+        modifier = modifier,
+        contentPadding = contentPadding,
+    ) {
+        items(
+            items = items,
+            key = key,
+        ) { item ->
+            itemContent(item)
+        }
+
+        if (status is LoadingStatus.Idle) {
+            item {
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(96.dp)
+                            .onVisibilityChanged(
+                                minFractionVisible = 0.3f,
+                                callback = { visible ->
+                                    Napier.d(tag = TAG) { "Bottom widget visibility changed: $visible" }
+                                    if (visible) {
+                                        pageComponent.loadNextPage()
+                                    }
+                                },
+                            ),
+                )
+            }
+        }
+
+        if (status is LoadingStatus.Loading) {
+            item {
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(96.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    ContainedLoadingIndicator()
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun <T> StaggeredGridPaging(
+    modifier: Modifier = Modifier,
+    columns: StaggeredGridCells,
+    pageComponent: PageComponent<T>,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    key: (T) -> Any,
+    itemContent: @Composable (T) -> Unit,
+) {
+    val items by pageComponent.items.collectAsStateWithLifecycle()
+    val status by pageComponent.status.collectAsStateWithLifecycle()
+
+    LazyVerticalStaggeredGrid(
+        modifier = modifier,
+        columns = columns,
+        contentPadding = contentPadding,
+    ) {
+        items(
+            items = items,
+            key = key,
+        ) { item ->
+            itemContent(item)
+        }
+
+        if (status is LoadingStatus.Idle) {
+            item {
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(96.dp)
+                            .onVisibilityChanged(
+                                minFractionVisible = 0.3f,
+                                callback = { visible ->
+                                    Napier.d(tag = TAG) { "Bottom widget visibility changed: $visible" }
+                                    if (visible) {
+                                        pageComponent.loadNextPage()
+                                    }
+                                },
+                            ),
+                )
+            }
+        }
+
+        if (status is LoadingStatus.Loading) {
+            item(
+                span = StaggeredGridItemSpan.FullLine,
+            ) {
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(96.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    ContainedLoadingIndicator()
                 }
             }
         }

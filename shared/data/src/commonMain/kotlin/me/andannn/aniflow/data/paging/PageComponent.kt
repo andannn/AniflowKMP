@@ -13,6 +13,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import me.andannn.aniflow.data.AppError
 import me.andannn.aniflow.data.model.Page
 import me.andannn.aniflow.data.model.PageInfo
 
@@ -24,7 +25,7 @@ sealed interface LoadingStatus {
     data object Loading : LoadingStatus
 
     data class Error(
-        val error: Throwable,
+        val error: AppError,
     ) : LoadingStatus
 }
 
@@ -57,9 +58,13 @@ private const val TAG = "PageComponent"
 
 internal class DefaultPageComponent<T>(
     private val config: PageConfig,
-    private val onLoadPage: suspend (page: Int, perPage: Int) -> Page<T>,
+    private val onLoadPage: suspend (page: Int, perPage: Int) -> Pair<Page<T>, AppError?>,
 ) : PageComponent<T>,
     CoroutineScope {
+    init {
+        Napier.d(tag = TAG) { "DefaultPageComponent init. ${this.hashCode()}" }
+    }
+
     override val coroutineContext = Dispatchers.Main + Job()
 
     override val items = MutableStateFlow<List<T>>(emptyList())
@@ -104,23 +109,26 @@ internal class DefaultPageComponent<T>(
 
     private suspend fun loadPage(page: Int) {
         Napier.d(tag = TAG) { "loadPage start $page" }
-        try {
-            val page = onLoadPage(page, config.perPage)
-            Napier.d(tag = TAG) { "loadPage api returned ${page.pageInfo}" }
-            items.value = items.value + page.items
-            currentPageInfo.value = page.pageInfo
-            if (page.pageInfo.hasNextPage) {
-                status.value = LoadingStatus.Idle
-            } else {
-                status.value = LoadingStatus.AllLoaded
-            }
-        } catch (e: Exception) {
-            status.value = LoadingStatus.Error(e)
+        val (page, error) = onLoadPage(page, config.perPage)
+        if (error != null) {
+            status.value = LoadingStatus.Error(error)
+            return
         }
+
+        Napier.d(tag = TAG) { "loadPage api returned ${page.pageInfo}" }
+        items.value = items.value + page.items
+        currentPageInfo.value = page.pageInfo
+        if (page.pageInfo.hasNextPage) {
+            status.value = LoadingStatus.Idle
+        } else {
+            status.value = LoadingStatus.AllLoaded
+        }
+
         Napier.d(tag = TAG) { "loadPage State to ${status.value}" }
     }
 
     override fun dispose() {
+        Napier.d(tag = TAG) { "dispose ${this.hashCode()}" }
         cancel()
     }
 }

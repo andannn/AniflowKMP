@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -19,11 +20,10 @@ import androidx.navigation3.ui.DialogSceneStrategy.Companion.dialog
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.SinglePaneSceneStrategy
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
-import java.util.Map.entry
 
 @Composable
 fun App() {
-    val backStack = remember { mutableStateListOf<Screen>(Screen.Home) }
+    val backStack = rememberSaveable { mutableStateListOf<Screen>(Screen.Home) }
     val navigator = remember { RootNavigator(backStack) }
     CompositionLocalProvider(
         LocalRootNavigator provides navigator,
@@ -48,6 +48,10 @@ fun App() {
                         MediaCategoryPaging(
                             category = it.category,
                         )
+                    }
+
+                    entry<Screen.Notification> {
+                        Notification()
                     }
 
                     entry<Screen.Dialog.Login>(
