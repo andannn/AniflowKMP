@@ -56,6 +56,12 @@ extension MediaRepository {
     }
 }
 
+extension FetchNotificationTask {
+    func sync() async throws -> SyncResult {
+        return try await asyncFunction(for: sync())
+    }
+}
+
 extension AuthRepository {
     func getAuthedUserFlow()
     -> NativeFlowAsyncSequence<Optional<UserModel>, Error, KotlinUnit> {

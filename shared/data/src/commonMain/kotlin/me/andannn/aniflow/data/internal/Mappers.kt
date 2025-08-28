@@ -282,6 +282,7 @@ internal fun MediaEntity.toDomain() =
                 site = trailerSite,
                 thumbnail = trailerThumbnail,
             ),
+        siteUrl = siteUrl,
     )
 
 internal fun User.toEntity() =
@@ -292,6 +293,7 @@ internal fun User.toEntity() =
         bannerImage = bannerImage,
         profileColor = options?.profileColor,
         unreadNotificationCount = unreadNotificationCount?.toLong(),
+        siteUrl = siteUrl,
     )
 
 internal fun UserEntity.toDomain(): UserModel =

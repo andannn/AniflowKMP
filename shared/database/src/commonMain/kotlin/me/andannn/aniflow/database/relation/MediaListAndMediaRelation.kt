@@ -56,7 +56,7 @@ data class MediaListAndMediaRelation(
             nextAiringEpisode: Long?,
             timeUntilAiring: Long?,
             isFavourite: Boolean?,
-            siteUrl: Long?,
+            siteUrl: String?,
         ): MediaListAndMediaRelation =
             MediaListAndMediaRelation(
                 mediaEntity =
@@ -162,7 +162,7 @@ data class MediaListAndMediaRelationWithUpdateLog(
             nextAiringEpisode: Long?,
             timeUntilAiring: Long?,
             isFavourite: Boolean?,
-            siteUrl: Long?,
+            siteUrl: String?,
             updatedMediaId: String?,
             updateTime: Long?,
         ): MediaListAndMediaRelationWithUpdateLog =

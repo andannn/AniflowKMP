@@ -42,7 +42,7 @@ fun MediaEntityWithDefault(
     startDate: Long? = null,
     endDate: Long? = null,
     isFavourite: Boolean? = null,
-    siteUrl: Long? = null,
+    siteUrl: String? = null,
 ) = MediaEntity(
     id = id,
     mediaType = mediaType,
@@ -85,6 +85,7 @@ fun UserEntityWithDefault(
     bannerImage: String? = null,
     profileColor: String? = null,
     unreadNotificationCount: Long? = null,
+    siteUrl: String? = null,
 ) = UserEntity(
     id = id,
     name = name,
@@ -92,6 +93,7 @@ fun UserEntityWithDefault(
     avatarImage = avatarImage,
     profileColor = profileColor,
     unreadNotificationCount = unreadNotificationCount,
+    siteUrl = siteUrl,
 )
 
 @Suppress("ktlint:standard:function-naming")

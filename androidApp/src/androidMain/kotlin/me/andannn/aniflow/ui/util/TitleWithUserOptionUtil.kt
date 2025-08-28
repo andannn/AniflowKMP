@@ -21,10 +21,17 @@ fun rememberUserTitle(
 ): String {
     val option by authRepository.getUserOptionsFlow().collectAsStateWithLifecycle(UserOptions())
     return remember(title, option.titleLanguage) {
-        when (option.titleLanguage) {
-            UserTitleLanguage.ROMAJI -> title.romaji ?: title.english ?: title.native ?: ""
-            UserTitleLanguage.ENGLISH -> title.english ?: title.romaji ?: title.native ?: ""
-            UserTitleLanguage.NATIVE -> title.native ?: title.romaji ?: title.english ?: ""
-        }
+        getUserTitle(title, option.titleLanguage)
+    }
+}
+
+fun getUserTitle(
+    title: Title,
+    titleLanguage: UserTitleLanguage,
+): String {
+    return when (titleLanguage) {
+        UserTitleLanguage.ROMAJI -> title.romaji ?: title.english ?: title.native ?: ""
+        UserTitleLanguage.ENGLISH -> title.english ?: title.romaji ?: title.native ?: ""
+        UserTitleLanguage.NATIVE -> title.native ?: title.romaji ?: title.english ?: ""
     }
 }

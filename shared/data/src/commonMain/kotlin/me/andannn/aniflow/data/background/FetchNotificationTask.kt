@@ -1,3 +1,7 @@
+/*
+ * Copyright 2025, the AniflowKMP project contributors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package me.andannn.aniflow.data.background
 
 import io.github.aakira.napier.Napier
@@ -65,11 +69,13 @@ class FetchNotificationTask :
         val newNotifications =
             unReadNotificationPage.items.filter { it.id !in alreadySentIds }
 
+        Napier.d(tag = TAG) { "sync success unReadNotificationPage ${unReadNotificationPage.items.size}" }
+
         userSettingPreferences.addSentNotificationId(
             newNotifications.map { it.id },
         )
 
-        Napier.d(tag = TAG) { "sync success ${newNotifications.size}" }
+        Napier.d(tag = TAG) { "sync success newNotifications ${newNotifications.size}" }
         return SyncResult.Success(NotificationResult(newNotifications))
     }
 }
