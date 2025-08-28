@@ -44,7 +44,7 @@ class PagingViewModel<T>: ObservableObject {
 }
 
 struct VerticalGridPaging<T, ItemView>: View where ItemView : View {
-    @StateObject private var viewModel: PagingViewModel<T>
+    @ObservedObject private var viewModel: PagingViewModel<T>
     
     let columns: [GridItem]
     var contentPadding: EdgeInsets
@@ -58,7 +58,7 @@ struct VerticalGridPaging<T, ItemView>: View where ItemView : View {
         key: @escaping (T) -> AnyHashable,
         @ViewBuilder itemContent: @escaping (T) -> ItemView
     ) {
-        _viewModel = StateObject(wrappedValue: PagingViewModel<T>(pageComponent))
+        _viewModel = ObservedObject(wrappedValue: PagingViewModel<T>(pageComponent))
         self.columns = columns
         self.contentPadding = contentPadding
         self.key = key
@@ -106,7 +106,7 @@ struct VerticalGridPaging<T, ItemView>: View where ItemView : View {
 
 
 struct VerticalListPaging<T, ItemView>: View where ItemView : View {
-    @StateObject private var viewModel: PagingViewModel<T>
+    @ObservedObject private var viewModel: PagingViewModel<T>
     
     var contentPadding: EdgeInsets
     let key: (T) -> AnyHashable
@@ -118,7 +118,7 @@ struct VerticalListPaging<T, ItemView>: View where ItemView : View {
         key: @escaping (T) -> AnyHashable,
         @ViewBuilder itemContent: @escaping (T) -> ItemView
     ) {
-        _viewModel = StateObject(wrappedValue: PagingViewModel<T>(pageComponent))
+        _viewModel = ObservedObject(wrappedValue: PagingViewModel<T>(pageComponent))
         self.contentPadding = contentPadding
         self.key = key
         self.itemContent = itemContent
