@@ -73,7 +73,7 @@ struct DiscoverView: View {
                         router.navigateTo(route: AppRoute.mediaCategoryPaingList(category: category))
                     }) {
                         MediaPreviewSector(mediaList: categoryWithContents.medias) { item in
-                            router.navigateTo(route: .notification)
+                            router.navigateTo(route: .stateObjOrObservableObj)
                             // onMediaClick
                             // component.onMediaClick(media: item)
                         }

@@ -48,6 +48,9 @@ interface AuthRepository {
      */
     suspend fun syncUserCondition(): AppError?
 
+    /**
+     * Get a flow of the authenticated user's options.
+     */
     @NativeCoroutines
     fun getUserOptionsFlow(): Flow<UserOptions>
 }

@@ -14,6 +14,9 @@ struct RootView: View {
                         MediaCategoryPaging(category: category)
                     case .notification:
                         Notification()
+                        
+                    case .stateObjOrObservableObj:
+                        ContentView()
                     default:
                         fatalError()
                     }
@@ -45,7 +48,7 @@ final class Router: ObservableObject {
             isAuthDialogShowing = false
             return
         }
-
+        
         path.removeLast()
     }
 }
@@ -54,4 +57,7 @@ enum AppRoute: Hashable {
     case home
     case mediaCategoryPaingList(category: MediaCategory)
     case notification
+    
+    // Demo:
+    case stateObjOrObservableObj
 }
