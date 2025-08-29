@@ -10,29 +10,31 @@ import kotlinx.serialization.Serializable
  * Activity type enum.
  */
 @Serializable
-enum class ActivityType {
+enum class ActivityType(
+    override val key: String,
+) : StringKeyEnum {
     /**
      * A text activity
      */
-    TEXT,
+    TEXT("TEXT"),
 
     /**
      * A anime list update activity
      */
-    ANIME_LIST,
+    ANIME_LIST("ANIME_LIST"),
 
     /**
      * A manga list update activity
      */
-    MANGA_LIST,
+    MANGA_LIST("MANGA_LIST"),
 
     /**
      * A text message activity sent to another user
      */
-    MESSAGE,
+    MESSAGE("MESSAGE"),
 
     /**
      * Anime & Manga list update, only used in query arguments
      */
-    MEDIA_LIST,
+    MEDIA_LIST("MEDIA_LIST"),
 }

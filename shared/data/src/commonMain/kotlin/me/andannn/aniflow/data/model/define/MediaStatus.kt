@@ -10,29 +10,31 @@ import kotlinx.serialization.Serializable
  * The current releasing status of the media
  */
 @Serializable
-enum class MediaStatus {
+enum class MediaStatus(
+    override val key: String,
+) : StringKeyEnum {
     /**
      * Has completed and is no longer being released
      */
-    FINISHED,
+    FINISHED("FINISHED"),
 
     /**
      * Currently releasing
      */
-    RELEASING,
+    RELEASING("RELEASING"),
 
     /**
      * To be released at a later date
      */
-    NOT_YET_RELEASED,
+    NOT_YET_RELEASED("NOT_YET_RELEASED"),
 
     /**
      * Ended before the work could be finished
      */
-    CANCELLED,
+    CANCELLED("CANCELLED"),
 
     /**
      * Version 2 only. Is currently paused from releasing and will resume at a later date
      */
-    HIATUS,
+    HIATUS("HIATUS"),
 }

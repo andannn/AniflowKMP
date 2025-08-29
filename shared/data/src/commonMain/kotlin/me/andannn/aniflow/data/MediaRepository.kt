@@ -45,6 +45,11 @@ interface MediaRepository {
         mediaListStatus: List<MediaListStatus>,
     ): Flow<List<MediaWithMediaListItem>>
 
+    fun getNewReleasedAnimeListFlow(
+        userId: String,
+        timeSecondLaterThan: Long,
+    ): Flow<List<MediaWithMediaListItem>>
+
     /**
      * Load media page by category from remote.
      */

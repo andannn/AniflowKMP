@@ -10,14 +10,16 @@ import kotlinx.serialization.Serializable
  * The type of ranking
  */
 @Serializable
-enum class MediaRankType {
+enum class MediaRankType(
+    override val key: String,
+) : StringKeyEnum {
     /**
      * Ranking is based on the media's ratings/score
      */
-    RATED,
+    RATED("RATING"),
 
     /**
      * Ranking is based on the media's popularity
      */
-    POPULAR,
+    POPULAR("POPULAR"),
 }

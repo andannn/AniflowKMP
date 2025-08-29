@@ -15,14 +15,13 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import me.andannn.aniflow.data.AppError
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.BrowserAuthOperationHandler
 import me.andannn.aniflow.data.internal.exceptions.toError
 import me.andannn.aniflow.data.model.UserModel
 import me.andannn.aniflow.data.model.UserOptions
+import me.andannn.aniflow.data.model.define.StringKeyEnum
 import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import me.andannn.aniflow.database.MediaLibraryDao
@@ -85,10 +84,10 @@ internal class AuthRepositoryImpl(
             database.upsertUser(listOf(user.toEntity()))
             val options = user.options ?: error("User options is null")
             options.titleLanguage?.toDomainType()?.let {
-                userPref.setTitleLanguage(Json.encodeToString(it))
+                userPref.setTitleLanguage(it.key)
             }
             options.staffNameLanguage?.toDomainType()?.let {
-                userPref.setStaffNameLanguage(Json.encodeToString(it))
+                userPref.setStaffNameLanguage(it.key)
             }
 // TODO: save options
             null
@@ -101,10 +100,10 @@ internal class AuthRepositoryImpl(
             .map {
                 UserOptions(
                     titleLanguage =
-                        it.titleLanguage?.let { Json.decodeFromString(it) }
+                        it.titleLanguage?.let { StringKeyEnum.deserialize(it) }
                             ?: UserTitleLanguage.Default,
                     staffNameLanguage =
-                        it.staffNameLanguage?.let { Json.decodeFromString(it) }
+                        it.staffNameLanguage?.let { StringKeyEnum.deserialize(it) }
                             ?: UserStaffNameLanguage.Default,
                 )
             }.distinctUntilChanged()

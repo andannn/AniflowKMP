@@ -57,6 +57,7 @@ query($page: Int, $perPage: Int, $userId: Int, $status_in: [MediaListStatus], $t
           medium
           color
         }
+        bannerImage
         averageScore
         favourites
         trending

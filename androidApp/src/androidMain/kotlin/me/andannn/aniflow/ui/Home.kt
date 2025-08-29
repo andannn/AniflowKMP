@@ -135,15 +135,13 @@ private fun HomeContent(
     onAuthIconClick: () -> Unit = {},
 ) {
     val appBarScrollBehavior =
-        TopAppBarDefaults.pinnedScrollBehavior()
-    val bottomBarScrollBehavior = BottomAppBarDefaults.exitAlwaysScrollBehavior()
+        TopAppBarDefaults.enterAlwaysScrollBehavior()
     val user = state.authedUser
 
     Scaffold(
         modifier =
             modifier
-                .nestedScroll(appBarScrollBehavior.nestedScrollConnection)
-                .nestedScroll(bottomBarScrollBehavior.nestedScrollConnection),
+                .nestedScroll(appBarScrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
                 scrollBehavior = appBarScrollBehavior,
@@ -204,7 +202,6 @@ private fun HomeContent(
         },
         bottomBar = {
             NavigationArea(
-                scrollBehavior = bottomBarScrollBehavior,
                 selected = navigator.currentTopLevelNavigation,
                 onItemClick = { item ->
                     navigator.navigateTo(item)
@@ -252,7 +249,6 @@ private fun NestNavigation(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun NavigationArea(
-    scrollBehavior: BottomAppBarScrollBehavior,
     selected: TopLevelNavigation,
     modifier: Modifier = Modifier,
     onItemClick: (TopLevelNavigation) -> Unit = {},
@@ -260,7 +256,6 @@ private fun NavigationArea(
     FlexibleBottomAppBar(
         modifier = modifier,
         horizontalArrangement = BottomAppBarDefaults.FlexibleFixedHorizontalArrangement,
-        scrollBehavior = scrollBehavior,
         content = {
             TopLevelNavigation.entries.forEach { item ->
                 NavigationBarItem(

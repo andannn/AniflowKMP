@@ -4,6 +4,7 @@
  */
 package me.andannn.aniflow.data.internal
 
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.DiscoverUiDataProvider
 import me.andannn.aniflow.data.HomeAppBarUiDataProvider
@@ -25,9 +27,14 @@ import me.andannn.aniflow.data.internal.tasks.createSideEffectFlow
 import me.andannn.aniflow.data.model.DiscoverUiState
 import me.andannn.aniflow.data.model.HomeAppBarUiState
 import me.andannn.aniflow.data.model.TrackUiState
+import me.andannn.aniflow.data.model.define.MediaContentMode
 import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.model.define.toMediaType
 import me.andannn.aniflow.data.model.relation.CategoryDataModel
+import me.andannn.aniflow.data.model.relation.NEW_RELEASED_DAYS_THRESHOLD
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
+import kotlin.time.ExperimentalTime
 
 internal class DataProviderImpl(
     private val mediaRepo: MediaRepository,
@@ -82,11 +89,13 @@ internal class DataProviderImpl(
         }
 }
 
-@OptIn(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalTime::class)
 context(mediaRepo: MediaRepository, authRepo: AuthRepository)
 private fun discoverUiStateFlow(): Flow<DiscoverUiState> {
+    val authedUserFlow = authRepo.getAuthedUserFlow()
+    val contentModeFlow = mediaRepo.getContentModeFlow()
     val categoryDataFlow =
-        mediaRepo.getContentModeFlow().flatMapLatest { mode ->
+        contentModeFlow.flatMapLatest { mode ->
             val allCategories = mode.toMediaType().allCategories()
             val dataFlowList =
                 allCategories.map { category ->
@@ -100,17 +109,35 @@ private fun discoverUiStateFlow(): Flow<DiscoverUiState> {
             }
         }
 
-    val authedUserFlow = authRepo.getAuthedUserFlow()
-    val contentModeFlow = mediaRepo.getContentModeFlow()
+    val newReleasedFlow =
+        combine(
+            authedUserFlow,
+            contentModeFlow,
+        ) { authedUser, contentMode ->
+            Pair(authedUser, contentMode)
+        }.distinctUntilChanged()
+            .flatMapLatest { (authUser, contentMode) ->
+                if (authUser != null && contentMode == MediaContentMode.ANIME) {
+                    mediaRepo.getNewReleasedAnimeListFlow(
+                        userId = authUser.id,
+                        timeSecondLaterThan =
+                            Clock.System
+                                .now()
+                                .minus(NEW_RELEASED_DAYS_THRESHOLD.days)
+                                .epochSeconds,
+                    )
+                } else {
+                    flow { emit(emptyList()) }
+                }
+            }.onStart { emit(emptyList()) }
+
     return combine(
         categoryDataFlow,
-        authedUserFlow,
-        contentModeFlow,
-    ) { categoryData, authedUser, contentMode ->
+        newReleasedFlow,
+    ) { categoryData, newReleasedMedia ->
         DiscoverUiState(
             categoryDataMap = categoryData,
-            authedUser = authedUser,
-            contentMode = contentMode,
+            newReleasedMedia = newReleasedMedia,
         )
     }.distinctUntilChanged()
 }

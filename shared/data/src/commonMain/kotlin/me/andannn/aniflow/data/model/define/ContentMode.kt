@@ -7,9 +7,11 @@ package me.andannn.aniflow.data.model.define
 import kotlinx.serialization.Serializable
 
 @Serializable
-enum class MediaContentMode {
-    ANIME,
-    MANGA,
+enum class MediaContentMode(
+    override val key: String,
+) : StringKeyEnum {
+    ANIME("ANIME"),
+    MANGA("MANGA"),
 }
 
 fun MediaContentMode.toMediaType(): MediaType =

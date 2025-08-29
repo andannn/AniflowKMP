@@ -26,6 +26,7 @@ import me.andannn.aniflow.data.model.define.MediaSort
 import me.andannn.aniflow.data.model.define.MediaSource
 import me.andannn.aniflow.data.model.define.MediaStatus
 import me.andannn.aniflow.data.model.define.MediaType
+import me.andannn.aniflow.data.model.define.StringKeyEnum
 import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
@@ -82,7 +83,6 @@ internal fun me.andannn.aniflow.service.dto.enums.MediaType.toDomainType() =
     when (this) {
         me.andannn.aniflow.service.dto.enums.MediaType.ANIME -> MediaType.ANIME
         me.andannn.aniflow.service.dto.enums.MediaType.MANGA -> MediaType.MANGA
-        me.andannn.aniflow.service.dto.enums.MediaType.UNKNOWN__ -> null
     }
 
 internal fun me.andannn.aniflow.service.dto.enums.MediaListStatus.toDomainType() =
@@ -215,7 +215,7 @@ internal fun Media.toDomain() = toEntity().toDomain()
 internal fun Media.toEntity() =
     MediaEntity(
         id = id.toString(),
-        mediaType = type?.toDomainType()?.let { Json.encodeToString(it) },
+        mediaType = type?.toDomainType()?.key,
         englishTitle = title?.english,
         romajiTitle = title?.romaji,
         nativeTitle = title?.native,
@@ -225,7 +225,7 @@ internal fun Media.toEntity() =
         coverImageColor = coverImage?.color,
         hashtag = hashtag,
         description = description,
-        source = source?.toDomainType()?.let { Json.encodeToString(it) },
+        source = source?.toDomainType()?.key,
         bannerImage = bannerImage,
         averageScore = averageScore?.toLong(),
         trending = trending?.toLong(),
@@ -234,11 +234,11 @@ internal fun Media.toEntity() =
         trailerSite = trailer?.site,
         trailerThumbnail = trailer?.thumbnail,
         episodes = episodes?.toLong(),
-        season = season?.toDomainType()?.let { Json.encodeToString(it) },
+        season = season?.toDomainType()?.key,
         seasonYear = seasonYear?.toLong(),
         isFavourite = isFavourite,
-        status = status?.toDomainType()?.let { Json.encodeToString(it) },
-        format = format?.toDomainType()?.let { Json.encodeToString(it) },
+        status = status?.toDomainType()?.key,
+        format = format?.toDomainType()?.key,
         timeUntilAiring = nextAiringEpisode?.timeUntilAiring?.toLong(),
         nextAiringEpisode = nextAiringEpisode?.episode?.toLong(),
         genres = Json.encodeToString(genres),
@@ -250,22 +250,22 @@ internal fun Media.toEntity() =
 internal fun MediaEntity.toDomain() =
     MediaModel(
         id = id,
-        type = mediaType?.let { Json.decodeFromString(it) },
+        type = mediaType?.let { StringKeyEnum.deserialize(it) },
         title =
             Title(
                 english = englishTitle,
                 romaji = romajiTitle,
                 native = nativeTitle,
             ),
-        coverImage = coverImageLarge ?: coverImageMedium ?: coverImageExtraLarge,
+        coverImage = coverImageExtraLarge ?: coverImageLarge ?: coverImageMedium,
         description = description,
-        source = source?.let { Json.decodeFromString(it) },
-        status = status?.let { Json.decodeFromString(it) },
-        format = format?.let { Json.decodeFromString(it) },
+        source = source?.let { StringKeyEnum.deserialize(it) },
+        status = status?.let { StringKeyEnum.deserialize(it) },
+        format = format?.let { StringKeyEnum.deserialize(it) },
         bannerImage = bannerImage,
         averageScore = averageScore?.toInt(),
         favourites = favourites?.toInt(),
-        season = season?.let { Json.decodeFromString(it) },
+        season = season?.let { StringKeyEnum.deserialize(it) },
         seasonYear = seasonYear?.toInt(),
         episodes = episodes?.toInt(),
         ratedRank = ratedRanking?.toInt(),
@@ -318,7 +318,7 @@ internal fun MediaList.toEntity(mediaId: String) =
         mediaId = mediaId,
         mediaListId = id.toString(),
         userId = userId.toString(),
-        listStatus = status?.toDomainType()?.let { Json.encodeToString(it) },
+        listStatus = status?.toDomainType()?.key,
         progress = progress?.toLong(),
         notes = notes,
         repeat = repeat?.toLong(),
@@ -333,7 +333,7 @@ internal fun MediaList.toEntity(mediaId: String) =
 internal fun MediaListEntity.toDomain() =
     MediaListModel(
         id = mediaListId,
-        status = listStatus?.let { Json.decodeFromString<MediaListStatus>(it) },
+        status = listStatus?.let { StringKeyEnum.deserialize(it) },
         progress = progress?.toInt(),
         notes = notes,
         repeat = repeat?.toInt(),

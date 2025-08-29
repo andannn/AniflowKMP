@@ -7,24 +7,26 @@ package me.andannn.aniflow.data.model.define
 import kotlinx.serialization.Serializable
 
 @Serializable
-enum class MediaSeason {
+enum class MediaSeason(
+    override val key: String,
+) : StringKeyEnum {
     /**
      * Months December to February
      */
-    WINTER,
+    WINTER("WINTER"),
 
     /**
      * Months March to May
      */
-    SPRING,
+    SPRING("SPRING"),
 
     /**
      * Months June to August
      */
-    SUMMER,
+    SUMMER("SUMMER"),
 
     /**
      * Months September to November
      */
-    FALL,
+    FALL("FALL"),
 }

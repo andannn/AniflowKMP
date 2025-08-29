@@ -131,6 +131,29 @@ class MediaLibraryDao constructor(
                 .mapToList(dispatcher)
         }
 
+    /**
+     * Get media list that has new released episodes after [timeSecondLaterThan].
+     *
+     * @param timeSecondLaterThan The time in seconds to filter new released media lists.
+     */
+    fun getNewReleasedMediaListFlow(
+        userId: String,
+        mediaType: String,
+        listStatus: List<String>,
+        timeSecondLaterThan: Long,
+    ): Flow<List<MediaListAndMediaRelationWithUpdateLog>> =
+        withDatabase {
+            airingUpdatedLogQueries
+                .getNewReleasedMediaListRelation(
+                    userId = userId,
+                    mediaType = mediaType,
+                    listStatus = listStatus,
+                    updateTime = timeSecondLaterThan,
+                    mapper = MediaListAndMediaRelationWithUpdateLog::mapTo,
+                ).asFlow()
+                .mapToList(dispatcher)
+        }
+
     suspend fun upsertRefreshTimeStamp(
         key: String,
         timestamp: Long,

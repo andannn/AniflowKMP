@@ -4,10 +4,12 @@
  */
 package me.andannn.aniflow.data.model.define
 
-enum class NotificationCategory {
-    ALL,
-    AIRING,
-    ACTIVITY,
-    FOLLOWS,
-    MEDIA,
+enum class NotificationCategory(
+    override val key: String,
+) : StringKeyEnum {
+    ALL("ALL"),
+    AIRING("AIRING"),
+    ACTIVITY("ACTIVITY"),
+    FOLLOWS("FOLLOWS"),
+    MEDIA("MEDIA"),
 }
