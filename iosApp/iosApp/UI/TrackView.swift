@@ -5,19 +5,23 @@ import SwiftUI
 class TrackViewModel : ObservableObject {
     private let dataProvider: TrackUiDataProvider
     @Published var uiState: TrackUiState = TrackUiState.companion.Empty
-    
+    private var dataTask : Task<(), any Error>? = nil
+
     init() {
         print("TrackViewModel init")
         dataProvider = KoinHelper.shared.trackDataProvider()
-        Task {
-            for try await state in dataProvider.gettrackUiStateAsyncSequence() {
-                uiState = state
+        dataTask = Task { [weak self] in
+            guard let stream = self?.dataProvider.gettrackUiStateAsyncSequence() else { return }
+               
+            for try await state in stream {
+                self?.uiState = state
             }
         }
     }
     
     deinit {
         print("TrackViewModel deinit")
+        dataTask?.cancel()
     }
 }
 

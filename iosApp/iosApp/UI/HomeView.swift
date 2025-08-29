@@ -7,15 +7,18 @@ class HomeViewModel: ObservableObject {
     @Published public var uiState: HomeAppBarUiState = HomeAppBarUiState.companion.Empty
     private let dataProvider: HomeAppBarUiDataProvider
     private let mediaRepository: MediaRepository
+    private var dataTask : Task<(), any Error>? = nil
     
     init() {
         print("HomeViewModel init")
         dataProvider = KoinHelper.shared.homeAppBarUiDataProvider()
         mediaRepository = KoinHelper.shared.mediaRepository()
         
-        Task {
-            for try await state in dataProvider.appBarFlow() {
-                uiState = state
+        dataTask = Task { [weak self] in
+            guard let stream = self?.dataProvider.appBarAsyncSequence() else { return }
+            
+            for try await state in stream {
+                self?.uiState = state
             }
         }
     }
@@ -34,6 +37,11 @@ class HomeViewModel: ObservableObject {
             setContentMode(mode: .anime)
         }
     }
+    
+    deinit {
+        print("HomeViewModel deinit")
+        dataTask?.cancel()
+    }
 }
 
 struct HomeView: View {
@@ -49,7 +57,7 @@ struct HomeView: View {
             set: { viewModel.setContentMode(mode: $0 ? .anime : .manga) }
         )
     }
-
+    
     var body: some View {
         TabView(selection: $selection) {
             ForEach([TopLevelNavigation.discover,
@@ -92,8 +100,6 @@ struct HomeView: View {
             }
         }
     }
-    
-    
     
     @ViewBuilder
     private func screen(for tab: TopLevelNavigation) -> some View {
@@ -150,7 +156,7 @@ enum TopLevelNavigation {
 
 private struct ModeSwitchInToolbar: View {
     let isAnime: Binding<Bool>
-
+    
     var body: some View {
         Picker("", selection: isAnime) {
             Image(systemName: "film.fill")

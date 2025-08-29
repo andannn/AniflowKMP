@@ -35,6 +35,7 @@ final class NotificationViewModel: ObservableObject {
 
 struct Notification: View {
     @StateObject private var viewModel = NotificationViewModel()
+    @EnvironmentObject private var router: Router
     let cols = [GridItem(.adaptive(minimum: 120), spacing: 12)]
     
     var body: some View {
@@ -46,10 +47,13 @@ struct Notification: View {
                     key: { AnyHashable($0.id) },
                     itemContent: { notification in
                         NotificationItemView(
-                            model: notification
+                            model: notification,
+                            onNotificationClick: {
+                                router.navigateTo(route: .stateObjOrObservableObj)
+                            }
                         )
                     }
-                )
+                ).id(viewModel.selectedCategory)
             } else {
                 EmptyView()
             }

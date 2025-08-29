@@ -69,6 +69,10 @@ class NotificationViewModel : ViewModel() {
     fun selectCategory(category: NotificationCategory) {
         _selectedCategory.value = category
     }
+
+    override fun onCleared() {
+        pagingController?.dispose()
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)

@@ -12,17 +12,20 @@ class PagingViewModel<T>: ObservableObject {
     
     init(_ pageComponent: PageComponent) {
         self.pageComponent = pageComponent
-        print("PagingViewModel init")
+        print("PagingViewModel init \(self)")
         
-        dataTask = Task {
-            for try await items in pageComponent.pageItems() {
-                pageItems = items as! Array<T>
+        dataTask = Task { [weak self] in
+            guard let stream = self?.pageComponent.pageItems() else { return }
+            for try await items in stream {
+                self?.pageItems = items as! Array<T>
             }
         }
         
-        stateTask = Task {
-            for try await status in pageComponent.pageStaus() {
-                self.status = status
+        stateTask = Task { [weak self] in
+            guard let stream = self?.pageComponent.pageStaus() else { return }
+
+            for try await status in stream {
+                self?.status = status
             }
         }
     }
@@ -31,20 +34,16 @@ class PagingViewModel<T>: ObservableObject {
         pageComponent.loadNextPage()
     }
     
-    func clear() {
-        print("PagingViewModel clear")
+    deinit {
+        print("PagingViewModel deinit \(self)")
+        pageComponent.dispose()
         dataTask?.cancel()
         stateTask?.cancel()
-        pageComponent.dispose()
-    }
-    
-    deinit {
-        print("PagingViewModel deinit")
     }
 }
 
 struct VerticalGridPaging<T, ItemView>: View where ItemView : View {
-    @ObservedObject private var viewModel: PagingViewModel<T>
+    @StateObject private var viewModel: PagingViewModel<T>
     
     let columns: [GridItem]
     var contentPadding: EdgeInsets
@@ -58,7 +57,7 @@ struct VerticalGridPaging<T, ItemView>: View where ItemView : View {
         key: @escaping (T) -> AnyHashable,
         @ViewBuilder itemContent: @escaping (T) -> ItemView
     ) {
-        _viewModel = ObservedObject(wrappedValue: PagingViewModel<T>(pageComponent))
+        _viewModel = StateObject(wrappedValue: PagingViewModel<T>(pageComponent))
         self.columns = columns
         self.contentPadding = contentPadding
         self.key = key
@@ -93,9 +92,6 @@ struct VerticalGridPaging<T, ItemView>: View where ItemView : View {
             }
             .padding(contentPadding)
         }
-        .onDisappear {
-            viewModel.clear()
-        }
     }
     
     private func itemsWithID() -> [Identified<T>] {
@@ -103,10 +99,8 @@ struct VerticalGridPaging<T, ItemView>: View where ItemView : View {
     }
 }
 
-
-
 struct VerticalListPaging<T, ItemView>: View where ItemView : View {
-    @ObservedObject private var viewModel: PagingViewModel<T>
+    @StateObject private var viewModel: PagingViewModel<T>
     
     var contentPadding: EdgeInsets
     let key: (T) -> AnyHashable
@@ -118,7 +112,7 @@ struct VerticalListPaging<T, ItemView>: View where ItemView : View {
         key: @escaping (T) -> AnyHashable,
         @ViewBuilder itemContent: @escaping (T) -> ItemView
     ) {
-        _viewModel = ObservedObject(wrappedValue: PagingViewModel<T>(pageComponent))
+        _viewModel = StateObject(wrappedValue: PagingViewModel<T>(pageComponent))
         self.contentPadding = contentPadding
         self.key = key
         self.itemContent = itemContent
@@ -147,9 +141,6 @@ struct VerticalListPaging<T, ItemView>: View where ItemView : View {
                 }
             }
             .padding(contentPadding)
-        }
-        .onDisappear {
-            viewModel.clear()
         }
     }
     

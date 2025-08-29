@@ -44,7 +44,7 @@ extension TrackUiDataProvider {
 }
 
 extension HomeAppBarUiDataProvider {
-    func appBarFlow()
+    func appBarAsyncSequence()
     -> NativeFlowAsyncSequence<HomeAppBarUiState, Error, KotlinUnit> {
         asyncSequence(for: appBarFlow())
     }
@@ -63,7 +63,7 @@ extension FetchNotificationTask {
 }
 
 extension AuthRepository {
-    func getAuthedUserFlow()
+    func getAuthedUserAsyncSequence()
     -> NativeFlowAsyncSequence<Optional<UserModel>, Error, KotlinUnit> {
         asyncSequence(for: getAuthedUserFlow())
     }
