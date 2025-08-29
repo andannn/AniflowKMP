@@ -10,16 +10,18 @@ import kotlinx.serialization.Serializable
  * Media type enum, anime or manga.
  */
 @Serializable
-enum class MediaType {
+enum class MediaType(
+    override val key: String,
+) : StringKeyEnum {
     /**
      * Japanese Anime
      */
-    ANIME,
+    ANIME("ANIME"),
 
     /**
      * Asian comic
      */
-    MANGA,
+    MANGA("MANGA"),
 
     ;
 

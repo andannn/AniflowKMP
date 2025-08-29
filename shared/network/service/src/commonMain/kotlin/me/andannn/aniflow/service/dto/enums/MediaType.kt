@@ -22,9 +22,4 @@ enum class MediaType(
      * Asian comic
      */
     MANGA("MANGA"),
-
-    /**
-     * Auto generated constant for unknown enum values
-     */
-    UNKNOWN__("UNKNOWN__"),
 }

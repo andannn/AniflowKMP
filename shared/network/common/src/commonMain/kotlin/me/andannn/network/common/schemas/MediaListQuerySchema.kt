@@ -43,6 +43,7 @@ query($mediaId: Int, $userId: Int, $format: ScoreFormat) {
         season
         source
         status
+        bannerImage
         coverImage {
           extraLarge
           large

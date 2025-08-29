@@ -118,6 +118,27 @@ internal class MediaRepositoryImpl(
             }
         }
 
+    override fun getNewReleasedAnimeListFlow(
+        userId: String,
+        timeSecondLaterThan: Long,
+    ): Flow<List<MediaWithMediaListItem>> =
+        with(mediaService) {
+            with(mediaLibraryDao) {
+                getNewReleasedMediaListFlow(
+                    userId = userId,
+                    mediaType = Json.encodeToString(MediaType.ANIME),
+                    listStatus =
+                        listOf(
+                            MediaListStatus.CURRENT,
+                            MediaListStatus.PLANNING,
+                        ).map { Json.encodeToString(it) },
+                    timeSecondLaterThan = timeSecondLaterThan,
+                ).map {
+                    it.map(MediaListAndMediaRelationWithUpdateLog::toDomain)
+                }
+            }
+        }
+
     override suspend fun loadMediaPageByCategory(
         category: MediaCategory,
         page: Int,
