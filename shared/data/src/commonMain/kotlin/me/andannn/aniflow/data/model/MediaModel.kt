@@ -97,4 +97,5 @@ data class MediaModel(
      * The media's next episode airing schedule
      */
     public val nextAiringEpisode: EpisodeModel? = null,
+    public val siteUrl: String? = null,
 )

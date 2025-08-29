@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS mediaEntity (
   nextAiringEpisode INTEGER DEFAULT NULL,
   timeUntilAiring INTEGER DEFAULT NULL,
   isFavourite INTEGER AS Boolean DEFAULT NULL ,
-  siteUrl INTEGER DEFAULT NULL
+  siteUrl TEXT DEFAULT NULL
 );
 
 getAllMedias:

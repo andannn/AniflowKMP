@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import me.andannn.aniflow.datastore.model.PreferencesKeyName
 import me.andannn.aniflow.datastore.model.UserSettingPref
@@ -32,6 +33,9 @@ class UserSettingPreferences(
                         preferences[stringPreferencesKey(PreferencesKeyName.TITLE_LANGUAGE_KEY_NAME)],
                     staffNameLanguage =
                         preferences[stringPreferencesKey(PreferencesKeyName.STAFF_NAME_LANGUAGE_KEY_NAME)],
+                    sentNotificationIds =
+                        preferences[stringPreferencesKey(PreferencesKeyName.SENT_NOTIFICATION_ID_KEY_NAME)]
+                            ?.split(",") ?: emptyList(),
                 )
             }
 
@@ -42,7 +46,8 @@ class UserSettingPreferences(
         preferences.updateData { currentPreferences ->
             currentPreferences.toMutablePreferences().apply {
                 this[stringPreferencesKey(PreferencesKeyName.AUTH_TOKEN_KEY_NAME)] = token
-                this[intPreferencesKey(PreferencesKeyName.AUTH_EXPIRED_TIME_KEY_NAME)] = expiredTime.toInt()
+                this[intPreferencesKey(PreferencesKeyName.AUTH_EXPIRED_TIME_KEY_NAME)] =
+                    expiredTime.toInt()
             }
         }
     }
@@ -83,7 +88,17 @@ class UserSettingPreferences(
     suspend fun setStaffNameLanguage(language: String) {
         preferences.updateData { currentPreferences ->
             currentPreferences.toMutablePreferences().apply {
-                this[stringPreferencesKey(PreferencesKeyName.STAFF_NAME_LANGUAGE_KEY_NAME)] = language
+                this[stringPreferencesKey(PreferencesKeyName.STAFF_NAME_LANGUAGE_KEY_NAME)] =
+                    language
+            }
+        }
+    }
+
+    suspend fun addSentNotificationId(ids: List<String>) {
+        preferences.updateData { currentPreferences ->
+            currentPreferences.toMutablePreferences().apply {
+                this[stringPreferencesKey(PreferencesKeyName.SENT_NOTIFICATION_ID_KEY_NAME)] =
+                    (userData.first().sentNotificationIds + ids).distinct().joinToString(",")
             }
         }
     }

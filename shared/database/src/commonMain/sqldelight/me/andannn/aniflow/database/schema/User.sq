@@ -4,7 +4,8 @@ CREATE TABLE IF NOT EXISTS userEntity (
   avatarImage TEXT DEFAULT NULL,
   bannerImage TEXT DEFAULT NULL,
   profileColor TEXT DEFAULT NULL,
-  unreadNotificationCount INTEGER DEFAULT NULL
+  unreadNotificationCount INTEGER DEFAULT NULL,
+  siteUrl TEXT DEFAULT NULL
 );
 
 upsertUser:

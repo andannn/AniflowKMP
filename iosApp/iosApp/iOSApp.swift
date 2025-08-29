@@ -1,5 +1,6 @@
 import SwiftUI
 import Shared
+import BackgroundTasks
 
 @main
 struct iOSApp: App {
@@ -30,6 +31,11 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             browserAuthOperationHandler: authHandler
         )
         
+        BGTaskScheduler.shared.register(forTaskWithIdentifier: "me.aniflow.notifications", using: nil) { task in
+            handleRefreshTask(task: task as! BGAppRefreshTask)
+        }
+        scheduleRefresh()
+
         #if DEBUG
         print("Running in Debug mode")
         Logger.shared.enableDebugLog()
@@ -38,5 +44,32 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         #endif
 
         return true
+    }
+}
+
+
+func scheduleRefresh() {
+    print("scheduleRefresh")
+
+    let request = BGAppRefreshTaskRequest(identifier: "me.aniflow.notifications")
+    request.earliestBeginDate = Date(timeIntervalSinceNow: 60 * 60)
+    do {
+        try BGTaskScheduler.shared.submit(request)
+    } catch {
+        print("Submit BGAppRefreshTask failed: \(error)")
+    }
+}
+
+func handleRefreshTask(task: BGAppRefreshTask) {
+    scheduleRefresh()
+
+    print("handleRefreshTask: \(task)")
+    let notificationTask = Task {
+        let result = await iOSNotificationWorker().doWork()
+        task.setTaskCompleted(success: result)
+    }
+
+    task.expirationHandler = {
+        notificationTask.cancel()
     }
 }

@@ -6,9 +6,6 @@ package me.andannn.aniflow.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -20,17 +17,16 @@ import androidx.navigation3.ui.DialogSceneStrategy.Companion.dialog
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.SinglePaneSceneStrategy
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
+import me.andannn.aniflow.data.Screen
 
 @Composable
-fun App() {
-    val backStack = rememberSaveable { mutableStateListOf<Screen>(Screen.Home) }
-    val navigator = remember { RootNavigator(backStack) }
+fun App(navigator: RootNavigator) {
     CompositionLocalProvider(
         LocalRootNavigator provides navigator,
     ) {
         NavDisplay(
             modifier = Modifier,
-            backStack = backStack,
+            backStack = navigator.backStackList,
             sceneStrategy = DialogSceneStrategy<Screen>() then SinglePaneSceneStrategy(),
             entryDecorators =
                 listOf(
@@ -72,6 +68,9 @@ val LocalRootNavigator =
 class RootNavigator(
     private val backStack: SnapshotStateList<Screen>,
 ) {
+    val backStackList: List<Screen>
+        get() = backStack
+
     fun navigateTo(screen: Screen) {
         backStack.add(screen)
     }

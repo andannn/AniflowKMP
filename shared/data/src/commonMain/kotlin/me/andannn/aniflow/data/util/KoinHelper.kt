@@ -7,6 +7,7 @@ package me.andannn.aniflow.data.util
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 import me.andannn.aniflow.data.BrowserAuthOperationHandler
+import me.andannn.aniflow.data.background.FetchNotificationTask
 import me.andannn.aniflow.data.di.dataModule
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
@@ -39,6 +40,8 @@ object KoinHelper {
     fun mediaRepository() = koinInstance().get<me.andannn.aniflow.data.MediaRepository>()
 
     fun authRepository() = koinInstance().get<me.andannn.aniflow.data.AuthRepository>()
+
+    fun notificationFetchTask() = FetchNotificationTask()
 
     private fun platformModule(browserAuthOperationHandler: BrowserAuthOperationHandler) =
         module {

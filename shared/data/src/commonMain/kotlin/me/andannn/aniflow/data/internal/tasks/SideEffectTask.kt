@@ -24,6 +24,12 @@ import kotlin.time.ExperimentalTime
 
 internal const val TAG = "SideEffectTask"
 
+/**
+ * Create a [Flow] that runs the provided [tasks] and aggregates their [SyncStatus].
+ *
+ * @param forceRefreshFirstTime If true, all tasks will refresh data regardless of the last refresh time on the first run.
+ * @param tasks The tasks to run.
+ */
 internal fun createSideEffectFlow(
     forceRefreshFirstTime: Boolean,
     vararg tasks: SideEffectTask<SyncStatus>,

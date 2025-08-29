@@ -35,7 +35,7 @@ interface AuthRepository {
      *
      * @return returns an [AppError] if the login process fails, or null if it succeeds.
      */
-    @NativeCoroutines()
+    @NativeCoroutines
     suspend fun startLoginProcessAndWaitResult(): AppError?
 
     @NativeCoroutines
@@ -48,6 +48,9 @@ interface AuthRepository {
      */
     suspend fun syncUserCondition(): AppError?
 
+    /**
+     * Get a flow of the authenticated user's options.
+     */
     @NativeCoroutines
     fun getUserOptionsFlow(): Flow<UserOptions>
 }

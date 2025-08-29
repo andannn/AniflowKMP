@@ -10,26 +10,30 @@ class DiscoverViewModel: ObservableObject {
     private var sideEffectTask: Task<Void, Never>? = nil
     private var refreshCompleter: OneShotCompleter<Void>? = nil
     private let mediaRepository: MediaRepository
-    
+    private var statusTask:  Task<(), any Error>? = nil
+
     init() {
         print("DiscoverViewModel init")
         dataProvider = KoinHelper.shared.discoverDataProvider()
         mediaRepository = KoinHelper.shared.mediaRepository()
-        Task {
-            for try await state in dataProvider.getdiscoverUiStateAsyncSequence() {
+        statusTask = Task { [weak self] in
+            guard let stream = self?.dataProvider.getdiscoverUiStateAsyncSequence() else { return }
+               
+            for try await state in stream {
                 print("Discover contentMode change: \(state.contentMode)")
-                uiState = state
+                self?.uiState = state
             }
-            
         }
         
         cancelLastAndRegisterUiSideEffect(force: false, completer: nil)
     }
     
     deinit {
+        statusTask?.cancel()
+        sideEffectTask?.cancel()
         print("DiscoverViewModel deinit")
     }
-    
+
     func doRefreshAndAwait() async throws {
         refreshCompleter?.cancel()
         refreshCompleter = OneShotCompleter<Void>()
@@ -40,9 +44,11 @@ class DiscoverViewModel: ObservableObject {
     func cancelLastAndRegisterUiSideEffect(force: Bool, completer: OneShotCompleter<Void>?) {
         sideEffectTask?.cancel()
         var isCompleted = false
-        sideEffectTask = Task {
+        sideEffectTask = Task { [weak self] in
+            guard let stream = self?.dataProvider.discoverUiSideEffectStatusSequence(force) else { return }
+
             do {
-                for try await status in dataProvider.discoverUiSideEffectStatusSequence(force) {
+                for try await status in stream {
                     // handle side effect status.
                     print("Discover cancelLastAndRegisterUiSideEffect status: \(status)")
                     if completer != nil && !status.isLoading() && !isCompleted {

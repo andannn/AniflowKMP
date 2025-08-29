@@ -8,13 +8,18 @@ class LoginDialogViewModel : ObservableObject {
     @Published  var user: UserModel? = nil
     
     private var loginTask : Task<(), any Error>? = nil
+    private var dataTask : Task<(), any Error>? = nil
     
     init() {
+        print("LoginDialogViewModel init")
+        
         authRepository = KoinHelper.shared.authRepository()
         
-        Task {
-            for try await user in self.authRepository.getAuthedUserFlow() {
-                self.user = user
+        dataTask = Task { [weak self] in
+            guard let stream = self?.authRepository.getAuthedUserAsyncSequence() else { return }
+
+            for try await user in stream {
+                self?.user = user
             }
         }
     }
@@ -27,6 +32,12 @@ class LoginDialogViewModel : ObservableObject {
             let appError = try await authRepository.startLoginProcessAndWaitResult()
             print("LoginDialogViewModel end appError? \(String(describing: appError?.message)) ")
         }
+    }
+
+    deinit {
+        print("LoginDialogViewModel deinit")
+        dataTask?.cancel()
+        loginTask?.cancel()
     }
 }
 

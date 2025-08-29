@@ -43,6 +43,7 @@ import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.DiscoverUiDataProvider
 import me.andannn.aniflow.data.MediaRepository
+import me.andannn.aniflow.data.Screen
 import me.andannn.aniflow.data.model.DiscoverUiState
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.define.MediaCategory

@@ -39,6 +39,10 @@ public data class User(
      * The user's media list options
      */
     public val mediaListOptions: MediaListOptions? = null,
+    /**
+     * The url for the user's AniList page
+     */
+    public val siteUrl: String? = null,
 )
 
 @Serializable
