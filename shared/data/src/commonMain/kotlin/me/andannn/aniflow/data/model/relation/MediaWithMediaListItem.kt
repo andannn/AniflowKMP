@@ -12,6 +12,8 @@ import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
+internal const val NEW_RELEASED_DAYS_THRESHOLD = 3
+
 data class MediaWithMediaListItem
     @OptIn(ExperimentalTime::class)
     constructor(
@@ -29,7 +31,7 @@ data class MediaWithMediaListItem
             haveNextEpisode && (
                 airingScheduleUpdateTime != null &&
                     !isElapsed(
-                        3,
+                        NEW_RELEASED_DAYS_THRESHOLD,
                         airingScheduleUpdateTime,
                     )
             )

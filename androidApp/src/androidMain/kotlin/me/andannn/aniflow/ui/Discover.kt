@@ -4,6 +4,7 @@
  */
 package me.andannn.aniflow.ui
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -48,8 +49,10 @@ import me.andannn.aniflow.data.model.DiscoverUiState
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
+import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.ui.util.rememberUserTitle
 import me.andannn.aniflow.ui.widget.MediaPreviewItem
+import me.andannn.aniflow.ui.widget.NewReleaseCard
 import org.koin.compose.viewmodel.koinViewModel
 
 private const val TAG = "Discover"
@@ -108,6 +111,7 @@ fun Discover(
     DiscoverContent(
         isRefreshing = isRefreshing,
         categoryDataList = state.categoryDataMap.content,
+        newReleasedMedia = state.newReleasedMedia,
         onMediaClick = {
             navigator.navigateTo(Screen.Notification)
         },
@@ -123,8 +127,9 @@ fun Discover(
 @Composable
 fun DiscoverContent(
     isRefreshing: Boolean,
-    categoryDataList: List<CategoryWithContents>,
     modifier: Modifier = Modifier,
+    categoryDataList: List<CategoryWithContents>,
+    newReleasedMedia: List<MediaWithMediaListItem>,
     onMediaClick: (MediaModel) -> Unit,
     onPullRefresh: () -> Unit,
     onNavigateToMediaCategory: (MediaCategory) -> Unit = {},
@@ -153,6 +158,16 @@ fun DiscoverContent(
         },
     ) {
         LazyColumn {
+            item {
+                AnimatedVisibility(
+                    visible = newReleasedMedia.isNotEmpty(),
+                ) {
+                    NewReleaseCard(
+                        items = newReleasedMedia,
+                    )
+                }
+            }
+
             items(
                 items = categoryDataList,
                 key = { it.category },

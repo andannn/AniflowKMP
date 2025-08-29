@@ -10,79 +10,81 @@ import kotlinx.serialization.Serializable
  * Source type the media was adapted from
  */
 @Serializable
-enum class MediaSource {
+enum class MediaSource(
+    override val key: String,
+) : StringKeyEnum {
     /**
      * An original production not based of another work
      */
-    ORIGINAL,
+    ORIGINAL("ORIGINAL"),
 
     /**
      * Asian comic book
      */
-    MANGA,
+    MANGA("MANGA"),
 
     /**
      * Written work published in volumes
      */
-    LIGHT_NOVEL,
+    LIGHT_NOVEL("LIGHT_NOVEL"),
 
     /**
      * Video game driven primary by text and narrative
      */
-    VISUAL_NOVEL,
+    VISUAL_NOVEL("VISUAL_NOVEL"),
 
     /**
      * Video game
      */
-    VIDEO_GAME,
+    VIDEO_GAME("VIDEO_GAME"),
 
     /**
      * Other
      */
-    OTHER,
+    OTHER("OTHER"),
 
     /**
      * Version 2+ only. Written works not published in volumes
      */
-    NOVEL,
+    NOVEL("NOVEL"),
 
     /**
      * Version 2+ only. Self-published works
      */
-    DOUJINSHI,
+    DOUJINSHI("DOUJINSHI"),
 
     /**
      * Version 2+ only. Japanese Anime
      */
-    ANIME,
+    ANIME("ANIME"),
 
     /**
      * Version 3 only. Written works published online
      */
-    WEB_NOVEL,
+    WEB_NOVEL("WEB_NOVEL"),
 
     /**
      * Version 3 only. Live action media such as movies or TV show
      */
-    LIVE_ACTION,
+    LIVE_ACTION("LIVE_ACTION"),
 
     /**
      * Version 3 only. Games excluding video games
      */
-    GAME,
+    GAME("GAME"),
 
     /**
      * Version 3 only. Comics excluding manga
      */
-    COMIC,
+    COMIC("COMIC"),
 
     /**
      * Version 3 only. Multimedia project
      */
-    MULTIMEDIA_PROJECT,
+    MULTIMEDIA_PROJECT("MULTIMEDIA_PROJECT"),
 
     /**
      * Version 3 only. Picture book
      */
-    PICTURE_BOOK,
+    PICTURE_BOOK("PICTURE_BOOK"),
 }

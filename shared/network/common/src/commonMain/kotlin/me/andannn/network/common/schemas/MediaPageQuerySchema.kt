@@ -27,6 +27,7 @@ query ($page: Int, $perPage: Int, $type: MediaType, $countryCode: CountryCode, $
         month
         day
       }
+      bannerImage
       coverImage {
         extraLarge
         large

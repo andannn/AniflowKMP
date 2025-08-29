@@ -3,8 +3,9 @@ CREATE TABLE IF NOT EXISTS AiringUpdatedLogEntity (
   updateTime INTEGER DEFAULT NULL
 );
 
-queryAllAiringUpdatedLog:
-SELECT * FROM AiringUpdatedLogEntity;
+upsertAiringUpdatedLogForTest:
+INSERT INTO AiringUpdatedLogEntity(updatedMediaId, updateTime)
+VALUES (?, ?);
 
 getMediaListRelationWithAiringUpdatedLog:
 SELECT *
@@ -14,3 +15,16 @@ LEFT JOIN AiringUpdatedLogEntity ON mediaEntity.id = AiringUpdatedLogEntity.upda
 WHERE mediaListEntity.userId = ?
     AND mediaEntity.mediaType = ?
     AND mediaListEntity.listStatus IN ?;
+
+getNewReleasedMediaListRelation:
+SELECT *
+FROM mediaListEntity
+INNER JOIN mediaEntity ON mediaListEntity.mediaId = mediaEntity.id
+INNER JOIN AiringUpdatedLogEntity ON mediaEntity.id = AiringUpdatedLogEntity.updatedMediaId
+WHERE mediaListEntity.userId = ?
+    AND mediaEntity.mediaType = ?
+    AND mediaListEntity.listStatus IN ?
+    AND AiringUpdatedLogEntity.updateTime > ?;
+
+-- INSERT INTO AiringUpdatedLogEntity(updatedMediaId, updateTime) VALUES (176234, 1756455552);
+-- INSERT INTO AiringUpdatedLogEntity(updatedMediaId, updateTime) VALUES (171627, 1756455552);
