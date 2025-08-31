@@ -53,8 +53,8 @@ val AppNameFontFamily =
                     FontVariation.weight(741),
                     FontVariation.width(100f),
                     FontVariation.slant(-10f),
-                    FontVariation.Setting("ytas", 780f),
-                    FontVariation.Setting("ytlc", 448f),
+                    FontVariation.ascenderHeight(780f),
+                    FontVariation.lowercaseHeight(448f),
                 ),
         ),
     )
@@ -68,13 +68,56 @@ val EspecialMessageFontFamily =
                 FontVariation.Settings(
                     FontVariation.width(150f),
                     FontVariation.weight(350),
-                    FontVariation.Setting("XOPQ", 86f),
-                    FontVariation.Setting("XTRA", 435f),
-                    FontVariation.Setting("YTUC", 760f),
-                    FontVariation.Setting("YTLC", 437f),
-                    FontVariation.Setting("YTAS", 854f),
-                    FontVariation.Setting("YTDE", -350f),
-                    FontVariation.Setting("YTFI", 700f),
+                    FontVariation.thickStroke(86f),
+                    FontVariation.counterWidth(435f),
+                    FontVariation.uppercaseHeight(760f),
+                    FontVariation.lowercaseHeight(437f),
+                    FontVariation.ascenderHeight(854f),
+                    FontVariation.descenderDepth(-350f),
+                    FontVariation.figureHeight(700f),
                 ),
         ),
     )
+
+@OptIn(ExperimentalTextApi::class)
+val StyledTitleFontFamily =
+    FontFamily(
+        Font(
+            R.font.robotoflex_variable,
+            variationSettings =
+                FontVariation.Settings(
+                    FontVariation.slant(-9f),
+                    FontVariation.width(25f),
+                    FontVariation.weight(700),
+                    FontVariation.grade(-66f),
+                    FontVariation.counterWidth(446f),
+                    FontVariation.thinStroke(77f),
+                    FontVariation.ascenderHeight(791f),
+                    FontVariation.descenderDepth(-305f),
+                    FontVariation.figureHeight(788f),
+                    FontVariation.lowercaseHeight(500f),
+                    FontVariation.uppercaseHeight(760f),
+                    FontVariation.opticalSize(true),
+                ),
+        ),
+    )
+
+private fun FontVariation.grade(value: Float) = FontVariation.Setting(name = "GRAD", value = value)
+
+private fun FontVariation.thickStroke(value: Float) = FontVariation.Setting(name = "XOPQ", value = value)
+
+private fun FontVariation.thinStroke(value: Float) = FontVariation.Setting(name = "YOPQ", value = value)
+
+private fun FontVariation.counterWidth(value: Float) = FontVariation.Setting(name = "XTRA", value = value)
+
+private fun FontVariation.uppercaseHeight(value: Float) = FontVariation.Setting(name = "YTUC", value = value)
+
+private fun FontVariation.lowercaseHeight(value: Float) = FontVariation.Setting(name = "YTLC", value = value)
+
+private fun FontVariation.ascenderHeight(value: Float) = FontVariation.Setting(name = "YTAS", value = value)
+
+private fun FontVariation.descenderDepth(value: Float) = FontVariation.Setting(name = "YTDE", value = value)
+
+private fun FontVariation.figureHeight(value: Float) = FontVariation.Setting(name = "YTFI", value = value)
+
+private fun FontVariation.opticalSize(enabled: Boolean) = FontVariation.Setting(name = "opsz", value = if (enabled) 1f else 0f)

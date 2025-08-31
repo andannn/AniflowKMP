@@ -112,7 +112,7 @@ internal class MediaRepositoryImpl(
                     mediaType = mediaType.key,
                     listStatus = mediaListStatus.map { it.key },
                 ).map {
-                    it.map(MediaListAndMediaRelationWithUpdateLog::toDomain).sorted()
+                    it.map(MediaListAndMediaRelationWithUpdateLog::toDomain)
                 }
             }
         }
@@ -353,20 +353,6 @@ private suspend fun MediaCategory.getMediaOfCategoryFromRemote(
             sort = sorts?.map { it.toServiceType() },
         )
 }
-
-private fun List<MediaWithMediaListItem>.sorted() =
-    sortedWith(
-        compareByDescending<MediaWithMediaListItem> { it.priority }
-            .thenByDescending { it.mediaListModel.updatedAt },
-    )
-
-private val MediaWithMediaListItem.priority: Int
-    get() =
-        when {
-            isNewReleased -> 3
-            haveNextEpisode -> 2
-            else -> 1
-        }
 
 context(service: AniListService)
 private suspend fun NotificationCategory.getNotificationPage(

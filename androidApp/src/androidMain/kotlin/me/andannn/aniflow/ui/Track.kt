@@ -5,13 +5,22 @@
 package me.andannn.aniflow.ui
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
@@ -23,6 +32,7 @@ import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.TrackUiDataProvider
 import me.andannn.aniflow.data.model.TrackUiState
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
+import me.andannn.aniflow.ui.util.rememberUserTitle
 import me.andannn.aniflow.ui.widget.MediaRowItem
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -58,31 +68,87 @@ fun Track(
     viewModel: TrackViewModel = koinViewModel(),
 ) {
     val content by viewModel.state.collectAsStateWithLifecycle()
-    TrackContent(
-        content = content.items,
+    Surface(
         modifier = modifier,
-    )
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+    ) {
+        TrackContent(
+            content = content,
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TrackContent(
-    content: List<MediaWithMediaListItem>,
+    content: TrackUiState,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(modifier) {
-        items(
-            items = content,
-            key = { it.mediaListModel.id },
-        ) { item ->
-            val media = item.mediaModel
-            Column {
-                Text("hasNextEpisode: ${item.haveNextEpisode}, isNewReleased: ${item.isNewReleased}")
-                MediaRowItem(
-                    title = media.title?.romaji.toString(),
-                    coverImage = media.coverImage,
-                )
+        content.categoryWithItems.forEach { (category, items) ->
+            if (items.isNotEmpty()) {
+                stickyHeader(
+                    key = "header_${category.name}",
+                ) {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    ) {
+                        Text(
+                            modifier = Modifier.padding(top = 12.dp, start = 8.dp),
+                            text = category.title,
+                            style = MaterialTheme.typography.labelLarge,
+                        )
+                    }
+                }
+                itemsIndexed(
+                    items = items,
+                    key = { index, item -> item.mediaListModel.id },
+                ) { index, item ->
+                    val isFirst = index == 0
+                    val isLast = index == items.lastIndex
+                    Column {
+                        MediaRowItem(
+                            item = item,
+                            shape = listItemShape(isFirst, isLast),
+                            titleMaxLines = Int.MAX_VALUE,
+                        )
+                        Spacer(Modifier.height(2.dp))
+                    }
+                }
             }
         }
+    }
+}
+
+@Composable
+private fun listItemShape(
+    isFirst: Boolean,
+    isLast: Boolean,
+): RoundedCornerShape {
+    val edgeConerSize = MaterialTheme.shapes.large.topEnd
+    val middleConerSize = MaterialTheme.shapes.extraSmall.topStart
+
+    return if (isFirst) {
+        RoundedCornerShape(
+            topStart = edgeConerSize,
+            topEnd = edgeConerSize,
+            bottomStart = middleConerSize,
+            bottomEnd = middleConerSize,
+        )
+    } else if (isLast) {
+        RoundedCornerShape(
+            topStart = middleConerSize,
+            topEnd = middleConerSize,
+            bottomStart = edgeConerSize,
+            bottomEnd = edgeConerSize,
+        )
+    } else {
+        RoundedCornerShape(
+            topStart = middleConerSize,
+            topEnd = middleConerSize,
+            bottomStart = middleConerSize,
+            bottomEnd = middleConerSize,
+        )
     }
 }
