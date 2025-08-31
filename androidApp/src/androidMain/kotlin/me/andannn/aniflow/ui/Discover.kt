@@ -36,6 +36,7 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconButtonShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
@@ -43,6 +44,8 @@ import androidx.compose.material3.pulltorefresh.pullToRefresh
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -189,7 +192,11 @@ fun DiscoverContent(
                             items = newReleasedMedia,
                         )
                     } else {
-                        Spacer(Modifier.height(1.dp))
+                        Spacer(
+                            Modifier
+                                .fillMaxWidth()
+                                .height(1.dp),
+                        )
                     }
                 }
             }
@@ -199,7 +206,7 @@ fun DiscoverContent(
                 key = { it.category },
             ) { (category, items) ->
                 TitleWithContent(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                     title = category.title,
                     onMoreClick = {
                         onNavigateToMediaCategory(category)

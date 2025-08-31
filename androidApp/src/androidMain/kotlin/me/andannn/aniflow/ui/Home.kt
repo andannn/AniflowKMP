@@ -6,6 +6,7 @@ package me.andannn.aniflow.ui
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -63,6 +64,7 @@ import me.andannn.aniflow.data.Screen
 import me.andannn.aniflow.data.model.HomeAppBarUiState
 import me.andannn.aniflow.data.model.define.MediaContentMode
 import me.andannn.aniflow.ui.theme.AppNameFontFamily
+import me.andannn.aniflow.ui.widget.MediaContentSwitcher
 import org.koin.compose.viewmodel.koinViewModel
 
 private const val TAG = "Home"
@@ -75,8 +77,8 @@ private sealed interface HomeNestedScreen {
     @Serializable
     data object Track : HomeNestedScreen
 
-    @Serializable
-    data object Social : HomeNestedScreen
+//    @Serializable
+//    data object Social : HomeNestedScreen
 
     @Serializable
     data object Profile : HomeNestedScreen
@@ -155,15 +157,9 @@ private fun HomeContent(
                     )
                 },
                 actions = {
-                    Switch(
-                        state.contentMode == MediaContentMode.ANIME,
-                        onCheckedChange = { check ->
-                            if (check) {
-                                onContentTypeChange(MediaContentMode.ANIME)
-                            } else {
-                                onContentTypeChange(MediaContentMode.MANGA)
-                            }
-                        },
+                    MediaContentSwitcher(
+                        mediaContent = state.contentMode,
+                        onContentChange = onContentTypeChange,
                     )
                     if (user != null) {
                         BadgedBox(
@@ -256,13 +252,12 @@ private fun NavigationArea(
     onItemClick: (TopLevelNavigation) -> Unit = {},
 ) {
     FlexibleBottomAppBar(
-        modifier = modifier,
+        modifier = modifier.height(72.dp),
         horizontalArrangement = BottomAppBarDefaults.FlexibleFixedHorizontalArrangement,
         content = {
             TopLevelNavigation.entries.forEach { item ->
                 NavigationBarItem(
                     selected = selected == item,
-                    label = { Text(item.label) },
                     icon = {
                         if (selected == item) {
                             Icon(item.selectedIcon, contentDescription = null)
@@ -280,7 +275,6 @@ private fun NavigationArea(
 enum class TopLevelNavigation {
     DISCOVER,
     TRACK,
-    SOCIAL,
     PROFILE,
 }
 
@@ -289,7 +283,7 @@ private val TopLevelNavigation.selectedIcon
         when (this) {
             TopLevelNavigation.DISCOVER -> Icons.Default.Explore
             TopLevelNavigation.TRACK -> Icons.Default.CollectionsBookmark
-            TopLevelNavigation.SOCIAL -> Icons.Default.Forum
+//            TopLevelNavigation.SOCIAL -> Icons.Default.Forum
             TopLevelNavigation.PROFILE -> Icons.Default.Person
         }
 
@@ -298,7 +292,7 @@ private val TopLevelNavigation.unselectedIcon
         when (this) {
             TopLevelNavigation.DISCOVER -> Icons.Outlined.Explore
             TopLevelNavigation.TRACK -> Icons.Outlined.CollectionsBookmark
-            TopLevelNavigation.SOCIAL -> Icons.Outlined.Forum
+//            TopLevelNavigation.SOCIAL -> Icons.Outlined.Forum
             TopLevelNavigation.PROFILE -> Icons.Outlined.Person
         }
 
@@ -307,7 +301,7 @@ private val TopLevelNavigation.label
         when (this) {
             TopLevelNavigation.DISCOVER -> "Discover"
             TopLevelNavigation.TRACK -> "Track"
-            TopLevelNavigation.SOCIAL -> "Social"
+//            TopLevelNavigation.SOCIAL -> "Social"
             TopLevelNavigation.PROFILE -> "Profile"
         }
 
@@ -341,7 +335,7 @@ private class NestedNavigator(
         when (this) {
             TopLevelNavigation.DISCOVER -> HomeNestedScreen.Discover
             TopLevelNavigation.TRACK -> HomeNestedScreen.Track
-            TopLevelNavigation.SOCIAL -> HomeNestedScreen.Social
+//            TopLevelNavigation.SOCIAL -> HomeNestedScreen.Social
             TopLevelNavigation.PROFILE -> HomeNestedScreen.Profile
         }
 
@@ -349,7 +343,7 @@ private class NestedNavigator(
         when (this) {
             HomeNestedScreen.Discover -> TopLevelNavigation.DISCOVER
             HomeNestedScreen.Profile -> TopLevelNavigation.PROFILE
-            HomeNestedScreen.Social -> TopLevelNavigation.SOCIAL
+//            HomeNestedScreen.Social -> TopLevelNavigation.SOCIAL
             HomeNestedScreen.Track -> TopLevelNavigation.TRACK
         }
 }

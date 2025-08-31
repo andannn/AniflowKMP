@@ -4,6 +4,7 @@
  */
 package me.andannn.aniflow.ui.widget
 
+import android.view.Surface
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -33,6 +35,7 @@ import me.andannn.aniflow.ui.theme.AniflowTheme
 @Composable
 fun MediaRowItem(
     title: String,
+    modifier: Modifier = Modifier,
     coverImage: String? = null,
     onClick: () -> Unit = {},
     onLongPress: (() -> Unit)? = null,
@@ -44,7 +47,9 @@ fun MediaRowItem(
     val surfaceTextColor = colorScheme.onSurfaceVariant
     val textStyle = MaterialTheme.typography
 
-    Surface {
+    Surface(
+        modifier = modifier,
+    ) {
         Row(
             modifier =
                 Modifier
@@ -53,14 +58,12 @@ fun MediaRowItem(
                     .combinedClickable(
                         onClick = onClick,
                         onLongClick = onLongPress,
-                    ).padding(vertical = 8.dp),
+                    ).padding(vertical = 8.dp, horizontal = 8.dp),
             verticalAlignment = Alignment.Top,
         ) {
             Surface(
                 modifier =
-                    Modifier
-                        .width(85.dp)
-                        .height(IntrinsicSize.Min),
+                    Modifier.width(85.dp),
                 shape = MaterialTheme.shapes.medium,
             ) {
                 AsyncImage(
@@ -78,8 +81,6 @@ fun MediaRowItem(
                     modifier = Modifier.fillMaxHeight(),
                     verticalArrangement = Arrangement.SpaceBetween,
                 ) {
-                    Spacer(modifier = Modifier.height(4.dp))
-
                     Text(
                         text = title,
                         style = textStyle.titleMedium.copy(color = surfaceTextColor),
@@ -98,8 +99,6 @@ fun MediaRowItem(
                         text = "TEMP info",
                         style = textStyle.bodySmall.copy(color = surfaceTextColor),
                     )
-
-                    Spacer(modifier = Modifier.height(4.dp))
                 }
 
 //            if (showNewBadge) {
