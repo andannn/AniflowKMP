@@ -7,8 +7,10 @@ package me.andannn.aniflow.data.model.define
 import kotlinx.serialization.Serializable
 
 @Serializable
-enum class TrackedMediaCategory {
-    ALL,
-    NEW_AIRED,
-    HAS_NEXT,
+enum class TrackedMediaCategory(
+    override val key: String,
+) : StringKeyEnum {
+    ALL("ALL"),
+    NEW_AIRED("NEW_AIRED"),
+    HAS_NEXT("HAS_NEXT"),
 }

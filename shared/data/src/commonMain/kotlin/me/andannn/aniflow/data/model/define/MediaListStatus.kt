@@ -10,34 +10,36 @@ import kotlinx.serialization.Serializable
  * Media list watching/reading status enum.
  */
 @Serializable
-enum class MediaListStatus {
+enum class MediaListStatus(
+    override val key: String,
+) : StringKeyEnum {
     /**
      * Currently watching/reading
      */
-    CURRENT,
+    CURRENT("CURRENT"),
 
     /**
      * Planning to watch/read
      */
-    PLANNING,
+    PLANNING("PLANNING"),
 
     /**
      * Finished watching/reading
      */
-    COMPLETED,
+    COMPLETED("COMPLETED"),
 
     /**
      * Stopped watching/reading before completing
      */
-    DROPPED,
+    DROPPED("DROPPED"),
 
     /**
      * Paused watching/reading
      */
-    PAUSED,
+    PAUSED("PAUSED"),
 
     /**
      * Re-watching/reading
      */
-    REPEATING,
+    REPEATING("REPEATING"),
 }

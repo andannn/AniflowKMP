@@ -10,54 +10,56 @@ import kotlinx.serialization.Serializable
  * The primary language of the voice actor
  */
 @Serializable
-enum class StaffLanguage {
+enum class StaffLanguage(
+    override val key: String,
+) : StringKeyEnum {
     /**
      * Japanese
      */
-    JAPANESE,
+    JAPANESE("JAPANESE"),
 
     /**
      * English
      */
-    ENGLISH,
+    ENGLISH("ENGLISH"),
 
     /**
      * Korean
      */
-    KOREAN,
+    KOREAN("KOREAN"),
 
     /**
      * Italian
      */
-    ITALIAN,
+    ITALIAN("ITALIAN"),
 
     /**
      * Spanish
      */
-    SPANISH,
+    SPANISH("SPANISH"),
 
     /**
      * Portuguese
      */
-    PORTUGUESE,
+    PORTUGUESE("PORTUGUESE"),
 
     /**
      * French
      */
-    FRENCH,
+    FRENCH("FRENCH"),
 
     /**
      * German
      */
-    GERMAN,
+    GERMAN("GERMAN"),
 
     /**
      * Hebrew
      */
-    HEBREW,
+    HEBREW("HEBREW"),
 
     /**
      * Hungarian
      */
-    HUNGARIAN,
+    HUNGARIAN("HUNGARIAN"),
 }

@@ -10,19 +10,21 @@ import kotlinx.serialization.Serializable
  * The role the character plays in the media
  */
 @Serializable
-enum class CharacterRole {
+enum class CharacterRole(
+    override val key: String,
+) : StringKeyEnum {
     /**
      * A primary character role in the media
      */
-    MAIN,
+    MAIN("MAIN"),
 
     /**
      * A supporting character role in the media
      */
-    SUPPORTING,
+    SUPPORTING("SUPPORTING"),
 
     /**
      * A background character in the media
      */
-    BACKGROUND,
+    BACKGROUND("BACKGROUND"),
 }

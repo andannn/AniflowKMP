@@ -19,6 +19,11 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.time.Clock
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.ExperimentalTime
 
 class MediaLibraryDaoTest {
     private lateinit var driver: SqlDriver
@@ -156,6 +161,56 @@ class MediaLibraryDaoTest {
             }
         }
 
+    @OptIn(ExperimentalTime::class)
+    @Test
+    fun testGetNewReleasedMediaList() =
+        testScope.runTest {
+            with(mediaLibraryDao) {
+                upsertMediaListEntities(
+                    listOf(
+                        MediaListAndMediaRelation(
+                            mediaEntity =
+                                MediaEntityWithDefault(
+                                    id = "media1",
+                                    englishTitle = "Media One",
+                                    mediaType = "ANIME",
+                                ),
+                            mediaListEntity =
+                                MediaListEntityWithDefault(
+                                    mediaListId = "list1",
+                                    userId = "user1",
+                                    mediaId = "media1",
+                                    listStatus = "CURRENT",
+                                ),
+                        ),
+                    ),
+                )
+
+                db.airingUpdatedLogQueries.upsertAiringUpdatedLogForTest(
+                    updatedMediaId = "media1",
+                    updateTime =
+                        Clock.System
+                            .now()
+                            .minus(12.hours)
+                            .epochSeconds,
+                )
+
+                getNewReleasedMediaListFlow(
+                    userId = "user1",
+                    mediaType = "ANIME",
+                    listStatus = listOf("CURRENT", "PLANNING"),
+                    timeSecondLaterThan =
+                        Clock.System
+                            .now()
+                            .minus(1.days)
+                            .epochSeconds,
+                ).first().let { mediaList ->
+                    println(mediaList)
+                    assertEquals(1, mediaList.size)
+                }
+            }
+        }
+
     @Test
     fun testGetAndInsertRefreshTimestamp() =
         testScope.runTest {
@@ -220,7 +275,6 @@ class MediaLibraryDaoTest {
                     mediaType = "ANIME",
                     listStatus = listOf("CURRENT", "PLANNING"),
                 ).first().let { mediaList ->
-                    println(mediaList)
                     assertNotNull(mediaList.first().updateTime)
                 }
             }

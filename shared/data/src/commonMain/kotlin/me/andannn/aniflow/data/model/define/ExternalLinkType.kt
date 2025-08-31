@@ -7,8 +7,10 @@ package me.andannn.aniflow.data.model.define
 import kotlinx.serialization.Serializable
 
 @Serializable
-enum class ExternalLinkType {
-    INFO,
-    STREAMING,
-    SOCIAL,
+enum class ExternalLinkType(
+    override val key: String,
+) : StringKeyEnum {
+    INFO("INFO"),
+    STREAMING("STREAMING"),
+    SOCIAL("SOCIAL"),
 }

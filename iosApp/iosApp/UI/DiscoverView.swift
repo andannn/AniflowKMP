@@ -20,7 +20,6 @@ class DiscoverViewModel: ObservableObject {
             guard let stream = self?.dataProvider.getdiscoverUiStateAsyncSequence() else { return }
                
             for try await state in stream {
-                print("Discover contentMode change: \(state.contentMode)")
                 self?.uiState = state
             }
         }
@@ -73,6 +72,14 @@ struct DiscoverView: View {
     var body: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 16) {
+                if !viewModel.uiState.newReleasedMedia.isEmpty {
+                    if #available(iOS 17.0, *) {
+                        NewReleaseCard_iOS17(items: viewModel.uiState.newReleasedMedia)
+                    } else {
+                        // Fallback on earlier versions
+                    }
+                }
+                
                 ForEach(Array(viewModel.uiState.categoryDataMap.content), id: \.category) { categoryWithContents in
                     TitleWithContent(title: categoryWithContents.category.title, onMoreClick: {
                         let category = categoryWithContents.category

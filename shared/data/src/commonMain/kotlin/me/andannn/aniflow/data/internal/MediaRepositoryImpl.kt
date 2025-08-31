@@ -11,8 +11,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import kotlinx.serialization.json.Json
-import me.andannn.aniflow.data.AppError
 import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.internal.exceptions.toError
 import me.andannn.aniflow.data.model.MediaModel
@@ -26,6 +24,7 @@ import me.andannn.aniflow.data.model.define.MediaSort
 import me.andannn.aniflow.data.model.define.MediaStatus
 import me.andannn.aniflow.data.model.define.MediaType
 import me.andannn.aniflow.data.model.define.NotificationCategory
+import me.andannn.aniflow.data.model.define.StringKeyEnum
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.database.MediaLibraryDao
@@ -59,7 +58,7 @@ internal class MediaRepositoryImpl(
 
     override fun getMediasFlow(category: MediaCategory) =
         with(mediaLibraryDao) {
-            getMediaOfCategoryFlow(Json.encodeToString(category))
+            getMediaOfCategoryFlow(category.key)
                 .map { list ->
                     CategoryWithContents(
                         category,
@@ -75,13 +74,13 @@ internal class MediaRepositoryImpl(
                 if (modeString == null) {
                     MediaContentMode.ANIME
                 } else {
-                    Json.decodeFromString(modeString)
+                    StringKeyEnum.deserialize(modeString)
                 }
             }.distinctUntilChanged()
 
     override suspend fun setContentMode(mode: MediaContentMode) {
         Napier.d(tag = TAG) { "Setting content mode to: $mode" }
-        userPreference.setContentMode(Json.encodeToString(mode))
+        userPreference.setContentMode(mode.key)
     }
 
     override fun syncMediaListByUserId(
@@ -110,10 +109,31 @@ internal class MediaRepositoryImpl(
             with(mediaLibraryDao) {
                 getMediaListFlow(
                     userId = userId,
-                    mediaType = Json.encodeToString(mediaType),
-                    listStatus = mediaListStatus.map { Json.encodeToString(it) },
+                    mediaType = mediaType.key,
+                    listStatus = mediaListStatus.map { it.key },
                 ).map {
                     it.map(MediaListAndMediaRelationWithUpdateLog::toDomain).sorted()
+                }
+            }
+        }
+
+    override fun getNewReleasedAnimeListFlow(
+        userId: String,
+        timeSecondLaterThan: Long,
+    ): Flow<List<MediaWithMediaListItem>> =
+        with(mediaService) {
+            with(mediaLibraryDao) {
+                getNewReleasedMediaListFlow(
+                    userId = userId,
+                    mediaType = MediaType.ANIME.key,
+                    listStatus =
+                        listOf(
+                            MediaListStatus.CURRENT,
+                            MediaListStatus.PLANNING,
+                        ).map { it.key },
+                    timeSecondLaterThan = timeSecondLaterThan,
+                ).map {
+                    it.map(MediaListAndMediaRelationWithUpdateLog::toDomain)
                 }
             }
         }
@@ -221,7 +241,7 @@ private fun MediaCategory.syncLocalWithService(scope: CoroutineScope): Deferred<
                     displayAdultContent = false,
                 ).items
             database.upsertMediasWithCategory(
-                category = Json.encodeToString(category),
+                category = category.key,
                 mediaList = items.map(Media::toEntity),
             )
             Napier.d(tag = TAG) { "syncLocalWithService finished: $category. size ${items.size}" }
