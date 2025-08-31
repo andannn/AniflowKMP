@@ -62,6 +62,7 @@ import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.Screen
 import me.andannn.aniflow.data.model.HomeAppBarUiState
 import me.andannn.aniflow.data.model.define.MediaContentMode
+import me.andannn.aniflow.ui.theme.AppNameFontFamily
 import org.koin.compose.viewmodel.koinViewModel
 
 private const val TAG = "Home"
@@ -148,8 +149,9 @@ private fun HomeContent(
                 colors = TopAppBarDefaults.topAppBarColors(),
                 title = {
                     Text(
-                        text = navigator.currentTopLevelNavigation.label,
-                        style = MaterialTheme.typography.titleLarge,
+                        text = "AniFlow",
+                        fontFamily = AppNameFontFamily,
+                        color = MaterialTheme.colorScheme.primary,
                     )
                 },
                 actions = {

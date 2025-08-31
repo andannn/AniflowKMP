@@ -4,20 +4,11 @@
  */
 package me.andannn.aniflow.ui
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -33,15 +24,20 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.IconButtonShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.pullToRefresh
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -162,28 +158,6 @@ fun DiscoverContent(
             LinearOutSlowInEasing.transform(state.distanceFraction).coerceIn(0f, 1f)
         }
     }
-//    PullToRefreshBox(
-//        modifier = modifier,
-//        isRefreshing = isRefreshing,
-//        onRefresh = onPullRefresh,
-//        state = state,
-//        indicator = {
-//            PullToRefreshDefaults.IndicatorBox(
-//                state = state,
-//                isRefreshing = isRefreshing,
-//                modifier = Modifier.align(Alignment.TopCenter),
-//                elevation = 0.dp,
-//            ) {
-//                if (isRefreshing) {
-//                    ContainedLoadingIndicator()
-//                } else {
-//                    ContainedLoadingIndicator(
-//                        progress = { state.distanceFraction },
-//                    )
-//                }
-//            }
-//        },
-//    ) {
     Box(
         modifier =
             modifier.pullToRefresh(
@@ -240,10 +214,12 @@ fun DiscoverContent(
         }
 
         Box(
-            Modifier.align(Alignment.TopCenter).graphicsLayer {
-                scaleX = scaleFraction()
-                scaleY = scaleFraction()
-            },
+            Modifier
+                .align(Alignment.TopCenter)
+                .graphicsLayer {
+                    scaleX = scaleFraction()
+                    scaleY = scaleFraction()
+                },
         ) {
             PullToRefreshDefaults.LoadingIndicator(state = state, isRefreshing = isRefreshing)
         }
@@ -280,13 +256,16 @@ private fun MediaPreviewSector(
                 key = { it.id },
             ) {
                 val title = rememberUserTitle(it.title!!)
-                MediaPreviewItem(
-                    modifier = Modifier.width(240.dp),
-                    title = title,
-                    isFollowing = false,
-                    coverImage = it.coverImage,
-                    ooClick = { onMediaClick(it) },
-                )
+                Row {
+                    MediaPreviewItem(
+                        modifier = Modifier.width(150.dp),
+                        title = title,
+                        isFollowing = false,
+                        coverImage = it.coverImage,
+                        ooClick = { onMediaClick(it) },
+                    )
+                    Spacer(Modifier.width(4.dp))
+                }
             }
         }
     }
@@ -310,8 +289,8 @@ fun TitleWithContent(
         ) {
             Text(title, maxLines = 1, style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.weight(1f))
-            TextButton(onMoreClick, shapes = ButtonDefaults.shapes()) {
-                Text("More")
+            IconButton(onMoreClick, shapes = IconButtonDefaults.shapes()) {
+                Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
             }
         }
         content()
