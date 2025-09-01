@@ -214,9 +214,9 @@ fun Duration.formattedString(): String {
     val minutes = inWholeMinutes
 
     return when {
-        days > 0 -> "${days}d"
-        hours > 0 -> "${hours}h"
-        minutes > 0 -> "${minutes}m"
+        days > 0 -> "$days days"
+        hours > 0 -> "$hours hours"
+        minutes > 0 -> "$minutes minutes"
         else -> "0m"
     }
 }

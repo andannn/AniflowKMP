@@ -112,7 +112,9 @@ internal class MediaRepositoryImpl(
                     mediaType = mediaType.key,
                     listStatus = mediaListStatus.map { it.key },
                 ).map {
-                    it.map(MediaListAndMediaRelationWithUpdateLog::toDomain)
+                    it
+                        .map(MediaListAndMediaRelationWithUpdateLog::toDomain)
+                        .sortedByDescending { it.mediaListModel.updatedAt }
                 }
             }
         }

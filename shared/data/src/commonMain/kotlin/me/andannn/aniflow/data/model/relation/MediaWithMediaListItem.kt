@@ -36,7 +36,9 @@ data class MediaWithMediaListItem
                     )
             )
 
-
+        val hasReleaseInfo =
+            mediaModel.nextAiringEpisode != null && mediaModel.nextAiringEpisode.timeUntilAiring != null &&
+                mediaModel.nextAiringEpisode.episode != null
     }
 
 @OptIn(ExperimentalTime::class)

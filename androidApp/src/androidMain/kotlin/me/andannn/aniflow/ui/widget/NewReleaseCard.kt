@@ -110,7 +110,7 @@ fun NewReleaseCard(
             Row {
                 val text =
                     buildSpecialMessageText(
-                        "Next episode in ${(currentItem.mediaListModel.progress ?: 0) + 1}",
+                        "Next up: Episode ${(currentItem.mediaListModel.progress ?: 0) + 1}",
                         MaterialTheme.colorScheme.primary,
                     )
 

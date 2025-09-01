@@ -19,16 +19,17 @@ fun rememberUserTitle(
     title: Title,
     authRepository: AuthRepository = getKoin().get(),
 ): String {
-    val option by authRepository.getUserOptionsFlow().collectAsStateWithLifecycle(UserOptions())
-    return remember(title, option.titleLanguage) {
-        getUserTitle(title, option.titleLanguage)
+    val option by authRepository.getUserOptionsFlow().collectAsStateWithLifecycle(null)
+    return remember(title, option?.titleLanguage) {
+        getUserTitle(title, option?.titleLanguage)
     }
 }
 
 fun getUserTitle(
     title: Title,
-    titleLanguage: UserTitleLanguage,
+    titleLanguage: UserTitleLanguage?,
 ): String {
+    titleLanguage ?: return ""
     return when (titleLanguage) {
         UserTitleLanguage.ROMAJI -> title.romaji ?: title.english ?: title.native ?: ""
         UserTitleLanguage.ENGLISH -> title.english ?: title.romaji ?: title.native ?: ""
