@@ -73,6 +73,7 @@ import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.ui.util.rememberUserTitle
+import me.andannn.aniflow.ui.widget.CustomPullToRefresh
 import me.andannn.aniflow.ui.widget.MediaPreviewItem
 import me.andannn.aniflow.ui.widget.NewReleaseCard
 import org.koin.compose.viewmodel.koinViewModel
@@ -160,21 +161,10 @@ fun DiscoverContent(
     onPullRefresh: () -> Unit,
     onNavigateToMediaCategory: (MediaCategory) -> Unit = {},
 ) {
-    val state = rememberPullToRefreshState()
-    val scaleFraction = {
-        if (isRefreshing) {
-            1f
-        } else {
-            LinearOutSlowInEasing.transform(state.distanceFraction).coerceIn(0f, 1f)
-        }
-    }
-    Box(
-        modifier =
-            modifier.pullToRefresh(
-                state = state,
-                isRefreshing = isRefreshing,
-                onRefresh = onPullRefresh,
-            ),
+    CustomPullToRefresh(
+        modifier = modifier,
+        isRefreshing = isRefreshing,
+        onPullRefresh = onPullRefresh,
     ) {
         LazyColumn(
             state = rememberLazyListState(),
@@ -213,7 +203,10 @@ fun DiscoverContent(
                 key = { it.category },
             ) { (category, items) ->
                 TitleWithContent(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
                     title = category.title,
                     onMoreClick = {
                         onNavigateToMediaCategory(category)
@@ -225,17 +218,6 @@ fun DiscoverContent(
                     )
                 }
             }
-        }
-
-        Box(
-            Modifier
-                .align(Alignment.TopCenter)
-                .graphicsLayer {
-                    scaleX = scaleFraction()
-                    scaleY = scaleFraction()
-                },
-        ) {
-            PullToRefreshDefaults.LoadingIndicator(state = state, isRefreshing = isRefreshing)
         }
     }
 }

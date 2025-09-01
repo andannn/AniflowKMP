@@ -79,7 +79,6 @@ fun MediaRowItem(
     onClick: () -> Unit = {},
     onDelete: () -> Unit = {},
     onMarkWatched: () -> Unit = {},
-    onLongPress: (() -> Unit)? = null,
     titleMaxLines: Int = 2,
 ) {
     val optionIconSizePx =
@@ -130,7 +129,6 @@ fun MediaRowItem(
                         .fillMaxWidth()
                         .combinedClickable(
                             onClick = onClick,
-                            onLongClick = onLongPress,
                         ).padding(vertical = 8.dp, horizontal = 8.dp),
                 verticalAlignment = Alignment.Top,
             ) {

@@ -160,6 +160,7 @@ private fun HomeContent(
             val color =
                 TopAppBarDefaults.topAppBarColors().copy(
                     containerColor = backgroundColor,
+                    scrolledContainerColor = backgroundColor,
                 )
             TopAppBar(
                 scrollBehavior = appBarScrollBehavior,
