@@ -39,6 +39,12 @@ query ($page: Int, $perPage: Int, $type: MediaType, $countryCode: CountryCode, $
         english
         native
       }
+      nextAiringEpisode {
+        id
+        airingAt
+        episode
+        timeUntilAiring
+      }
     }
   }
 }

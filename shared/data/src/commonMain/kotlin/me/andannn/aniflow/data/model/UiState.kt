@@ -18,10 +18,66 @@ data class DiscoverUiState(
 }
 
 data class TrackUiState(
-    val items: List<MediaWithMediaListItem> = emptyList(),
+    private val items: List<MediaWithMediaListItem> = emptyList(),
 ) {
     companion object {
         val Empty = TrackUiState()
+    }
+
+    val categoryWithItems: List<Pair<TrackCategory, List<MediaWithMediaListItem>>>
+
+    init {
+        val newItems = mutableListOf<MediaWithMediaListItem>()
+
+        val nextItems = mutableListOf<MediaWithMediaListItem>()
+
+        val upcomingItems = mutableListOf<MediaWithMediaListItem>()
+
+        val otherItems = mutableListOf<MediaWithMediaListItem>()
+
+        items.forEach {
+            if (it.isNewReleased) {
+                newItems.add(it)
+            } else if (it.haveNextEpisode) {
+                nextItems.add(it)
+            } else if (it.hasReleaseInfo) {
+                upcomingItems.add(it)
+            } else {
+                otherItems.add(it)
+            }
+        }
+
+        categoryWithItems =
+            listOf(
+                TrackCategory.NEW_RELEASED to newItems,
+                TrackCategory.UPCOMING to upcomingItems,
+                TrackCategory.NEXT_UP to nextItems,
+                TrackCategory.OTHER to otherItems,
+            )
+    }
+
+    enum class TrackCategory(
+        val title: String,
+    ) {
+        /**
+         * 最近更新（有下一集且三天内更新过）
+         */
+        NEW_RELEASED("New Released"),
+
+        /**
+         * 下一集（有下一集但三天内没有更新过）
+         */
+        NEXT_UP("Next Up"),
+
+        /**
+         * 没有下一集， 有下一集的Release时间
+         */
+        UPCOMING("Upcoming"),
+
+        /**
+         * 其他
+         */
+        OTHER("Other"),
     }
 }
 

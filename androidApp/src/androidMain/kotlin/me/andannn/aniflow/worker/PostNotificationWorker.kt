@@ -154,7 +154,6 @@ private fun NotificationModel.toPlatformNotification(titleLanguage: UserTitleLan
         }
 
         is MediaDeletion -> null
-        else -> null
     }
 
 private object SchemeUtil {

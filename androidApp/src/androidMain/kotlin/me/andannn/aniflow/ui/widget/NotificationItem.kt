@@ -208,15 +208,15 @@ private fun buildMediaText(n: MediaNotification): AnnotatedString =
         append(n.context)
     }
 
-private fun Duration.formattedString(): String {
+fun Duration.formattedString(): String {
     val days = inWholeDays
     val hours = inWholeHours
     val minutes = inWholeMinutes
 
     return when {
-        days > 0 -> "${days}d"
-        hours > 0 -> "${hours}h"
-        minutes > 0 -> "${minutes}m"
+        days > 0 -> "$days days"
+        hours > 0 -> "$hours hours"
+        minutes > 0 -> "$minutes minutes"
         else -> "0m"
     }
 }

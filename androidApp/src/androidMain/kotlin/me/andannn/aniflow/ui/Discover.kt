@@ -4,8 +4,8 @@
  */
 package me.andannn.aniflow.ui
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
@@ -27,26 +27,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.IconButtonShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
-import androidx.compose.material3.pulltorefresh.pullToRefresh
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -67,6 +60,7 @@ import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.ui.util.rememberUserTitle
+import me.andannn.aniflow.ui.widget.CustomPullToRefresh
 import me.andannn.aniflow.ui.widget.MediaPreviewItem
 import me.andannn.aniflow.ui.widget.NewReleaseCard
 import org.koin.compose.viewmodel.koinViewModel
@@ -139,7 +133,11 @@ fun Discover(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(
+    ExperimentalMaterial3Api::class,
+    ExperimentalMaterial3ExpressiveApi::class,
+    ExperimentalSharedTransitionApi::class,
+)
 @Composable
 fun DiscoverContent(
     isRefreshing: Boolean,
@@ -150,21 +148,10 @@ fun DiscoverContent(
     onPullRefresh: () -> Unit,
     onNavigateToMediaCategory: (MediaCategory) -> Unit = {},
 ) {
-    val state = rememberPullToRefreshState()
-    val scaleFraction = {
-        if (isRefreshing) {
-            1f
-        } else {
-            LinearOutSlowInEasing.transform(state.distanceFraction).coerceIn(0f, 1f)
-        }
-    }
-    Box(
-        modifier =
-            modifier.pullToRefresh(
-                state = state,
-                isRefreshing = isRefreshing,
-                onRefresh = onPullRefresh,
-            ),
+    CustomPullToRefresh(
+        modifier = modifier,
+        isRefreshing = isRefreshing,
+        onPullRefresh = onPullRefresh,
     ) {
         LazyColumn(
             state = rememberLazyListState(),
@@ -189,7 +176,11 @@ fun DiscoverContent(
                             items = newReleasedMedia,
                         )
                     } else {
-                        Spacer(Modifier.height(1.dp))
+                        Spacer(
+                            Modifier
+                                .fillMaxWidth()
+                                .height(1.dp),
+                        )
                     }
                 }
             }
@@ -199,7 +190,10 @@ fun DiscoverContent(
                 key = { it.category },
             ) { (category, items) ->
                 TitleWithContent(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
                     title = category.title,
                     onMoreClick = {
                         onNavigateToMediaCategory(category)
@@ -211,17 +205,6 @@ fun DiscoverContent(
                     )
                 }
             }
-        }
-
-        Box(
-            Modifier
-                .align(Alignment.TopCenter)
-                .graphicsLayer {
-                    scaleX = scaleFraction()
-                    scaleY = scaleFraction()
-                },
-        ) {
-            PullToRefreshDefaults.LoadingIndicator(state = state, isRefreshing = isRefreshing)
         }
     }
 }

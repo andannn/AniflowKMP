@@ -10,3 +10,7 @@ BEGIN
   VALUES (old.id, unixepoch('now'))
   ON CONFLICT(updatedMediaId) DO UPDATE SET updateTime = unixepoch('now');
 END;
+
+-- Manually insert data to test the new released feature
+-- get time at: https://www.epochconverter.com/
+-- INSERT INTO AiringUpdatedLogEntity(updatedMediaId, updateTime) VALUES (<media id>, <epoch time second>);

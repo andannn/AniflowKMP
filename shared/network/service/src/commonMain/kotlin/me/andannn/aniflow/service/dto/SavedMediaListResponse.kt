@@ -9,6 +9,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 public data class SavedMediaListResponse(
-    @SerialName(value = "SavedMediaListEntry")
+    @SerialName(value = "SaveMediaListEntry")
     public val mediaList: MediaList,
 )

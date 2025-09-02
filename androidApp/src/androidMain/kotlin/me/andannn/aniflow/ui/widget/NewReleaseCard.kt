@@ -1,3 +1,7 @@
+/*
+ * Copyright 2025, the AniflowKMP project contributors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package me.andannn.aniflow.ui.widget
 
 import androidx.compose.foundation.clickable
@@ -21,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -36,6 +41,7 @@ import me.andannn.aniflow.data.model.Title
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.ui.theme.AniflowTheme
 import me.andannn.aniflow.ui.theme.EspecialMessageFontFamily
+import me.andannn.aniflow.ui.theme.StyledTitleFontFamily
 import me.andannn.aniflow.ui.util.rememberUserTitle
 import kotlin.time.ExperimentalTime
 
@@ -98,36 +104,55 @@ fun NewReleaseCard(
             val title = rememberUserTitle(currentItem.mediaModel.title!!)
 //            val title = "Title"
             Spacer(Modifier.height(4.dp))
-            Text(title, style = MaterialTheme.typography.titleLarge)
+            Text(
+                title,
+                style = MaterialTheme.typography.titleLarge,
+                fontFamily = StyledTitleFontFamily,
+                fontSize = 24.sp,
+            )
 
             Row {
                 val text =
-                    buildAnnotatedString {
-                        withStyle(
-                            SpanStyle(
-                                fontFamily = EspecialMessageFontFamily,
-                                fontSize = 18.sp,
-                            ),
-                        ) {
-                            append("Next episode in ")
-                        }
-                        withStyle(
-                            SpanStyle(
-                                fontFamily = EspecialMessageFontFamily,
-                                fontSize = 30.sp,
-                                color = MaterialTheme.colorScheme.primary,
-                            ),
-                        ) {
-                            append("${(currentItem.mediaListModel.progress ?: 0) + 1}")
-                        }
-                    }
-                Text(text)
+                    buildSpecialMessageText(
+                        "Next up: Episode ${(currentItem.mediaListModel.progress ?: 0) + 1}",
+                        MaterialTheme.colorScheme.primary,
+                    )
+
+                Text(text = text)
                 Spacer(modifier = Modifier.weight(1f))
                 TextButton(
                     onClick = {},
                 ) {
                     Text("Detail")
                 }
+            }
+        }
+    }
+}
+
+fun buildSpecialMessageText(
+    text: String,
+    numberColor: Color,
+) = buildAnnotatedString {
+    text.forEach {
+        if (it.isDigit()) {
+            withStyle(
+                SpanStyle(
+                    fontFamily = EspecialMessageFontFamily,
+                    fontSize = 30.sp,
+                    color = numberColor,
+                ),
+            ) {
+                append(it)
+            }
+        } else {
+            withStyle(
+                SpanStyle(
+                    fontFamily = EspecialMessageFontFamily,
+                    fontSize = 18.sp,
+                ),
+            ) {
+                append(it)
             }
         }
     }

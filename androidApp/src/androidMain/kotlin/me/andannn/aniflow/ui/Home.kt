@@ -6,21 +6,19 @@ package me.andannn.aniflow.ui
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CollectionsBookmark
 import androidx.compose.material.icons.filled.Explore
-import androidx.compose.material.icons.filled.Forum
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.CollectionsBookmark
 import androidx.compose.material.icons.outlined.Explore
-import androidx.compose.material.icons.outlined.Forum
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.BottomAppBarDefaults
-import androidx.compose.material3.BottomAppBarScrollBehavior
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FlexibleBottomAppBar
@@ -29,7 +27,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -37,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -63,6 +61,7 @@ import me.andannn.aniflow.data.Screen
 import me.andannn.aniflow.data.model.HomeAppBarUiState
 import me.andannn.aniflow.data.model.define.MediaContentMode
 import me.andannn.aniflow.ui.theme.AppNameFontFamily
+import me.andannn.aniflow.ui.widget.MediaContentSwitcher
 import org.koin.compose.viewmodel.koinViewModel
 
 private const val TAG = "Home"
@@ -75,8 +74,8 @@ private sealed interface HomeNestedScreen {
     @Serializable
     data object Track : HomeNestedScreen
 
-    @Serializable
-    data object Social : HomeNestedScreen
+//    @Serializable
+//    data object Social : HomeNestedScreen
 
     @Serializable
     data object Profile : HomeNestedScreen
@@ -144,9 +143,23 @@ private fun HomeContent(
             modifier
                 .nestedScroll(appBarScrollBehavior.nestedScrollConnection),
         topBar = {
+            val isTrackPage by rememberUpdatedState(
+                navigator.currentTopLevelNavigation == TopLevelNavigation.TRACK,
+            )
+            val backgroundColor =
+                if (isTrackPage) {
+                    MaterialTheme.colorScheme.surfaceContainerHigh
+                } else {
+                    MaterialTheme.colorScheme.surface
+                }
+            val color =
+                TopAppBarDefaults.topAppBarColors().copy(
+                    containerColor = backgroundColor,
+                    scrolledContainerColor = backgroundColor,
+                )
             TopAppBar(
                 scrollBehavior = appBarScrollBehavior,
-                colors = TopAppBarDefaults.topAppBarColors(),
+                colors = color,
                 title = {
                     Text(
                         text = "AniFlow",
@@ -155,15 +168,9 @@ private fun HomeContent(
                     )
                 },
                 actions = {
-                    Switch(
-                        state.contentMode == MediaContentMode.ANIME,
-                        onCheckedChange = { check ->
-                            if (check) {
-                                onContentTypeChange(MediaContentMode.ANIME)
-                            } else {
-                                onContentTypeChange(MediaContentMode.MANGA)
-                            }
-                        },
+                    MediaContentSwitcher(
+                        mediaContent = state.contentMode,
+                        onContentChange = onContentTypeChange,
                     )
                     if (user != null) {
                         BadgedBox(
@@ -256,13 +263,12 @@ private fun NavigationArea(
     onItemClick: (TopLevelNavigation) -> Unit = {},
 ) {
     FlexibleBottomAppBar(
-        modifier = modifier,
+        modifier = modifier.height(72.dp),
         horizontalArrangement = BottomAppBarDefaults.FlexibleFixedHorizontalArrangement,
         content = {
             TopLevelNavigation.entries.forEach { item ->
                 NavigationBarItem(
                     selected = selected == item,
-                    label = { Text(item.label) },
                     icon = {
                         if (selected == item) {
                             Icon(item.selectedIcon, contentDescription = null)
@@ -280,7 +286,6 @@ private fun NavigationArea(
 enum class TopLevelNavigation {
     DISCOVER,
     TRACK,
-    SOCIAL,
     PROFILE,
 }
 
@@ -289,7 +294,7 @@ private val TopLevelNavigation.selectedIcon
         when (this) {
             TopLevelNavigation.DISCOVER -> Icons.Default.Explore
             TopLevelNavigation.TRACK -> Icons.Default.CollectionsBookmark
-            TopLevelNavigation.SOCIAL -> Icons.Default.Forum
+//            TopLevelNavigation.SOCIAL -> Icons.Default.Forum
             TopLevelNavigation.PROFILE -> Icons.Default.Person
         }
 
@@ -298,7 +303,7 @@ private val TopLevelNavigation.unselectedIcon
         when (this) {
             TopLevelNavigation.DISCOVER -> Icons.Outlined.Explore
             TopLevelNavigation.TRACK -> Icons.Outlined.CollectionsBookmark
-            TopLevelNavigation.SOCIAL -> Icons.Outlined.Forum
+//            TopLevelNavigation.SOCIAL -> Icons.Outlined.Forum
             TopLevelNavigation.PROFILE -> Icons.Outlined.Person
         }
 
@@ -307,7 +312,7 @@ private val TopLevelNavigation.label
         when (this) {
             TopLevelNavigation.DISCOVER -> "Discover"
             TopLevelNavigation.TRACK -> "Track"
-            TopLevelNavigation.SOCIAL -> "Social"
+//            TopLevelNavigation.SOCIAL -> "Social"
             TopLevelNavigation.PROFILE -> "Profile"
         }
 
@@ -341,7 +346,7 @@ private class NestedNavigator(
         when (this) {
             TopLevelNavigation.DISCOVER -> HomeNestedScreen.Discover
             TopLevelNavigation.TRACK -> HomeNestedScreen.Track
-            TopLevelNavigation.SOCIAL -> HomeNestedScreen.Social
+//            TopLevelNavigation.SOCIAL -> HomeNestedScreen.Social
             TopLevelNavigation.PROFILE -> HomeNestedScreen.Profile
         }
 
@@ -349,7 +354,7 @@ private class NestedNavigator(
         when (this) {
             HomeNestedScreen.Discover -> TopLevelNavigation.DISCOVER
             HomeNestedScreen.Profile -> TopLevelNavigation.PROFILE
-            HomeNestedScreen.Social -> TopLevelNavigation.SOCIAL
+//            HomeNestedScreen.Social -> TopLevelNavigation.SOCIAL
             HomeNestedScreen.Track -> TopLevelNavigation.TRACK
         }
 }

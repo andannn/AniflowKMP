@@ -18,6 +18,7 @@ import kotlinx.coroutines.withContext
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelationWithUpdateLog
 import me.andannn.aniflow.database.schema.MediaEntity
+import me.andannn.aniflow.database.schema.MediaListEntity
 import me.andannn.aniflow.database.schema.UserEntity
 
 class MediaLibraryDao constructor(
@@ -172,6 +173,49 @@ class MediaLibraryDao constructor(
                 refreshTimeStampQueries.getRefreshTimeStamp(key).awaitAsOneOrNull()?.timestamp
             }
         }
+
+    suspend fun getMediaListById(id: String): MediaListEntity? =
+        withDatabase {
+            withContext(dispatcher) {
+                mediaListQueries.getMediaListById(id).awaitAsOneOrNull()
+            }
+        }
+
+    /**
+     * Update media list status and/or progress.
+     *
+     * @param mediaListId The id of the media list entry.
+     * @param status The new status to set. If null, the status will not be updated.
+     * @param progress The new progress to set. If null, the progress will not be updated.
+     * @param updateAt The new updatedAt to set. If null, the updatedAt will not be updated.
+     */
+    suspend fun updateMediaList(
+        mediaListId: String,
+        status: String?,
+        progress: Long?,
+        updateAt: Long?,
+    ) = withDatabase {
+        withContext(dispatcher) {
+            status?.let {
+                mediaListQueries.updateMediaListStatus(
+                    mediaListId = mediaListId,
+                    listStatus = status,
+                )
+            }
+            progress?.let {
+                mediaListQueries.updateMediaListProgress(
+                    mediaListId = mediaListId,
+                    progress = progress,
+                )
+            }
+            updateAt?.let {
+                mediaListQueries.updateMediaListUpdatedAt(
+                    mediaListId = mediaListId,
+                    updatedAt = updateAt,
+                )
+            }
+        }
+    }
 
     private inline fun <T> withDatabase(block: AniflowDatabase.() -> T): T = block.invoke(aniflowDatabase)
 }

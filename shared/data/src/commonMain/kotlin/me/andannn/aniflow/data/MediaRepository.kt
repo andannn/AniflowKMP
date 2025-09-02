@@ -68,4 +68,10 @@ interface MediaRepository {
         category: NotificationCategory,
         resetNotificationCount: Boolean,
     ): Pair<Page<NotificationModel>, AppError?>
+
+    suspend fun updateMediaListStatus(
+        mediaListId: String,
+        status: MediaListStatus? = null,
+        progress: Int? = null,
+    ): AppError?
 }
