@@ -33,8 +33,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -89,15 +91,18 @@ fun MediaRowItem(
     val surfaceTextColor = colorScheme.onSurfaceVariant
     val textStyle = MaterialTheme.typography
 
+    val canMarkWatched by rememberUpdatedState(item.haveNextEpisode)
     val state =
-        remember {
+        remember(canMarkWatched) {
             AnchoredDraggableState(
                 initialValue = SwipeOptionStatus.NONE,
                 anchors =
                     DraggableAnchors {
                         SwipeOptionStatus.NONE at 0f
                         SwipeOptionStatus.LEFT_OPTION at optionIconSizePx
-                        SwipeOptionStatus.RIGHT_OPTION at -1 * optionIconSizePx
+                        if (canMarkWatched) {
+                            SwipeOptionStatus.RIGHT_OPTION at -1 * optionIconSizePx
+                        }
                     },
             )
         }

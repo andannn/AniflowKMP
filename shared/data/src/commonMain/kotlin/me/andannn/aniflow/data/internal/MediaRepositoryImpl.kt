@@ -11,6 +11,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import me.andannn.aniflow.data.AppError
 import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.internal.exceptions.toError
 import me.andannn.aniflow.data.model.MediaModel
@@ -27,6 +28,8 @@ import me.andannn.aniflow.data.model.define.NotificationCategory
 import me.andannn.aniflow.data.model.define.StringKeyEnum
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
+import me.andannn.aniflow.data.util.MediaListModificationSyncer
+import me.andannn.aniflow.data.util.postMutationAndRevertWhenException
 import me.andannn.aniflow.database.MediaLibraryDao
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelationWithUpdateLog
 import me.andannn.aniflow.database.schema.MediaEntity
@@ -176,6 +179,24 @@ internal class MediaRepositoryImpl(
             Page.empty<NotificationModel>() to exception.toError()
         }
     }
+
+    override suspend fun updateMediaListStatus(
+        mediaListId: String,
+        status: MediaListStatus?,
+        progress: Int?,
+    ): AppError? =
+        MediaListModificationSyncer(mediaListId = mediaListId).postMutationAndRevertWhenException(
+            modify = {
+                var newItem = it
+                if (status != null) {
+                    newItem = it.copy(mediaListStatus = status)
+                }
+                if (progress != null) {
+                    newItem = it.copy(progress = progress)
+                }
+                newItem
+            },
+        )
 }
 
 private const val DEFAULT_CACHED_SIZE = 20

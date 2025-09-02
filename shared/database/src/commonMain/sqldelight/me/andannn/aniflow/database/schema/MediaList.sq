@@ -37,3 +37,16 @@ getMediaListAndMediaRelationList:
 SELECT * FROM mediaListEntity
 INNER JOIN mediaEntity ON mediaListEntity.mediaId = mediaEntity.id
 WHERE mediaListEntity.userId = ? AND mediaEntity.mediaType = ? AND mediaListEntity.listStatus IN ?;
+
+getMediaListById:
+SELECT * FROM mediaListEntity WHERE mediaListId = ?;
+
+updateMediaListStatus:
+UPDATE mediaListEntity SET listStatus = ? WHERE mediaListId = ?;
+
+updateMediaListProgress:
+UPDATE mediaListEntity SET progress = ? WHERE mediaListId = ?;
+
+updateMediaListUpdatedAt:
+UPDATE mediaListEntity SET updatedAt = ? WHERE mediaListId = ?;
+

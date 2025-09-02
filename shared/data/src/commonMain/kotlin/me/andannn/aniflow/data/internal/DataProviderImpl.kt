@@ -31,6 +31,7 @@ import me.andannn.aniflow.data.model.define.MediaContentMode
 import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.model.define.toMediaType
 import me.andannn.aniflow.data.model.relation.CategoryDataModel
+import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.data.model.relation.NEW_RELEASED_DAYS_THRESHOLD
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
@@ -118,14 +119,17 @@ private fun discoverUiStateFlow(): Flow<DiscoverUiState> {
         }.distinctUntilChanged()
             .flatMapLatest { (authUser, contentMode) ->
                 if (authUser != null && contentMode == MediaContentMode.ANIME) {
-                    mediaRepo.getNewReleasedAnimeListFlow(
-                        userId = authUser.id,
-                        timeSecondLaterThan =
-                            Clock.System
-                                .now()
-                                .minus(NEW_RELEASED_DAYS_THRESHOLD.days)
-                                .epochSeconds,
-                    )
+                    mediaRepo
+                        .getNewReleasedAnimeListFlow(
+                            userId = authUser.id,
+                            timeSecondLaterThan =
+                                Clock.System
+                                    .now()
+                                    .minus(NEW_RELEASED_DAYS_THRESHOLD.days)
+                                    .epochSeconds,
+                        ).map {
+                            it.filter(MediaWithMediaListItem::haveNextEpisode)
+                        }
                 } else {
                     flow { emit(emptyList()) }
                 }

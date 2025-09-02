@@ -26,5 +26,3 @@ WHERE mediaListEntity.userId = ?
     AND mediaListEntity.listStatus IN ?
     AND AiringUpdatedLogEntity.updateTime > ?;
 
--- INSERT INTO AiringUpdatedLogEntity(updatedMediaId, updateTime) VALUES (176234, 1756455552);
--- INSERT INTO AiringUpdatedLogEntity(updatedMediaId, updateTime) VALUES (171627, 1756455552);

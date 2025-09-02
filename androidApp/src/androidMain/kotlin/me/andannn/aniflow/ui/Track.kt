@@ -4,15 +4,12 @@
  */
 package me.andannn.aniflow.ui
 
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -20,14 +17,9 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
-import androidx.compose.material3.pulltorefresh.pullToRefresh
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -38,12 +30,12 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.TrackUiDataProvider
 import me.andannn.aniflow.data.model.MediaListModel
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.TrackUiState
-import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
-import me.andannn.aniflow.ui.util.rememberUserTitle
+import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.ui.widget.CustomPullToRefresh
 import me.andannn.aniflow.ui.widget.MediaRowItem
 import org.koin.compose.viewmodel.koinViewModel
@@ -53,6 +45,7 @@ private const val TAG = "TrackViewModel"
 @OptIn(ExperimentalCoroutinesApi::class)
 class TrackViewModel(
     private val dataProvider: TrackUiDataProvider,
+    private val mediaRepository: MediaRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(TrackUiState())
     val state = _state.asStateFlow()
@@ -84,9 +77,29 @@ class TrackViewModel(
     }
 
     fun onDeleteItem(item: MediaListModel) {
+        viewModelScope.launch {
+            val error =
+                mediaRepository.updateMediaListStatus(
+                    mediaListId = item.id,
+                    status = MediaListStatus.DROPPED,
+                )
+            if (error != null) {
+                Napier.e(tag = TAG) { "Failed to delete media list item ${item.id} $error" }
+            }
+        }
     }
 
     fun onMarkWatched(item: MediaListModel) {
+        viewModelScope.launch {
+            val error =
+                mediaRepository.updateMediaListStatus(
+                    mediaListId = item.id,
+                    progress = (item.progress ?: 0) + 1,
+                )
+            if (error != null) {
+                Napier.e(tag = TAG) { "Failed to onMarkWatched list item ${item.id} $error" }
+            }
+        }
     }
 
     private fun cancelLastAndRegisterUiSideEffect(force: Boolean = false) {
