@@ -181,6 +181,7 @@ fun TrackContent(
                                 item = item,
                                 shape = listItemShape(isFirst, isLast),
                                 titleMaxLines = Int.MAX_VALUE,
+                                userTitleLanguage = state.userOptions.titleLanguage,
                                 onClick = {
                                     onClickListItem(item.mediaModel)
                                 },

@@ -64,6 +64,7 @@ struct CarouselItemView: View {
 @available(iOS 17.0, *)
 struct NewReleaseCard_iOS17: View {
     let items: [MediaWithMediaListItem]
+    let userTitleLanguage: UserTitleLanguage
 
     @State private var currentId: Int? = 0
 
@@ -89,8 +90,6 @@ struct NewReleaseCard_iOS17: View {
         .clipShape(RoundedRectangle(cornerRadius: corner, style: .continuous))
         .onAppear { if currentId == nil { currentId = 0 } }
     }
-
-    // MARK: - 拆分片段
 
     private var header: some View {
         HStack {
@@ -123,7 +122,7 @@ struct NewReleaseCard_iOS17: View {
         }
         .scrollTargetBehavior(.paging)
         .scrollIndicators(.hidden)
-        .scrollPosition(id: $currentId) // 绑定当前位置，便于外部读写
+        .scrollPosition(id: $currentId)
         .frame(height: itemHeight)
         .padding(.horizontal, 6)
         .overlay(pageDots, alignment: .bottomLeading)
@@ -150,8 +149,8 @@ struct NewReleaseCard_iOS17: View {
         Group {
             if let i = currentId,
                items.indices.contains(i),
-               let t = items[i].mediaModel.title {
-                Text("rememberUserTitle(t)")
+               let title = items[i].mediaModel.title?.getUserTitleString(titleLanguage: userTitleLanguage) {
+                Text(title)
                     .font(.title2.weight(.semibold))
                     .lineLimit(2)
             } else {

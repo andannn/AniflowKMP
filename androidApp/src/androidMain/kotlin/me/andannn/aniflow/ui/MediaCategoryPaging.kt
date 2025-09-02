@@ -18,17 +18,23 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewModelScope
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.flow.stateIn
+import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.model.MediaModel
+import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.paging.MediaCategoryPageComponent
 import me.andannn.aniflow.data.paging.PageComponent
-import me.andannn.aniflow.ui.util.rememberUserTitle
+import me.andannn.aniflow.data.util.getUserTitleString
 import me.andannn.aniflow.ui.widget.MediaItemFilledCard
 import me.andannn.aniflow.ui.widget.StaggeredGridPaging
 import org.koin.compose.viewmodel.koinViewModel
@@ -38,11 +44,21 @@ private const val TAG = "MediaCategoryPaging"
 
 class MediaCategoryPagingViewModel(
     private val category: MediaCategory,
+    private val authRepository: AuthRepository,
 ) : ViewModel(),
     PageComponent<MediaModel> by MediaCategoryPageComponent(category) {
     init {
         Napier.d(tag = TAG) { "MediaCategoryPagingViewModel init. category: $category" }
     }
+
+    val userOptionsFlow =
+        authRepository.getUserOptionsFlow().stateIn(
+            this.viewModelScope,
+            started =
+                kotlinx.coroutines.flow.SharingStarted
+                    .WhileSubscribed(5000),
+            initialValue = UserOptions(),
+        )
 
     override fun onCleared() {
         Napier.d(tag = TAG) { "MediaCategoryPagingViewModel cleared. category: $category" }
@@ -61,6 +77,7 @@ fun MediaCategoryPaging(
         ),
     navigator: RootNavigator = LocalRootNavigator.current,
 ) {
+    val userOptions by viewModel.userOptionsFlow.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -90,7 +107,7 @@ fun MediaCategoryPaging(
             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
             key = { it.id },
         ) { item ->
-            val title = rememberUserTitle(item.title!!)
+            val title = item.title.getUserTitleString(titleLanguage = userOptions.titleLanguage)
             MediaItemFilledCard(
                 modifier = Modifier.padding(4.dp),
                 title = title,

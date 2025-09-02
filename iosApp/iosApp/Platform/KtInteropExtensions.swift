@@ -72,7 +72,7 @@ extension AuthRepository {
         try await asyncFunction(for: startLoginProcessAndWaitResult())
     }
     
-    func getUserOptionsFlow()
+    func getUserOptionsAsyncSequence()
     -> NativeFlowAsyncSequence<UserOptions, Error, KotlinUnit> {
         asyncSequence(for: getUserOptionsFlow())
     }

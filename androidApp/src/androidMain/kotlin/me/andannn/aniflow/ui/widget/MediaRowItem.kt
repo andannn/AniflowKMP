@@ -56,9 +56,10 @@ import me.andannn.aniflow.data.model.define.MediaSeason
 import me.andannn.aniflow.data.model.define.MediaSource
 import me.andannn.aniflow.data.model.define.MediaStatus
 import me.andannn.aniflow.data.model.define.MediaType
+import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
+import me.andannn.aniflow.data.util.getUserTitleString
 import me.andannn.aniflow.ui.theme.AniflowTheme
-import me.andannn.aniflow.ui.util.rememberUserTitle
 import kotlin.math.absoluteValue
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
@@ -75,6 +76,7 @@ private enum class SwipeOptionStatus {
 @Composable
 fun MediaRowItem(
     item: MediaWithMediaListItem,
+    userTitleLanguage: UserTitleLanguage,
     shape: Shape,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
@@ -157,8 +159,9 @@ fun MediaRowItem(
                     Column(
                         modifier = Modifier.fillMaxHeight(),
                     ) {
-//                        val title = "Title"
-                        val title = rememberUserTitle(item.mediaModel.title!!)
+                        val title by rememberUpdatedState(
+                            item.mediaModel.title.getUserTitleString(userTitleLanguage),
+                        )
                         Text(
                             text = title,
                             style = textStyle.titleMedium.copy(color = surfaceTextColor),
@@ -378,6 +381,7 @@ private fun MediaListModelPreview() {
     AniflowTheme {
         MediaRowItem(
             shape = MaterialTheme.shapes.small,
+            userTitleLanguage = UserTitleLanguage.ENGLISH,
             item =
                 MediaWithMediaListItem(
                     mediaModel =

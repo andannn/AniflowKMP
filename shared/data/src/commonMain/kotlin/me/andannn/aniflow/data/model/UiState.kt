@@ -11,6 +11,7 @@ import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 data class DiscoverUiState(
     val categoryDataMap: CategoryDataModel = CategoryDataModel(),
     val newReleasedMedia: List<MediaWithMediaListItem> = emptyList(),
+    val userOptions: UserOptions = UserOptions(),
 ) {
     companion object {
         val Empty = DiscoverUiState()
@@ -19,6 +20,7 @@ data class DiscoverUiState(
 
 data class TrackUiState(
     private val items: List<MediaWithMediaListItem> = emptyList(),
+    val userOptions: UserOptions = UserOptions(),
 ) {
     companion object {
         val Empty = TrackUiState()

@@ -6,7 +6,7 @@ import Shared
 class DiscoverViewModel: ObservableObject {
     private let dataProvider: DiscoverUiDataProvider
     @Published public var uiState: DiscoverUiState = DiscoverUiState.companion.Empty
-    
+
     private var sideEffectTask: Task<Void, Never>? = nil
     private var refreshCompleter: OneShotCompleter<Void>? = nil
     private let mediaRepository: MediaRepository
@@ -74,7 +74,10 @@ struct DiscoverView: View {
             LazyVStack(alignment: .leading, spacing: 16) {
                 if !viewModel.uiState.newReleasedMedia.isEmpty {
                     if #available(iOS 17.0, *) {
-                        NewReleaseCard_iOS17(items: viewModel.uiState.newReleasedMedia)
+                        NewReleaseCard_iOS17(
+                            items: viewModel.uiState.newReleasedMedia,
+                            userTitleLanguage: viewModel.uiState.userOptions.titleLanguage
+                        )
                     } else {
                         // Fallback on earlier versions
                     }
@@ -85,7 +88,9 @@ struct DiscoverView: View {
                         let category = categoryWithContents.category
                         router.navigateTo(route: AppRoute.mediaCategoryPaingList(category: category))
                     }) {
-                        MediaPreviewSector(mediaList: categoryWithContents.medias) { item in
+                        MediaPreviewSector(
+                            mediaList: categoryWithContents.medias,
+                            userTitleLanguage: viewModel.uiState.userOptions.titleLanguage) { item in
                             router.navigateTo(route: .notification)
                             // onMediaClick
                             // component.onMediaClick(media: item)
@@ -107,6 +112,7 @@ struct DiscoverView: View {
 
 struct MediaPreviewSector: View {
     let mediaList: [MediaModel]
+    let userTitleLanguage: UserTitleLanguage
     let onMediaClick: (MediaModel) -> Void
     
     var body: some View {
@@ -115,6 +121,7 @@ struct MediaPreviewSector: View {
                 ForEach(mediaList, id: \.id) { media in
                     MediaPreviewItemWrapper(
                         media: media,
+                        userTitleLanguage: userTitleLanguage,
                         onMediaClick: { media in onMediaClick(media) }
                     )
                     .frame(width: 240)
@@ -127,21 +134,17 @@ struct MediaPreviewSector: View {
 
 struct MediaPreviewItemWrapper: View {
     let media: MediaModel
+    let userTitleLanguage: UserTitleLanguage
     let onMediaClick: (MediaModel) -> Void
-    @State private var titleText: String = ""
 
     var body: some View {
+        let title = media.title?.getUserTitleString(titleLanguage: userTitleLanguage) ?? ""
         MediaPreviewItem(
-            title: titleText,
+            title: title,
             isFollowing: false,
             coverImage: media.coverImage,
             onClick: { onMediaClick(media) }
         )
-        .task {
-            for await t in userTitleStream(title: media.title!) {
-                titleText = t
-            }
-        }
     }
 }
 

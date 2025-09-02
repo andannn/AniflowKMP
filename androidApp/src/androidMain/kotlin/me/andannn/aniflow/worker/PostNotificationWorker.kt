@@ -26,7 +26,7 @@ import me.andannn.aniflow.data.model.MediaNotification
 import me.andannn.aniflow.data.model.NotificationModel
 import me.andannn.aniflow.data.model.Title
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
-import me.andannn.aniflow.ui.util.getUserTitle
+import me.andannn.aniflow.data.util.getUserTitleString
 import me.andannn.aniflow.util.Notification
 import me.andannn.aniflow.util.NotificationChannel
 import me.andannn.aniflow.util.NotificationHelper
@@ -174,7 +174,7 @@ private fun NotificationModel.createBodyText(userTitleLanguage: UserTitleLanguag
     when (this) {
         is AiringNotification -> {
             val parts: List<String> = Json.decodeFromString(context)
-            val title = getUserTitle(media.title!!, userTitleLanguage)
+            val title = media.title.getUserTitleString(userTitleLanguage)
             buildString {
                 append(parts.getOrNull(0).orEmpty())
                 append(episode)
@@ -198,7 +198,7 @@ private fun NotificationModel.createBodyText(userTitleLanguage: UserTitleLanguag
 
         is MediaNotification ->
             buildString {
-                val title = getUserTitle(media.title!!, userTitleLanguage)
+                val title = media.title.getUserTitleString(userTitleLanguage)
                 append(title)
                 append(context)
             }

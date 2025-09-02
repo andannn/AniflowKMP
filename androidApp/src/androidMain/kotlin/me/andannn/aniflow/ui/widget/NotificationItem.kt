@@ -22,7 +22,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -43,8 +45,9 @@ import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.MediaNotification
 import me.andannn.aniflow.data.model.NotificationModel
 import me.andannn.aniflow.data.model.UserModel
+import me.andannn.aniflow.data.model.define.UserTitleLanguage
+import me.andannn.aniflow.data.util.getUserTitleString
 import me.andannn.aniflow.ui.theme.AniflowTheme
-import me.andannn.aniflow.ui.util.rememberUserTitle
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -54,6 +57,7 @@ import kotlin.time.ExperimentalTime
 @Composable
 fun NotificationItem(
     model: NotificationModel,
+    userTitleLanguage: UserTitleLanguage,
     modifier: Modifier = Modifier,
     onCoverImageClick: () -> Unit = {},
     onNotificationClick: () -> Unit = {},
@@ -129,7 +133,7 @@ fun NotificationItem(
                     when (model) {
                         is AiringNotification ->
                             Text(
-                                text = buildAiringText(notification = model),
+                                text = buildAiringText(notification = model, userTitleLanguage),
                                 style = MaterialTheme.typography.labelLarge,
                             )
 
@@ -147,7 +151,7 @@ fun NotificationItem(
 
                         is MediaNotification ->
                             Text(
-                                text = buildMediaText(model),
+                                text = buildMediaText(model, userTitleLanguage),
                                 style = MaterialTheme.typography.labelLarge,
                             )
 
@@ -167,13 +171,18 @@ fun NotificationItem(
 }
 
 @Composable
-private fun buildAiringText(notification: AiringNotification): AnnotatedString =
+private fun buildAiringText(
+    notification: AiringNotification,
+    userTitleLanguage: UserTitleLanguage,
+): AnnotatedString =
     buildAnnotatedString {
         val contextList: List<String> = Json.decodeFromString(notification.context)
         append(contextList[0] + notification.episode + contextList[1])
 
         withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
-            val title = rememberUserTitle(notification.media.title!!)
+            val title by rememberUpdatedState(
+                notification.media.title.getUserTitleString(userTitleLanguage),
+            )
             append(title)
         }
 
@@ -199,13 +208,18 @@ private fun buildActivityText(n: ActivityNotification): AnnotatedString =
     }
 
 @Composable
-private fun buildMediaText(n: MediaNotification): AnnotatedString =
+private fun buildMediaText(
+    notification: MediaNotification,
+    userTitleLanguage: UserTitleLanguage,
+): AnnotatedString =
     buildAnnotatedString {
         withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
-            val title = rememberUserTitle(n.media.title!!)
+            val title by rememberUpdatedState(
+                notification.media.title.getUserTitleString(userTitleLanguage),
+            )
             append(title)
         }
-        append(n.context)
+        append(notification.context)
     }
 
 fun Duration.formattedString(): String {
@@ -239,6 +253,7 @@ private fun AiringNotificationPreview() {
     AniflowTheme {
         Surface {
             NotificationItem(
+                userTitleLanguage = UserTitleLanguage.Default,
                 model =
                     AiringNotification(
                         id = "1",
@@ -267,6 +282,7 @@ private fun ActivityNotificationPreview() {
     AniflowTheme {
         Surface {
             NotificationItem(
+                userTitleLanguage = UserTitleLanguage.Default,
                 model =
                     ActivityNotification.Like(
                         id = "1",
@@ -291,6 +307,7 @@ private fun FollowingNotificationPreview() {
     AniflowTheme {
         Surface {
             NotificationItem(
+                userTitleLanguage = UserTitleLanguage.Default,
                 model =
                     FollowNotification(
                         id = "1",
@@ -313,6 +330,7 @@ private fun MediaNotificationPreview() {
     AniflowTheme {
         Surface {
             NotificationItem(
+                userTitleLanguage = UserTitleLanguage.Default,
                 model =
                     MediaNotification.RelatedMediaAddition(
                         id = "1",
