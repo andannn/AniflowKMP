@@ -65,7 +65,7 @@ jobs:
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           files: |
-            composeApp/build/outputs/apk/release/composeApp-release.apk
-            composeApp/build/outputs/bundle/release/composeApp-release.aab
+            androidApp/build/outputs/apk/release/androidApp-release.apk
+            androidApp/build/outputs/bundle/release/androidApp-release.aab
           repo_token: "${{ secrets.TOKEN }}"
           prerelease: false
