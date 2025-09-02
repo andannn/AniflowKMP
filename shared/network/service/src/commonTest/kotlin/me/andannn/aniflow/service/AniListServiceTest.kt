@@ -244,6 +244,7 @@ class AniListServiceTest {
                 serviceWithDummyToken.getNotificationPage(
                     page = 1,
                     perPage = 10,
+                    notificationTypeIn = listOf(),
                 )
             assertIs<Page<NotificationUnion>>(respond)
         }

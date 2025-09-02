@@ -7,7 +7,7 @@ package me.andannn.network.engine.mock
 internal const val SAVED_MEDIA_LIST_RESPONSE = """
 {
   "data" : {
-    "SavedMediaListEntry" : {
+    "SaveMediaListEntry" : {
       "id" : 467729768,
       "status" : "CURRENT",
       "score" : 0,
