@@ -5,7 +5,7 @@ import SwiftUI
 class LoginDialogViewModel : ObservableObject {
     
     private let authRepository: AuthRepository
-    @Published  var user: UserModel? = nil
+    @Published var user: UserModel? = nil
     
     private var loginTask : Task<(), any Error>? = nil
     private var dataTask : Task<(), any Error>? = nil
