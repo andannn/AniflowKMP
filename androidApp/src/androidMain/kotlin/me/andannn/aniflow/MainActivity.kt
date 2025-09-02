@@ -4,15 +4,23 @@
  */
 package me.andannn.aniflow
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.core.content.ContextCompat
 import io.github.aakira.napier.Napier
 import me.andannn.aniflow.data.BrowserAuthOperationHandler
 import me.andannn.aniflow.data.DeepLinkHelper
@@ -23,6 +31,13 @@ import me.andannn.aniflow.ui.RootNavigator
 import me.andannn.aniflow.ui.theme.AniflowTheme
 import me.andannn.aniflow.worker.SyncWorkHelper
 import org.koin.android.ext.android.getKoin
+
+private val runTimePermissions =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        listOf(Manifest.permission.POST_NOTIFICATIONS)
+    } else {
+        emptyList()
+    }
 
 private const val TAG = "MainActivity"
 
@@ -46,6 +61,36 @@ class MainActivity : ComponentActivity() {
         paddingDeepLinkNavigationScreen.value = DeepLinkHelper.parseUri(intent.data.toString())
 
         setContent {
+            var permissionGranted by remember {
+                mutableStateOf(isPermissionGranted())
+            }
+            val launcher =
+                rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.RequestMultiplePermissions(),
+                    onResult = {
+                        it.forEach { (permission, granted) ->
+                            if (!granted) {
+                                Napier.d(tag = TAG) { "permission $permission not granted." }
+                            }
+                        }
+                        permissionGranted = true
+                    },
+                )
+
+            if (!permissionGranted) {
+                LaunchedEffect(Unit) {
+                    runTimePermissions
+                        .filter {
+                            ContextCompat.checkSelfPermission(
+                                this@MainActivity,
+                                it,
+                            ) == PackageManager.PERMISSION_DENIED
+                        }.let {
+                            launcher.launch(it.toTypedArray())
+                        }
+                }
+            }
+
             AniflowTheme {
                 val backStack = remember { mutableStateListOf<Screen>(Screen.Home) }
                 val navigator = remember(backStack) { RootNavigator(backStack) }
@@ -80,5 +125,14 @@ class MainActivity : ComponentActivity() {
         browserAuthOperationHandler.onReceiveNewIntent(intent)
 
         paddingDeepLinkNavigationScreen.value = DeepLinkHelper.parseUri(intent.data.toString())
+    }
+
+    private fun isPermissionGranted(): Boolean {
+        runTimePermissions.forEach { permission ->
+            when (ContextCompat.checkSelfPermission(this, permission)) {
+                PackageManager.PERMISSION_DENIED -> return false
+            }
+        }
+        return true
     }
 }
