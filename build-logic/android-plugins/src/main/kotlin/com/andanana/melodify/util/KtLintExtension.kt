@@ -5,6 +5,7 @@ import org.jlleitschuh.gradle.ktlint.KtlintExtension
 
 fun Project.configureKtLint(extension: KtlintExtension) {
     with(extension) {
+        version.set("1.7.1")
         verbose.set(true)
         debug.set(true)
         outputToConsole.set(true)
@@ -20,6 +21,10 @@ fun Project.configureKtLint(extension: KtlintExtension) {
             // https://github.com/JLLeitschuh/ktlint-gradle/issues/522
             exclude { entry ->
                 entry.file.toString().contains("generated")
+            }
+
+            exclude { entry ->
+                entry.file.toString().contains("shared/network/engine-mock")
             }
             include("**/kotlin/**")
         }

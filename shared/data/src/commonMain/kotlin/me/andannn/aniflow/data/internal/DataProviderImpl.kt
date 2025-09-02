@@ -4,7 +4,6 @@
  */
 package me.andannn.aniflow.data.internal
 
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine

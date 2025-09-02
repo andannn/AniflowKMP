@@ -10,7 +10,6 @@ import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.model.Title
-import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import org.koin.compose.getKoin
 
