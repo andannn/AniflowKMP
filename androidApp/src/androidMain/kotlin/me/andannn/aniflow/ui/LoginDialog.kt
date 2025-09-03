@@ -4,18 +4,22 @@
  */
 package me.andannn.aniflow.ui
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -35,6 +39,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.AuthRepository
+import me.andannn.aniflow.data.Screen
 import me.andannn.aniflow.data.model.UserModel
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -46,6 +51,7 @@ class LoginDialogViewModel(
     val state = _state.asStateFlow()
 
     var loginJob: Job? = null
+    var logoutJob: Job? = null
 
     init {
         viewModelScope.launch {
@@ -66,6 +72,12 @@ class LoginDialogViewModel(
     }
 
     fun logout() {
+        logoutJob?.cancel()
+
+        logoutJob =
+            viewModelScope.launch {
+                authRepository.logout()
+            }
     }
 
     data class UiState(
@@ -84,6 +96,9 @@ fun LoginDialog(viewModel: LoginDialogViewModel = koinViewModel()) {
             viewModel.logout()
             navigator.popBackStack()
         },
+        onNotificationClick = {
+            navigator.navigateTo(Screen.Notification)
+        },
     )
 }
 
@@ -92,6 +107,7 @@ fun LoginDialogContent(
     state: LoginDialogViewModel.UiState,
     onLoginClick: () -> Unit,
     onLogoutClick: () -> Unit,
+    onNotificationClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val authedUser = state.authedUser
@@ -128,13 +144,33 @@ fun LoginDialogContent(
                     text = authedUser?.name ?: "",
                     maxLines = 1,
                     style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.align(Alignment.CenterVertically).padding(start = 8.dp),
+                    modifier =
+                        Modifier
+                            .align(Alignment.CenterVertically)
+                            .padding(start = 8.dp),
                 )
             }
+
+            Spacer(Modifier.height(4.dp))
 
             HorizontalDivider()
 
             if (authedUser != null) {
+                Surface(
+                    onClick = onNotificationClick,
+                ) {
+                    ListItem(
+                        leadingContent = {
+                            Icon(
+                                imageVector = Icons.Outlined.Notifications,
+                                contentDescription = null,
+                            )
+                        },
+                        headlineContent = {
+                            Text("Notification")
+                        },
+                    )
+                }
                 OutlinedButton(
                     onClick = onLogoutClick,
                 ) {

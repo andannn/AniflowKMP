@@ -108,6 +108,11 @@ internal class AuthRepositoryImpl(
                 )
             }.distinctUntilChanged()
 
+    override suspend fun logout() {
+        userPref.setAuthedUserId(null)
+        userPref.clearAuthToken()
+    }
+
     private suspend fun BrowserAuthOperationHandler.awaitAuthResult() =
         suspendCancellableCoroutine { cont ->
             cont.invokeOnCancellation {
