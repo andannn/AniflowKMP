@@ -13,9 +13,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CollectionsBookmark
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.CollectionsBookmark
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.BottomAppBarDefaults
@@ -78,7 +80,7 @@ private sealed interface HomeNestedScreen {
 //    data object Social : HomeNestedScreen
 
     @Serializable
-    data object Profile : HomeNestedScreen
+    data object Search : HomeNestedScreen
 }
 
 class HomeViewModel(
@@ -286,7 +288,7 @@ private fun NavigationArea(
 enum class TopLevelNavigation {
     DISCOVER,
     TRACK,
-    PROFILE,
+    SEARCH,
 }
 
 private val TopLevelNavigation.selectedIcon
@@ -295,7 +297,7 @@ private val TopLevelNavigation.selectedIcon
             TopLevelNavigation.DISCOVER -> Icons.Default.Explore
             TopLevelNavigation.TRACK -> Icons.Default.CollectionsBookmark
 //            TopLevelNavigation.SOCIAL -> Icons.Default.Forum
-            TopLevelNavigation.PROFILE -> Icons.Default.Person
+            TopLevelNavigation.SEARCH -> Icons.Default.Search
         }
 
 private val TopLevelNavigation.unselectedIcon
@@ -304,7 +306,7 @@ private val TopLevelNavigation.unselectedIcon
             TopLevelNavigation.DISCOVER -> Icons.Outlined.Explore
             TopLevelNavigation.TRACK -> Icons.Outlined.CollectionsBookmark
 //            TopLevelNavigation.SOCIAL -> Icons.Outlined.Forum
-            TopLevelNavigation.PROFILE -> Icons.Outlined.Person
+            TopLevelNavigation.SEARCH -> Icons.Outlined.Search
         }
 
 private val TopLevelNavigation.label
@@ -313,7 +315,7 @@ private val TopLevelNavigation.label
             TopLevelNavigation.DISCOVER -> "Discover"
             TopLevelNavigation.TRACK -> "Track"
 //            TopLevelNavigation.SOCIAL -> "Social"
-            TopLevelNavigation.PROFILE -> "Profile"
+            TopLevelNavigation.SEARCH -> "Search"
         }
 
 private class NestedNavigator(
@@ -347,13 +349,13 @@ private class NestedNavigator(
             TopLevelNavigation.DISCOVER -> HomeNestedScreen.Discover
             TopLevelNavigation.TRACK -> HomeNestedScreen.Track
 //            TopLevelNavigation.SOCIAL -> HomeNestedScreen.Social
-            TopLevelNavigation.PROFILE -> HomeNestedScreen.Profile
+            TopLevelNavigation.SEARCH -> HomeNestedScreen.Search
         }
 
     fun HomeNestedScreen.toTopLevelNavigation() =
         when (this) {
             HomeNestedScreen.Discover -> TopLevelNavigation.DISCOVER
-            HomeNestedScreen.Profile -> TopLevelNavigation.PROFILE
+            HomeNestedScreen.Search -> TopLevelNavigation.SEARCH
 //            HomeNestedScreen.Social -> TopLevelNavigation.SOCIAL
             HomeNestedScreen.Track -> TopLevelNavigation.TRACK
         }
