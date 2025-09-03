@@ -6,21 +6,25 @@ package me.andannn.aniflow.ui
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CollectionsBookmark
 import androidx.compose.material.icons.filled.Explore
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.CollectionsBookmark
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.AppBarWithSearch
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.BottomAppBarDefaults
+import androidx.compose.material3.ExpandedFullScreenSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FlexibleBottomAppBar
@@ -28,19 +32,32 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.SearchBarScrollBehavior
+import androidx.compose.material3.SearchBarValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.rememberSearchBarState
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -61,6 +78,7 @@ import me.andannn.aniflow.data.HomeAppBarUiDataProvider
 import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.Screen
 import me.andannn.aniflow.data.model.HomeAppBarUiState
+import me.andannn.aniflow.data.model.UserModel
 import me.andannn.aniflow.data.model.define.MediaContentMode
 import me.andannn.aniflow.ui.theme.AppNameFontFamily
 import me.andannn.aniflow.ui.widget.MediaContentSwitcher
@@ -136,80 +154,54 @@ private fun HomeContent(
     onContentTypeChange: (MediaContentMode) -> Unit = {},
     onAuthIconClick: () -> Unit = {},
 ) {
-    val appBarScrollBehavior =
-        TopAppBarDefaults.enterAlwaysScrollBehavior()
-    val user = state.authedUser
+    val isSearchPage by rememberUpdatedState(
+        navigator.currentTopLevelNavigation == TopLevelNavigation.SEARCH,
+    )
+    val appBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+
+    val topModifier =
+        remember(isSearchPage) {
+            if (isSearchPage) {
+                Modifier
+            } else {
+                Modifier.nestedScroll(appBarScrollBehavior.nestedScrollConnection)
+            }
+        }
 
     Scaffold(
         modifier =
-            modifier
-                .nestedScroll(appBarScrollBehavior.nestedScrollConnection),
+            modifier.then(topModifier),
         topBar = {
-            val isTrackPage by rememberUpdatedState(
-                navigator.currentTopLevelNavigation == TopLevelNavigation.TRACK,
-            )
-            val backgroundColor =
-                if (isTrackPage) {
-                    MaterialTheme.colorScheme.surfaceContainerHigh
-                } else {
-                    MaterialTheme.colorScheme.surface
-                }
-            val color =
-                TopAppBarDefaults.topAppBarColors().copy(
-                    containerColor = backgroundColor,
-                    scrolledContainerColor = backgroundColor,
+            if (isSearchPage) {
+                SearchAppBar(
+                    modifier = Modifier.padding(horizontal = 24.dp),
+                    state = state,
+                    onAuthIconClick = onAuthIconClick,
                 )
-            TopAppBar(
-                scrollBehavior = appBarScrollBehavior,
-                colors = color,
-                title = {
-                    Text(
-                        text = "AniFlow",
-                        fontFamily = AppNameFontFamily,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                },
-                actions = {
-                    MediaContentSwitcher(
-                        mediaContent = state.contentMode,
-                        onContentChange = onContentTypeChange,
-                    )
-                    if (user != null) {
-                        BadgedBox(
-                            badge = {
-                                val badgeNumber = user.unreadNotificationCount
-                                if (badgeNumber != 0) {
-                                    Badge {
-                                        Text(
-                                            badgeNumber.toString(),
-                                        )
-                                    }
-                                }
-                            },
-                        ) {
-                            IconButton(
-                                onClick = onAuthIconClick,
-                            ) {
-                                AsyncImage(
-                                    model = user.avatar,
-                                    contentDescription = null,
-                                    contentScale = ContentScale.Crop,
-                                )
-                            }
-                        }
+            } else {
+                val isTrackPage by rememberUpdatedState(
+                    navigator.currentTopLevelNavigation == TopLevelNavigation.TRACK,
+                )
+
+                val backgroundColor =
+                    if (isTrackPage) {
+                        MaterialTheme.colorScheme.surfaceContainerHigh
                     } else {
-                        IconButton(
-                            onClick = onAuthIconClick,
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Person,
-                                contentDescription = null,
-                            )
-                        }
+                        MaterialTheme.colorScheme.surface
                     }
-                    Spacer(modifier = Modifier.width(12.dp))
-                },
-            )
+                val color =
+                    TopAppBarDefaults.topAppBarColors().copy(
+                        containerColor = backgroundColor,
+                        scrolledContainerColor = backgroundColor,
+                    )
+                DefaultAppBar(
+                    state = state,
+                    color = color,
+                    scrollBehavior = appBarScrollBehavior,
+                    onContentTypeChange = onContentTypeChange,
+                    onAuthIconClick = onAuthIconClick,
+                )
+            }
         },
         bottomBar = {
             NavigationArea(
@@ -229,6 +221,153 @@ private fun HomeContent(
             )
         },
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SearchAppBar(
+    modifier: Modifier,
+    state: HomeAppBarUiState,
+    onAuthIconClick: () -> Unit = {},
+) {
+    val textFieldState = rememberTextFieldState()
+    val searchBarState = rememberSearchBarState()
+    val scope = rememberCoroutineScope()
+
+    val inputField =
+        @Composable {
+            SearchBarDefaults.InputField(
+                searchBarState = searchBarState,
+                textFieldState = textFieldState,
+                onSearch = { scope.launch { searchBarState.animateToCollapsed() } },
+                placeholder = {
+                    if (searchBarState.currentValue == SearchBarValue.Collapsed) {
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = "Search",
+                            textAlign = TextAlign.Center,
+                        )
+                    }
+                },
+                leadingIcon = {
+                    if (searchBarState.currentValue == SearchBarValue.Expanded) {
+                        TooltipBox(
+                            positionProvider =
+                                TooltipDefaults.rememberTooltipPositionProvider(
+                                    TooltipAnchorPosition.Above,
+                                ),
+                            tooltip = { PlainTooltip { Text("Back") } },
+                            state = rememberTooltipState(),
+                        ) {
+                            IconButton(
+                                onClick = { scope.launch { searchBarState.animateToCollapsed() } },
+                            ) {
+                                Icon(
+                                    Icons.AutoMirrored.Default.ArrowBack,
+                                    contentDescription = "Back",
+                                )
+                            }
+                        }
+                    } else {
+                        Icon(Icons.Default.Search, contentDescription = null)
+                    }
+                },
+                trailingIcon = {
+                    UserAvatar(
+                        user = state.authedUser,
+                        onAuthIconClick = onAuthIconClick,
+                    )
+                },
+            )
+        }
+
+    AppBarWithSearch(
+        modifier = modifier,
+        state = searchBarState,
+        inputField = inputField,
+    )
+    ExpandedFullScreenSearchBar(state = searchBarState, inputField = inputField) {
+//        SearchResults(
+//            onResultClick = { result ->
+//                textFieldState.setTextAndPlaceCursorAtEnd(result)
+//                scope.launch { searchBarState.animateToCollapsed() }
+//            },
+//        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DefaultAppBar(
+    state: HomeAppBarUiState,
+    color: TopAppBarColors,
+    scrollBehavior: TopAppBarScrollBehavior,
+    onContentTypeChange: (MediaContentMode) -> Unit = {},
+    onAuthIconClick: () -> Unit = {},
+) {
+    val user = state.authedUser
+    TopAppBar(
+        scrollBehavior = scrollBehavior,
+        colors = color,
+        title = {
+            Text(
+                text = "AniFlow",
+                fontFamily = AppNameFontFamily,
+                color = MaterialTheme.colorScheme.primary,
+            )
+        },
+        actions = {
+            MediaContentSwitcher(
+                mediaContent = state.contentMode,
+                onContentChange = onContentTypeChange,
+            )
+            UserAvatar(
+                user = user,
+                onAuthIconClick = onAuthIconClick,
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+        },
+    )
+}
+
+@Composable
+private fun UserAvatar(
+    user: UserModel?,
+    onAuthIconClick: () -> Unit = {},
+) {
+    if (user != null) {
+        BadgedBox(
+            badge = {
+                val badgeNumber = user.unreadNotificationCount
+                if (badgeNumber != 0) {
+                    Badge {
+                        Text(
+                            badgeNumber.toString(),
+                        )
+                    }
+                }
+            },
+        ) {
+            IconButton(
+                onClick = onAuthIconClick,
+            ) {
+                AsyncImage(
+                    model = user.avatar,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                )
+            }
+        }
+    } else {
+        IconButton(
+            onClick = onAuthIconClick,
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Person,
+                contentDescription = null,
+            )
+        }
+    }
 }
 
 @Composable
@@ -252,6 +391,9 @@ private fun NestNavigation(
                 }
                 entry(HomeNestedScreen.Track) {
                     Track()
+                }
+                entry(HomeNestedScreen.Search) {
+                    Search()
                 }
             },
     )
