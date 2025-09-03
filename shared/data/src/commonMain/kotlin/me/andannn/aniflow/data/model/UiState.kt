@@ -11,6 +11,7 @@ import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 data class DiscoverUiState(
     val categoryDataMap: CategoryDataModel = CategoryDataModel(),
     val newReleasedMedia: List<MediaWithMediaListItem> = emptyList(),
+    val userOptions: UserOptions = UserOptions(),
 ) {
     companion object {
         val Empty = DiscoverUiState()
@@ -19,12 +20,18 @@ data class DiscoverUiState(
 
 data class TrackUiState(
     private val items: List<MediaWithMediaListItem> = emptyList(),
+    val userOptions: UserOptions = UserOptions(),
 ) {
     companion object {
         val Empty = TrackUiState()
     }
 
-    val categoryWithItems: List<Pair<TrackCategory, List<MediaWithMediaListItem>>>
+    data class CategoryWithItems(
+        val category: TrackCategory,
+        val items: List<MediaWithMediaListItem>,
+    )
+
+    val categoryWithItems: List<CategoryWithItems>
 
     init {
         val newItems = mutableListOf<MediaWithMediaListItem>()
@@ -49,10 +56,10 @@ data class TrackUiState(
 
         categoryWithItems =
             listOf(
-                TrackCategory.NEW_RELEASED to newItems,
-                TrackCategory.UPCOMING to upcomingItems,
-                TrackCategory.NEXT_UP to nextItems,
-                TrackCategory.OTHER to otherItems,
+                CategoryWithItems(TrackCategory.NEW_RELEASED, newItems),
+                CategoryWithItems(TrackCategory.UPCOMING, upcomingItems),
+                CategoryWithItems(TrackCategory.NEXT_UP, nextItems),
+                CategoryWithItems(TrackCategory.OTHER, otherItems),
             )
     }
 

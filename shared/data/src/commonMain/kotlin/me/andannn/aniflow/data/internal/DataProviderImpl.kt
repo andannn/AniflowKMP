@@ -93,6 +93,7 @@ internal class DataProviderImpl(
 context(mediaRepo: MediaRepository, authRepo: AuthRepository)
 private fun discoverUiStateFlow(): Flow<DiscoverUiState> {
     val authedUserFlow = authRepo.getAuthedUserFlow()
+    val userOptionFlow = authRepo.getUserOptionsFlow()
     val contentModeFlow = mediaRepo.getContentModeFlow()
     val categoryDataFlow =
         contentModeFlow.flatMapLatest { mode ->
@@ -137,10 +138,12 @@ private fun discoverUiStateFlow(): Flow<DiscoverUiState> {
     return combine(
         categoryDataFlow,
         newReleasedFlow,
-    ) { categoryData, newReleasedMedia ->
+        userOptionFlow,
+    ) { categoryData, newReleasedMedia, userOption ->
         DiscoverUiState(
             categoryDataMap = categoryData,
             newReleasedMedia = newReleasedMedia,
+            userOptions = userOption,
         )
     }.distinctUntilChanged()
 }
@@ -153,6 +156,7 @@ private fun trackUiStateFlow(): Flow<TrackUiState> {
             authRepo.getAuthedUserFlow(),
             mediaRepo.getContentModeFlow(),
         ) { authedUser, contentMode -> Pair(authedUser, contentMode) }
+    val userOptionsFlow = authRepo.getUserOptionsFlow()
 
     val trackUiFlow =
         userWithContentModeFlow
@@ -173,9 +177,10 @@ private fun trackUiStateFlow(): Flow<TrackUiState> {
                     )
                 }
             }
-    return trackUiFlow
-        .distinctUntilChanged()
-        .map {
-            TrackUiState(items = it)
-        }
+    return combine(
+        trackUiFlow,
+        userOptionsFlow,
+    ) { trackUi, userOptions ->
+        TrackUiState(items = trackUi, userOptions = userOptions)
+    }.distinctUntilChanged()
 }

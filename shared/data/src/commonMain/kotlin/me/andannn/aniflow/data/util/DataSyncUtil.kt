@@ -4,6 +4,7 @@
  */
 package me.andannn.aniflow.data.util
 
+import io.github.aakira.napier.Napier
 import me.andannn.aniflow.data.AppError
 import me.andannn.aniflow.data.internal.exceptions.toError
 import me.andannn.aniflow.data.internal.toDomainType
@@ -19,6 +20,8 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
+
+private const val TAG = "DataSyncer"
 
 internal interface DataSyncer<T> {
     suspend fun getLocal(): T
@@ -36,17 +39,22 @@ internal interface DataSyncer<T> {
 internal suspend fun <T> DataSyncer<T>.postMutationAndRevertWhenException(modify: (T) -> T): AppError? {
     val oldModel = getLocal()
     val newModel = modify(oldModel)
-    if (oldModel == newModel) return null
+    if (oldModel == newModel) {
+        Napier.d(tag = TAG) { "postMutationAndRevertWhenException same item, just skip" }
+        return null
+    }
 
     saveLocal(newModel)
 
     return try {
         val result = syncWithRemote(newModel)
         saveLocal(result)
+        Napier.d(tag = TAG) { "postMutationAndRevertWhenException success" }
         null
     } catch (e: Throwable) {
         val error = e.toError()
         saveLocal(oldModel)
+        Napier.e(tag = TAG) { "postMutationAndRevertWhenException failed $e" }
         error
     }
 }

@@ -57,9 +57,10 @@ import me.andannn.aniflow.data.Screen
 import me.andannn.aniflow.data.model.DiscoverUiState
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.define.MediaCategory
+import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
-import me.andannn.aniflow.ui.util.rememberUserTitle
+import me.andannn.aniflow.data.util.getUserTitleString
 import me.andannn.aniflow.ui.widget.CustomPullToRefresh
 import me.andannn.aniflow.ui.widget.MediaPreviewItem
 import me.andannn.aniflow.ui.widget.NewReleaseCard
@@ -122,6 +123,7 @@ fun Discover(
         isRefreshing = isRefreshing,
         categoryDataList = state.categoryDataMap.content,
         newReleasedMedia = state.newReleasedMedia,
+        userTitleLanguage = state.userOptions.titleLanguage,
         onMediaClick = {
             navigator.navigateTo(Screen.Notification)
         },
@@ -142,6 +144,7 @@ fun Discover(
 fun DiscoverContent(
     isRefreshing: Boolean,
     modifier: Modifier = Modifier,
+    userTitleLanguage: UserTitleLanguage,
     categoryDataList: List<CategoryWithContents>,
     newReleasedMedia: List<MediaWithMediaListItem>,
     onMediaClick: (MediaModel) -> Unit,
@@ -174,6 +177,7 @@ fun DiscoverContent(
                     if (visible.value) {
                         NewReleaseCard(
                             items = newReleasedMedia,
+                            userTitleLanguage = userTitleLanguage,
                         )
                     } else {
                         Spacer(
@@ -201,6 +205,7 @@ fun DiscoverContent(
                 ) {
                     MediaPreviewSector(
                         mediaList = items,
+                        userTitleLanguage = userTitleLanguage,
                         onMediaClick = onMediaClick,
                     )
                 }
@@ -212,6 +217,7 @@ fun DiscoverContent(
 @Composable
 private fun MediaPreviewSector(
     mediaList: List<MediaModel>,
+    userTitleLanguage: UserTitleLanguage,
     modifier: Modifier = Modifier,
     onMediaClick: (MediaModel) -> Unit = {},
 ) {
@@ -238,7 +244,7 @@ private fun MediaPreviewSector(
                 mediaList,
                 key = { it.id },
             ) {
-                val title = rememberUserTitle(it.title!!)
+                val title by rememberUpdatedState(it.title.getUserTitleString(userTitleLanguage))
                 Row {
                     MediaPreviewItem(
                         modifier = Modifier.width(150.dp),

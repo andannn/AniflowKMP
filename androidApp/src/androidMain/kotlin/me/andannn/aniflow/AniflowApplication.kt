@@ -49,6 +49,6 @@ private fun androidContextModule(application: AniflowApplication) =
         viewModelOf(::TrackViewModel)
         viewModelOf(::LoginDialogViewModel)
         viewModel {
-            MediaCategoryPagingViewModel(it.get())
+            MediaCategoryPagingViewModel(it.get(), get())
         }
     }

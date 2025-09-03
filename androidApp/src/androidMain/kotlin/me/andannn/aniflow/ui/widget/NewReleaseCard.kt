@@ -22,7 +22,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.carousel.HorizontalCenteredHeroCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,11 +40,12 @@ import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.model.MediaListModel
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.Title
+import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
+import me.andannn.aniflow.data.util.getUserTitleString
 import me.andannn.aniflow.ui.theme.AniflowTheme
 import me.andannn.aniflow.ui.theme.EspecialMessageFontFamily
 import me.andannn.aniflow.ui.theme.StyledTitleFontFamily
-import me.andannn.aniflow.ui.util.rememberUserTitle
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -50,6 +53,7 @@ import kotlin.time.ExperimentalTime
 fun NewReleaseCard(
     modifier: Modifier = Modifier,
     items: List<MediaWithMediaListItem>,
+    userTitleLanguage: UserTitleLanguage,
 ) {
     OutlinedCard(
         modifier = modifier.fillMaxWidth(),
@@ -101,8 +105,9 @@ fun NewReleaseCard(
                     contentScale = ContentScale.Crop,
                 )
             }
-            val title = rememberUserTitle(currentItem.mediaModel.title!!)
-//            val title = "Title"
+            val title by rememberUpdatedState(
+                currentItem.mediaModel.title.getUserTitleString(userTitleLanguage),
+            )
             Spacer(Modifier.height(4.dp))
             Text(
                 title,
@@ -164,6 +169,7 @@ fun buildSpecialMessageText(
 private fun NewReleaseCardPreview() {
     AniflowTheme {
         NewReleaseCard(
+            userTitleLanguage = UserTitleLanguage.ENGLISH,
             items =
                 listOf(
                     MediaWithMediaListItem(

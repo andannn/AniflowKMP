@@ -69,6 +69,7 @@ interface MediaRepository {
         resetNotificationCount: Boolean,
     ): Pair<Page<NotificationModel>, AppError?>
 
+    @NativeCoroutines
     suspend fun updateMediaListStatus(
         mediaListId: String,
         status: MediaListStatus? = null,

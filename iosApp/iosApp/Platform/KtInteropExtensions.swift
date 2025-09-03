@@ -54,6 +54,16 @@ extension MediaRepository {
     func setContentMode(mode: MediaContentMode) async throws {
         try await asyncFunction(for: setContentMode(mode: mode))
     }
+    
+    func updateMediaStatus(mediaListId: String, status: MediaListStatus) async throws -> AppError? {
+        try await asyncFunction(for: updateMediaListStatus(mediaListId: mediaListId, status: status, progress: nil))
+    }
+
+    func updateMediaListProgress(mediaListId: String, progress: Int) async throws -> AppError? {
+        try await asyncFunction(for: updateMediaListStatus(mediaListId: mediaListId, status: nil, progress: KotlinInt(integerLiteral: progress)))
+    }
+    
+    
 }
 
 extension FetchNotificationTask {
@@ -72,7 +82,7 @@ extension AuthRepository {
         try await asyncFunction(for: startLoginProcessAndWaitResult())
     }
     
-    func getUserOptionsFlow()
+    func getUserOptionsAsyncSequence()
     -> NativeFlowAsyncSequence<UserOptions, Error, KotlinUnit> {
         asyncSequence(for: getUserOptionsFlow())
     }

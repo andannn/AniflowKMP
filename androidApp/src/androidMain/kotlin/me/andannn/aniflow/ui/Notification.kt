@@ -39,9 +39,13 @@ import androidx.lifecycle.viewModelScope
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.model.NotificationModel
+import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.NotificationCategory
+import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import me.andannn.aniflow.data.paging.NotificationPageComponent
 import me.andannn.aniflow.data.paging.PageComponent
 import me.andannn.aniflow.ui.widget.NotificationItem
@@ -50,11 +54,21 @@ import org.koin.compose.viewmodel.koinViewModel
 
 private const val TAG = "Notification"
 
-class NotificationViewModel : ViewModel() {
+class NotificationViewModel(
+    private val authRepository: AuthRepository,
+) : ViewModel() {
     private val _selectedCategory = MutableStateFlow(NotificationCategory.ALL)
 
     val selectedCategory = _selectedCategory.asStateFlow()
     var pagingController by mutableStateOf<PageComponent<NotificationModel>?>(null)
+    val userOptions =
+        authRepository.getUserOptionsFlow().stateIn(
+            viewModelScope,
+            initialValue = UserOptions(),
+            started =
+                kotlinx.coroutines.flow.SharingStarted
+                    .WhileSubscribed(5000),
+        )
 
     init {
         viewModelScope.launch {
@@ -82,6 +96,7 @@ fun Notification(
     navigator: RootNavigator = LocalRootNavigator.current,
 ) {
     val selected by viewModel.selectedCategory.collectAsStateWithLifecycle()
+    val userOptions by viewModel.userOptions.collectAsStateWithLifecycle()
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
@@ -140,6 +155,7 @@ fun Notification(
         NotificationPaging(
             modifier = Modifier.padding(it),
             pagingComponent = viewModel.pagingController,
+            userTitleLanguage = userOptions.titleLanguage,
         )
     }
 }
@@ -148,6 +164,7 @@ fun Notification(
 fun NotificationPaging(
     pagingComponent: PageComponent<NotificationModel>?,
     modifier: Modifier = Modifier,
+    userTitleLanguage: UserTitleLanguage,
 ) {
     if (pagingComponent != null) {
         VerticalListPaging(
@@ -158,6 +175,7 @@ fun NotificationPaging(
         ) { item ->
             NotificationItem(
                 model = item,
+                userTitleLanguage = userTitleLanguage,
             )
         }
     }

@@ -5,6 +5,7 @@
 package me.andannn.aniflow.ui
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -153,7 +154,9 @@ fun TrackContent(
         isRefreshing = isRefreshing,
         onPullRefresh = onPullRefresh,
     ) {
-        LazyColumn {
+        LazyColumn(
+            contentPadding = PaddingValues(horizontal = 8.dp),
+        ) {
             state.categoryWithItems.forEach { (category, items) ->
                 if (items.isNotEmpty()) {
                     stickyHeader(
@@ -166,7 +169,8 @@ fun TrackContent(
                             Text(
                                 modifier = Modifier.padding(top = 12.dp, start = 18.dp),
                                 text = category.title,
-                                style = MaterialTheme.typography.labelLarge,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.7f),
                             )
                         }
                     }
@@ -181,6 +185,7 @@ fun TrackContent(
                                 item = item,
                                 shape = listItemShape(isFirst, isLast),
                                 titleMaxLines = Int.MAX_VALUE,
+                                userTitleLanguage = state.userOptions.titleLanguage,
                                 onClick = {
                                     onClickListItem(item.mediaModel)
                                 },
