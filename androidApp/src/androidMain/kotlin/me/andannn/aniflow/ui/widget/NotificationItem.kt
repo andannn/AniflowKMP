@@ -46,6 +46,7 @@ import me.andannn.aniflow.data.model.MediaNotification
 import me.andannn.aniflow.data.model.NotificationModel
 import me.andannn.aniflow.data.model.UserModel
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
+import me.andannn.aniflow.data.util.formattedString
 import me.andannn.aniflow.data.util.getUserTitleString
 import me.andannn.aniflow.ui.theme.AniflowTheme
 import kotlin.time.Clock
@@ -221,19 +222,6 @@ private fun buildMediaText(
         }
         append(notification.context)
     }
-
-fun Duration.formattedString(): String {
-    val days = inWholeDays
-    val hours = inWholeHours
-    val minutes = inWholeMinutes
-
-    return when {
-        days > 0 -> "$days days"
-        hours > 0 -> "$hours hours"
-        minutes > 0 -> "$minutes minutes"
-        else -> "0m"
-    }
-}
 
 /**
  * —— 工具：从不同通知类型取封面图 ——
