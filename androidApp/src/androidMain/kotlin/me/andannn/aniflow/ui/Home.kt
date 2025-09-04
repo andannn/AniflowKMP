@@ -4,10 +4,12 @@
  */
 package me.andannn.aniflow.ui
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CollectionsBookmark
@@ -15,6 +17,7 @@ import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.outlined.CollectionsBookmark
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.BottomAppBarDefaults
@@ -26,24 +29,18 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
@@ -52,13 +49,7 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import coil3.compose.AsyncImage
 import io.github.aakira.napier.Napier
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import me.andannn.aniflow.data.HomeAppBarUiDataProvider
-import me.andannn.aniflow.data.MediaRepository
-import me.andannn.aniflow.data.Screen
 import me.andannn.aniflow.data.model.HomeAppBarUiState
 import me.andannn.aniflow.data.model.UserModel
 import me.andannn.aniflow.data.model.define.MediaContentMode
@@ -77,47 +68,18 @@ private sealed interface HomeNestedScreen {
     data object Track : HomeNestedScreen
 }
 
-class HomeViewModel(
-    val homeUiDataProvider: HomeAppBarUiDataProvider,
-    private val mediaRepository: MediaRepository,
-) : ViewModel() {
-    private val _state = MutableStateFlow(HomeAppBarUiState.Empty)
-    val state = _state.asStateFlow()
-
-    init {
-        viewModelScope.launch {
-            homeUiDataProvider.appBarFlow().collect { uiState ->
-                _state.value = uiState
-            }
-        }
-    }
-
-    fun changeContentMode(mode: MediaContentMode) {
-        Napier.d(tag = TAG) { "changeContentMode: $mode" }
-        viewModelScope.launch {
-            mediaRepository.setContentMode(mode)
-        }
-    }
-}
+class HomeViewModel : ViewModel()
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Home(homeViewModel: HomeViewModel = koinViewModel()) {
-    val state by homeViewModel.state.collectAsStateWithLifecycle()
-    val navigator = LocalRootNavigator.current
-
     HomeContent(
-        state = state,
         navigator =
             remember {
                 NestedNavigator(
                     mutableStateListOf(HomeNestedScreen.Discover),
                 )
             },
-        onContentTypeChange = homeViewModel::changeContentMode,
-        onAuthIconClick = {
-            navigator.navigateTo(Screen.Dialog.Login)
-        },
     )
 }
 
@@ -125,30 +87,10 @@ fun Home(homeViewModel: HomeViewModel = koinViewModel()) {
 @Composable
 private fun HomeContent(
     modifier: Modifier = Modifier,
-    state: HomeAppBarUiState,
     navigator: NestedNavigator,
-    onContentTypeChange: (MediaContentMode) -> Unit = {},
-    onAuthIconClick: () -> Unit = {},
 ) {
-    val appBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-
     Scaffold(
-        modifier =
-            modifier.nestedScroll(appBarScrollBehavior.nestedScrollConnection),
-        topBar = {
-            val color =
-                TopAppBarDefaults.topAppBarColors().copy(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                    scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-                )
-            DefaultAppBar(
-                state = state,
-                color = color,
-                scrollBehavior = appBarScrollBehavior,
-                onContentTypeChange = onContentTypeChange,
-                onAuthIconClick = onAuthIconClick,
-            )
-        },
+        modifier = modifier,
         bottomBar = {
             NavigationArea(
                 selected = navigator.currentTopLevelNavigation,
@@ -161,7 +103,7 @@ private fun HomeContent(
             NestNavigation(
                 modifier =
                     Modifier
-                        .padding(paddingValues)
+                        .padding(bottom = paddingValues.calculateBottomPadding())
                         .fillMaxSize(),
                 nestedBackStack = navigator.backStack,
             )
@@ -171,29 +113,44 @@ private fun HomeContent(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DefaultAppBar(
+fun DefaultAppBar(
+    title: String,
     state: HomeAppBarUiState,
-    color: TopAppBarColors,
     scrollBehavior: TopAppBarScrollBehavior,
     onContentTypeChange: (MediaContentMode) -> Unit = {},
     onAuthIconClick: () -> Unit = {},
 ) {
     val user = state.authedUser
+    val color =
+        TopAppBarDefaults.topAppBarColors().copy(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+        )
     TopAppBar(
         scrollBehavior = scrollBehavior,
         colors = color,
         title = {
             Text(
-                text = "AniFlow",
+                text = title,
                 fontFamily = AppNameFontFamily,
                 color = MaterialTheme.colorScheme.primary,
             )
         },
         actions = {
+            IconButton(
+                onClick = { /* TODO: open search */ },
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Search,
+                    contentDescription = null,
+                )
+            }
+            Spacer(modifier = Modifier.width(8.dp))
             MediaContentSwitcher(
                 mediaContent = state.contentMode,
                 onContentChange = onContentTypeChange,
             )
+            Spacer(modifier = Modifier.width(8.dp))
             UserAvatar(
                 user = user,
                 onAuthIconClick = onAuthIconClick,
@@ -205,40 +162,45 @@ private fun DefaultAppBar(
 
 @Composable
 private fun UserAvatar(
+    modifier: Modifier = Modifier,
     user: UserModel?,
     onAuthIconClick: () -> Unit = {},
 ) {
-    if (user != null) {
-        BadgedBox(
-            badge = {
-                val badgeNumber = user.unreadNotificationCount
-                if (badgeNumber != 0) {
-                    Badge {
-                        Text(
-                            badgeNumber.toString(),
-                        )
+    Box(
+        modifier = modifier.size(36.dp),
+    ) {
+        if (user != null) {
+            BadgedBox(
+                badge = {
+                    val badgeNumber = user.unreadNotificationCount
+                    if (badgeNumber != 0) {
+                        Badge {
+                            Text(
+                                badgeNumber.toString(),
+                            )
+                        }
                     }
+                },
+            ) {
+                IconButton(
+                    onClick = onAuthIconClick,
+                ) {
+                    AsyncImage(
+                        model = user.avatar,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                    )
                 }
-            },
-        ) {
+            }
+        } else {
             IconButton(
                 onClick = onAuthIconClick,
             ) {
-                AsyncImage(
-                    model = user.avatar,
+                Icon(
+                    imageVector = Icons.Outlined.Person,
                     contentDescription = null,
-                    contentScale = ContentScale.Crop,
                 )
             }
-        }
-    } else {
-        IconButton(
-            onClick = onAuthIconClick,
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.Person,
-                contentDescription = null,
-            )
         }
     }
 }
@@ -248,29 +210,25 @@ private fun NestNavigation(
     modifier: Modifier = Modifier,
     nestedBackStack: SnapshotStateList<HomeNestedScreen>,
 ) {
-    Surface(
+    NavDisplay(
         modifier = modifier,
-        color = MaterialTheme.colorScheme.surfaceContainer,
-    ) {
-        NavDisplay(
-            backStack = nestedBackStack,
-            entryDecorators =
-                listOf(
-                    rememberSceneSetupNavEntryDecorator(),
-                    rememberSavedStateNavEntryDecorator(),
-                    rememberViewModelStoreNavEntryDecorator(),
-                ),
-            entryProvider =
-                entryProvider {
-                    entry(HomeNestedScreen.Discover) {
-                        Discover()
-                    }
-                    entry(HomeNestedScreen.Track) {
-                        Track()
-                    }
-                },
-        )
-    }
+        backStack = nestedBackStack,
+        entryDecorators =
+            listOf(
+                rememberSceneSetupNavEntryDecorator(),
+                rememberSavedStateNavEntryDecorator(),
+                rememberViewModelStoreNavEntryDecorator(),
+            ),
+        entryProvider =
+            entryProvider {
+                entry(HomeNestedScreen.Discover) {
+                    Discover()
+                }
+                entry(HomeNestedScreen.Track) {
+                    Track()
+                }
+            },
+    )
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
