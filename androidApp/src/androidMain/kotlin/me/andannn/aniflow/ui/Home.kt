@@ -37,6 +37,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SearchBarScrollBehavior
 import androidx.compose.material3.SearchBarValue
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
@@ -179,20 +180,10 @@ private fun HomeContent(
                     onAuthIconClick = onAuthIconClick,
                 )
             } else {
-                val isTrackPage by rememberUpdatedState(
-                    navigator.currentTopLevelNavigation == TopLevelNavigation.TRACK,
-                )
-
-                val backgroundColor =
-                    if (isTrackPage) {
-                        MaterialTheme.colorScheme.surfaceContainerHigh
-                    } else {
-                        MaterialTheme.colorScheme.surface
-                    }
                 val color =
                     TopAppBarDefaults.topAppBarColors().copy(
-                        containerColor = backgroundColor,
-                        scrolledContainerColor = backgroundColor,
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                        scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                     )
                 DefaultAppBar(
                     state = state,
@@ -375,28 +366,32 @@ private fun NestNavigation(
     modifier: Modifier = Modifier,
     nestedBackStack: SnapshotStateList<HomeNestedScreen>,
 ) {
-    NavDisplay(
+    Surface(
         modifier = modifier,
-        backStack = nestedBackStack,
-        entryDecorators =
-            listOf(
-                rememberSceneSetupNavEntryDecorator(),
-                rememberSavedStateNavEntryDecorator(),
-                rememberViewModelStoreNavEntryDecorator(),
-            ),
-        entryProvider =
-            entryProvider {
-                entry(HomeNestedScreen.Discover) {
-                    Discover()
-                }
-                entry(HomeNestedScreen.Track) {
-                    Track()
-                }
-                entry(HomeNestedScreen.Search) {
-                    Search()
-                }
-            },
-    )
+        color = MaterialTheme.colorScheme.surfaceContainer,
+    ) {
+        NavDisplay(
+            backStack = nestedBackStack,
+            entryDecorators =
+                listOf(
+                    rememberSceneSetupNavEntryDecorator(),
+                    rememberSavedStateNavEntryDecorator(),
+                    rememberViewModelStoreNavEntryDecorator(),
+                ),
+            entryProvider =
+                entryProvider {
+                    entry(HomeNestedScreen.Discover) {
+                        Discover()
+                    }
+                    entry(HomeNestedScreen.Track) {
+                        Track()
+                    }
+                    entry(HomeNestedScreen.Search) {
+                        Search()
+                    }
+                },
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)

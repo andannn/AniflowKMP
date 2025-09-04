@@ -123,19 +123,15 @@ fun Track(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
-    Surface(
+    TrackContent(
         modifier = modifier,
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
-    ) {
-        TrackContent(
-            state = state,
-            isRefreshing = isRefreshing,
-            onPullRefresh = viewModel::onPullRefresh,
-            onClickListItem = viewModel::onClickListItem,
-            onDeleteItem = viewModel::onDeleteItem,
-            onMarkWatched = viewModel::onMarkWatched,
-        )
-    }
+        state = state,
+        isRefreshing = isRefreshing,
+        onPullRefresh = viewModel::onPullRefresh,
+        onClickListItem = viewModel::onClickListItem,
+        onDeleteItem = viewModel::onDeleteItem,
+        onMarkWatched = viewModel::onMarkWatched,
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -164,7 +160,7 @@ fun TrackContent(
                     ) {
                         Surface(
                             modifier = Modifier.fillMaxWidth(),
-                            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            color = MaterialTheme.colorScheme.surfaceContainer,
                         ) {
                             Text(
                                 modifier = Modifier.padding(top = 12.dp, start = 18.dp),
