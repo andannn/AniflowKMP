@@ -70,6 +70,7 @@ import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.data.util.getUserTitleString
 import me.andannn.aniflow.ui.widget.CustomPullToRefresh
+import me.andannn.aniflow.ui.widget.DefaultAppBar
 import me.andannn.aniflow.ui.widget.MediaPreviewItem
 import me.andannn.aniflow.ui.widget.NewReleaseCard
 import org.koin.compose.viewmodel.koinViewModel
@@ -140,6 +141,7 @@ fun Discover(
     modifier: Modifier = Modifier,
     discoverViewModel: DiscoverViewModel = koinViewModel(),
     navigator: RootNavigator = LocalRootNavigator.current,
+    onNavigateToNested: (HomeNestedScreen) -> Unit = {},
 ) {
     val state by discoverViewModel.state.collectAsStateWithLifecycle()
     val isRefreshing by discoverViewModel.isRefreshing.collectAsStateWithLifecycle()
@@ -160,6 +162,9 @@ fun Discover(
         onPullRefresh = discoverViewModel::onPullRefresh,
         onNavigateToMediaCategory = { category ->
             navigator.navigateTo(Screen.MediaCategoryList(category))
+        },
+        onSearchClick = {
+            onNavigateToNested(HomeNestedScreen.SearchInput)
         },
         modifier = modifier,
     )
@@ -183,6 +188,7 @@ fun DiscoverContent(
     onNavigateToMediaCategory: (MediaCategory) -> Unit = {},
     onContentTypeChange: (MediaContentMode) -> Unit = {},
     onAuthIconClick: () -> Unit = {},
+    onSearchClick: () -> Unit = {},
 ) {
     val appBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
@@ -196,6 +202,7 @@ fun DiscoverContent(
                 scrollBehavior = appBarScrollBehavior,
                 onContentTypeChange = onContentTypeChange,
                 onAuthIconClick = onAuthIconClick,
+                onSearchClick = onSearchClick,
             )
         },
     ) {
