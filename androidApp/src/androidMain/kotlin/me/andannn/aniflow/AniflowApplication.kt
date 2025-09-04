@@ -15,7 +15,7 @@ import me.andannn.aniflow.ui.HomeViewModel
 import me.andannn.aniflow.ui.LoginDialogViewModel
 import me.andannn.aniflow.ui.MediaCategoryPagingViewModel
 import me.andannn.aniflow.ui.NotificationViewModel
-import me.andannn.aniflow.ui.SearchViewModel
+import me.andannn.aniflow.ui.SearchInputViewModel
 import me.andannn.aniflow.ui.TrackViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
@@ -49,8 +49,8 @@ private fun androidContextModule(application: AniflowApplication) =
         viewModelOf(::NotificationViewModel)
         viewModelOf(::TrackViewModel)
         viewModelOf(::LoginDialogViewModel)
-        viewModelOf(::SearchViewModel)
         viewModel {
             MediaCategoryPagingViewModel(it.get(), get())
         }
+        viewModelOf(::SearchInputViewModel)
     }

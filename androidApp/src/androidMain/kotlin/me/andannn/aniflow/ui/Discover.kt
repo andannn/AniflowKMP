@@ -70,8 +70,10 @@ import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.data.util.getUserTitleString
 import me.andannn.aniflow.ui.widget.CustomPullToRefresh
+import me.andannn.aniflow.ui.widget.DefaultAppBar
 import me.andannn.aniflow.ui.widget.MediaPreviewItem
 import me.andannn.aniflow.ui.widget.NewReleaseCard
+import me.andannn.aniflow.ui.widget.TitleWithContent
 import org.koin.compose.viewmodel.koinViewModel
 
 private const val TAG = "Discover"
@@ -140,6 +142,7 @@ fun Discover(
     modifier: Modifier = Modifier,
     discoverViewModel: DiscoverViewModel = koinViewModel(),
     navigator: RootNavigator = LocalRootNavigator.current,
+    onNavigateToNested: (HomeNestedScreen) -> Unit = {},
 ) {
     val state by discoverViewModel.state.collectAsStateWithLifecycle()
     val isRefreshing by discoverViewModel.isRefreshing.collectAsStateWithLifecycle()
@@ -160,6 +163,9 @@ fun Discover(
         onPullRefresh = discoverViewModel::onPullRefresh,
         onNavigateToMediaCategory = { category ->
             navigator.navigateTo(Screen.MediaCategoryList(category))
+        },
+        onSearchClick = {
+            onNavigateToNested(HomeNestedScreen.SearchInput)
         },
         modifier = modifier,
     )
@@ -183,6 +189,7 @@ fun DiscoverContent(
     onNavigateToMediaCategory: (MediaCategory) -> Unit = {},
     onContentTypeChange: (MediaContentMode) -> Unit = {},
     onAuthIconClick: () -> Unit = {},
+    onSearchClick: () -> Unit = {},
 ) {
     val appBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
@@ -196,6 +203,7 @@ fun DiscoverContent(
                 scrollBehavior = appBarScrollBehavior,
                 onContentTypeChange = onContentTypeChange,
                 onAuthIconClick = onAuthIconClick,
+                onSearchClick = onSearchClick,
             )
         },
     ) {
@@ -309,32 +317,6 @@ private fun MediaPreviewSector(
                 }
             }
         }
-    }
-}
-
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-fun TitleWithContent(
-    title: String,
-    modifier: Modifier = Modifier,
-    onMoreClick: () -> Unit = {},
-    content: @Composable () -> Unit = {},
-) {
-    Column(modifier) {
-        Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(title, maxLines = 1, style = MaterialTheme.typography.titleMedium)
-            Spacer(Modifier.weight(1f))
-            IconButton(onMoreClick, shapes = IconButtonDefaults.shapes()) {
-                Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
-            }
-        }
-        content()
     }
 }
 

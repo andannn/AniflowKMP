@@ -5,6 +5,7 @@
 package me.andannn.aniflow.data.util
 
 import me.andannn.aniflow.data.model.MediaModel
+import me.andannn.aniflow.data.model.SearchCategory
 import me.andannn.aniflow.data.model.define.MediaFormat
 import me.andannn.aniflow.data.model.define.MediaSeason
 import me.andannn.aniflow.data.model.define.MediaSource
@@ -94,7 +95,7 @@ private fun MediaSource.label() =
         MediaSource.PICTURE_BOOK -> "Picture book"
     }
 
-private fun MediaFormat.label() =
+fun MediaFormat.label() =
     when (this) {
         MediaFormat.TV -> "TV"
         MediaFormat.TV_SHORT -> "TV Short"
@@ -117,10 +118,19 @@ private fun MediaStatus.label() =
         MediaStatus.HIATUS -> "Hiatus"
     }
 
-private fun MediaSeason.label() =
+fun MediaSeason.label() =
     when (this) {
         MediaSeason.WINTER -> "Winter"
         MediaSeason.SPRING -> "Spring"
         MediaSeason.SUMMER -> "Summer"
         MediaSeason.FALL -> "Fall"
+    }
+
+fun SearchCategory.label() =
+    when (this) {
+        SearchCategory.ANIME -> "Anime"
+        SearchCategory.MANGA -> "Manga"
+        SearchCategory.CHARACTER -> "Character"
+        SearchCategory.STAFF -> "Staff"
+        SearchCategory.STUDIO -> "Studio"
     }
