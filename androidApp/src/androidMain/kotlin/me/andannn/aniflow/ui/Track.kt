@@ -206,10 +206,18 @@ private fun listItemShape(
     isFirst: Boolean,
     isLast: Boolean,
 ): RoundedCornerShape {
+    val isSingle: Boolean = isFirst && isLast
     val edgeConerSize = MaterialTheme.shapes.large.topEnd
     val middleConerSize = MaterialTheme.shapes.extraSmall.topStart
 
-    return if (isFirst) {
+    return if (isSingle) {
+        RoundedCornerShape(
+            topStart = edgeConerSize,
+            topEnd = edgeConerSize,
+            bottomStart = edgeConerSize,
+            bottomEnd = edgeConerSize,
+        )
+    } else if (isFirst) {
         RoundedCornerShape(
             topStart = edgeConerSize,
             topEnd = edgeConerSize,

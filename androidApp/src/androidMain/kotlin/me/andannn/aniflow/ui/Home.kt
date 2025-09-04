@@ -6,25 +6,18 @@ package me.andannn.aniflow.ui
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CollectionsBookmark
 import androidx.compose.material.icons.filled.Explore
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.CollectionsBookmark
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material3.AppBarWithSearch
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.BottomAppBarDefaults
-import androidx.compose.material3.ExpandedFullScreenSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FlexibleBottomAppBar
@@ -32,33 +25,21 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SearchBarDefaults
-import androidx.compose.material3.SearchBarScrollBehavior
-import androidx.compose.material3.SearchBarValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TooltipAnchorPosition
-import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
-import androidx.compose.material3.rememberSearchBarState
-import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -94,12 +75,6 @@ private sealed interface HomeNestedScreen {
 
     @Serializable
     data object Track : HomeNestedScreen
-
-//    @Serializable
-//    data object Social : HomeNestedScreen
-
-    @Serializable
-    data object Search : HomeNestedScreen
 }
 
 class HomeViewModel(
@@ -155,44 +130,24 @@ private fun HomeContent(
     onContentTypeChange: (MediaContentMode) -> Unit = {},
     onAuthIconClick: () -> Unit = {},
 ) {
-    val isSearchPage by rememberUpdatedState(
-        navigator.currentTopLevelNavigation == TopLevelNavigation.SEARCH,
-    )
     val appBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-
-    val topModifier =
-        remember(isSearchPage) {
-            if (isSearchPage) {
-                Modifier
-            } else {
-                Modifier.nestedScroll(appBarScrollBehavior.nestedScrollConnection)
-            }
-        }
 
     Scaffold(
         modifier =
-            modifier.then(topModifier),
+            modifier.nestedScroll(appBarScrollBehavior.nestedScrollConnection),
         topBar = {
-            if (isSearchPage) {
-                SearchAppBar(
-                    modifier = Modifier.padding(horizontal = 24.dp),
-                    state = state,
-                    onAuthIconClick = onAuthIconClick,
+            val color =
+                TopAppBarDefaults.topAppBarColors().copy(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
                 )
-            } else {
-                val color =
-                    TopAppBarDefaults.topAppBarColors().copy(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                        scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                    )
-                DefaultAppBar(
-                    state = state,
-                    color = color,
-                    scrollBehavior = appBarScrollBehavior,
-                    onContentTypeChange = onContentTypeChange,
-                    onAuthIconClick = onAuthIconClick,
-                )
-            }
+            DefaultAppBar(
+                state = state,
+                color = color,
+                scrollBehavior = appBarScrollBehavior,
+                onContentTypeChange = onContentTypeChange,
+                onAuthIconClick = onAuthIconClick,
+            )
         },
         bottomBar = {
             NavigationArea(
@@ -212,79 +167,6 @@ private fun HomeContent(
             )
         },
     )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun SearchAppBar(
-    modifier: Modifier,
-    state: HomeAppBarUiState,
-    onAuthIconClick: () -> Unit = {},
-) {
-    val textFieldState = rememberTextFieldState()
-    val searchBarState = rememberSearchBarState()
-    val scope = rememberCoroutineScope()
-
-    val inputField =
-        @Composable {
-            SearchBarDefaults.InputField(
-                searchBarState = searchBarState,
-                textFieldState = textFieldState,
-                onSearch = { scope.launch { searchBarState.animateToCollapsed() } },
-                placeholder = {
-                    if (searchBarState.currentValue == SearchBarValue.Collapsed) {
-                        Text(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = "Search",
-                            textAlign = TextAlign.Center,
-                        )
-                    }
-                },
-                leadingIcon = {
-                    if (searchBarState.currentValue == SearchBarValue.Expanded) {
-                        TooltipBox(
-                            positionProvider =
-                                TooltipDefaults.rememberTooltipPositionProvider(
-                                    TooltipAnchorPosition.Above,
-                                ),
-                            tooltip = { PlainTooltip { Text("Back") } },
-                            state = rememberTooltipState(),
-                        ) {
-                            IconButton(
-                                onClick = { scope.launch { searchBarState.animateToCollapsed() } },
-                            ) {
-                                Icon(
-                                    Icons.AutoMirrored.Default.ArrowBack,
-                                    contentDescription = "Back",
-                                )
-                            }
-                        }
-                    } else {
-                        Icon(Icons.Default.Search, contentDescription = null)
-                    }
-                },
-                trailingIcon = {
-                    UserAvatar(
-                        user = state.authedUser,
-                        onAuthIconClick = onAuthIconClick,
-                    )
-                },
-            )
-        }
-
-    AppBarWithSearch(
-        modifier = modifier,
-        state = searchBarState,
-        inputField = inputField,
-    )
-    ExpandedFullScreenSearchBar(state = searchBarState, inputField = inputField) {
-//        SearchResults(
-//            onResultClick = { result ->
-//                textFieldState.setTextAndPlaceCursorAtEnd(result)
-//                scope.launch { searchBarState.animateToCollapsed() }
-//            },
-//        )
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -386,9 +268,6 @@ private fun NestNavigation(
                     entry(HomeNestedScreen.Track) {
                         Track()
                     }
-                    entry(HomeNestedScreen.Search) {
-                        Search()
-                    }
                 },
         )
     }
@@ -425,7 +304,6 @@ private fun NavigationArea(
 enum class TopLevelNavigation {
     DISCOVER,
     TRACK,
-    SEARCH,
 }
 
 private val TopLevelNavigation.selectedIcon
@@ -433,8 +311,6 @@ private val TopLevelNavigation.selectedIcon
         when (this) {
             TopLevelNavigation.DISCOVER -> Icons.Default.Explore
             TopLevelNavigation.TRACK -> Icons.Default.CollectionsBookmark
-//            TopLevelNavigation.SOCIAL -> Icons.Default.Forum
-            TopLevelNavigation.SEARCH -> Icons.Default.Search
         }
 
 private val TopLevelNavigation.unselectedIcon
@@ -442,8 +318,6 @@ private val TopLevelNavigation.unselectedIcon
         when (this) {
             TopLevelNavigation.DISCOVER -> Icons.Outlined.Explore
             TopLevelNavigation.TRACK -> Icons.Outlined.CollectionsBookmark
-//            TopLevelNavigation.SOCIAL -> Icons.Outlined.Forum
-            TopLevelNavigation.SEARCH -> Icons.Outlined.Search
         }
 
 private val TopLevelNavigation.label
@@ -451,8 +325,6 @@ private val TopLevelNavigation.label
         when (this) {
             TopLevelNavigation.DISCOVER -> "Discover"
             TopLevelNavigation.TRACK -> "Track"
-//            TopLevelNavigation.SOCIAL -> "Social"
-            TopLevelNavigation.SEARCH -> "Search"
         }
 
 private class NestedNavigator(
@@ -485,15 +357,11 @@ private class NestedNavigator(
         when (this) {
             TopLevelNavigation.DISCOVER -> HomeNestedScreen.Discover
             TopLevelNavigation.TRACK -> HomeNestedScreen.Track
-//            TopLevelNavigation.SOCIAL -> HomeNestedScreen.Social
-            TopLevelNavigation.SEARCH -> HomeNestedScreen.Search
         }
 
     fun HomeNestedScreen.toTopLevelNavigation() =
         when (this) {
             HomeNestedScreen.Discover -> TopLevelNavigation.DISCOVER
-            HomeNestedScreen.Search -> TopLevelNavigation.SEARCH
-//            HomeNestedScreen.Social -> TopLevelNavigation.SOCIAL
             HomeNestedScreen.Track -> TopLevelNavigation.TRACK
         }
 }
