@@ -80,7 +80,7 @@ fun Home(homeViewModel: HomeViewModel = koinViewModel()) {
         navigator =
             remember {
                 NestedNavigator(
-                    mutableStateListOf(HomeNestedScreen.Discover),
+                    mutableStateListOf(HomeNestedScreen.SearchInput),
                 )
             },
     )

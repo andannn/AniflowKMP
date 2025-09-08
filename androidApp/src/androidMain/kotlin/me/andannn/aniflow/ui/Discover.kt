@@ -324,6 +324,7 @@ private fun MediaPreviewSector(
 fun TitleWithContent(
     title: String,
     modifier: Modifier = Modifier,
+    showMore: Boolean = true,
     onMoreClick: () -> Unit = {},
     content: @Composable () -> Unit = {},
 ) {
@@ -336,9 +337,11 @@ fun TitleWithContent(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(title, maxLines = 1, style = MaterialTheme.typography.titleMedium)
-            Spacer(Modifier.weight(1f))
-            IconButton(onMoreClick, shapes = IconButtonDefaults.shapes()) {
-                Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
+            if (showMore) {
+                Spacer(Modifier.weight(1f))
+                IconButton(onMoreClick, shapes = IconButtonDefaults.shapes()) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
+                }
             }
         }
         content()
