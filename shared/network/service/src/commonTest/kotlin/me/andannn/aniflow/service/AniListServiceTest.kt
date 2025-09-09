@@ -147,6 +147,9 @@ class AniListServiceTest {
                     perPage = 10,
                     keyword = "test",
                     type = MediaType.ANIME,
+                    formatIn = listOf(),
+                    season = null,
+                    seasonYear = null,
                     isAdult = false,
                 )
             assertIs<Page<Media>>(respond)

@@ -17,6 +17,7 @@ import me.andannn.aniflow.data.internal.exceptions.toError
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.NotificationModel
 import me.andannn.aniflow.data.model.Page
+import me.andannn.aniflow.data.model.SearchSource
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.MediaContentMode
 import me.andannn.aniflow.data.model.define.MediaFormat
@@ -197,6 +198,28 @@ internal class MediaRepositoryImpl(
                 newItem
             },
         )
+
+    override suspend fun searchMediaFromSource(
+        page: Int,
+        perPage: Int,
+        searchSource: SearchSource.Media,
+    ) = with(mediaService) {
+        try {
+            searchMedia(
+                page = page,
+                perPage = perPage,
+                keyword = searchSource.keyword,
+                type = searchSource.type.toServiceType(),
+                season = (searchSource as? SearchSource.Media.Anime)?.season?.toServiceType(),
+                seasonYear = (searchSource as? SearchSource.Media.Anime)?.seasonYear?.toInt(),
+                formatIn = (searchSource as? SearchSource.Media.Anime)?.mediaFormat?.map(MediaFormat::toServiceType),
+                isAdult = false,
+            ).toDomain(Media::toDomain) to null
+        } catch (exception: ServerException) {
+            Napier.e { "Error when loading media page: $exception" }
+            Page.empty<MediaModel>() to exception.toError()
+        }
+    }
 }
 
 private const val DEFAULT_CACHED_SIZE = 20

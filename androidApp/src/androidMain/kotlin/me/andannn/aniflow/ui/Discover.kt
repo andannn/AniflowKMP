@@ -9,6 +9,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -33,13 +34,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -49,27 +53,34 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.DiscoverUiDataProvider
+import me.andannn.aniflow.data.HomeAppBarUiDataProvider
 import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.Screen
 import me.andannn.aniflow.data.model.DiscoverUiState
+import me.andannn.aniflow.data.model.HomeAppBarUiState
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.define.MediaCategory
+import me.andannn.aniflow.data.model.define.MediaContentMode
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.data.util.getUserTitleString
 import me.andannn.aniflow.ui.widget.CustomPullToRefresh
+import me.andannn.aniflow.ui.widget.DefaultAppBar
 import me.andannn.aniflow.ui.widget.MediaPreviewItem
 import me.andannn.aniflow.ui.widget.NewReleaseCard
+import me.andannn.aniflow.ui.widget.TitleWithContent
 import org.koin.compose.viewmodel.koinViewModel
 
 private const val TAG = "Discover"
 
 class DiscoverViewModel(
-    private val dataProvider: DiscoverUiDataProvider,
+    private val discoverDataProvider: DiscoverUiDataProvider,
+    private val appbarDataProvider: HomeAppBarUiDataProvider,
     private val authRepository: AuthRepository,
     private val mediaRepository: MediaRepository,
 ) : ViewModel() {
@@ -78,12 +89,20 @@ class DiscoverViewModel(
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing = _isRefreshing.asStateFlow()
 
+    val appBarState =
+        appbarDataProvider.appBarFlow().stateIn(
+            viewModelScope,
+            initialValue = HomeAppBarUiState(),
+            started =
+                kotlinx.coroutines.flow.SharingStarted
+                    .WhileSubscribed(5000),
+        )
     private var sideEffectJob: Job? = null
 
     init {
         cancelLastAndRegisterUiSideEffect()
         viewModelScope.launch {
-            dataProvider.discoverUiDataFlow().collect {
+            discoverDataProvider.discoverUiDataFlow().collect {
                 _state.value = it
             }
         }
@@ -98,12 +117,19 @@ class DiscoverViewModel(
         cancelLastAndRegisterUiSideEffect(force = true)
     }
 
+    fun changeContentMode(mode: MediaContentMode) {
+        Napier.d(tag = TAG) { "changeContentMode: $mode" }
+        viewModelScope.launch {
+            mediaRepository.setContentMode(mode)
+        }
+    }
+
     private fun cancelLastAndRegisterUiSideEffect(force: Boolean = false) {
         Napier.d(tag = TAG) { "cancelLastAndRegisterUiSideEffect:" }
         sideEffectJob?.cancel()
         sideEffectJob =
             viewModelScope.launch {
-                dataProvider.discoverUiSideEffect(force).collect { status ->
+                discoverDataProvider.discoverUiSideEffect(force).collect { status ->
                     Napier.d(tag = TAG) { "cancelLastAndRegisterUiSideEffect: sync status $status" }
                     _isRefreshing.value = status.isLoading()
                 }
@@ -116,20 +142,30 @@ fun Discover(
     modifier: Modifier = Modifier,
     discoverViewModel: DiscoverViewModel = koinViewModel(),
     navigator: RootNavigator = LocalRootNavigator.current,
+    onNavigateToNested: (HomeNestedScreen) -> Unit = {},
 ) {
     val state by discoverViewModel.state.collectAsStateWithLifecycle()
     val isRefreshing by discoverViewModel.isRefreshing.collectAsStateWithLifecycle()
+    val appBarState by discoverViewModel.appBarState.collectAsStateWithLifecycle()
     DiscoverContent(
         isRefreshing = isRefreshing,
+        appbarState = appBarState,
         categoryDataList = state.categoryDataMap.content,
         newReleasedMedia = state.newReleasedMedia,
         userTitleLanguage = state.userOptions.titleLanguage,
+        onContentTypeChange = discoverViewModel::changeContentMode,
+        onAuthIconClick = {
+            navigator.navigateTo(Screen.Dialog.Login)
+        },
         onMediaClick = {
             navigator.navigateTo(Screen.Notification)
         },
         onPullRefresh = discoverViewModel::onPullRefresh,
         onNavigateToMediaCategory = { category ->
             navigator.navigateTo(Screen.MediaCategoryList(category))
+        },
+        onSearchClick = {
+            onNavigateToNested(HomeNestedScreen.SearchInput)
         },
         modifier = modifier,
     )
@@ -143,6 +179,7 @@ fun Discover(
 @Composable
 fun DiscoverContent(
     isRefreshing: Boolean,
+    appbarState: HomeAppBarUiState,
     modifier: Modifier = Modifier,
     userTitleLanguage: UserTitleLanguage,
     categoryDataList: List<CategoryWithContents>,
@@ -150,64 +187,87 @@ fun DiscoverContent(
     onMediaClick: (MediaModel) -> Unit,
     onPullRefresh: () -> Unit,
     onNavigateToMediaCategory: (MediaCategory) -> Unit = {},
+    onContentTypeChange: (MediaContentMode) -> Unit = {},
+    onAuthIconClick: () -> Unit = {},
+    onSearchClick: () -> Unit = {},
 ) {
-    CustomPullToRefresh(
-        modifier = modifier,
-        isRefreshing = isRefreshing,
-        onPullRefresh = onPullRefresh,
+    val appBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+
+    Scaffold(
+        modifier =
+            modifier.nestedScroll(appBarScrollBehavior.nestedScrollConnection),
+        topBar = {
+            DefaultAppBar(
+                title = "AniFlow",
+                state = appbarState,
+                scrollBehavior = appBarScrollBehavior,
+                onContentTypeChange = onContentTypeChange,
+                onAuthIconClick = onAuthIconClick,
+                onSearchClick = onSearchClick,
+            )
+        },
     ) {
-        LazyColumn(
-            state = rememberLazyListState(),
-            contentPadding = PaddingValues(horizontal = 16.dp),
+        CustomPullToRefresh(
+            modifier =
+                Modifier
+                    .padding(top = it.calculateTopPadding())
+                    .background(color = MaterialTheme.colorScheme.surfaceContainer),
+            isRefreshing = isRefreshing,
+            onPullRefresh = onPullRefresh,
         ) {
-            item(
-                key = "New release",
+            LazyColumn(
+                state = rememberLazyListState(),
+                contentPadding = PaddingValues(horizontal = 16.dp),
             ) {
-                val visible = rememberUpdatedState(newReleasedMedia.isNotEmpty())
-                Box(
-                    modifier =
-                        Modifier.animateContentSize(
-                            animationSpec =
-                                spring(
-                                    stiffness = Spring.StiffnessMedium,
-                                    visibilityThreshold = IntSize.VisibilityThreshold,
-                                ),
-                        ),
+                item(
+                    key = "New release",
                 ) {
-                    if (visible.value) {
-                        NewReleaseCard(
-                            items = newReleasedMedia,
-                            userTitleLanguage = userTitleLanguage,
-                        )
-                    } else {
-                        Spacer(
-                            Modifier
-                                .fillMaxWidth()
-                                .height(1.dp),
-                        )
+                    val visible = rememberUpdatedState(newReleasedMedia.isNotEmpty())
+                    Box(
+                        modifier =
+                            Modifier.animateContentSize(
+                                animationSpec =
+                                    spring(
+                                        stiffness = Spring.StiffnessMedium,
+                                        visibilityThreshold = IntSize.VisibilityThreshold,
+                                    ),
+                            ),
+                    ) {
+                        if (visible.value) {
+                            NewReleaseCard(
+                                items = newReleasedMedia,
+                                userTitleLanguage = userTitleLanguage,
+                            )
+                        } else {
+                            Spacer(
+                                Modifier
+                                    .fillMaxWidth()
+                                    .height(1.dp),
+                            )
+                        }
                     }
                 }
-            }
 
-            items(
-                items = categoryDataList,
-                key = { it.category },
-            ) { (category, items) ->
-                TitleWithContent(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                    title = category.title,
-                    onMoreClick = {
-                        onNavigateToMediaCategory(category)
-                    },
-                ) {
-                    MediaPreviewSector(
-                        mediaList = items,
-                        userTitleLanguage = userTitleLanguage,
-                        onMediaClick = onMediaClick,
-                    )
+                items(
+                    items = categoryDataList,
+                    key = { it.category },
+                ) { (category, items) ->
+                    TitleWithContent(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                        title = category.title,
+                        onMoreClick = {
+                            onNavigateToMediaCategory(category)
+                        },
+                    ) {
+                        MediaPreviewSector(
+                            mediaList = items,
+                            userTitleLanguage = userTitleLanguage,
+                            onMediaClick = onMediaClick,
+                        )
+                    }
                 }
             }
         }
@@ -257,32 +317,6 @@ private fun MediaPreviewSector(
                 }
             }
         }
-    }
-}
-
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-fun TitleWithContent(
-    title: String,
-    modifier: Modifier = Modifier,
-    onMoreClick: () -> Unit = {},
-    content: @Composable () -> Unit = {},
-) {
-    Column(modifier) {
-        Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(title, maxLines = 1, style = MaterialTheme.typography.titleMedium)
-            Spacer(Modifier.weight(1f))
-            IconButton(onMoreClick, shapes = IconButtonDefaults.shapes()) {
-                Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
-            }
-        }
-        content()
     }
 }
 

@@ -61,10 +61,14 @@ class UserSettingPreferences(
         }
     }
 
-    suspend fun setAuthedUserId(userId: String) {
+    suspend fun setAuthedUserId(userId: String?) {
         preferences.updateData { currentPreferences ->
             currentPreferences.toMutablePreferences().apply {
-                this[stringPreferencesKey(PreferencesKeyName.AUTHED_USER_ID_KEY_NAME)] = userId
+                if (userId == null) {
+                    remove(stringPreferencesKey(PreferencesKeyName.AUTHED_USER_ID_KEY_NAME))
+                } else {
+                    this[stringPreferencesKey(PreferencesKeyName.AUTHED_USER_ID_KEY_NAME)] = userId
+                }
             }
         }
     }

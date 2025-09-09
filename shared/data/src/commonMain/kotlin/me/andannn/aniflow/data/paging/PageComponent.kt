@@ -45,6 +45,15 @@ interface PageComponent<T> {
     fun dispose()
 }
 
+object EmptyPageComponent : PageComponent<Nothing> {
+    override val items: StateFlow<List<Nothing>> = MutableStateFlow(emptyList())
+    override val status: StateFlow<LoadingStatus> = MutableStateFlow(LoadingStatus.Idle)
+
+    override fun loadNextPage() {}
+
+    override fun dispose() {}
+}
+
 val DEFAULT_CONFIG =
     PageConfig(
         perPage = 20,

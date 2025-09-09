@@ -4,124 +4,64 @@
  */
 package me.andannn.aniflow.ui
 
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CollectionsBookmark
 import androidx.compose.material.icons.filled.Explore
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.CollectionsBookmark
 import androidx.compose.material.icons.outlined.Explore
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FlexibleBottomAppBar
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
-import coil3.compose.AsyncImage
 import io.github.aakira.napier.Napier
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import me.andannn.aniflow.data.HomeAppBarUiDataProvider
-import me.andannn.aniflow.data.MediaRepository
-import me.andannn.aniflow.data.Screen
-import me.andannn.aniflow.data.model.HomeAppBarUiState
-import me.andannn.aniflow.data.model.define.MediaContentMode
-import me.andannn.aniflow.ui.theme.AppNameFontFamily
-import me.andannn.aniflow.ui.widget.MediaContentSwitcher
 import org.koin.compose.viewmodel.koinViewModel
 
 private const val TAG = "Home"
 
 @Serializable
-private sealed interface HomeNestedScreen {
+sealed interface HomeNestedScreen {
     @Serializable
     data object Discover : HomeNestedScreen
 
     @Serializable
     data object Track : HomeNestedScreen
 
-//    @Serializable
-//    data object Social : HomeNestedScreen
-
     @Serializable
-    data object Profile : HomeNestedScreen
+    data object SearchInput : HomeNestedScreen
 }
 
-class HomeViewModel(
-    val homeUiDataProvider: HomeAppBarUiDataProvider,
-    private val mediaRepository: MediaRepository,
-) : ViewModel() {
-    private val _state = MutableStateFlow(HomeAppBarUiState.Empty)
-    val state = _state.asStateFlow()
-
-    init {
-        viewModelScope.launch {
-            homeUiDataProvider.appBarFlow().collect { uiState ->
-                _state.value = uiState
-            }
-        }
-    }
-
-    fun changeContentMode(mode: MediaContentMode) {
-        Napier.d(tag = TAG) { "changeContentMode: $mode" }
-        viewModelScope.launch {
-            mediaRepository.setContentMode(mode)
-        }
-    }
-}
+class HomeViewModel : ViewModel()
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Home(homeViewModel: HomeViewModel = koinViewModel()) {
-    val state by homeViewModel.state.collectAsStateWithLifecycle()
-    val navigator = LocalRootNavigator.current
-
     HomeContent(
-        state = state,
         navigator =
             remember {
                 NestedNavigator(
                     mutableStateListOf(HomeNestedScreen.Discover),
                 )
             },
-        onContentTypeChange = homeViewModel::changeContentMode,
-        onAuthIconClick = {
-            navigator.navigateTo(Screen.Dialog.Login)
-        },
     )
 }
 
@@ -129,86 +69,10 @@ fun Home(homeViewModel: HomeViewModel = koinViewModel()) {
 @Composable
 private fun HomeContent(
     modifier: Modifier = Modifier,
-    state: HomeAppBarUiState,
     navigator: NestedNavigator,
-    onContentTypeChange: (MediaContentMode) -> Unit = {},
-    onAuthIconClick: () -> Unit = {},
 ) {
-    val appBarScrollBehavior =
-        TopAppBarDefaults.enterAlwaysScrollBehavior()
-    val user = state.authedUser
-
     Scaffold(
-        modifier =
-            modifier
-                .nestedScroll(appBarScrollBehavior.nestedScrollConnection),
-        topBar = {
-            val isTrackPage by rememberUpdatedState(
-                navigator.currentTopLevelNavigation == TopLevelNavigation.TRACK,
-            )
-            val backgroundColor =
-                if (isTrackPage) {
-                    MaterialTheme.colorScheme.surfaceContainerHigh
-                } else {
-                    MaterialTheme.colorScheme.surface
-                }
-            val color =
-                TopAppBarDefaults.topAppBarColors().copy(
-                    containerColor = backgroundColor,
-                    scrolledContainerColor = backgroundColor,
-                )
-            TopAppBar(
-                scrollBehavior = appBarScrollBehavior,
-                colors = color,
-                title = {
-                    Text(
-                        text = "AniFlow",
-                        fontFamily = AppNameFontFamily,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                },
-                actions = {
-                    MediaContentSwitcher(
-                        mediaContent = state.contentMode,
-                        onContentChange = onContentTypeChange,
-                    )
-                    if (user != null) {
-                        BadgedBox(
-                            badge = {
-                                val badgeNumber = user.unreadNotificationCount
-                                if (badgeNumber != 0) {
-                                    Badge {
-                                        Text(
-                                            badgeNumber.toString(),
-                                        )
-                                    }
-                                }
-                            },
-                        ) {
-                            IconButton(
-                                onClick = onAuthIconClick,
-                            ) {
-                                AsyncImage(
-                                    model = user.avatar,
-                                    contentDescription = null,
-                                    contentScale = ContentScale.Crop,
-                                )
-                            }
-                        }
-                    } else {
-                        IconButton(
-                            onClick = onAuthIconClick,
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Person,
-                                contentDescription = null,
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                },
-            )
-        },
+        modifier = modifier,
         bottomBar = {
             NavigationArea(
                 selected = navigator.currentTopLevelNavigation,
@@ -221,9 +85,9 @@ private fun HomeContent(
             NestNavigation(
                 modifier =
                     Modifier
-                        .padding(paddingValues)
+                        .padding(bottom = paddingValues.calculateBottomPadding())
                         .fillMaxSize(),
-                nestedBackStack = navigator.backStack,
+                navigator = navigator,
             )
         },
     )
@@ -232,11 +96,19 @@ private fun HomeContent(
 @Composable
 private fun NestNavigation(
     modifier: Modifier = Modifier,
-    nestedBackStack: SnapshotStateList<HomeNestedScreen>,
+    navigator: NestedNavigator,
 ) {
+    fun onNavigateToNested(to: HomeNestedScreen) {
+        navigator.navigateTo(to)
+    }
+
+    fun onPop() {
+        navigator.pop()
+    }
+
     NavDisplay(
         modifier = modifier,
-        backStack = nestedBackStack,
+        backStack = navigator.backStack,
         entryDecorators =
             listOf(
                 rememberSceneSetupNavEntryDecorator(),
@@ -246,10 +118,18 @@ private fun NestNavigation(
         entryProvider =
             entryProvider {
                 entry(HomeNestedScreen.Discover) {
-                    Discover()
+                    Discover(
+                        onNavigateToNested = ::onNavigateToNested,
+                    )
                 }
                 entry(HomeNestedScreen.Track) {
                     Track()
+                }
+                entry(HomeNestedScreen.SearchInput) {
+                    SearchInput(
+                        onPop = ::onPop,
+                        onNavigateToNested = ::onNavigateToNested,
+                    )
                 }
             },
     )
@@ -286,7 +166,6 @@ private fun NavigationArea(
 enum class TopLevelNavigation {
     DISCOVER,
     TRACK,
-    PROFILE,
 }
 
 private val TopLevelNavigation.selectedIcon
@@ -294,8 +173,6 @@ private val TopLevelNavigation.selectedIcon
         when (this) {
             TopLevelNavigation.DISCOVER -> Icons.Default.Explore
             TopLevelNavigation.TRACK -> Icons.Default.CollectionsBookmark
-//            TopLevelNavigation.SOCIAL -> Icons.Default.Forum
-            TopLevelNavigation.PROFILE -> Icons.Default.Person
         }
 
 private val TopLevelNavigation.unselectedIcon
@@ -303,17 +180,6 @@ private val TopLevelNavigation.unselectedIcon
         when (this) {
             TopLevelNavigation.DISCOVER -> Icons.Outlined.Explore
             TopLevelNavigation.TRACK -> Icons.Outlined.CollectionsBookmark
-//            TopLevelNavigation.SOCIAL -> Icons.Outlined.Forum
-            TopLevelNavigation.PROFILE -> Icons.Outlined.Person
-        }
-
-private val TopLevelNavigation.label
-    get() =
-        when (this) {
-            TopLevelNavigation.DISCOVER -> "Discover"
-            TopLevelNavigation.TRACK -> "Track"
-//            TopLevelNavigation.SOCIAL -> "Social"
-            TopLevelNavigation.PROFILE -> "Profile"
         }
 
 private class NestedNavigator(
@@ -321,7 +187,10 @@ private class NestedNavigator(
 ) {
     val currentTopLevelNavigation: TopLevelNavigation
         get() =
-            backStack.lastOrNull()?.toTopLevelNavigation()
+            backStack
+                .map {
+                    it.toTopLevelNavigation()
+                }.lastOrNull()
                 ?: TopLevelNavigation.DISCOVER
 
     fun navigateTo(topLevelNavigation: TopLevelNavigation) {
@@ -342,19 +211,34 @@ private class NestedNavigator(
         Napier.d(tag = TAG) { "Navigated to $toScreen after : ${backStack.toList()}" }
     }
 
+    fun navigateTo(to: HomeNestedScreen) {
+        Napier.d(tag = TAG) { "Navigated to $to before : ${backStack.toList()}" }
+        if (backStack.lastOrNull() == to) {
+            Napier.d(tag = TAG) { "Already on $to" }
+            return
+        }
+
+        backStack.add(to)
+
+        Napier.d(tag = TAG) { "Navigated to $to after : ${backStack.toList()}" }
+    }
+
+    fun pop() {
+        if (backStack.size > 1) {
+            backStack.removeLast()
+        }
+    }
+
     private fun TopLevelNavigation.toScreen() =
         when (this) {
             TopLevelNavigation.DISCOVER -> HomeNestedScreen.Discover
             TopLevelNavigation.TRACK -> HomeNestedScreen.Track
-//            TopLevelNavigation.SOCIAL -> HomeNestedScreen.Social
-            TopLevelNavigation.PROFILE -> HomeNestedScreen.Profile
         }
 
     fun HomeNestedScreen.toTopLevelNavigation() =
         when (this) {
             HomeNestedScreen.Discover -> TopLevelNavigation.DISCOVER
-            HomeNestedScreen.Profile -> TopLevelNavigation.PROFILE
-//            HomeNestedScreen.Social -> TopLevelNavigation.SOCIAL
             HomeNestedScreen.Track -> TopLevelNavigation.TRACK
+            else -> null
         }
 }

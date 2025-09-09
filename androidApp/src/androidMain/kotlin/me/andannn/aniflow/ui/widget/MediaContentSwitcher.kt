@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -34,7 +35,11 @@ fun MediaContentSwitcher(
 
     val defaultColors = SwitchDefaults.colors()
     Switch(
-        modifier = modifier,
+        modifier =
+            modifier.graphicsLayer(
+                scaleX = 0.85f,
+                scaleY = 0.85f,
+            ),
         checked = checked,
         colors =
             SwitchDefaults.colors(

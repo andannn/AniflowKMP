@@ -11,9 +11,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
@@ -51,46 +53,63 @@ fun <T> VerticalGridPaging(
         columns = columns,
         contentPadding = contentPadding,
     ) {
-        items(
+        pagingItems(
             items = items,
+            status = status,
             key = key,
-        ) { item ->
-            itemContent(item)
-        }
+            itemContent = itemContent,
+            onLoadNextPage = { pageComponent.loadNextPage() },
+        )
+    }
+}
 
-        if (status is LoadingStatus.Idle) {
-            item {
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .height(96.dp)
-                            .onVisibilityChanged(
-                                minFractionVisible = 0.3f,
-                                callback = { visible ->
-                                    Napier.d(tag = TAG) { "Bottom widget visibility changed: $visible" }
-                                    if (visible) {
-                                        pageComponent.loadNextPage()
-                                    }
-                                },
-                            ),
-                )
-            }
-        }
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+fun <T> LazyGridScope.pagingItems(
+    items: List<T>,
+    status: LoadingStatus,
+    key: (T) -> Any,
+    itemContent: @Composable (T) -> Unit,
+    onLoadNextPage: () -> Unit,
+) {
+    items(
+        items = items,
+        key = key,
+    ) { item ->
+        itemContent(item)
+    }
 
-        if (status is LoadingStatus.Loading) {
-            item(
-                span = { GridItemSpan(maxLineSpan) },
+    if (status is LoadingStatus.Idle) {
+        item {
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(96.dp)
+                        .onVisibilityChanged(
+                            minFractionVisible = 0.3f,
+                            callback = { visible ->
+                                Napier.d(tag = TAG) { "Bottom widget visibility changed: $visible" }
+                                if (visible) {
+                                    onLoadNextPage()
+                                }
+                            },
+                        ),
+            )
+        }
+    }
+
+    if (status is LoadingStatus.Loading) {
+        item(
+            span = { GridItemSpan(maxLineSpan) },
+        ) {
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(96.dp),
+                contentAlignment = Alignment.Center,
             ) {
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .height(96.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    ContainedLoadingIndicator()
-                }
+                ContainedLoadingIndicator()
             }
         }
     }
@@ -173,46 +192,63 @@ fun <T> StaggeredGridPaging(
         columns = columns,
         contentPadding = contentPadding,
     ) {
-        items(
+        pagingItems(
             items = items,
+            status = status,
             key = key,
-        ) { item ->
-            itemContent(item)
-        }
+            itemContent = itemContent,
+            onLoadNextPage = { pageComponent.loadNextPage() },
+        )
+    }
+}
 
-        if (status is LoadingStatus.Idle) {
-            item {
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .height(96.dp)
-                            .onVisibilityChanged(
-                                minFractionVisible = 0.3f,
-                                callback = { visible ->
-                                    Napier.d(tag = TAG) { "Bottom widget visibility changed: $visible" }
-                                    if (visible) {
-                                        pageComponent.loadNextPage()
-                                    }
-                                },
-                            ),
-                )
-            }
-        }
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+fun <T> LazyStaggeredGridScope.pagingItems(
+    items: List<T>,
+    status: LoadingStatus,
+    key: (T) -> Any,
+    itemContent: @Composable (T) -> Unit,
+    onLoadNextPage: () -> Unit,
+) {
+    items(
+        items = items,
+        key = key,
+    ) { item ->
+        itemContent(item)
+    }
 
-        if (status is LoadingStatus.Loading) {
-            item(
-                span = StaggeredGridItemSpan.FullLine,
+    if (status is LoadingStatus.Idle) {
+        item {
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(96.dp)
+                        .onVisibilityChanged(
+                            minFractionVisible = 0.3f,
+                            callback = { visible ->
+                                Napier.d(tag = TAG) { "Bottom widget visibility changed: $visible" }
+                                if (visible) {
+                                    onLoadNextPage()
+                                }
+                            },
+                        ),
+            )
+        }
+    }
+
+    if (status is LoadingStatus.Loading) {
+        item(
+            span = StaggeredGridItemSpan.FullLine,
+        ) {
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(96.dp),
+                contentAlignment = Alignment.Center,
             ) {
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .height(96.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    ContainedLoadingIndicator()
-                }
+                ContainedLoadingIndicator()
             }
         }
     }

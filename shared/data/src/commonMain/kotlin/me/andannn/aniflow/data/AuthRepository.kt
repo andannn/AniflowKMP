@@ -53,4 +53,10 @@ interface AuthRepository {
      */
     @NativeCoroutines
     fun getUserOptionsFlow(): Flow<UserOptions>
+
+    /**
+     * Logout the authenticated user.
+     */
+    @NativeCoroutines
+    suspend fun logout()
 }
