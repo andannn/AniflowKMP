@@ -35,10 +35,11 @@ fun MediaContentSwitcher(
 
     val defaultColors = SwitchDefaults.colors()
     Switch(
-        modifier = modifier.graphicsLayer(
-            scaleX = 0.85f,
-            scaleY = 0.85f
-        ),
+        modifier =
+            modifier.graphicsLayer(
+                scaleX = 0.85f,
+                scaleY = 0.85f,
+            ),
         checked = checked,
         colors =
             SwitchDefaults.colors(
