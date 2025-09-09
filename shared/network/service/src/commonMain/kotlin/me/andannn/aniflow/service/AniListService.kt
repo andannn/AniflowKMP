@@ -26,6 +26,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.utils.io.CancellationException
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.json.Json
 import me.andannn.aniflow.service.dto.ActivityUnion
 import me.andannn.aniflow.service.dto.AiringSchedule
@@ -369,13 +370,19 @@ class AniListService(
      * @param page The page number to fetch (default is 1).
      * @param perPage The number of items per page (default is 10).
      * @param keyword The keyword to search for in media titles.
+     * @param season The season to filter by (optional).
+     * @param seasonYear The year of the season to filter by (optional).
+     * @param formatIn A list of formats to filter by (optional).
      * @param type The type of media to filter by.
      * @param isAdult Whether to include adult content in the search results.
      */
     suspend fun searchMedia(
         page: Int,
         perPage: Int,
-        keyword: String,
+        keyword: String?,
+        season: MediaSeason?,
+        seasonYear: Int?,
+        formatIn: List<MediaFormat>?,
         type: MediaType,
         isAdult: Boolean,
     ): Page<Media> =
@@ -385,6 +392,9 @@ class AniListService(
                     page = page,
                     perPage = perPage,
                     keyword = keyword,
+                    season = season,
+                    seasonYear = seasonYear,
+                    formatIn = formatIn,
                     type = type,
                     isAdult = isAdult,
                 ),

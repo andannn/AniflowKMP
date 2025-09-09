@@ -6,7 +6,7 @@ package me.andannn.network.common.schemas
 
 const val SEARCH_MEDIA_QUERY_SCHEMA =
     $$"""
-query ($page: Int, $perPage: Int, $search: String, $type: MediaType, $isAdult: Boolean) {
+query ($page: Int, $perPage: Int, $search: String, $season: MediaSeason, $seasonYear: Int, $format_in: [MediaFormat], $type: MediaType, $isAdult: Boolean) {
   Page(page: $page, perPage: $perPage) {
     pageInfo {
       total
@@ -15,7 +15,7 @@ query ($page: Int, $perPage: Int, $search: String, $type: MediaType, $isAdult: B
       lastPage
       hasNextPage
     }
-    media(type: $type, search: $search, isAdult: $isAdult) {
+    media(type: $type, search: $search, season: $season, seasonYear: $seasonYear, format_in: $format_in, isAdult: $isAdult) {
       id
       type
       format

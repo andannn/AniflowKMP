@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.NotificationModel
 import me.andannn.aniflow.data.model.Page
+import me.andannn.aniflow.data.model.SearchSource
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.MediaContentMode
 import me.andannn.aniflow.data.model.define.MediaListStatus
@@ -75,4 +76,11 @@ interface MediaRepository {
         status: MediaListStatus? = null,
         progress: Int? = null,
     ): AppError?
+
+    @NativeCoroutines
+    suspend fun searchMediaFromSource(
+        page: Int,
+        perPage: Int,
+        searchSource: SearchSource.Media,
+    ): Pair<Page<MediaModel>, AppError?>
 }

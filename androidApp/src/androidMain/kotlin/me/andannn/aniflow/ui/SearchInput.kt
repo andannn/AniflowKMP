@@ -2,6 +2,8 @@
  * Copyright 2025, the AozoraBooks project contributors
  * SPDX-License-Identifier: Apache-2.0
  */
+@file:Suppress("UNCHECKED_CAST")
+
 package me.andannn.aniflow.ui
 
 import android.util.Log
@@ -21,7 +23,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -40,6 +45,7 @@ import androidx.compose.material.icons.outlined.Face
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Tv
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -72,27 +78,41 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import me.andannn.aniflow.data.AuthRepository
+import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.SearchCategory
 import me.andannn.aniflow.data.model.SearchSource
+import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.MediaFormat
 import me.andannn.aniflow.data.model.define.MediaSeason
+import me.andannn.aniflow.data.model.define.UserTitleLanguage
+import me.andannn.aniflow.data.paging.EmptyPageComponent
+import me.andannn.aniflow.data.paging.LoadingStatus
+import me.andannn.aniflow.data.paging.MediaSearchResultPageComponent
+import me.andannn.aniflow.data.paging.PageComponent
+import me.andannn.aniflow.data.util.getUserTitleString
 import me.andannn.aniflow.data.util.label
+import me.andannn.aniflow.ui.widget.MediaItemFilledCard
 import me.andannn.aniflow.ui.widget.OptionChips
 import me.andannn.aniflow.ui.widget.SelectOptionBottomSheet
 import me.andannn.aniflow.ui.widget.TitleWithContent
+import me.andannn.aniflow.ui.widget.pagingItems
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import kotlin.time.Clock
@@ -238,10 +258,27 @@ class AnimeSearchOptions : SearchSourceProvider {
             else -> error("Unsupported option type ${option.classType}")
         }
     }
+
+    fun clearAll() {
+        selectedFormatList.clear()
+        seasonYear = null
+        mediaSeason = null
+        keyword = KeyWord(TextFieldValue())
+
+        options.clear()
+    }
 }
 
 @OptIn(FlowPreview::class)
-class SearchInputViewModel : ViewModel() {
+class SearchInputViewModel(
+    private val authRepository: AuthRepository,
+) : ViewModel() {
+    val userOptions =
+        authRepository.getUserOptionsFlow().stateIn(
+            viewModelScope,
+            initialValue = UserOptions(),
+            started = SharingStarted.WhileSubscribed(5000),
+        )
     var selectedCategory by mutableStateOf(SearchCategory.ANIME)
 
     var visibleOptionSheet by mutableStateOf<OptionSheetType?>(null)
@@ -267,7 +304,7 @@ class SearchInputViewModel : ViewModel() {
             .distinctUntilChanged()
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val searchSource =
+    private val searchSource: Flow<SearchSource?> =
         selectCategoryFlow.flatMapLatest {
             when (it) {
                 SearchCategory.ANIME -> animeSearchOptions.searchSource
@@ -275,13 +312,26 @@ class SearchInputViewModel : ViewModel() {
             }
         }
 
+    var searchResultPagingController by mutableStateOf<PageComponent<*>>(EmptyPageComponent)
+
     init {
         viewModelScope.launch {
             searchSource
                 .distinctUntilChanged()
                 .debounce(500.milliseconds)
-                .collectLatest {
-                    Napier.d(tag = TAG) { "Search source updated: $it" }
+                .collectLatest { source ->
+                    Napier.d(tag = TAG) { "Search source updated: $source" }
+                    searchResultPagingController.dispose()
+                    searchResultPagingController = EmptyPageComponent
+
+                    searchResultPagingController =
+                        when (source) {
+                            is SearchSource.Media.Anime -> {
+                                MediaSearchResultPageComponent(source = source)
+                            }
+
+                            else -> EmptyPageComponent
+                        }
                 }
         }
     }
@@ -323,6 +373,16 @@ class SearchInputViewModel : ViewModel() {
             else -> {}
         }
     }
+
+    fun onClearAllClick() {
+        when (selectedCategory) {
+            SearchCategory.ANIME -> {
+                animeSearchOptions.clearAll()
+            }
+
+            else -> {}
+        }
+    }
 }
 
 @Composable
@@ -335,13 +395,16 @@ fun SearchInput(
     onPop: () -> Unit = {},
     onNavigateToNested: (HomeNestedScreen) -> Unit = {},
 ) {
+    val userOptions by viewModel.userOptions.collectAsStateWithLifecycle()
     SearchInputContent(
         modifier = modifier,
         inputText = viewModel.currentTextField,
         selectedSource = viewModel.selectedCategory,
         currentOptions = viewModel.currentOptions,
         animeSearchOptions = viewModel.animeSearchOptions,
+        searchResultPagingController = viewModel.searchResultPagingController,
         onPop = onPop,
+        userOptions = userOptions,
         onTextFieldValueChange = viewModel::onTextFieldValueChange,
         onConfirmedSearch = { },
         onOptionChipClick = {
@@ -352,6 +415,9 @@ fun SearchInput(
         },
         onLabelChipClick = {
             viewModel.removeOption(it)
+        },
+        onClearAllClick = {
+            viewModel.onClearAllClick()
         },
     )
 
@@ -434,13 +500,16 @@ private fun SearchInputContent(
     selectedSource: SearchCategory,
     currentOptions: List<Option<*>>,
     animeSearchOptions: AnimeSearchOptions,
+    searchResultPagingController: PageComponent<*>,
     inputText: TextFieldValue,
+    userOptions: UserOptions,
     onPop: () -> Unit = {},
     onTextFieldValueChange: (TextFieldValue) -> Unit = { },
     onConfirmedSearch: () -> Unit = {},
     onCategorySelect: (SearchCategory) -> Unit = {},
     onOptionChipClick: (OptionSheetType) -> Unit = {},
     onLabelChipClick: (Option<*>) -> Unit = {},
+    onClearAllClick: () -> Unit = {},
 ) {
     Scaffold(
         modifier = modifier,
@@ -460,66 +529,121 @@ private fun SearchInputContent(
             )
         },
     ) {
-        LazyColumn(
+        val items by searchResultPagingController.items.collectAsStateWithLifecycle()
+        val status by searchResultPagingController.status.collectAsStateWithLifecycle()
+
+        LazyVerticalStaggeredGrid(
             modifier =
                 Modifier
-                    .padding(it)
+                    .padding(top = it.calculateTopPadding())
                     .fillMaxSize(),
+            columns = StaggeredGridCells.Fixed(2),
             contentPadding = PaddingValues(horizontal = 16.dp),
         ) {
-            item {
+            item(span = StaggeredGridItemSpan.FullLine) {
                 SearchSourceSelection(
                     selectedSource = selectedSource,
                     onSelect = onCategorySelect,
                 )
             }
 
-            item { Spacer(Modifier.height(12.dp)) }
-
-            item {
+            item(span = StaggeredGridItemSpan.FullLine) {
                 SearchOptions(
                     modifier =
-                        Modifier.animateContentSize(
-                            animationSpec =
-                                spring(
-                                    stiffness = Spring.StiffnessMedium,
-                                    visibilityThreshold = IntSize.VisibilityThreshold,
-                                ),
-                        ),
+                        Modifier
+                            .padding(top = 12.dp)
+                            .animateContentSize(
+                                animationSpec =
+                                    spring(
+                                        stiffness = Spring.StiffnessMedium,
+                                        visibilityThreshold = IntSize.VisibilityThreshold,
+                                    ),
+                            ),
                     selectedSource = selectedSource,
                     animeSearchOptions = animeSearchOptions,
                     onOptionChipClick = onOptionChipClick,
                 )
             }
 
-            item { Spacer(Modifier.height(12.dp)) }
-
-            item {
+            item(span = StaggeredGridItemSpan.FullLine) {
                 KeyWorkInput(
+                    modifier = Modifier.padding(top = 12.dp),
                     inputText = inputText,
                     onTextFieldValueChange = onTextFieldValueChange,
                     onConfirmedSearch = onConfirmedSearch,
                 )
             }
 
-            item { Spacer(Modifier.height(12.dp)) }
-
-            item {
+            item(span = StaggeredGridItemSpan.FullLine) {
                 LabelRow(
                     modifier =
-                        Modifier.animateContentSize(
-                            animationSpec =
-                                spring(
-                                    stiffness = Spring.StiffnessMedium,
-                                    visibilityThreshold = IntSize.VisibilityThreshold,
-                                ),
-                        ),
+                        Modifier
+                            .padding(top = 12.dp)
+                            .animateContentSize(
+                                animationSpec =
+                                    spring(
+                                        stiffness = Spring.StiffnessMedium,
+                                        visibilityThreshold = IntSize.VisibilityThreshold,
+                                    ),
+                            ),
                     options = currentOptions,
                     onLabelChipClick = onLabelChipClick,
+                    onClearAllClick = onClearAllClick,
                 )
+            }
+
+            when (searchResultPagingController) {
+                is EmptyPageComponent -> {
+                    item(span = StaggeredGridItemSpan.FullLine) {
+                        Box(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 32.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+//                            Text("Please enter keyword to search")
+                        }
+                    }
+                }
+
+                is MediaSearchResultPageComponent -> {
+                    mediaSearchResultPaging(
+                        userTitleLanguage = userOptions.titleLanguage,
+                        items = items as List<MediaModel>,
+                        status = status,
+                        onLoadNextPage = {
+                            searchResultPagingController.loadNextPage()
+                        },
+                    )
+                }
+
+                else -> {}
             }
         }
     }
+}
+
+fun LazyStaggeredGridScope.mediaSearchResultPaging(
+    items: List<MediaModel>,
+    status: LoadingStatus,
+    onLoadNextPage: () -> Unit,
+    userTitleLanguage: UserTitleLanguage,
+) {
+    pagingItems(
+        items = items,
+        status = status,
+        key = { it.id },
+        onLoadNextPage = onLoadNextPage,
+        itemContent = { item ->
+            val title = item.title.getUserTitleString(userTitleLanguage)
+            MediaItemFilledCard(
+                modifier = Modifier.padding(4.dp),
+                title = title,
+                coverImage = item.coverImage,
+            )
+        },
+    )
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -528,6 +652,7 @@ fun LabelRow(
     modifier: Modifier,
     options: List<Option<*>>,
     onLabelChipClick: (Option<*>) -> Unit = {},
+    onClearAllClick: () -> Unit = {},
 ) {
     Box(
         modifier = modifier.fillMaxWidth(),
@@ -546,6 +671,12 @@ fun LabelRow(
                 options.forEach { option ->
                     AssistChip(
                         label = { Text(option.label()) },
+                        colors =
+                            AssistChipDefaults.assistChipColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                labelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                trailingIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                            ),
                         trailingIcon = {
                             Icon(
                                 imageVector = Icons.Filled.Close,
@@ -556,6 +687,17 @@ fun LabelRow(
                         onClick = {
                             onLabelChipClick(option)
                         },
+                    )
+                }
+                if (options.isNotEmpty()) {
+                    AssistChip(
+                        label = { Text("Clear all") },
+                        colors =
+                            AssistChipDefaults.assistChipColors(
+                                containerColor = MaterialTheme.colorScheme.error,
+                                labelColor = MaterialTheme.colorScheme.onError,
+                            ),
+                        onClick = onClearAllClick,
                     )
                 }
             }

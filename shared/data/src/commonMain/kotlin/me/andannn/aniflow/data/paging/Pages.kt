@@ -7,6 +7,7 @@ package me.andannn.aniflow.data.paging
 import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.NotificationModel
+import me.andannn.aniflow.data.model.SearchSource
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.NotificationCategory
 import org.koin.mp.KoinPlatform.getKoin
@@ -46,6 +47,22 @@ class NotificationPageComponent(
                     page = page,
                     perPage = perPage,
                     resetNotificationCount = true,
+                )
+        },
+    )
+
+class MediaSearchResultPageComponent(
+    config: PageConfig = DEFAULT_CONFIG,
+    private val source: SearchSource.Media,
+    private val mediaRepository: MediaRepository = getKoin().get(),
+) : PageComponent<MediaModel> by DefaultPageComponent(
+        config = config,
+        onLoadPage = { page, perPage ->
+            mediaRepository
+                .searchMediaFromSource(
+                    page = page,
+                    perPage = perPage,
+                    searchSource = source,
                 )
         },
     )
