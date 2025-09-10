@@ -27,8 +27,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
@@ -39,7 +41,7 @@ import org.koin.compose.viewmodel.koinViewModel
 private const val TAG = "Home"
 
 @Serializable
-sealed interface HomeNestedScreen {
+sealed interface HomeNestedScreen : NavKey {
     @Serializable
     data object Discover : HomeNestedScreen
 
@@ -52,12 +54,13 @@ class HomeViewModel : ViewModel()
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Home(homeViewModel: HomeViewModel = koinViewModel()) {
+    val backStack =
+        rememberNavBackStack<HomeNestedScreen>(HomeNestedScreen.Discover)
+            as SnapshotStateList<HomeNestedScreen>
     HomeContent(
         navigator =
             remember {
-                NestedNavigator(
-                    mutableStateListOf(HomeNestedScreen.Discover),
-                )
+                NestedNavigator(backStack)
             },
     )
 }

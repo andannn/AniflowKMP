@@ -38,7 +38,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.HomeAppBarUiDataProvider
 import me.andannn.aniflow.data.MediaRepository
-import me.andannn.aniflow.data.Screen
 import me.andannn.aniflow.data.TrackUiDataProvider
 import me.andannn.aniflow.data.model.HomeAppBarUiState
 import me.andannn.aniflow.data.model.MediaListModel

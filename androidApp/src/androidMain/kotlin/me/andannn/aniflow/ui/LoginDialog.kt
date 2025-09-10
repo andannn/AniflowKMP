@@ -4,7 +4,6 @@
  */
 package me.andannn.aniflow.ui
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -39,7 +38,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.AuthRepository
-import me.andannn.aniflow.data.Screen
 import me.andannn.aniflow.data.model.UserModel
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -86,9 +84,11 @@ class LoginDialogViewModel(
 }
 
 @Composable
-fun LoginDialog(viewModel: LoginDialogViewModel = koinViewModel()) {
+fun LoginDialog(
+    viewModel: LoginDialogViewModel = koinViewModel(),
+    navigator: RootNavigator = LocalRootNavigator.current,
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val navigator = LocalRootNavigator.current
     LoginDialogContent(
         state = state,
         onLoginClick = viewModel::startLoginProcess,
@@ -97,6 +97,7 @@ fun LoginDialog(viewModel: LoginDialogViewModel = koinViewModel()) {
             navigator.popBackStack()
         },
         onNotificationClick = {
+            navigator.popBackStack()
             navigator.navigateTo(Screen.Notification)
         },
     )

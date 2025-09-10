@@ -14,7 +14,6 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.Json
 import me.andannn.aniflow.data.AuthRepository
-import me.andannn.aniflow.data.DeepLinkHelper.NOTIFICATION_DOMAIN
 import me.andannn.aniflow.data.background.FetchNotificationTask
 import me.andannn.aniflow.data.background.SyncResult
 import me.andannn.aniflow.data.model.ActivityNotification
@@ -27,6 +26,7 @@ import me.andannn.aniflow.data.model.NotificationModel
 import me.andannn.aniflow.data.model.Title
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import me.andannn.aniflow.data.util.getUserTitleString
+import me.andannn.aniflow.ui.DeepLinkHelper.NOTIFICATION_DOMAIN
 import me.andannn.aniflow.util.Notification
 import me.andannn.aniflow.util.NotificationChannel
 import me.andannn.aniflow.util.NotificationHelper
