@@ -35,7 +35,7 @@ import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.paging.MediaCategoryPageComponent
 import me.andannn.aniflow.data.paging.PageComponent
 import me.andannn.aniflow.data.util.getUserTitleString
-import me.andannn.aniflow.ui.widget.MediaItemFilledCard
+import me.andannn.aniflow.ui.widget.CommonItemFilledCard
 import me.andannn.aniflow.ui.widget.StaggeredGridPaging
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -108,7 +108,7 @@ fun MediaCategoryPaging(
             key = { it.id },
         ) { item ->
             val title = item.title.getUserTitleString(titleLanguage = userOptions.titleLanguage)
-            MediaItemFilledCard(
+            CommonItemFilledCard(
                 modifier = Modifier.padding(4.dp),
                 title = title,
                 coverImage = item.coverImage,

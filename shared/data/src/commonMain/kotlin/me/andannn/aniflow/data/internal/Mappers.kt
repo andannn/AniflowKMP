@@ -6,6 +6,7 @@ package me.andannn.aniflow.data.internal
 
 import kotlinx.serialization.json.Json
 import me.andannn.aniflow.data.model.ActivityNotification
+import me.andannn.aniflow.data.model.CharacterModel
 import me.andannn.aniflow.data.model.EpisodeModel
 import me.andannn.aniflow.data.model.FollowNotification
 import me.andannn.aniflow.data.model.MediaDeletion
@@ -15,6 +16,8 @@ import me.andannn.aniflow.data.model.MediaNotification
 import me.andannn.aniflow.data.model.NotificationModel
 import me.andannn.aniflow.data.model.PageInfo
 import me.andannn.aniflow.data.model.SimpleDate
+import me.andannn.aniflow.data.model.StaffCharacterName
+import me.andannn.aniflow.data.model.StaffModel
 import me.andannn.aniflow.data.model.Title
 import me.andannn.aniflow.data.model.Trailer
 import me.andannn.aniflow.data.model.UserModel
@@ -42,6 +45,8 @@ import me.andannn.aniflow.service.dto.ActivityReplyLikeNotification
 import me.andannn.aniflow.service.dto.ActivityReplyNotification
 import me.andannn.aniflow.service.dto.ActivityReplySubscribedNotification
 import me.andannn.aniflow.service.dto.AiringNotification
+import me.andannn.aniflow.service.dto.Character
+import me.andannn.aniflow.service.dto.CharacterName
 import me.andannn.aniflow.service.dto.FollowingNotification
 import me.andannn.aniflow.service.dto.FuzzyDate
 import me.andannn.aniflow.service.dto.Media
@@ -52,6 +57,9 @@ import me.andannn.aniflow.service.dto.MediaMergeNotification
 import me.andannn.aniflow.service.dto.NotificationUnion
 import me.andannn.aniflow.service.dto.Page
 import me.andannn.aniflow.service.dto.RelatedMediaAdditionNotification
+import me.andannn.aniflow.service.dto.Staff
+import me.andannn.aniflow.service.dto.StaffName
+import me.andannn.aniflow.service.dto.Studio
 import me.andannn.aniflow.service.dto.User
 import me.andannn.aniflow.service.dto.enums.MediaRankType
 import kotlin.time.ExperimentalTime
@@ -294,6 +302,48 @@ internal fun User.toEntity() =
         profileColor = options?.profileColor,
         unreadNotificationCount = unreadNotificationCount?.toLong(),
         siteUrl = siteUrl,
+    )
+
+internal fun Character.toDomain() =
+    CharacterModel(
+        id = id.toString(),
+        name = name?.toDomain(),
+        image = image?.large ?: image?.medium,
+        siteUrl = siteUrl,
+    )
+
+internal fun CharacterName.toDomain() =
+    StaffCharacterName(
+        first = first,
+        middle = middle,
+        last = last,
+        full = full,
+        native = native,
+    )
+
+internal fun StaffName.toDomain() =
+    StaffCharacterName(
+        first = first,
+        middle = middle,
+        last = last,
+        full = full,
+        native = native,
+    )
+
+internal fun Staff.toDomain() =
+    StaffModel(
+        id = id.toString(),
+        name = name?.toDomain(),
+        image = image?.large ?: image?.medium,
+        isFavourite = isFavourite,
+        siteUrl = siteUrl,
+    )
+
+internal fun Studio.toDomain() =
+    me.andannn.aniflow.data.model.StudioModel(
+        id = id.toString(),
+        name = name,
+        isFavourite = isFavourite,
     )
 
 internal fun UserEntity.toDomain(): UserModel =

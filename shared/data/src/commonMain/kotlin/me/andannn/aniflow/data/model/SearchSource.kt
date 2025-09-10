@@ -35,19 +35,35 @@ sealed class SearchSource(
         }
 
         data class Manga(
-            override val keyword: String,
-        ) : Media(keyword, MediaType.MANGA)
+            override val keyword: String? = null,
+        ) : Media(keyword, MediaType.MANGA) {
+            companion object {
+                val None = Manga()
+            }
+        }
     }
 
     data class Character(
-        override val keyword: String,
-    ) : SearchSource(keyword)
+        override val keyword: String? = null,
+    ) : SearchSource(keyword) {
+        companion object {
+            val None = Character()
+        }
+    }
 
     data class Staff(
-        override val keyword: String,
-    ) : SearchSource(keyword)
+        override val keyword: String? = null,
+    ) : SearchSource(keyword) {
+        companion object {
+            val None = Staff()
+        }
+    }
 
     data class Studio(
-        override val keyword: String,
-    ) : SearchSource(keyword)
+        override val keyword: String? = null,
+    ) : SearchSource(keyword) {
+        companion object {
+            val None = Studio()
+        }
+    }
 }

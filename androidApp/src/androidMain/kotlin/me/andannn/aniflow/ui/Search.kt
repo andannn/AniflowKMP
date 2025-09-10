@@ -6,7 +6,6 @@
 
 package me.andannn.aniflow.ui
 
-import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VisibilityThreshold
@@ -47,6 +46,8 @@ import androidx.compose.material.icons.outlined.Tv
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.ButtonGroupDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -59,6 +60,7 @@ import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -75,6 +77,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -95,23 +98,30 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import me.andannn.aniflow.data.AuthRepository
+import me.andannn.aniflow.data.model.CharacterModel
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.SearchCategory
 import me.andannn.aniflow.data.model.SearchSource
+import me.andannn.aniflow.data.model.StaffModel
+import me.andannn.aniflow.data.model.StudioModel
 import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.MediaFormat
 import me.andannn.aniflow.data.model.define.MediaSeason
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
+import me.andannn.aniflow.data.paging.CharacterSearchResultPageComponent
 import me.andannn.aniflow.data.paging.EmptyPageComponent
 import me.andannn.aniflow.data.paging.LoadingStatus
 import me.andannn.aniflow.data.paging.MediaSearchResultPageComponent
 import me.andannn.aniflow.data.paging.PageComponent
+import me.andannn.aniflow.data.paging.StaffSearchResultPageComponent
+import me.andannn.aniflow.data.paging.StudioSearchResultPageComponent
 import me.andannn.aniflow.data.util.getUserTitleString
 import me.andannn.aniflow.data.util.label
-import me.andannn.aniflow.ui.widget.MediaItemFilledCard
+import me.andannn.aniflow.ui.widget.CommonItemFilledCard
 import me.andannn.aniflow.ui.widget.OptionChips
 import me.andannn.aniflow.ui.widget.SelectOptionBottomSheet
 import me.andannn.aniflow.ui.widget.TitleWithContent
+import me.andannn.aniflow.ui.widget.fullLinePagingItems
 import me.andannn.aniflow.ui.widget.pagingItems
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -162,9 +172,35 @@ interface SearchSourceProvider {
     val searchSource: Flow<SearchSource?>
 }
 
-class AnimeSearchOptions : SearchSourceProvider {
-    var keyword by mutableStateOf(KeyWord())
+sealed class SearchOptions : SearchSourceProvider {
+    var keyword: KeyWord by mutableStateOf(KeyWord())
 
+    val options = mutableStateListOf<Option<*>>()
+
+    fun updateKeyword(textField: TextFieldValue) {
+        this.keyword = KeyWord(textField)
+
+        options.replaceIfOptionTypeExistsElseAdd(
+            Option(KeyWord(textField)),
+        )
+    }
+
+    fun removeKeyword() {
+        this.keyword = KeyWord(TextFieldValue())
+
+        options.removeIfOptionTypeExists(
+            Option(KeyWord()),
+        )
+    }
+
+    open fun clearAll() {
+        keyword = KeyWord(TextFieldValue())
+
+        options.clear()
+    }
+}
+
+class AnimeSearchOptions : SearchOptions() {
     val selectedFormatList = mutableStateSetOf<MediaFormat>()
 
     var seasonYear by mutableStateOf<SeasonYear?>(null)
@@ -172,8 +208,6 @@ class AnimeSearchOptions : SearchSourceProvider {
 
     var mediaSeason by mutableStateOf<MediaSeason?>(null)
         private set
-
-    val options = mutableStateListOf<Option<*>>()
 
     override val searchSource: Flow<SearchSource.Media.Anime?> =
         snapshotFlow {
@@ -220,33 +254,15 @@ class AnimeSearchOptions : SearchSourceProvider {
     }
 
     fun setMediaFormat(mediaFormat: MediaFormat) {
-        Log.d(TAG, "setMediaFormat: $mediaFormat")
         selectedFormatList.add(mediaFormat)
 
         options.add(Option(mediaFormat))
     }
 
     fun removeMediaFormat(mediaFormat: MediaFormat) {
-        Log.d(TAG, "removeMediaFormat: $mediaFormat")
         selectedFormatList.remove(mediaFormat)
 
         options.remove(Option(mediaFormat))
-    }
-
-    fun updateKeyword(textField: TextFieldValue) {
-        this.keyword = KeyWord(textField)
-
-        options.replaceIfOptionTypeExistsElseAdd(
-            Option(KeyWord(textField)),
-        )
-    }
-
-    fun removeKeyword() {
-        this.keyword = KeyWord(TextFieldValue())
-
-        options.removeIfOptionTypeExists(
-            Option(KeyWord()),
-        )
     }
 
     fun removeOption(option: Option<*>) {
@@ -259,19 +275,61 @@ class AnimeSearchOptions : SearchSourceProvider {
         }
     }
 
-    fun clearAll() {
+    override fun clearAll() {
+        super.clearAll()
         selectedFormatList.clear()
         seasonYear = null
         mediaSeason = null
-        keyword = KeyWord(TextFieldValue())
-
-        options.clear()
     }
 }
 
+class MangaSearchOptions : SearchOptions() {
+    override val searchSource: Flow<SearchSource.Media.Manga?> =
+        snapshotFlow {
+            val source =
+                SearchSource.Media.Manga(
+                    keyword = keyword.keyword.text.ifBlank { null },
+                )
+            if (source == SearchSource.Media.Manga.None) null else source
+        }
+}
+
+class CharacterSearchOptions : SearchOptions() {
+    override val searchSource: Flow<SearchSource.Character?> =
+        snapshotFlow {
+            val source =
+                SearchSource.Character(
+                    keyword = keyword.keyword.text.ifBlank { null },
+                )
+            if (source == SearchSource.Character.None) null else source
+        }
+}
+
+class StaffSearchOptions : SearchOptions() {
+    override val searchSource: Flow<SearchSource.Staff?> =
+        snapshotFlow {
+            val source =
+                SearchSource.Staff(
+                    keyword = keyword.keyword.text.ifBlank { null },
+                )
+            if (source == SearchSource.Staff.None) null else source
+        }
+}
+
+class StudioSearchOptions : SearchOptions() {
+    override val searchSource: Flow<SearchSource.Studio?> =
+        snapshotFlow {
+            val source =
+                SearchSource.Studio(
+                    keyword = keyword.keyword.text.ifBlank { null },
+                )
+            if (source == SearchSource.Studio.None) null else source
+        }
+}
+
 @OptIn(FlowPreview::class)
-class SearchInputViewModel(
-    private val authRepository: AuthRepository,
+class SearchViewModel(
+    authRepository: AuthRepository,
 ) : ViewModel() {
     val userOptions =
         authRepository.getUserOptionsFlow().stateIn(
@@ -284,31 +342,34 @@ class SearchInputViewModel(
     var visibleOptionSheet by mutableStateOf<OptionSheetType?>(null)
 
     val animeSearchOptions = AnimeSearchOptions()
+    val mangaSearchOptions = MangaSearchOptions()
+    val characterSearchOptions = CharacterSearchOptions()
+    val staffSearchOptions = StaffSearchOptions()
+    val studioSearchOptions = StudioSearchOptions()
 
-    val currentOptions: List<Option<*>>
-        get() =
+    val currentOptions: SearchOptions by
+        derivedStateOf {
             when (selectedCategory) {
-                SearchCategory.ANIME -> animeSearchOptions.options
-                else -> emptyList()
+                SearchCategory.ANIME -> animeSearchOptions
+                SearchCategory.MANGA -> mangaSearchOptions
+                SearchCategory.CHARACTER -> characterSearchOptions
+                SearchCategory.STAFF -> staffSearchOptions
+                SearchCategory.STUDIO -> studioSearchOptions
             }
-
-    val currentTextField: TextFieldValue
-        get() =
-            when (selectedCategory) {
-                SearchCategory.ANIME -> animeSearchOptions.keyword.keyword
-                else -> TextFieldValue()
-            }
+        }
 
     private val selectCategoryFlow =
-        snapshotFlow { selectedCategory }
-            .distinctUntilChanged()
+        snapshotFlow { selectedCategory }.distinctUntilChanged()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val searchSource: Flow<SearchSource?> =
         selectCategoryFlow.flatMapLatest {
             when (it) {
                 SearchCategory.ANIME -> animeSearchOptions.searchSource
-                else -> flow { emit(null) }
+                SearchCategory.MANGA -> mangaSearchOptions.searchSource
+                SearchCategory.CHARACTER -> characterSearchOptions.searchSource
+                SearchCategory.STAFF -> staffSearchOptions.searchSource
+                SearchCategory.STUDIO -> studioSearchOptions.searchSource
             }
         }
 
@@ -326,11 +387,20 @@ class SearchInputViewModel(
 
                     searchResultPagingController =
                         when (source) {
-                            is SearchSource.Media.Anime -> {
+                            is SearchSource.Media.Anime ->
                                 MediaSearchResultPageComponent(source = source)
-                            }
 
-                            else -> EmptyPageComponent
+                            is SearchSource.Media.Manga ->
+                                MediaSearchResultPageComponent(source = source)
+
+                            is SearchSource.Character ->
+                                CharacterSearchResultPageComponent(source = source)
+
+                            is SearchSource.Staff ->
+                                StaffSearchResultPageComponent(source = source)
+
+                            is SearchSource.Studio -> StudioSearchResultPageComponent(source = source)
+                            null -> EmptyPageComponent
                         }
                 }
         }
@@ -370,40 +440,42 @@ class SearchInputViewModel(
     fun onTextFieldValueChange(textFieldValue: TextFieldValue) {
         when (selectedCategory) {
             SearchCategory.ANIME -> animeSearchOptions.updateKeyword(textFieldValue)
-            else -> {}
+            SearchCategory.MANGA -> mangaSearchOptions.updateKeyword(textFieldValue)
+            SearchCategory.CHARACTER -> characterSearchOptions.updateKeyword(textFieldValue)
+            SearchCategory.STAFF -> staffSearchOptions.updateKeyword(textFieldValue)
+            SearchCategory.STUDIO -> studioSearchOptions.updateKeyword(textFieldValue)
         }
     }
 
     fun onClearAllClick() {
         when (selectedCategory) {
-            SearchCategory.ANIME -> {
-                animeSearchOptions.clearAll()
-            }
-
-            else -> {}
+            SearchCategory.ANIME -> animeSearchOptions.clearAll()
+            SearchCategory.MANGA -> mangaSearchOptions.clearAll()
+            SearchCategory.CHARACTER -> characterSearchOptions.clearAll()
+            SearchCategory.STAFF -> staffSearchOptions.clearAll()
+            SearchCategory.STUDIO -> studioSearchOptions.clearAll()
         }
     }
 }
 
 @Composable
-fun SearchInput(
+fun Search(
     modifier: Modifier = Modifier,
-    viewModel: SearchInputViewModel =
+    viewModel: SearchViewModel =
         koinViewModel(
             parameters = { parametersOf("") },
         ),
-    onPop: () -> Unit = {},
-    onNavigateToNested: (HomeNestedScreen) -> Unit = {},
+    router: RootNavigator = LocalRootNavigator.current,
 ) {
     val userOptions by viewModel.userOptions.collectAsStateWithLifecycle()
-    SearchInputContent(
+    SearchContent(
         modifier = modifier,
-        inputText = viewModel.currentTextField,
         selectedSource = viewModel.selectedCategory,
         currentOptions = viewModel.currentOptions,
-        animeSearchOptions = viewModel.animeSearchOptions,
         searchResultPagingController = viewModel.searchResultPagingController,
-        onPop = onPop,
+        onPop = {
+            router.popBackStack()
+        },
         userOptions = userOptions,
         onTextFieldValueChange = viewModel::onTextFieldValueChange,
         onConfirmedSearch = { },
@@ -495,13 +567,11 @@ fun SearchInput(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SearchInputContent(
+private fun SearchContent(
     modifier: Modifier = Modifier,
     selectedSource: SearchCategory,
-    currentOptions: List<Option<*>>,
-    animeSearchOptions: AnimeSearchOptions,
+    currentOptions: SearchOptions,
     searchResultPagingController: PageComponent<*>,
-    inputText: TextFieldValue,
     userOptions: UserOptions,
     onPop: () -> Unit = {},
     onTextFieldValueChange: (TextFieldValue) -> Unit = { },
@@ -559,8 +629,7 @@ private fun SearchInputContent(
                                         visibilityThreshold = IntSize.VisibilityThreshold,
                                     ),
                             ),
-                    selectedSource = selectedSource,
-                    animeSearchOptions = animeSearchOptions,
+                    currentOptions = currentOptions,
                     onOptionChipClick = onOptionChipClick,
                 )
             }
@@ -568,7 +637,7 @@ private fun SearchInputContent(
             item(span = StaggeredGridItemSpan.FullLine) {
                 KeyWorkInput(
                     modifier = Modifier.padding(top = 12.dp),
-                    inputText = inputText,
+                    inputText = currentOptions.keyword.keyword,
                     onTextFieldValueChange = onTextFieldValueChange,
                     onConfirmedSearch = onConfirmedSearch,
                 )
@@ -586,7 +655,7 @@ private fun SearchInputContent(
                                         visibilityThreshold = IntSize.VisibilityThreshold,
                                     ),
                             ),
-                    options = currentOptions,
+                    options = currentOptions.options,
                     onLabelChipClick = onLabelChipClick,
                     onClearAllClick = onClearAllClick,
                 )
@@ -618,7 +687,35 @@ private fun SearchInputContent(
                     )
                 }
 
-                else -> {}
+                is CharacterSearchResultPageComponent -> {
+                    characterSearchResultPaging(
+                        items = items as List<CharacterModel>,
+                        status = status,
+                        onLoadNextPage = {
+                            searchResultPagingController.loadNextPage()
+                        },
+                    )
+                }
+
+                is StaffSearchResultPageComponent -> {
+                    staffSearchResultPaging(
+                        items = items as List<StaffModel>,
+                        status = status,
+                        onLoadNextPage = {
+                            searchResultPagingController.loadNextPage()
+                        },
+                    )
+                }
+
+                is StudioSearchResultPageComponent -> {
+                    studioSearchResultPaging(
+                        items = items as List<StudioModel>,
+                        status = status,
+                        onLoadNextPage = {
+                            searchResultPagingController.loadNextPage()
+                        },
+                    )
+                }
             }
         }
     }
@@ -637,11 +734,86 @@ fun LazyStaggeredGridScope.mediaSearchResultPaging(
         onLoadNextPage = onLoadNextPage,
         itemContent = { item ->
             val title = item.title.getUserTitleString(userTitleLanguage)
-            MediaItemFilledCard(
+            CommonItemFilledCard(
                 modifier = Modifier.padding(4.dp),
                 title = title,
                 coverImage = item.coverImage,
             )
+        },
+    )
+}
+
+fun LazyStaggeredGridScope.characterSearchResultPaging(
+    items: List<CharacterModel>,
+    status: LoadingStatus,
+    onLoadNextPage: () -> Unit,
+) {
+    pagingItems(
+        items = items,
+        status = status,
+        key = { it.id },
+        onLoadNextPage = onLoadNextPage,
+        itemContent = { item ->
+            val title = item.name?.full ?: ""
+            CommonItemFilledCard(
+                modifier = Modifier.padding(4.dp),
+                title = title,
+                coverImage = item.image,
+            )
+        },
+    )
+}
+
+fun LazyStaggeredGridScope.staffSearchResultPaging(
+    items: List<StaffModel>,
+    status: LoadingStatus,
+    onLoadNextPage: () -> Unit,
+) {
+    pagingItems(
+        items = items,
+        status = status,
+        key = { it.id },
+        onLoadNextPage = onLoadNextPage,
+        itemContent = { item ->
+            val title = item.name?.full ?: ""
+            CommonItemFilledCard(
+                modifier = Modifier.padding(4.dp),
+                title = title,
+                coverImage = item.image,
+            )
+        },
+    )
+}
+
+fun LazyStaggeredGridScope.studioSearchResultPaging(
+    items: List<StudioModel>,
+    status: LoadingStatus,
+    onLoadNextPage: () -> Unit,
+) {
+    fullLinePagingItems(
+        items = items,
+        status = status,
+        key = { it.id },
+        onLoadNextPage = onLoadNextPage,
+        itemContent = { item ->
+            Card(
+                modifier =
+                    Modifier
+                        .padding(4.dp)
+                        .fillMaxWidth(),
+                colors =
+                    CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    ),
+                shape = MaterialTheme.shapes.large,
+                onClick = {},
+            ) {
+                Text(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 16.dp),
+                    text = item.name,
+                    style = MaterialTheme.typography.titleMedium,
+                )
+            }
         },
     )
 }
@@ -788,21 +960,20 @@ fun SearchSourceSelection(
 
 @Composable
 private fun SearchOptions(
-    selectedSource: SearchCategory,
     modifier: Modifier = Modifier,
-    animeSearchOptions: AnimeSearchOptions,
+    currentOptions: SearchOptions,
     onOptionChipClick: (OptionSheetType) -> Unit = {},
 ) {
     Box(modifier = modifier.fillMaxWidth()) {
-        when (selectedSource) {
-            SearchCategory.ANIME ->
+        when (currentOptions) {
+            is AnimeSearchOptions ->
                 TitleWithContent(
                     modifier = Modifier,
                     title = "Anime Options",
                     showMore = false,
                 ) {
                     AnimeSearchOptions(
-                        animeSearchOptions = animeSearchOptions,
+                        animeSearchOptions = currentOptions,
                         onOptionChipClick = onOptionChipClick,
                     )
                 }

@@ -410,7 +410,7 @@ class AniListService(
     suspend fun searchCharacter(
         page: Int,
         perPage: Int,
-        keyword: String,
+        keyword: String?,
     ): Page<Character> =
         doGraphQlQuery(
             query =
@@ -431,7 +431,7 @@ class AniListService(
     suspend fun searchStudio(
         page: Int,
         perPage: Int,
-        keyword: String,
+        keyword: String?,
     ): Page<Studio> =
         doGraphQlQuery(
             query =
@@ -452,7 +452,7 @@ class AniListService(
     suspend fun searchStaff(
         page: Int,
         perPage: Int,
-        keyword: String,
+        keyword: String?,
     ): Page<Staff> =
         doGraphQlQuery(
             query =

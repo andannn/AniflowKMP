@@ -8,7 +8,7 @@ data class CharacterModel(
     /**
      * The id of the character
      */
-    public val id: Int,
+    public val id: String,
     /**
      * The names of the character
      */

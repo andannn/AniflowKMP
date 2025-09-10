@@ -14,10 +14,13 @@ import kotlinx.coroutines.flow.map
 import me.andannn.aniflow.data.AppError
 import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.internal.exceptions.toError
+import me.andannn.aniflow.data.model.CharacterModel
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.NotificationModel
 import me.andannn.aniflow.data.model.Page
 import me.andannn.aniflow.data.model.SearchSource
+import me.andannn.aniflow.data.model.StaffModel
+import me.andannn.aniflow.data.model.StudioModel
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.MediaContentMode
 import me.andannn.aniflow.data.model.define.MediaFormat
@@ -37,9 +40,12 @@ import me.andannn.aniflow.database.schema.MediaEntity
 import me.andannn.aniflow.datastore.UserSettingPreferences
 import me.andannn.aniflow.service.AniListService
 import me.andannn.aniflow.service.ServerException
+import me.andannn.aniflow.service.dto.Character
 import me.andannn.aniflow.service.dto.Media
 import me.andannn.aniflow.service.dto.MediaList
 import me.andannn.aniflow.service.dto.NotificationUnion
+import me.andannn.aniflow.service.dto.Staff
+import me.andannn.aniflow.service.dto.Studio
 import me.andannn.aniflow.service.dto.enums.NotificationType
 import me.andannn.aniflow.service.dto.enums.ScoreFormat
 import kotlin.with
@@ -218,6 +224,57 @@ internal class MediaRepositoryImpl(
         } catch (exception: ServerException) {
             Napier.e { "Error when loading media page: $exception" }
             Page.empty<MediaModel>() to exception.toError()
+        }
+    }
+
+    override suspend fun searchCharacterFromSource(
+        page: Int,
+        perPage: Int,
+        searchSource: SearchSource.Character,
+    ) = with(mediaService) {
+        try {
+            searchCharacter(
+                page = page,
+                perPage = perPage,
+                keyword = searchSource.keyword,
+            ).toDomain(Character::toDomain) to null
+        } catch (exception: ServerException) {
+            Napier.e { "Error when loading media page: $exception" }
+            Page.empty<CharacterModel>() to exception.toError()
+        }
+    }
+
+    override suspend fun searchStaffFromSource(
+        page: Int,
+        perPage: Int,
+        searchSource: SearchSource.Staff,
+    ) = with(mediaService) {
+        try {
+            searchStaff(
+                page = page,
+                perPage = perPage,
+                keyword = searchSource.keyword,
+            ).toDomain(Staff::toDomain) to null
+        } catch (exception: ServerException) {
+            Napier.e { "Error when loading media page: $exception" }
+            Page.empty<StaffModel>() to exception.toError()
+        }
+    }
+
+    override suspend fun searchStudioFromSource(
+        page: Int,
+        perPage: Int,
+        searchSource: SearchSource.Studio,
+    ) = with(mediaService) {
+        try {
+            searchStudio(
+                page = page,
+                perPage = perPage,
+                keyword = searchSource.keyword,
+            ).toDomain(Studio::toDomain) to null
+        } catch (exception: ServerException) {
+            Napier.e { "Error when loading media page: $exception" }
+            Page.empty<StudioModel>() to exception.toError()
         }
     }
 }

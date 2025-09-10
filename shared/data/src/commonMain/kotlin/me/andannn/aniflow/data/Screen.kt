@@ -21,6 +21,9 @@ sealed interface Screen {
     @Serializable
     data object Notification : Screen
 
+    @Serializable
+    data object Search : Screen
+
     sealed interface Dialog : Screen {
         @Serializable
         data object Login : Dialog

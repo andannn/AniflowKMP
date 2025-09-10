@@ -165,7 +165,7 @@ fun Discover(
             navigator.navigateTo(Screen.MediaCategoryList(category))
         },
         onSearchClick = {
-            onNavigateToNested(HomeNestedScreen.SearchInput)
+            navigator.navigateTo(Screen.Search)
         },
         modifier = modifier,
     )

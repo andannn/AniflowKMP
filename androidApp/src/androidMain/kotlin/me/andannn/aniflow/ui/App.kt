@@ -50,6 +50,10 @@ fun App(navigator: RootNavigator) {
                         Notification()
                     }
 
+                    entry(Screen.Search) {
+                        Search()
+                    }
+
                     entry<Screen.Dialog.Login>(
                         metadata = dialog(),
                     ) {

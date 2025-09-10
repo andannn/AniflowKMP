@@ -8,10 +8,13 @@ import com.rickclephas.kmp.nativecoroutines.NativeCoroutines
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.Flow
+import me.andannn.aniflow.data.model.CharacterModel
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.NotificationModel
 import me.andannn.aniflow.data.model.Page
 import me.andannn.aniflow.data.model.SearchSource
+import me.andannn.aniflow.data.model.StaffModel
+import me.andannn.aniflow.data.model.StudioModel
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.MediaContentMode
 import me.andannn.aniflow.data.model.define.MediaListStatus
@@ -83,4 +86,25 @@ interface MediaRepository {
         perPage: Int,
         searchSource: SearchSource.Media,
     ): Pair<Page<MediaModel>, AppError?>
+
+    @NativeCoroutines
+    suspend fun searchCharacterFromSource(
+        page: Int,
+        perPage: Int,
+        searchSource: SearchSource.Character,
+    ): Pair<Page<CharacterModel>, AppError?>
+
+    @NativeCoroutines
+    suspend fun searchStaffFromSource(
+        page: Int,
+        perPage: Int,
+        searchSource: SearchSource.Staff,
+    ): Pair<Page<StaffModel>, AppError?>
+
+    @NativeCoroutines
+    suspend fun searchStudioFromSource(
+        page: Int,
+        perPage: Int,
+        searchSource: SearchSource.Studio,
+    ): Pair<Page<StudioModel>, AppError?>
 }

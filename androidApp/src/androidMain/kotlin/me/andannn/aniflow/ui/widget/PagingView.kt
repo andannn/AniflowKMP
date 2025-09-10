@@ -253,3 +253,56 @@ fun <T> LazyStaggeredGridScope.pagingItems(
         }
     }
 }
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+fun <T> LazyStaggeredGridScope.fullLinePagingItems(
+    items: List<T>,
+    status: LoadingStatus,
+    key: (T) -> Any,
+    itemContent: @Composable (T) -> Unit,
+    onLoadNextPage: () -> Unit,
+) {
+    items(
+        items = items,
+        key = key,
+        span = { StaggeredGridItemSpan.FullLine },
+    ) { item ->
+        itemContent(item)
+    }
+
+    if (status is LoadingStatus.Idle) {
+        item {
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(96.dp)
+                        .onVisibilityChanged(
+                            minFractionVisible = 0.3f,
+                            callback = { visible ->
+                                Napier.d(tag = TAG) { "Bottom widget visibility changed: $visible" }
+                                if (visible) {
+                                    onLoadNextPage()
+                                }
+                            },
+                        ),
+            )
+        }
+    }
+
+    if (status is LoadingStatus.Loading) {
+        item(
+            span = StaggeredGridItemSpan.FullLine,
+        ) {
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(96.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                ContainedLoadingIndicator()
+            }
+        }
+    }
+}

@@ -7,7 +7,7 @@ package me.andannn.network.common.schemas
 const val SEARCH_STAFF_QUERY_SCHEMA =
     $$"""
 query ($page: Int, $perPage: Int, $search: String) {
-  page: Page(page: $page, perPage: $perPage) {
+  Page(page: $page, perPage: $perPage) {
     pageInfo {
       total
       perPage

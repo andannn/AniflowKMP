@@ -45,9 +45,6 @@ sealed interface HomeNestedScreen {
 
     @Serializable
     data object Track : HomeNestedScreen
-
-    @Serializable
-    data object SearchInput : HomeNestedScreen
 }
 
 class HomeViewModel : ViewModel()
@@ -124,12 +121,6 @@ private fun NestNavigation(
                 }
                 entry(HomeNestedScreen.Track) {
                     Track()
-                }
-                entry(HomeNestedScreen.SearchInput) {
-                    SearchInput(
-                        onPop = ::onPop,
-                        onNavigateToNested = ::onNavigateToNested,
-                    )
                 }
             },
     )
