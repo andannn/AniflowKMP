@@ -16,7 +16,7 @@ internal data class SearchStaffQuery(
     val page: Int,
     val perPage: Int,
     @SerialName("search")
-    val keyword: String,
+    val keyword: String?,
 ) : GraphQLQuery<DataWrapper<PageWrapper<Staff>>> {
     override fun getSchema() = SEARCH_STAFF_QUERY_SCHEMA
 }

@@ -5,9 +5,12 @@
 package me.andannn.aniflow.data.paging
 
 import me.andannn.aniflow.data.MediaRepository
+import me.andannn.aniflow.data.model.CharacterModel
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.NotificationModel
 import me.andannn.aniflow.data.model.SearchSource
+import me.andannn.aniflow.data.model.StaffModel
+import me.andannn.aniflow.data.model.StudioModel
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.NotificationCategory
 import org.koin.mp.KoinPlatform.getKoin
@@ -60,6 +63,54 @@ class MediaSearchResultPageComponent(
         onLoadPage = { page, perPage ->
             mediaRepository
                 .searchMediaFromSource(
+                    page = page,
+                    perPage = perPage,
+                    searchSource = source,
+                )
+        },
+    )
+
+class CharacterSearchResultPageComponent(
+    config: PageConfig = DEFAULT_CONFIG,
+    private val source: SearchSource.Character,
+    private val mediaRepository: MediaRepository = getKoin().get(),
+) : PageComponent<CharacterModel> by DefaultPageComponent(
+        config = config,
+        onLoadPage = { page, perPage ->
+            mediaRepository
+                .searchCharacterFromSource(
+                    page = page,
+                    perPage = perPage,
+                    searchSource = source,
+                )
+        },
+    )
+
+class StaffSearchResultPageComponent(
+    config: PageConfig = DEFAULT_CONFIG,
+    private val source: SearchSource.Staff,
+    private val mediaRepository: MediaRepository = getKoin().get(),
+) : PageComponent<StaffModel> by DefaultPageComponent(
+        config = config,
+        onLoadPage = { page, perPage ->
+            mediaRepository
+                .searchStaffFromSource(
+                    page = page,
+                    perPage = perPage,
+                    searchSource = source,
+                )
+        },
+    )
+
+class StudioSearchResultPageComponent(
+    config: PageConfig = DEFAULT_CONFIG,
+    private val source: SearchSource.Studio,
+    private val mediaRepository: MediaRepository = getKoin().get(),
+) : PageComponent<StudioModel> by DefaultPageComponent(
+        config = config,
+        onLoadPage = { page, perPage ->
+            mediaRepository
+                .searchStudioFromSource(
                     page = page,
                     perPage = perPage,
                     searchSource = source,

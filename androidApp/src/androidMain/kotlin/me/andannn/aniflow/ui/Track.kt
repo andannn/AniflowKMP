@@ -38,7 +38,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.HomeAppBarUiDataProvider
 import me.andannn.aniflow.data.MediaRepository
-import me.andannn.aniflow.data.Screen
 import me.andannn.aniflow.data.TrackUiDataProvider
 import me.andannn.aniflow.data.model.HomeAppBarUiState
 import me.andannn.aniflow.data.model.MediaListModel
@@ -167,6 +166,9 @@ fun Track(
         onAuthIconClick = {
             navigator.navigateTo(Screen.Dialog.Login)
         },
+        onSearchClick = {
+            navigator.navigateTo(Screen.Search)
+        },
     )
 }
 
@@ -183,6 +185,7 @@ fun TrackContent(
     onMarkWatched: (MediaListModel) -> Unit = {},
     onContentTypeChange: (MediaContentMode) -> Unit = {},
     onAuthIconClick: () -> Unit = {},
+    onSearchClick: () -> Unit = {},
 ) {
     val appBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
@@ -196,6 +199,7 @@ fun TrackContent(
                 scrollBehavior = appBarScrollBehavior,
                 onContentTypeChange = onContentTypeChange,
                 onAuthIconClick = onAuthIconClick,
+                onSearchClick = onSearchClick,
             )
         },
     ) {

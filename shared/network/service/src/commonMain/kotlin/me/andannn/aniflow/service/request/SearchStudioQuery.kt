@@ -4,6 +4,7 @@
  */
 package me.andannn.aniflow.service.request
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import me.andannn.aniflow.service.dto.DataWrapper
 import me.andannn.aniflow.service.dto.PageWrapper
@@ -14,7 +15,8 @@ import me.andannn.network.common.schemas.SEARCH_STUDIO_QUERY_SCHEMA
 internal data class SearchStudioQuery(
     val page: Int,
     val perPage: Int,
-    val keyword: String,
+    @SerialName("search")
+    val keyword: String?,
 ) : GraphQLQuery<DataWrapper<PageWrapper<Studio>>> {
     override fun getSchema() = SEARCH_STUDIO_QUERY_SCHEMA
 }

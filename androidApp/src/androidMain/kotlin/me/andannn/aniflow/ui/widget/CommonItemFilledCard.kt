@@ -31,7 +31,7 @@ import me.andannn.aniflow.ui.theme.AniflowTheme
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun MediaItemFilledCard(
+fun CommonItemFilledCard(
     title: String,
     modifier: Modifier = Modifier,
     coverImage: String? = null,
@@ -82,7 +82,7 @@ fun MediaItemFilledCard(
 private fun MediaItemFilledCardPreview() {
     AniflowTheme {
         Scaffold {
-            MediaItemFilledCard(
+            CommonItemFilledCard(
                 modifier = Modifier.width(120.dp).padding(it),
                 title = "Title",
             )

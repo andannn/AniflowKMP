@@ -16,7 +16,7 @@ internal data class SearchCharacterQuery(
     val page: Int,
     val perPage: Int,
     @SerialName("search")
-    val keyword: String,
+    val keyword: String?,
 ) : GraphQLQuery<DataWrapper<PageWrapper<Character>>> {
     override fun getSchema() = SEARCH_CHARACTER_QUERY_SCHEMA
 }

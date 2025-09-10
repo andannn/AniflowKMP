@@ -8,7 +8,7 @@ public data class StaffModel(
     /**
      * The id of the staff member
      */
-    public val id: Int,
+    public val id: String,
     /**
      * The names of the staff member
      */

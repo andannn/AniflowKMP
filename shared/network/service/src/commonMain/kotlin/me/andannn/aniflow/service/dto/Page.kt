@@ -72,6 +72,7 @@ internal class PageSerializer : KSerializer<Page<*>> {
                 "mediaList" to MediaList.serializer(),
                 "airingSchedules" to AiringSchedule.serializer(),
                 "characters" to Character.serializer(),
+                "staff" to Staff.serializer(),
                 "studios" to Studio.serializer(),
                 "activities" to ActivityUnion.serializer(),
                 "notifications" to NotificationUnion.serializer(),

@@ -8,7 +8,7 @@ data class StudioModel(
     /**
      * The id of the studio
      */
-    public val id: Int,
+    public val id: String,
     /**
      * The name of the studio
      */
@@ -16,7 +16,7 @@ data class StudioModel(
     /**
      * If the studio is an animation studio or a different kind of company
      */
-    public val isAnimationStudio: Boolean,
+    public val isAnimationStudio: Boolean = false,
     /**
      * The url for the studio page on the AniList website
      */

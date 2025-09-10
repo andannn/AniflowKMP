@@ -16,18 +16,18 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
+import androidx.navigation3.runtime.rememberNavBackStack
 import io.github.aakira.napier.Napier
 import me.andannn.aniflow.data.BrowserAuthOperationHandler
-import me.andannn.aniflow.data.DeepLinkHelper
-import me.andannn.aniflow.data.Screen
 import me.andannn.aniflow.platform.BrowserAuthOperationHandlerImpl
 import me.andannn.aniflow.ui.App
+import me.andannn.aniflow.ui.DeepLinkHelper
 import me.andannn.aniflow.ui.RootNavigator
+import me.andannn.aniflow.ui.Screen
 import me.andannn.aniflow.ui.theme.AniflowTheme
 import me.andannn.aniflow.worker.SyncWorkHelper
 import org.koin.android.ext.android.getKoin
@@ -92,7 +92,7 @@ class MainActivity : ComponentActivity() {
             }
 
             AniflowTheme {
-                val backStack = remember { mutableStateListOf<Screen>(Screen.Home) }
+                val backStack = rememberNavBackStack<Screen>(Screen.Home)
                 val navigator = remember(backStack) { RootNavigator(backStack) }
 
                 LaunchedEffect(paddingDeepLinkNavigationScreen.value) {
