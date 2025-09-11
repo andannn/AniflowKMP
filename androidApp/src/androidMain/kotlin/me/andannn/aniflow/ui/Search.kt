@@ -239,9 +239,11 @@ class AnimeSearchOptions : SearchOptions() {
     fun updateMediaSeason(mediaSeason: MediaSeason) {
         this.mediaSeason = mediaSeason
 
-        options.replaceIfOptionTypeExistsElseAdd(
-            Option(mediaSeason),
-        )
+        options.replaceIfOptionTypeExistsElseAdd(Option(mediaSeason))
+
+        if (seasonYear == null) {
+            updateSeasonYear(SeasonYear.createOptions().first())
+        }
     }
 
     fun removeMediaSeason(mediaSeason: MediaSeason) {
@@ -387,10 +389,7 @@ class SearchViewModel(
 
                     searchResultPagingController =
                         when (source) {
-                            is SearchSource.Media.Anime ->
-                                MediaSearchResultPageComponent(source = source)
-
-                            is SearchSource.Media.Manga ->
+                            is SearchSource.Media ->
                                 MediaSearchResultPageComponent(source = source)
 
                             is SearchSource.Character ->
