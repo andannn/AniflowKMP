@@ -8,6 +8,9 @@ import com.rickclephas.kmp.nativecoroutines.NativeCoroutines
 import kotlinx.coroutines.flow.Flow
 import me.andannn.aniflow.data.model.UserModel
 import me.andannn.aniflow.data.model.UserOptions
+import me.andannn.aniflow.data.model.define.Theme
+import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
+import me.andannn.aniflow.data.model.define.UserTitleLanguage
 
 data class AuthToken(
     val token: String,
@@ -59,4 +62,15 @@ interface AuthRepository {
      */
     @NativeCoroutines
     suspend fun logout()
+
+    /**
+     * Update the user's settings.
+     *
+     * @return returns an [AppError] if the update process fails, or null if it succeeds.
+     */
+    suspend fun updateUserSettings(
+        titleLanguage: UserTitleLanguage? = null,
+        staffCharacterNameLanguage: UserStaffNameLanguage? = null,
+        appTheme: Theme? = null
+    ): AppError?
 }

@@ -5,6 +5,7 @@
 package me.andannn.aniflow.data.model
 
 import kotlinx.serialization.Serializable
+import me.andannn.aniflow.data.model.define.Theme
 import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
 
@@ -18,6 +19,10 @@ public data class UserOptions constructor(
      * The language the user wants to see staff and character names in
      */
     public val staffNameLanguage: UserStaffNameLanguage = UserStaffNameLanguage.Default,
+    /**
+     * Whether the user wants to see adult content
+     */
+    val appTheme: Theme? = null,
 ) {
     companion object {
         val Default = UserOptions()

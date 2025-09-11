@@ -22,7 +22,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
@@ -32,11 +31,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import io.github.aakira.napier.Napier
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.SettingUiDataProvider
 import me.andannn.aniflow.data.model.SettingItem
+import me.andannn.aniflow.data.model.SettingOption
 import me.andannn.aniflow.data.model.SettingUiState
 import me.andannn.aniflow.ui.theme.ShapeHelper
 import me.andannn.aniflow.util.LocalResultStore
@@ -47,6 +47,7 @@ private const val TAG = "Settings"
 
 class SettingsViewModel(
     private val settingUiDataProvider: SettingUiDataProvider,
+    private val authRepository: AuthRepository,
 ) : ViewModel() {
     val state =
         settingUiDataProvider.settingUiDataFlow().stateIn(
@@ -65,6 +66,35 @@ class SettingsViewModel(
             }
         }
     }
+
+    fun onSettingItemClick(
+        resultStore: ResultStore,
+        settingItem: SettingItem,
+    ) {
+        viewModelScope.launch {
+            val option: SettingOption =
+                resultStore.awaitResultOf(Screen.Dialog.SettingOption(settingItem))
+            Napier.d(tag = TAG) { "On Option Click : $option" }
+            handleChangeSetting(option)
+        }
+    }
+
+    private suspend fun handleChangeSetting(option: SettingOption) {
+        val error =
+            when (option) {
+                is SettingOption.StaffCharacterNameOption ->
+                    authRepository.updateUserSettings(staffCharacterNameLanguage = option.value)
+
+                is SettingOption.UserTitleLanguageOption ->
+                    authRepository.updateUserSettings(titleLanguage = option.value)
+
+                is SettingOption.ThemeModeOption ->
+                    authRepository.updateUserSettings(appTheme = option.value)
+            }
+        if (error != null) {
+            Napier.e(tag = TAG) { "Failed to update setting: $error. option $option" }
+        }
+    }
 }
 
 @Composable
@@ -75,15 +105,11 @@ fun Settings(
 ) {
     val state = settingsViewModel.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
-        resultStore.resultsOf<Screen.Dialog.SettingOption>().collect {
-        }
-    }
-
     SettingsContent(
         state = state.value,
         onPop = { router.popBackStack() },
         onSettingItemClick = { settingItem ->
+            settingsViewModel.onSettingItemClick(resultStore, settingItem)
             router.navigateTo(Screen.Dialog.SettingOption(settingItem))
         },
     )

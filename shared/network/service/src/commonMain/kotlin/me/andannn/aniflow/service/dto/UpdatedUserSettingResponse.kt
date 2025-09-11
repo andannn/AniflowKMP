@@ -9,6 +9,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class UpdatedUserSettingResponse(
-    @SerialName("UpdatedUserResponse")
+    @SerialName("UpdateUser")
     val user: User? = null,
 )

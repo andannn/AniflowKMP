@@ -12,4 +12,5 @@ data class UserSettingPref(
     val titleLanguage: String?,
     val staffNameLanguage: String?,
     val sentNotificationIds: List<String>,
+    val appTheme: String?,
 )

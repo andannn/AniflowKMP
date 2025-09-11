@@ -16,6 +16,7 @@ import me.andannn.aniflow.data.model.SettingOption
 import me.andannn.aniflow.data.model.SettingUiState
 import me.andannn.aniflow.data.model.UserModel
 import me.andannn.aniflow.data.model.UserOptions
+import me.andannn.aniflow.data.model.define.Theme
 import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
 
@@ -63,6 +64,7 @@ private fun buildSettingGroup(
 ): List<SettingGroup> {
     val selectedTitleLanguage = userOptions.titleLanguage
     val selectedStaffNameLanguage = userOptions.staffNameLanguage
+    val selectedTheme = userOptions.appTheme
 
     fun titleLanguageSetting() =
         SettingItem.SingleSelect.build(
@@ -90,7 +92,17 @@ private fun buildSettingGroup(
         SettingGroup.build(
             title = "App Settings",
             settingItemList = {
-                // TODO
+                add(
+                    SettingItem.SingleSelect.build(
+                        title = "Theme",
+                        buildOptions = {
+                            addAll(
+                                Theme.entries.map { it.option },
+                            )
+                        },
+                        selectedOption = selectedTheme?.option ?: Theme.SYSTEM.option,
+                    ),
+                )
             },
         )
 
@@ -117,3 +129,6 @@ private val UserTitleLanguage.option: SettingOption
 
 private val UserStaffNameLanguage.option: SettingOption
     get() = SettingOption.StaffCharacterNameOption(this)
+
+private val Theme.option: SettingOption
+    get() = SettingOption.ThemeModeOption(this)

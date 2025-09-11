@@ -36,6 +36,8 @@ class UserSettingPreferences(
                     sentNotificationIds =
                         preferences[stringPreferencesKey(PreferencesKeyName.SENT_NOTIFICATION_ID_KEY_NAME)]
                             ?.split(",") ?: emptyList(),
+                    appTheme =
+                        preferences[stringPreferencesKey(PreferencesKeyName.APP_THEME_KEY_NAME)],
                 )
             }
 
@@ -103,6 +105,14 @@ class UserSettingPreferences(
             currentPreferences.toMutablePreferences().apply {
                 this[stringPreferencesKey(PreferencesKeyName.SENT_NOTIFICATION_ID_KEY_NAME)] =
                     (userData.first().sentNotificationIds + ids).distinct().joinToString(",")
+            }
+        }
+    }
+
+    suspend fun setAppTheme(theme: String) {
+        preferences.updateData { currentPreferences ->
+            currentPreferences.toMutablePreferences().apply {
+                this[stringPreferencesKey(PreferencesKeyName.APP_THEME_KEY_NAME)] = theme
             }
         }
     }

@@ -668,7 +668,7 @@ class AniListService(
         displayAdultContent: Boolean? = null,
         userStaffNameLanguage: UserStaffNameLanguage? = null,
         scoreFormat: ScoreFormat? = null,
-    ): User? =
+    ): User =
         doGraphQlQuery(
             query =
                 UpdateUserSettingMutation(
@@ -677,7 +677,7 @@ class AniListService(
                     userStaffNameLanguage = userStaffNameLanguage,
                     scoreFormat = scoreFormat,
                 ),
-        ).user
+        ).user ?: throw IllegalStateException("Failed to update user settings, user is null")
 
     private suspend inline fun <reified T : GraphQLQuery<DataWrapper<U>>, reified U> doGraphQlQuery(query: T): U =
         try {

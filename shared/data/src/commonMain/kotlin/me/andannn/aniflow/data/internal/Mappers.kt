@@ -87,6 +87,20 @@ internal fun MediaType.toServiceType() =
         MediaType.MANGA -> me.andannn.aniflow.service.dto.enums.MediaType.MANGA
     }
 
+internal fun UserStaffNameLanguage.toServiceType() =
+    when (this) {
+        UserStaffNameLanguage.NATIVE -> me.andannn.aniflow.service.dto.enums.UserStaffNameLanguage.NATIVE
+        UserStaffNameLanguage.ROMAJI -> me.andannn.aniflow.service.dto.enums.UserStaffNameLanguage.ROMAJI
+        UserStaffNameLanguage.ROMAJI_WESTERN -> me.andannn.aniflow.service.dto.enums.UserStaffNameLanguage.ROMAJI_WESTERN
+    }
+
+internal fun UserTitleLanguage.toServiceType() =
+    when (this) {
+        UserTitleLanguage.ROMAJI -> me.andannn.aniflow.service.dto.enums.UserTitleLanguage.ROMAJI
+        UserTitleLanguage.ENGLISH -> me.andannn.aniflow.service.dto.enums.UserTitleLanguage.ENGLISH
+        UserTitleLanguage.NATIVE -> me.andannn.aniflow.service.dto.enums.UserTitleLanguage.NATIVE
+    }
+
 internal fun me.andannn.aniflow.service.dto.enums.MediaType.toDomainType() =
     when (this) {
         me.andannn.aniflow.service.dto.enums.MediaType.ANIME -> MediaType.ANIME

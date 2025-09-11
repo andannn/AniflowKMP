@@ -33,15 +33,15 @@ private val LightColorScheme =
         primary = Purple40,
         secondary = PurpleGrey40,
         tertiary = Pink40,
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-     */
+        /* Other default colors to override
+        background = Color(0xFFFFFBFE),
+        surface = Color(0xFFFFFBFE),
+        onPrimary = Color.White,
+        onSecondary = Color.White,
+        onTertiary = Color.White,
+        onBackground = Color(0xFF1C1B1F),
+        onSurface = Color(0xFF1C1B1F),
+         */
     )
 
 object ShapeHelper {
@@ -88,8 +88,10 @@ object ShapeHelper {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun AniflowTheme(content: @Composable () -> Unit) {
-    val isDarkTheme = isSystemInDarkTheme()
+fun AniflowTheme(
+    isDarkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit,
+) {
     val supportsDynamicColor = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
     val darkColorScheme = darkColorScheme(primary = Color(0xFF66ffc7))
@@ -99,9 +101,11 @@ fun AniflowTheme(content: @Composable () -> Unit) {
             supportsDynamicColor && isDarkTheme -> {
                 dynamicDarkColorScheme(LocalContext.current)
             }
+
             supportsDynamicColor && !isDarkTheme -> {
                 dynamicLightColorScheme(LocalContext.current)
             }
+
             isDarkTheme -> darkColorScheme
             else -> expressiveLightColorScheme()
         }

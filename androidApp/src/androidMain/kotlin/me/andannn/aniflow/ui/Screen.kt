@@ -15,35 +15,28 @@ import me.andannn.aniflow.data.model.define.MediaCategory
 @Serializable
 sealed interface Screen : NavKey {
     @Serializable
-    @SerialName("Home")
     data object Home : Screen
 
     @Serializable
-    @SerialName("MediaCategoryList")
     data class MediaCategoryList(
         val category: MediaCategory,
     ) : Screen
 
     @Serializable
-    @SerialName("Notification")
     data object Notification : Screen
 
     @Serializable
-    @SerialName("Search")
     data object Search : Screen
 
     @Serializable
-    @SerialName("Settings")
     data object Settings : Screen
 
     @Serializable
     sealed interface Dialog : Screen {
         @Serializable
-        @SerialName("Login")
         data object Login : Dialog
 
         @Serializable
-        @SerialName("SettingOption")
         data class SettingOption(
             val settingItem: SettingItem,
         ) : Dialog

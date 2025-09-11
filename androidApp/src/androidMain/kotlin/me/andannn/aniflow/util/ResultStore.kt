@@ -1,41 +1,88 @@
 package me.andannn.aniflow.util
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.runtime.navEntryDecorator
 import io.github.aakira.napier.Napier
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.suspendCancellableCoroutine
 import me.andannn.aniflow.ui.Screen
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.cancellation.CancellationException
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.reflect.KType
+import kotlin.reflect.typeOf
 
-private const val TAG = "ResultStore"
+const val TAG = "ResultStore"
 
 class ResultStore {
-    private val map = mutableMapOf<Screen, MutableSharedFlow<Any?>>()
+    @VisibleForTesting
+    val continuationList = mutableListOf<ResultContinuation>()
 
-    suspend fun awaitResultOf(screen: Screen): Any? {
-        Napier.d(tag = TAG) { "awaiting resultOf screen $screen" }
-        return flow.firstOrNull()
-    }
+    suspend inline fun <reified T : Any> awaitResultOf(screen: Screen): T =
+        suspendCancellableCoroutine { cont ->
+            cont.invokeOnCancellation {
+                continuationList.removeIf { it.continuation == cont }
+            }
 
-    fun <T> emit(
+            val continuationOrNull =
+                continuationList.firstOrNull { continuation -> continuation.screen == screen }
+            if (continuationOrNull != null) {
+                throw IllegalStateException("Screen $screen has already been requested")
+            }
+
+            continuationList.add(
+                ResultContinuation(
+                    typeInfo = typeOf<T>(),
+                    screen = screen,
+                    continuation = cont as Continuation<Any>,
+                ),
+            )
+        }
+
+    inline fun <reified T : Any> emit(
         screen: Screen,
         value: T,
     ) {
-        Napier.d(tag = TAG) { "emit $value" }
-        val flow = map.getOrPut(screen) { MutableSharedFlow<T?>(extraBufferCapacity = 1) as MutableSharedFlow<Any?> }
-        flow.tryEmit(value)
+        Napier.d(tag = TAG) { "emit $screen value $value" }
+        val cont =
+            continuationList
+                .firstOrNull { it.screen == screen }
+
+        if (cont == null) {
+            return
+        }
+
+        if (cont.typeInfo != typeOf<T>()) {
+            cancel(screen)
+            throw IllegalArgumentException("Expected ${cont.typeInfo}, got ${typeOf<T>()}")
+        }
+
+        continuationList.remove(cont)
+        cont.continuation.resume(value)
     }
 
-    fun clear(screen: Screen) {
-        Napier.d(tag = TAG) { "clear $screen" }
-        map.remove(screen)?.also {
-            it.tryEmit(null)
+    fun cancel(screen: Screen) {
+        val cont =
+            continuationList
+                .firstOrNull { it.screen == screen }
+
+        if (cont == null) {
+            return
         }
+
+        cont.continuation.resumeWithException(CancellationException("Cancelled by user"))
+        continuationList.remove(cont)
     }
+
+    class ResultContinuation(
+        val typeInfo: KType,
+        val screen: Screen,
+        val continuation: Continuation<Any>,
+    )
 }
 
 val LocalResultStore =
@@ -44,10 +91,10 @@ val LocalResultStore =
     }
 
 class ScreenResultEmitter(
-    private val screen: Screen,
-    private val resultStore: ResultStore,
+    val screen: Screen,
+    val resultStore: ResultStore,
 ) {
-    fun <T> emitResult(value: T) {
+    inline fun <reified T : Any> emitResult(value: T) {
         resultStore.emit(screen, value)
     }
 }
@@ -63,11 +110,8 @@ fun rememberResultStoreNavEntryDecorator(resultStore: ResultStore = LocalResultS
 
 fun resultStoreNavEntryDecorator(resultStore: ResultStore): NavEntryDecorator<Any> {
     val onPop: (Any) -> Unit = { contentKey ->
-        Screen
-            .fromJson(contentKey as String)
-            .also { screen ->
-                resultStore.clear(screen)
-            }
+        val screen = Screen.fromJson(contentKey as String)
+        resultStore.cancel(screen)
     }
 
     return navEntryDecorator(onPop = onPop) { entry ->
