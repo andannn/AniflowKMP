@@ -2,7 +2,7 @@
  * Copyright 2025, the AniflowKMP project contributors
  * SPDX-License-Identifier: Apache-2.0
  */
-package me.andannn.aniflow.data.internal
+package me.andannn.aniflow.data.internal.dataprovider
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -17,6 +17,7 @@ import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.DiscoverUiDataProvider
 import me.andannn.aniflow.data.HomeAppBarUiDataProvider
 import me.andannn.aniflow.data.MediaRepository
+import me.andannn.aniflow.data.SettingUiDataProvider
 import me.andannn.aniflow.data.SyncStatus
 import me.andannn.aniflow.data.TrackUiDataProvider
 import me.andannn.aniflow.data.internal.tasks.RefreshAllCategoriesTask
@@ -41,7 +42,8 @@ internal class DataProviderImpl(
     private val authRepo: AuthRepository,
 ) : DiscoverUiDataProvider,
     TrackUiDataProvider,
-    HomeAppBarUiDataProvider {
+    HomeAppBarUiDataProvider,
+    SettingUiDataProvider by SettingDataProviderImpl(authRepo) {
     override fun discoverUiDataFlow(): Flow<DiscoverUiState> =
         with(mediaRepo) {
             with(authRepo) {

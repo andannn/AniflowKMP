@@ -102,10 +102,6 @@ private fun NestNavigation(
         navigator.navigateTo(to)
     }
 
-    fun onPop() {
-        navigator.pop()
-    }
-
     NavDisplay(
         modifier = modifier,
         backStack = navigator.backStack,
@@ -217,12 +213,6 @@ private class NestedNavigator(
         Napier.d(tag = TAG) { "Navigated to $to after : ${backStack.toList()}" }
     }
 
-    fun pop() {
-        if (backStack.size > 1) {
-            backStack.removeLast()
-        }
-    }
-
     private fun TopLevelNavigation.toScreen() =
         when (this) {
             TopLevelNavigation.DISCOVER -> HomeNestedScreen.Discover
@@ -233,6 +223,5 @@ private class NestedNavigator(
         when (this) {
             HomeNestedScreen.Discover -> TopLevelNavigation.DISCOVER
             HomeNestedScreen.Track -> TopLevelNavigation.TRACK
-            else -> null
         }
 }

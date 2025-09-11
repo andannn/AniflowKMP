@@ -54,10 +54,20 @@ fun App(navigator: RootNavigator) {
                         Search()
                     }
 
+                    entry(Screen.Settings) {
+                        Settings()
+                    }
+
                     entry<Screen.Dialog.Login>(
                         metadata = dialog(),
                     ) {
                         LoginDialog()
+                    }
+
+                    entry<Screen.Dialog.SettingOption>(
+                        metadata = dialog(),
+                    ) {
+                        SettingOptionDialog(it.settingItem)
                     }
                 },
         )

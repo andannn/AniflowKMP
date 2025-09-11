@@ -9,7 +9,7 @@ import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
 
 @Serializable
-public data class UserOptions(
+public data class UserOptions constructor(
     /**
      * The language the user wants to see media titles in
      */

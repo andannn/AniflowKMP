@@ -6,6 +6,7 @@ package me.andannn.aniflow.ui
 
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
+import me.andannn.aniflow.data.model.SettingItem
 import me.andannn.aniflow.data.model.define.MediaCategory
 
 @Serializable
@@ -24,9 +25,18 @@ sealed interface Screen : NavKey {
     @Serializable
     data object Search : Screen
 
+    @Serializable
+    data object Settings : Screen
+
+    @Serializable
     sealed interface Dialog : Screen {
         @Serializable
         data object Login : Dialog
+
+        @Serializable
+        data class SettingOption(
+            val settingItem: SettingItem,
+        ) : Dialog
     }
 }
 

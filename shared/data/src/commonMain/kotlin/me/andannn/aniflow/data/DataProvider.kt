@@ -8,6 +8,7 @@ import com.rickclephas.kmp.nativecoroutines.NativeCoroutines
 import kotlinx.coroutines.flow.Flow
 import me.andannn.aniflow.data.model.DiscoverUiState
 import me.andannn.aniflow.data.model.HomeAppBarUiState
+import me.andannn.aniflow.data.model.SettingUiState
 import me.andannn.aniflow.data.model.TrackUiState
 
 /**
@@ -75,4 +76,12 @@ interface TrackUiDataProvider {
 
     @NativeCoroutines
     fun trackUiSideEffect(forceRefreshFirstTime: Boolean): Flow<SyncStatus>
+}
+
+interface SettingUiDataProvider {
+    @NativeCoroutines
+    fun settingUiDataFlow(): Flow<SettingUiState>
+
+    @NativeCoroutines
+    fun settingUiSideEffect(forceRefreshFirstTime: Boolean): Flow<SyncStatus>
 }
