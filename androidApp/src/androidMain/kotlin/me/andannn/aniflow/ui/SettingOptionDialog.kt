@@ -18,6 +18,8 @@ import androidx.lifecycle.ViewModel
 import io.github.aakira.napier.Napier
 import me.andannn.aniflow.data.model.SettingItem
 import me.andannn.aniflow.data.model.SettingOption
+import me.andannn.aniflow.util.LocalScreenResultEmitter
+import me.andannn.aniflow.util.ScreenResultEmitter
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -53,6 +55,7 @@ fun SettingOptionDialog(
             parameters = { parametersOf(settingItem) },
         ),
     navigator: RootNavigator = LocalRootNavigator.current,
+    resultEmitter: ScreenResultEmitter = LocalScreenResultEmitter.current,
 ) {
     Surface(
         modifier =
@@ -74,6 +77,7 @@ fun SettingOptionDialog(
                         selected = viewModel.selectedOptions.firstOrNull(),
                         options = viewModel.options,
                         onOptionClick = {
+                            resultEmitter.emitResult(it)
                             navigator.popBackStack()
                         },
                     )

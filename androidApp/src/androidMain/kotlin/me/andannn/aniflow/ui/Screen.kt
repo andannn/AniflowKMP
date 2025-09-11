@@ -52,10 +52,7 @@ sealed interface Screen : NavKey {
     fun toJson(): String = Json.encodeToString<Screen>(this)
 
     companion object {
-        fun fromJson(json: String): Screen? =
-            runCatching {
-                Json.decodeFromString<Screen>(json)
-            }.getOrNull()
+        fun fromJson(json: String): Screen = Json.decodeFromString<Screen>(json)
     }
 }
 

@@ -1,36 +1,37 @@
 package me.andannn.aniflow.util
 
-import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.SaveableStateHolder
-import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.navigation3.runtime.NavEntryDecorator
-import androidx.navigation3.runtime.SavedStateNavEntryDecorator
 import androidx.navigation3.runtime.navEntryDecorator
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
-import me.andannn.aniflow.ui.RootNavigator
+import kotlinx.coroutines.flow.firstOrNull
 import me.andannn.aniflow.ui.Screen
+
+private const val TAG = "ResultStore"
 
 class ResultStore {
     private val map = mutableMapOf<Screen, MutableSharedFlow<Any?>>()
 
-    @Suppress("UNCHECKED_CAST")
-    fun <T> resultsOf(screen: Screen): SharedFlow<T?> {
-        val flow = map.getOrPut(screen) { MutableSharedFlow(extraBufferCapacity = 1) }
-        return flow as SharedFlow<T>
+    suspend fun awaitResultOf(screen: Screen): Any? {
+        Napier.d(tag = TAG) { "awaiting resultOf screen $screen" }
+        return flow.firstOrNull()
     }
 
     fun <T> emit(
         screen: Screen,
         value: T,
     ) {
-        val flow = map.getOrPut(screen) { MutableSharedFlow(extraBufferCapacity = 1) }
+        Napier.d(tag = TAG) { "emit $value" }
+        val flow = map.getOrPut(screen) { MutableSharedFlow<T?>(extraBufferCapacity = 1) as MutableSharedFlow<Any?> }
         flow.tryEmit(value)
     }
 
     fun clear(screen: Screen) {
+        Napier.d(tag = TAG) { "clear $screen" }
         map.remove(screen)?.also {
             it.tryEmit(null)
         }
@@ -42,17 +43,42 @@ val LocalResultStore =
         error("No RootNavigator provided")
     }
 
+class ScreenResultEmitter(
+    private val screen: Screen,
+    private val resultStore: ResultStore,
+) {
+    fun <T> emitResult(value: T) {
+        resultStore.emit(screen, value)
+    }
+}
+
+val LocalScreenResultEmitter =
+    androidx.compose.runtime.staticCompositionLocalOf<ScreenResultEmitter> {
+        error("No RootNavigator provided")
+    }
+
 @Composable
 fun rememberResultStoreNavEntryDecorator(resultStore: ResultStore = LocalResultStore.current): NavEntryDecorator<Any> =
     remember { resultStoreNavEntryDecorator(resultStore) }
 
 fun resultStoreNavEntryDecorator(resultStore: ResultStore): NavEntryDecorator<Any> {
     val onPop: (Any) -> Unit = { contentKey ->
+        Screen
+            .fromJson(contentKey as String)
+            .also { screen ->
+                resultStore.clear(screen)
+            }
     }
 
     return navEntryDecorator(onPop = onPop) { entry ->
-        Log.d("JQN", "resultStoreNavEntryDecorator: ${entry.contentKey}")
-        Log.d("JQN", "resultStoreNavEntryDecorator: ${Screen.fromJson(entry.contentKey as String)}")
-        entry.Content()
+        val screenResultEmitter =
+            remember {
+                ScreenResultEmitter(Screen.fromJson(entry.contentKey as String), resultStore)
+            }
+        CompositionLocalProvider(
+            LocalScreenResultEmitter provides screenResultEmitter,
+        ) {
+            entry.Content()
+        }
     }
 }

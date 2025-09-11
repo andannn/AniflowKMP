@@ -20,26 +20,27 @@ import androidx.compose.material3.MediumFlexibleTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.SettingUiDataProvider
 import me.andannn.aniflow.data.model.SettingItem
 import me.andannn.aniflow.data.model.SettingUiState
 import me.andannn.aniflow.ui.theme.ShapeHelper
+import me.andannn.aniflow.util.LocalResultStore
+import me.andannn.aniflow.util.ResultStore
 import org.koin.compose.viewmodel.koinViewModel
 
 private const val TAG = "Settings"
@@ -70,8 +71,14 @@ class SettingsViewModel(
 fun Settings(
     settingsViewModel: SettingsViewModel = koinViewModel(),
     router: RootNavigator = LocalRootNavigator.current,
+    resultStore: ResultStore = LocalResultStore.current,
 ) {
     val state = settingsViewModel.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        resultStore.resultsOf<Screen.Dialog.SettingOption>().collect {
+        }
+    }
 
     SettingsContent(
         state = state.value,
