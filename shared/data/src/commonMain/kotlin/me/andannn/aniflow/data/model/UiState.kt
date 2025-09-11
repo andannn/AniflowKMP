@@ -116,9 +116,11 @@ data class SettingGroup(
     }
 }
 
+@Serializable
 sealed interface SettingOption {
     val label: String
 
+    @Serializable
     data class UserTitleLanguageOption(
         val value: UserTitleLanguage,
     ) : SettingOption {
@@ -131,6 +133,7 @@ sealed interface SettingOption {
                 }
     }
 
+    @Serializable
     data class StaffCharacterNameOption(
         val value: UserStaffNameLanguage,
     ) : SettingOption {
@@ -143,6 +146,7 @@ sealed interface SettingOption {
                 }
     }
 
+    @Serializable
     data class ThemeModeOption(
         val value: Theme,
     ) : SettingOption {

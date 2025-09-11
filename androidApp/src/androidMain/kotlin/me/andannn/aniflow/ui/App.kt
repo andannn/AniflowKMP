@@ -18,6 +18,8 @@ import androidx.navigation3.ui.DialogSceneStrategy.Companion.dialog
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.SinglePaneSceneStrategy
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
+import kotlinx.serialization.json.Json
+import me.andannn.aniflow.util.rememberResultStoreNavEntryDecorator
 
 @Composable
 fun App(navigator: RootNavigator) {
@@ -33,10 +35,11 @@ fun App(navigator: RootNavigator) {
                     rememberSceneSetupNavEntryDecorator(),
                     rememberSavedStateNavEntryDecorator(),
                     rememberViewModelStoreNavEntryDecorator(),
+                    rememberResultStoreNavEntryDecorator(),
                 ),
             entryProvider =
                 entryProvider {
-                    entry<Screen.Home> {
+                    entry<Screen.Home>(clazzContentKey = { it.toJson() }) {
                         Home()
                     }
 
@@ -50,22 +53,24 @@ fun App(navigator: RootNavigator) {
                         Notification()
                     }
 
-                    entry(Screen.Search) {
+                    entry<Screen.Search> {
                         Search()
                     }
 
-                    entry(Screen.Settings) {
+                    entry<Screen.Settings> {
                         Settings()
                     }
 
                     entry<Screen.Dialog.Login>(
                         metadata = dialog(),
+                        clazzContentKey = { Json.encodeToString(it) },
                     ) {
                         LoginDialog()
                     }
 
                     entry<Screen.Dialog.SettingOption>(
                         metadata = dialog(),
+                        clazzContentKey = { Json.encodeToString(it) },
                     ) {
                         SettingOptionDialog(it.settingItem)
                     }

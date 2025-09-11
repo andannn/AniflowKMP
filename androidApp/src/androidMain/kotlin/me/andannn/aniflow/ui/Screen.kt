@@ -5,38 +5,57 @@
 package me.andannn.aniflow.ui
 
 import androidx.navigation3.runtime.NavKey
+import io.github.aakira.napier.Napier
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import me.andannn.aniflow.data.model.SettingItem
 import me.andannn.aniflow.data.model.define.MediaCategory
 
 @Serializable
 sealed interface Screen : NavKey {
     @Serializable
+    @SerialName("Home")
     data object Home : Screen
 
     @Serializable
+    @SerialName("MediaCategoryList")
     data class MediaCategoryList(
         val category: MediaCategory,
     ) : Screen
 
     @Serializable
+    @SerialName("Notification")
     data object Notification : Screen
 
     @Serializable
+    @SerialName("Search")
     data object Search : Screen
 
     @Serializable
+    @SerialName("Settings")
     data object Settings : Screen
 
     @Serializable
     sealed interface Dialog : Screen {
         @Serializable
+        @SerialName("Login")
         data object Login : Dialog
 
         @Serializable
+        @SerialName("SettingOption")
         data class SettingOption(
             val settingItem: SettingItem,
         ) : Dialog
+    }
+
+    fun toJson(): String = Json.encodeToString<Screen>(this)
+
+    companion object {
+        fun fromJson(json: String): Screen? =
+            runCatching {
+                Json.decodeFromString<Screen>(json)
+            }.getOrNull()
     }
 }
 

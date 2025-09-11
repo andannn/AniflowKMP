@@ -14,6 +14,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,9 +27,12 @@ import me.andannn.aniflow.data.BrowserAuthOperationHandler
 import me.andannn.aniflow.platform.BrowserAuthOperationHandlerImpl
 import me.andannn.aniflow.ui.App
 import me.andannn.aniflow.ui.DeepLinkHelper
+import me.andannn.aniflow.ui.LocalRootNavigator
 import me.andannn.aniflow.ui.RootNavigator
 import me.andannn.aniflow.ui.Screen
 import me.andannn.aniflow.ui.theme.AniflowTheme
+import me.andannn.aniflow.util.LocalResultStore
+import me.andannn.aniflow.util.ResultStore
 import me.andannn.aniflow.worker.SyncWorkHelper
 import org.koin.android.ext.android.getKoin
 
@@ -101,7 +105,12 @@ class MainActivity : ComponentActivity() {
                         paddingDeepLinkNavigationScreen.value = null
                     }
                 }
-                App(navigator)
+                val resultStore = remember { ResultStore() }
+                CompositionLocalProvider(
+                    LocalResultStore provides resultStore,
+                ) {
+                    App(navigator)
+                }
             }
         }
     }
