@@ -8,7 +8,7 @@ val UPDATE_USER_SETTING_RESPONSE =
     """
     {
       "data" : {
-        "UpdatedUserResponse" : {
+        "UpdateUser" : {
           "id" : 6378393,
           "name" : "andannn",
           "avatar" : {

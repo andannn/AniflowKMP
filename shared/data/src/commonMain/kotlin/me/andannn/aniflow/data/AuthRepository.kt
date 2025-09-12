@@ -71,6 +71,6 @@ interface AuthRepository {
     suspend fun updateUserSettings(
         titleLanguage: UserTitleLanguage? = null,
         staffCharacterNameLanguage: UserStaffNameLanguage? = null,
-        appTheme: Theme? = null
+        appTheme: Theme? = null,
     ): AppError?
 }
