@@ -18,6 +18,7 @@ import me.andannn.aniflow.data.model.define.StringKeyEnum
 import me.andannn.aniflow.data.model.define.Theme
 import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
+import me.andannn.aniflow.data.model.define.deserialize
 import me.andannn.aniflow.database.MediaLibraryDao
 import me.andannn.aniflow.database.schema.MediaListEntity
 import me.andannn.aniflow.datastore.UserSettingPreferences
@@ -105,7 +106,7 @@ internal class MediaListModificationSyncer(
 
     private fun MediaListEntity.toParam() =
         Param(
-            mediaListStatus = listStatus?.let { StringKeyEnum.deserialize(it) },
+            mediaListStatus = listStatus?.deserialize(),
             progress = progress?.toInt(),
             updatedAt = updatedAt,
         )
@@ -133,9 +134,9 @@ internal class UserSettingSyncer :
     override suspend fun getLocal(): Param =
         preferences.userData.first().let {
             Param(
-                userTitleLanguage = it.titleLanguage?.let { StringKeyEnum.deserialize(it) },
-                userStaffNameLanguage = it.staffNameLanguage?.let { StringKeyEnum.deserialize(it) },
-                appTheme = it.appTheme?.let { StringKeyEnum.deserialize(it) },
+                userTitleLanguage = it.titleLanguage?.deserialize(),
+                userStaffNameLanguage = it.staffNameLanguage?.deserialize(),
+                appTheme = it.appTheme?.deserialize(),
             )
         }
 

@@ -32,6 +32,7 @@ import me.andannn.aniflow.data.model.define.MediaType
 import me.andannn.aniflow.data.model.define.StringKeyEnum
 import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
+import me.andannn.aniflow.data.model.define.deserialize
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelationWithUpdateLog
@@ -272,7 +273,7 @@ internal fun Media.toEntity() =
 internal fun MediaEntity.toDomain() =
     MediaModel(
         id = id,
-        type = mediaType?.let { StringKeyEnum.deserialize(it) },
+        type = mediaType?.deserialize(),
         title =
             Title(
                 english = englishTitle,
@@ -281,13 +282,13 @@ internal fun MediaEntity.toDomain() =
             ),
         coverImage = coverImageExtraLarge ?: coverImageLarge ?: coverImageMedium,
         description = description,
-        source = source?.let { StringKeyEnum.deserialize(it) },
-        status = status?.let { StringKeyEnum.deserialize(it) },
-        format = format?.let { StringKeyEnum.deserialize(it) },
+        source = source?.deserialize(),
+        status = status?.deserialize(),
+        format = format?.deserialize(),
         bannerImage = bannerImage,
         averageScore = averageScore?.toInt(),
         favourites = favourites?.toInt(),
-        season = season?.let { StringKeyEnum.deserialize(it) },
+        season = season?.deserialize(),
         seasonYear = seasonYear?.toInt(),
         episodes = episodes?.toInt(),
         ratedRank = ratedRanking?.toInt(),
@@ -397,7 +398,7 @@ internal fun MediaList.toEntity(mediaId: String) =
 internal fun MediaListEntity.toDomain() =
     MediaListModel(
         id = mediaListId,
-        status = listStatus?.let { StringKeyEnum.deserialize(it) },
+        status = listStatus?.deserialize(),
         progress = progress?.toInt(),
         notes = notes,
         repeat = repeat?.toInt(),

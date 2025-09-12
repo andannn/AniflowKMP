@@ -25,6 +25,7 @@ import me.andannn.aniflow.data.model.define.StringKeyEnum
 import me.andannn.aniflow.data.model.define.Theme
 import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
+import me.andannn.aniflow.data.model.define.deserialize
 import me.andannn.aniflow.data.util.UserSettingSyncer
 import me.andannn.aniflow.data.util.postMutationAndRevertWhenException
 import me.andannn.aniflow.database.MediaLibraryDao
@@ -103,13 +104,13 @@ internal class AuthRepositoryImpl(
             .map {
                 UserOptions(
                     titleLanguage =
-                        it.titleLanguage?.let { StringKeyEnum.deserialize(it) }
+                        it.titleLanguage?.deserialize()
                             ?: UserTitleLanguage.Default,
                     staffNameLanguage =
-                        it.staffNameLanguage?.let { StringKeyEnum.deserialize(it) }
+                        it.staffNameLanguage?.deserialize()
                             ?: UserStaffNameLanguage.Default,
                     appTheme =
-                        it.appTheme?.let { StringKeyEnum.deserialize(it) },
+                        it.appTheme?.deserialize(),
                 )
             }.distinctUntilChanged()
 
