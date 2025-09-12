@@ -33,24 +33,6 @@ sealed class SyncStatus {
     fun isLoading(): Boolean = this is Loading
 }
 
-/**
- * Represents an error that can occur in the application.
- * Because Swift can not handle kotlin throwable, we use a sealed class to represent errors.
- *
- * @property message A human-readable message describing the error.
- */
-sealed class AppError(
-    open val message: String,
-) {
-    data class RemoteSyncError(
-        override val message: String,
-    ) : AppError(message)
-
-    data class OtherError(
-        override val message: String,
-    ) : AppError(message)
-}
-
 interface HomeAppBarUiDataProvider {
     @NativeCoroutines
     fun appBarFlow(): Flow<HomeAppBarUiState>

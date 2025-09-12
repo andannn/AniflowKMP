@@ -43,14 +43,17 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.AuthRepository
+import me.andannn.aniflow.data.ErrorChannel
+import me.andannn.aniflow.data.NotificationPageComponent
+import me.andannn.aniflow.data.PageComponent
+import me.andannn.aniflow.data.buildErrorChannel
 import me.andannn.aniflow.data.model.NotificationModel
 import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.NotificationCategory
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
-import me.andannn.aniflow.data.paging.NotificationPageComponent
-import me.andannn.aniflow.data.paging.PageComponent
 import me.andannn.aniflow.ui.widget.NotificationItem
 import me.andannn.aniflow.ui.widget.VerticalListPaging
+import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.rememberSnackBarHostState
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -58,7 +61,8 @@ private const val TAG = "Notification"
 
 class NotificationViewModel(
     private val authRepository: AuthRepository,
-) : ViewModel() {
+) : ViewModel(),
+    ErrorChannel by buildErrorChannel() {
     private val _selectedCategory = MutableStateFlow(NotificationCategory.ALL)
 
     val selectedCategory = _selectedCategory.asStateFlow()
@@ -77,7 +81,8 @@ class NotificationViewModel(
             _selectedCategory.collect {
                 Napier.d(tag = TAG) { "selectedCategory changed: $it" }
                 pagingController?.dispose()
-                pagingController = NotificationPageComponent(it)
+                pagingController =
+                    NotificationPageComponent(it, errorHandler = this@NotificationViewModel)
             }
         }
     }
@@ -161,6 +166,8 @@ fun Notification(
             userTitleLanguage = userOptions.titleLanguage,
         )
     }
+
+    ErrorHandleSideEffect(viewModel)
 }
 
 @Composable

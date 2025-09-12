@@ -30,14 +30,17 @@ import androidx.lifecycle.viewModelScope
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.stateIn
 import me.andannn.aniflow.data.AuthRepository
+import me.andannn.aniflow.data.ErrorChannel
+import me.andannn.aniflow.data.MediaCategoryPageComponent
+import me.andannn.aniflow.data.PageComponent
+import me.andannn.aniflow.data.buildErrorChannel
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.MediaCategory
-import me.andannn.aniflow.data.paging.MediaCategoryPageComponent
-import me.andannn.aniflow.data.paging.PageComponent
 import me.andannn.aniflow.data.util.getUserTitleString
 import me.andannn.aniflow.ui.widget.CommonItemFilledCard
 import me.andannn.aniflow.ui.widget.StaggeredGridPaging
+import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.rememberSnackBarHostState
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -48,7 +51,10 @@ class MediaCategoryPagingViewModel(
     private val category: MediaCategory,
     private val authRepository: AuthRepository,
 ) : ViewModel(),
-    PageComponent<MediaModel> by MediaCategoryPageComponent(category) {
+    ErrorChannel by buildErrorChannel() {
+    val pageComponent: PageComponent<MediaModel> =
+        MediaCategoryPageComponent(category, errorHandler = this)
+
     init {
         Napier.d(tag = TAG) { "MediaCategoryPagingViewModel init. category: $category" }
     }
@@ -64,7 +70,7 @@ class MediaCategoryPagingViewModel(
 
     override fun onCleared() {
         Napier.d(tag = TAG) { "MediaCategoryPagingViewModel cleared. category: $category" }
-        dispose()
+        pageComponent.dispose()
     }
 }
 
@@ -106,7 +112,7 @@ fun MediaCategoryPaging(
         StaggeredGridPaging(
             modifier = Modifier.padding(it),
             columns = StaggeredGridCells.Fixed(2),
-            pageComponent = viewModel,
+            pageComponent = viewModel.pageComponent,
             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
             key = { it.id },
         ) { item ->
@@ -118,4 +124,6 @@ fun MediaCategoryPaging(
             )
         }
     }
+
+    ErrorHandleSideEffect(viewModel)
 }

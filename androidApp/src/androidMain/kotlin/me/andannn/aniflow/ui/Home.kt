@@ -102,10 +102,6 @@ private fun NestNavigation(
     modifier: Modifier = Modifier,
     navigator: NestedNavigator,
 ) {
-    fun onNavigateToNested(to: HomeNestedScreen) {
-        navigator.navigateTo(to)
-    }
-
     NavDisplay(
         modifier = modifier,
         backStack = navigator.backStack,
@@ -118,9 +114,7 @@ private fun NestNavigation(
         entryProvider =
             entryProvider {
                 entry(HomeNestedScreen.Discover) {
-                    Discover(
-                        onNavigateToNested = ::onNavigateToNested,
-                    )
+                    Discover()
                 }
                 entry(HomeNestedScreen.Track) {
                     Track()

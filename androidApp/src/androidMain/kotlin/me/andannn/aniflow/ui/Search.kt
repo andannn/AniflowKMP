@@ -78,7 +78,6 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -93,12 +92,20 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import me.andannn.aniflow.data.AuthRepository
+import me.andannn.aniflow.data.CharacterSearchResultPageComponent
+import me.andannn.aniflow.data.EmptyPageComponent
+import me.andannn.aniflow.data.ErrorChannel
+import me.andannn.aniflow.data.LoadingStatus
+import me.andannn.aniflow.data.MediaSearchResultPageComponent
+import me.andannn.aniflow.data.PageComponent
+import me.andannn.aniflow.data.StaffSearchResultPageComponent
+import me.andannn.aniflow.data.StudioSearchResultPageComponent
+import me.andannn.aniflow.data.buildErrorChannel
 import me.andannn.aniflow.data.model.CharacterModel
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.SearchCategory
@@ -109,13 +116,6 @@ import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.MediaFormat
 import me.andannn.aniflow.data.model.define.MediaSeason
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
-import me.andannn.aniflow.data.paging.CharacterSearchResultPageComponent
-import me.andannn.aniflow.data.paging.EmptyPageComponent
-import me.andannn.aniflow.data.paging.LoadingStatus
-import me.andannn.aniflow.data.paging.MediaSearchResultPageComponent
-import me.andannn.aniflow.data.paging.PageComponent
-import me.andannn.aniflow.data.paging.StaffSearchResultPageComponent
-import me.andannn.aniflow.data.paging.StudioSearchResultPageComponent
 import me.andannn.aniflow.data.util.getUserTitleString
 import me.andannn.aniflow.data.util.label
 import me.andannn.aniflow.ui.widget.CommonItemFilledCard
@@ -124,6 +124,7 @@ import me.andannn.aniflow.ui.widget.SelectOptionBottomSheet
 import me.andannn.aniflow.ui.widget.TitleWithContent
 import me.andannn.aniflow.ui.widget.fullLinePagingItems
 import me.andannn.aniflow.ui.widget.pagingItems
+import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.rememberSnackBarHostState
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -334,7 +335,8 @@ class StudioSearchOptions : SearchOptions() {
 @OptIn(FlowPreview::class)
 class SearchViewModel(
     authRepository: AuthRepository,
-) : ViewModel() {
+) : ViewModel(),
+    ErrorChannel by buildErrorChannel() {
     val userOptions =
         authRepository.getUserOptionsFlow().stateIn(
             viewModelScope,
@@ -392,15 +394,29 @@ class SearchViewModel(
                     searchResultPagingController =
                         when (source) {
                             is SearchSource.Media ->
-                                MediaSearchResultPageComponent(source = source)
+                                MediaSearchResultPageComponent(
+                                    source = source,
+                                    errorHandler = this@SearchViewModel,
+                                )
 
                             is SearchSource.Character ->
-                                CharacterSearchResultPageComponent(source = source)
+                                CharacterSearchResultPageComponent(
+                                    source = source,
+                                    errorHandler = this@SearchViewModel,
+                                )
 
                             is SearchSource.Staff ->
-                                StaffSearchResultPageComponent(source = source)
+                                StaffSearchResultPageComponent(
+                                    source = source,
+                                    errorHandler = this@SearchViewModel,
+                                )
 
-                            is SearchSource.Studio -> StudioSearchResultPageComponent(source = source)
+                            is SearchSource.Studio ->
+                                StudioSearchResultPageComponent(
+                                    source = source,
+                                    errorHandler = this@SearchViewModel,
+                                )
+
                             null -> EmptyPageComponent
                         }
                 }
@@ -493,6 +509,8 @@ fun Search(
             viewModel.onClearAllClick()
         },
     )
+
+    ErrorHandleSideEffect(viewModel)
 
     if (viewModel.visibleOptionSheet != null) {
         when (viewModel.visibleOptionSheet) {

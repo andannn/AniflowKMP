@@ -6,6 +6,7 @@ package me.andannn.aniflow.service
 
 import io.github.aakira.napier.Napier
 import io.ktor.client.HttpClient
+import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.call.body
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.ResponseException
@@ -26,7 +27,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.utils.io.CancellationException
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.json.Json
 import me.andannn.aniflow.service.dto.ActivityUnion
 import me.andannn.aniflow.service.dto.AiringSchedule
@@ -76,13 +76,16 @@ import me.andannn.aniflow.service.request.SearchStudioQuery
 import me.andannn.aniflow.service.request.ToggleFavoriteMutation
 import me.andannn.aniflow.service.request.UpdateUserSettingMutation
 import me.andannn.aniflow.service.request.toQueryBody
-import me.andannn.network.engine.MockHttpClientEngine
 
 open class ServerException(
     override val message: String,
 ) : IllegalStateException(message)
 
-open class AniListException(
+/**
+ * Represents an error response from the AniList API.
+ */
+class AniListServerException(
+    val statusCode: Int,
     override val message: String,
 ) : ServerException(message)
 
@@ -686,7 +689,7 @@ class AniListService constructor(
                 .post {
                     setBody(
                         query.toQueryBody().also {
-                            Napier.v(tag = TAG) { "doGraphQlQuery: $it" }
+//                            Napier.v(tag = TAG) { "doGraphQlQuery: $it" }
                         },
                     )
                 }.let { response ->
@@ -694,20 +697,26 @@ class AniListService constructor(
                     dataWrapper.data
                 }
         } catch (cancellation: CancellationException) {
-            Napier.w { "service api request operation canceled." }
+            Napier.w(tag = TAG) { "service api request operation canceled." }
             throw cancellation
         } catch (exception: ResponseException) {
-            Napier.e { "ResponseException when doing GraphQL query: $exception" }
+            Napier.e(tag = TAG) { "ResponseException when doing GraphQL query: $exception" }
             throw exception.toAniListException()
         } catch (throwable: Throwable) {
-            Napier.e { "Unknown Error when doing GraphQL query: $throwable" }
+            Napier.e(tag = TAG) { "Unknown Error when doing GraphQL query: $throwable" }
             throw ServerException("${throwable.message}")
         }
 }
 
 private suspend fun ResponseException.toAniListException(): ServerException {
-// TODO: handle different error types
-    val error = response.body<AniListErrorResponse?>()
+    val error =
+        try {
+            response.body<AniListErrorResponse?>()
+        } catch (e: NoTransformationFoundException) {
+            Napier.e(tag = TAG) { "NoTransformationFoundException when parsing error response: $response $e" }
+            null
+        }
+
     return if (error != null) {
         when (response.status) {
             HttpStatusCode.Unauthorized -> {
@@ -715,11 +724,14 @@ private suspend fun ResponseException.toAniListException(): ServerException {
             }
 
             else -> {
-                AniListException(error.errors.first().message)
+                AniListServerException(
+                    statusCode = response.status.value,
+                    error.errors.first().message,
+                )
             }
         }
     } else {
-        ServerException("Unknown error: $message")
+        ServerException(message.toString())
     }
 }
 

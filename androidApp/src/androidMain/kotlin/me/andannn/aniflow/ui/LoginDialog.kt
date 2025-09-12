@@ -40,17 +40,15 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.model.UserModel
+import me.andannn.aniflow.util.LocalScreenResultEmitter
+import me.andannn.aniflow.util.ScreenResultEmitter
 import org.koin.compose.viewmodel.koinViewModel
 
 class LoginDialogViewModel(
     private val authRepository: AuthRepository,
-    private val mediaRepository: AuthRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(UiState())
     val state = _state.asStateFlow()
-
-    var loginJob: Job? = null
-    var logoutJob: Job? = null
 
     init {
         viewModelScope.launch {
@@ -60,41 +58,31 @@ class LoginDialogViewModel(
         }
     }
 
-    fun startLoginProcess() {
-        loginJob?.cancel()
-
-        loginJob =
-            viewModelScope.launch {
-                val error = authRepository.startLoginProcessAndWaitResult()
-                // TODO: Handle the error
-            }
-    }
-
-    fun logout() {
-        logoutJob?.cancel()
-
-        logoutJob =
-            viewModelScope.launch {
-                authRepository.logout()
-            }
-    }
-
     data class UiState(
         val authedUser: UserModel? = null,
     )
+}
+
+enum class LoginDialogResult {
+    ClickLogin,
+    ClickLogout,
 }
 
 @Composable
 fun LoginDialog(
     viewModel: LoginDialogViewModel = koinViewModel(),
     navigator: RootNavigator = LocalRootNavigator.current,
+    resultEmitter: ScreenResultEmitter = LocalScreenResultEmitter.current,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     LoginDialogContent(
         state = state,
-        onLoginClick = viewModel::startLoginProcess,
+        onLoginClick = {
+            resultEmitter.emitResult(LoginDialogResult.ClickLogin)
+            navigator.popBackStack()
+        },
         onLogoutClick = {
-            viewModel.logout()
+            resultEmitter.emitResult(LoginDialogResult.ClickLogout)
             navigator.popBackStack()
         },
         onNotificationClick = {

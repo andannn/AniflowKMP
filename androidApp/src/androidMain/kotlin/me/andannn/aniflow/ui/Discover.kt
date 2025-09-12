@@ -4,6 +4,7 @@
  */
 package me.andannn.aniflow.ui
 
+import android.util.Log
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
@@ -43,13 +44,17 @@ import androidx.lifecycle.viewModelScope
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.DiscoverUiDataProvider
+import me.andannn.aniflow.data.ErrorChannel
 import me.andannn.aniflow.data.HomeAppBarUiDataProvider
 import me.andannn.aniflow.data.MediaRepository
+import me.andannn.aniflow.data.buildErrorChannel
 import me.andannn.aniflow.data.model.DiscoverUiState
 import me.andannn.aniflow.data.model.HomeAppBarUiState
 import me.andannn.aniflow.data.model.MediaModel
@@ -58,18 +63,16 @@ import me.andannn.aniflow.data.model.define.MediaContentMode
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
+import me.andannn.aniflow.data.submitErrorOfSyncStatus
 import me.andannn.aniflow.data.util.getUserTitleString
 import me.andannn.aniflow.ui.widget.CustomPullToRefresh
 import me.andannn.aniflow.ui.widget.DefaultAppBar
 import me.andannn.aniflow.ui.widget.MediaPreviewItem
 import me.andannn.aniflow.ui.widget.NewReleaseCard
 import me.andannn.aniflow.ui.widget.TitleWithContent
-import me.andannn.aniflow.util.AppErrorSource
-import me.andannn.aniflow.util.AppErrorSourceImpl
 import me.andannn.aniflow.util.ErrorHandleSideEffect
-import me.andannn.aniflow.util.ErrorHandler
-import me.andannn.aniflow.util.LocalErrorHandler
-import me.andannn.aniflow.util.submitErrorOfSyncStatus
+import me.andannn.aniflow.util.LocalResultStore
+import me.andannn.aniflow.util.ResultStore
 import org.koin.compose.viewmodel.koinViewModel
 
 private const val TAG = "Discover"
@@ -80,20 +83,31 @@ class DiscoverViewModel(
     private val authRepository: AuthRepository,
     private val mediaRepository: MediaRepository,
 ) : ViewModel(),
-    AppErrorSource by AppErrorSourceImpl() {
+    ErrorChannel by buildErrorChannel() {
     private val _state = MutableStateFlow(DiscoverUiState.Empty)
     val state = _state.asStateFlow()
-    private val _isRefreshing = MutableStateFlow(false)
-    val isRefreshing = _isRefreshing.asStateFlow()
+    private val isSideEffectRefreshing = MutableStateFlow(false)
+    private var isLoginProcessing = MutableStateFlow(false)
+    val isLoading =
+        combine(
+            isSideEffectRefreshing,
+            isLoginProcessing,
+        ) { isSideEffectRefreshing, isLoginProcessing ->
+            Log.d(TAG, ":  isSideEffectRefreshing: $isSideEffectRefreshing, isLoginProcessing: $isLoginProcessing ")
+            isSideEffectRefreshing || isLoginProcessing
+        }.stateIn(
+            viewModelScope,
+            initialValue = false,
+            started = SharingStarted.WhileSubscribed(5000),
+        )
 
     val appBarState =
         appbarDataProvider.appBarFlow().stateIn(
             viewModelScope,
             initialValue = HomeAppBarUiState(),
-            started =
-                kotlinx.coroutines.flow.SharingStarted
-                    .WhileSubscribed(5000),
+            started = SharingStarted.WhileSubscribed(5000),
         )
+
     private var sideEffectJob: Job? = null
 
     init {
@@ -128,10 +142,32 @@ class DiscoverViewModel(
             viewModelScope.launch {
                 discoverDataProvider.discoverUiSideEffect(force).collect { status ->
                     Napier.d(tag = TAG) { "cancelLastAndRegisterUiSideEffect: sync status $status" }
-                    _isRefreshing.value = status.isLoading()
+                    isSideEffectRefreshing.value = status.isLoading()
 
                     submitErrorOfSyncStatus(status)
                 }
+            }
+    }
+
+    fun onAuthIconClick(resultStore: ResultStore) {
+        viewModelScope
+            .launch {
+                val result: LoginDialogResult = resultStore.awaitResultOf(Screen.Dialog.Login)
+                when (result) {
+                    LoginDialogResult.ClickLogin -> {
+                        isLoginProcessing.value = true
+                        val error = authRepository.startLoginProcessAndWaitResult()
+                        if (error != null) {
+                            submitError(error)
+                        }
+                    }
+
+                    LoginDialogResult.ClickLogout -> {
+                        authRepository.logout()
+                    }
+                }
+            }.invokeOnCompletion {
+                isLoginProcessing.value = false
             }
     }
 }
@@ -139,27 +175,28 @@ class DiscoverViewModel(
 @Composable
 fun Discover(
     modifier: Modifier = Modifier,
-    discoverViewModel: DiscoverViewModel = koinViewModel(),
+    viewModel: DiscoverViewModel = koinViewModel(),
     navigator: RootNavigator = LocalRootNavigator.current,
-    onNavigateToNested: (HomeNestedScreen) -> Unit = {},
+    resultStore: ResultStore = LocalResultStore.current,
 ) {
-    val state by discoverViewModel.state.collectAsStateWithLifecycle()
-    val isRefreshing by discoverViewModel.isRefreshing.collectAsStateWithLifecycle()
-    val appBarState by discoverViewModel.appBarState.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val isRefreshing by viewModel.isLoading.collectAsStateWithLifecycle()
+    val appBarState by viewModel.appBarState.collectAsStateWithLifecycle()
     DiscoverContent(
         isRefreshing = isRefreshing,
         appbarState = appBarState,
         categoryDataList = state.categoryDataMap.content,
         newReleasedMedia = state.newReleasedMedia,
         userTitleLanguage = state.userOptions.titleLanguage,
-        onContentTypeChange = discoverViewModel::changeContentMode,
+        onContentTypeChange = viewModel::changeContentMode,
         onAuthIconClick = {
+            viewModel.onAuthIconClick(resultStore)
             navigator.navigateTo(Screen.Dialog.Login)
         },
         onMediaClick = {
             navigator.navigateTo(Screen.Notification)
         },
-        onPullRefresh = discoverViewModel::onPullRefresh,
+        onPullRefresh = viewModel::onPullRefresh,
         onNavigateToMediaCategory = { category ->
             navigator.navigateTo(Screen.MediaCategoryList(category))
         },
@@ -169,7 +206,7 @@ fun Discover(
         modifier = modifier,
     )
 
-    ErrorHandleSideEffect(discoverViewModel)
+    ErrorHandleSideEffect(viewModel)
 }
 
 @OptIn(

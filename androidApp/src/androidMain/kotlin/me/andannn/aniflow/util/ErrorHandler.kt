@@ -1,3 +1,7 @@
+/*
+ * Copyright 2025, the AniflowKMP project contributors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package me.andannn.aniflow.util
 
 import androidx.compose.material3.SnackbarDuration
@@ -12,10 +16,16 @@ import androidx.compose.runtime.remember
 import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.runtime.navEntryDecorator
 import io.github.aakira.napier.Napier
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
+import me.andannn.aniflow.BuildConfig
 import me.andannn.aniflow.data.AppError
-import me.andannn.aniflow.data.SyncStatus
+import me.andannn.aniflow.data.AppErrorSource
+
+private const val TAG = "ErrorHandler"
+
+val LocalErrorHandler =
+    androidx.compose.runtime.staticCompositionLocalOf<ErrorHandler> {
+        error("No RootNavigator provided")
+    }
 
 @Composable
 fun ErrorHandleSideEffect(
@@ -31,34 +41,14 @@ fun ErrorHandleSideEffect(
     }
 }
 
-interface AppErrorSource {
-    val errorSharedFlow: SharedFlow<List<AppError>>
-
-    fun submitError(error: List<AppError>)
-}
-
-fun AppErrorSource.submitErrorOfSyncStatus(status: SyncStatus) {
-    if (status is SyncStatus.Idle) {
-        submitError(status.errors)
-    }
-}
-
-class AppErrorSourceImpl : AppErrorSource {
-    override val errorSharedFlow: SharedFlow<List<AppError>> = MutableSharedFlow()
-
-    override fun submitError(error: List<AppError>) {
-        (errorSharedFlow as MutableSharedFlow<List<AppError>>).tryEmit(error)
-    }
-}
-
 class ErrorHandler {
     var snackBarHost: SnackbarHostState? = null
 
     suspend fun handleError(error: AppError): ErrorHandleResult {
+        Napier.d(tag = TAG) { "handleError: error: $error" }
         val snackBarMessage = error.toAlert()
         val result =
             snackBarHost?.let { host ->
-                Napier.d(tag = "ErrorHandler") { "show snackbar: $snackBarMessage" }
                 val result = host.showSnackbar(snackBarMessage.toSnackbarVisuals())
                 ErrorHandleResult.SnackBarHandleResult(snackBarMessage, result)
             } ?: error("snackbar host is not set")
@@ -70,11 +60,6 @@ class ErrorHandler {
         snackBarHost = null
     }
 }
-
-val LocalErrorHandler =
-    androidx.compose.runtime.staticCompositionLocalOf<ErrorHandler> {
-        error("No RootNavigator provided")
-    }
 
 @Composable
 fun rememberErrorHandlerNavEntryDecorator(): NavEntryDecorator<Any> = remember { errorHandlerNavEntryDecorator() }
@@ -115,9 +100,21 @@ sealed class SnackBarMessage(
         message = "To many requests, please try again later",
     )
 
+    /**
+     * Server error when status code is not in 200..299.
+     *
+     * @property message The error message send from server.
+     */
+    data class ServerError(
+        val statusCode: Int,
+        val message: String,
+    ) : SnackBarMessage(message + if (BuildConfig.DEBUG) "\nDebug info: $statusCode" else "")
+
     data class FallBackRemoteError(
         val message: String,
-    ) : SnackBarMessage(message)
+    ) : SnackBarMessage(
+            "Unknown error" + if (BuildConfig.DEBUG) "\nDebug info: $message" else "",
+        )
 
     fun toSnackbarVisuals(): SnackbarVisuals {
         val actionLabel = actionLabel
@@ -135,8 +132,8 @@ sealed class SnackBarMessage(
 
 private fun AppError.toAlert() =
     when (this) {
-        is AppError.RemoteSyncError -> SnackBarMessage.FallBackRemoteError(message)
-        is AppError.OtherError -> TODO()
+        is AppError.ServerError -> SnackBarMessage.ServerError(statusCode, message)
+        is AppError.OtherError -> SnackBarMessage.FallBackRemoteError(message)
     }
 
 private fun errorHandlerNavEntryDecorator(): NavEntryDecorator<Any> {

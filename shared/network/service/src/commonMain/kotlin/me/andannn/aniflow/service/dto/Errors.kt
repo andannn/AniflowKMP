@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AniListErrorResponse(
+    val data: String?,
     val errors: List<Error>,
 )
 
