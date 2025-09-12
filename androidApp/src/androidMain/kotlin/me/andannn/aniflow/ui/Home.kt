@@ -19,6 +19,8 @@ import androidx.compose.material3.FlexibleBottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
@@ -36,6 +38,7 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.Serializable
+import me.andannn.aniflow.util.rememberSnackBarHostState
 import org.koin.compose.viewmodel.koinViewModel
 
 private const val TAG = "Home"
@@ -73,6 +76,7 @@ private fun HomeContent(
 ) {
     Scaffold(
         modifier = modifier,
+        snackbarHost = { SnackbarHost(rememberSnackBarHostState()) },
         bottomBar = {
             NavigationArea(
                 selected = navigator.currentTopLevelNavigation,

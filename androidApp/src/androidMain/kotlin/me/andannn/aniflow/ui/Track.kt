@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
@@ -49,6 +48,11 @@ import me.andannn.aniflow.ui.theme.ShapeHelper
 import me.andannn.aniflow.ui.widget.CustomPullToRefresh
 import me.andannn.aniflow.ui.widget.DefaultAppBar
 import me.andannn.aniflow.ui.widget.MediaRowItem
+import me.andannn.aniflow.util.AppErrorSource
+import me.andannn.aniflow.util.AppErrorSourceImpl
+import me.andannn.aniflow.util.ErrorHandler
+import me.andannn.aniflow.util.LocalErrorHandler
+import me.andannn.aniflow.util.submitErrorOfSyncStatus
 import org.koin.compose.viewmodel.koinViewModel
 
 private const val TAG = "TrackViewModel"
@@ -58,7 +62,8 @@ class TrackViewModel(
     private val trackDataProvider: TrackUiDataProvider,
     private val appBarUiDataProvider: HomeAppBarUiDataProvider,
     private val mediaRepository: MediaRepository,
-) : ViewModel() {
+) : ViewModel(),
+    AppErrorSource by AppErrorSourceImpl() {
     private val _state = MutableStateFlow(TrackUiState())
     val state = _state.asStateFlow()
     private var sideEffectJob: Job? = null
@@ -140,6 +145,8 @@ class TrackViewModel(
                     .collect { status ->
                         Napier.d(tag = TAG) { "cancelLastAndRegisterUiSideEffect: sync status $status" }
                         _isRefreshing.value = status.isLoading()
+
+                        submitErrorOfSyncStatus(status)
                     }
             }
     }
@@ -148,8 +155,9 @@ class TrackViewModel(
 @Composable
 fun Track(
     modifier: Modifier = Modifier,
-    viewModel: TrackViewModel = koinViewModel(),
     navigator: RootNavigator = LocalRootNavigator.current,
+    errorHandler: ErrorHandler = LocalErrorHandler.current,
+    viewModel: TrackViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()

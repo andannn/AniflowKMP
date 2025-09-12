@@ -64,6 +64,12 @@ import me.andannn.aniflow.ui.widget.DefaultAppBar
 import me.andannn.aniflow.ui.widget.MediaPreviewItem
 import me.andannn.aniflow.ui.widget.NewReleaseCard
 import me.andannn.aniflow.ui.widget.TitleWithContent
+import me.andannn.aniflow.util.AppErrorSource
+import me.andannn.aniflow.util.AppErrorSourceImpl
+import me.andannn.aniflow.util.ErrorHandleSideEffect
+import me.andannn.aniflow.util.ErrorHandler
+import me.andannn.aniflow.util.LocalErrorHandler
+import me.andannn.aniflow.util.submitErrorOfSyncStatus
 import org.koin.compose.viewmodel.koinViewModel
 
 private const val TAG = "Discover"
@@ -73,7 +79,8 @@ class DiscoverViewModel(
     private val appbarDataProvider: HomeAppBarUiDataProvider,
     private val authRepository: AuthRepository,
     private val mediaRepository: MediaRepository,
-) : ViewModel() {
+) : ViewModel(),
+    AppErrorSource by AppErrorSourceImpl() {
     private val _state = MutableStateFlow(DiscoverUiState.Empty)
     val state = _state.asStateFlow()
     private val _isRefreshing = MutableStateFlow(false)
@@ -122,6 +129,8 @@ class DiscoverViewModel(
                 discoverDataProvider.discoverUiSideEffect(force).collect { status ->
                     Napier.d(tag = TAG) { "cancelLastAndRegisterUiSideEffect: sync status $status" }
                     _isRefreshing.value = status.isLoading()
+
+                    submitErrorOfSyncStatus(status)
                 }
             }
     }
@@ -159,6 +168,8 @@ fun Discover(
         },
         modifier = modifier,
     )
+
+    ErrorHandleSideEffect(discoverViewModel)
 }
 
 @OptIn(

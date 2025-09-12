@@ -54,6 +54,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.ToggleButton
@@ -123,6 +124,7 @@ import me.andannn.aniflow.ui.widget.SelectOptionBottomSheet
 import me.andannn.aniflow.ui.widget.TitleWithContent
 import me.andannn.aniflow.ui.widget.fullLinePagingItems
 import me.andannn.aniflow.ui.widget.pagingItems
+import me.andannn.aniflow.util.rememberSnackBarHostState
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import kotlin.time.Clock
@@ -582,6 +584,7 @@ private fun SearchContent(
 ) {
     Scaffold(
         modifier = modifier,
+        snackbarHost = { SnackbarHost(rememberSnackBarHostState()) },
         topBar = {
             TopAppBar(
                 title = {

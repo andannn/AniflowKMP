@@ -21,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MediumFlexibleTopAppBar
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
@@ -50,6 +51,7 @@ import me.andannn.aniflow.data.paging.NotificationPageComponent
 import me.andannn.aniflow.data.paging.PageComponent
 import me.andannn.aniflow.ui.widget.NotificationItem
 import me.andannn.aniflow.ui.widget.VerticalListPaging
+import me.andannn.aniflow.util.rememberSnackBarHostState
 import org.koin.compose.viewmodel.koinViewModel
 
 private const val TAG = "Notification"
@@ -101,6 +103,7 @@ fun Notification(
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        snackbarHost = { SnackbarHost(rememberSnackBarHostState()) },
         topBar = {
             MediumFlexibleTopAppBar(
                 scrollBehavior = scrollBehavior,
