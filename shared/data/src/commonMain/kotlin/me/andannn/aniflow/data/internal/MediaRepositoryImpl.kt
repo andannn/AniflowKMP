@@ -312,6 +312,8 @@ private suspend fun fetchAllMediaList(
     val acc = mutableListOf<MediaList>()
     var page = 1
 
+    var pageCount = 0
+
     do {
         val res =
             service.getMediaListPage(
@@ -323,7 +325,8 @@ private suspend fun fetchAllMediaList(
                 format = ScoreFormat.POINT_10_DECIMAL,
             )
         acc += res.items
-    } while (res.pageInfo?.hasNextPage == true)
+        pageCount++
+    } while (res.pageInfo?.hasNextPage == true && pageCount <= 5)
 
     return acc
 }

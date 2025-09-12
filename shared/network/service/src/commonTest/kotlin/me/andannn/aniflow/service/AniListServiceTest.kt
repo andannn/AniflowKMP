@@ -37,7 +37,7 @@ class AniListServiceTest {
     private val serviceWithDummyToken: AniListService =
         AniListService(
             engine = MockHttpClientEngine,
-            tokenProvider = DummyTokenProvider,
+            tokenProvider = DummyTokenProvider(),
         )
 
     @Test
@@ -274,9 +274,4 @@ class AniListServiceTest {
 private val NoneTokenProvider =
     object : TokenProvider {
         override suspend fun getAccessToken(): String? = null
-    }
-
-private val DummyTokenProvider =
-    object : TokenProvider {
-        override suspend fun getAccessToken(): String? = "DummyAccessToken"
     }

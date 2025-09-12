@@ -7,10 +7,15 @@ package me.andannn.network.engine
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.MockRequestHandleScope
 import io.ktor.client.engine.mock.respond
+import io.ktor.client.engine.mock.respondError
 import io.ktor.client.request.HttpResponseData
 import io.ktor.content.TextContent
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
+import io.ktor.http.withCharset
+import io.ktor.utils.io.charsets.Charsets
 import kotlinx.serialization.json.Json
 import me.andannn.network.common.GraphQLBody
 import me.andannn.network.common.schemas.ACTIVITY_PAGE_QUERY_SCHEMA
@@ -77,6 +82,7 @@ val MockHttpClientEngine =
                             }
 
                             MEDIA_PAGE_QUERY_SCHEMA -> {
+//                                respondAniListError()
                                 respondString(MEDIA_PAGE_DATA)
                             }
 
@@ -186,4 +192,34 @@ private fun MockRequestHandleScope.respondUnAuthed(): HttpResponseData =
         content = UNAUTHORIZED_ERROR,
         status = HttpStatusCode.Unauthorized,
         headers = headersOf("Content-Type" to listOf("application/json")),
+    )
+
+private fun MockRequestHandleScope.respondAniListError(): HttpResponseData =
+    respondError(
+        status = HttpStatusCode.BadRequest,
+        headers =
+            headersOf(
+                HttpHeaders.ContentType,
+                ContentType.Application.Json
+                    .withCharset(Charsets.UTF_8)
+                    .toString(),
+            ),
+        content =
+            """
+            {
+              "data": null,
+              "errors": [
+                {
+                  "message": "Some Error From Server.",
+                  "status": 400,
+                  "locations": [
+                    {
+                      "line": 4,
+                      "column": 5
+                    }
+                  ]
+                }
+              ]
+            }
+            """.trimIndent(),
     )

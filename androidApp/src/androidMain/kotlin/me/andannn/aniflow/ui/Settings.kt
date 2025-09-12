@@ -22,6 +22,7 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumFlexibleTopAppBar
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -38,13 +39,18 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.AuthRepository
+import me.andannn.aniflow.data.ErrorChannel
 import me.andannn.aniflow.data.SettingUiDataProvider
+import me.andannn.aniflow.data.buildErrorChannel
 import me.andannn.aniflow.data.model.SettingItem
 import me.andannn.aniflow.data.model.SettingOption
 import me.andannn.aniflow.data.model.SettingUiState
+import me.andannn.aniflow.data.submitErrorOfSyncStatus
 import me.andannn.aniflow.ui.theme.ShapeHelper
+import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.LocalResultStore
 import me.andannn.aniflow.util.ResultStore
+import me.andannn.aniflow.util.rememberSnackBarHostState
 import org.koin.compose.viewmodel.koinViewModel
 
 private const val TAG = "Settings"
@@ -52,7 +58,8 @@ private const val TAG = "Settings"
 class SettingsViewModel(
     private val settingUiDataProvider: SettingUiDataProvider,
     private val authRepository: AuthRepository,
-) : ViewModel() {
+) : ViewModel(),
+    ErrorChannel by buildErrorChannel() {
     val state =
         settingUiDataProvider.settingUiDataFlow().stateIn(
             scope = viewModelScope,
@@ -67,6 +74,8 @@ class SettingsViewModel(
             settingUiDataProvider.settingUiSideEffect(forceRefreshFirstTime = true).collect {
                 // Handle side effects if needed
                 Napier.d(tag = TAG) { "Received side effect: $it" }
+
+                submitErrorOfSyncStatus(it)
             }
         }
     }
@@ -97,6 +106,8 @@ class SettingsViewModel(
             }
         if (error != null) {
             Napier.e(tag = TAG) { "Failed to update setting: $error. option $option" }
+
+            submitError(error)
         }
     }
 }
@@ -117,6 +128,8 @@ fun Settings(
             router.navigateTo(Screen.Dialog.SettingOption(settingItem))
         },
     )
+
+    ErrorHandleSideEffect(settingsViewModel)
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -130,6 +143,7 @@ private fun SettingsContent(
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        snackbarHost = { SnackbarHost(rememberSnackBarHostState()) },
         topBar = {
             val colors =
                 TopAppBarDefaults.topAppBarColors(

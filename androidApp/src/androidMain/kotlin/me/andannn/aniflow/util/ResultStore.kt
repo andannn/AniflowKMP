@@ -10,7 +10,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.runtime.navEntryDecorator
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.suspendCancellableCoroutine
 import me.andannn.aniflow.ui.Screen
 import kotlin.coroutines.Continuation
@@ -20,7 +19,15 @@ import kotlin.coroutines.resumeWithException
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 
-const val TAG = "ResultStore"
+val LocalScreenResultEmitter =
+    androidx.compose.runtime.staticCompositionLocalOf<ScreenResultEmitter> {
+        error("No RootNavigator provided")
+    }
+
+val LocalResultStore =
+    androidx.compose.runtime.staticCompositionLocalOf<ResultStore> {
+        error("No RootNavigator provided")
+    }
 
 class ResultStore {
     @VisibleForTesting
@@ -51,7 +58,6 @@ class ResultStore {
         screen: Screen,
         value: T,
     ) {
-        Napier.d(tag = TAG) { "emit $screen value $value" }
         val cont =
             continuationList
                 .firstOrNull { it.screen == screen }
@@ -89,11 +95,6 @@ class ResultStore {
     )
 }
 
-val LocalResultStore =
-    androidx.compose.runtime.staticCompositionLocalOf<ResultStore> {
-        error("No RootNavigator provided")
-    }
-
 class ScreenResultEmitter(
     val screen: Screen,
     val resultStore: ResultStore,
@@ -102,11 +103,6 @@ class ScreenResultEmitter(
         resultStore.emit(screen, value)
     }
 }
-
-val LocalScreenResultEmitter =
-    androidx.compose.runtime.staticCompositionLocalOf<ScreenResultEmitter> {
-        error("No RootNavigator provided")
-    }
 
 @Composable
 fun rememberResultStoreNavEntryDecorator(resultStore: ResultStore = LocalResultStore.current): NavEntryDecorator<Any> =

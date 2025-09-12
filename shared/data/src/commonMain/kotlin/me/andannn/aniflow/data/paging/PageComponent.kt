@@ -4,55 +4,19 @@
  */
 package me.andannn.aniflow.data.paging
 
-import com.rickclephas.kmp.nativecoroutines.NativeCoroutines
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.AppError
+import me.andannn.aniflow.data.AppErrorHandler
+import me.andannn.aniflow.data.LoadingStatus
+import me.andannn.aniflow.data.PageComponent
 import me.andannn.aniflow.data.model.Page
 import me.andannn.aniflow.data.model.PageInfo
-
-sealed interface LoadingStatus {
-    data object Idle : LoadingStatus
-
-    data object AllLoaded : LoadingStatus
-
-    data object Loading : LoadingStatus
-
-    data class Error(
-        val error: AppError,
-    ) : LoadingStatus
-}
-
-interface PageComponent<T> {
-    @NativeCoroutines
-    val items: StateFlow<List<T>>
-
-    @NativeCoroutines
-    val status: StateFlow<LoadingStatus>
-
-    fun loadNextPage()
-
-    /**
-     * Disposes the component and cancels any ongoing operations.
-     * This should be called when the component is no longer needed
-     */
-    fun dispose()
-}
-
-object EmptyPageComponent : PageComponent<Nothing> {
-    override val items: StateFlow<List<Nothing>> = MutableStateFlow(emptyList())
-    override val status: StateFlow<LoadingStatus> = MutableStateFlow(LoadingStatus.Idle)
-
-    override fun loadNextPage() {}
-
-    override fun dispose() {}
-}
 
 val DEFAULT_CONFIG =
     PageConfig(
@@ -68,6 +32,7 @@ private const val TAG = "PageComponent"
 internal class DefaultPageComponent<T>(
     private val config: PageConfig,
     private val onLoadPage: suspend (page: Int, perPage: Int) -> Pair<Page<T>, AppError?>,
+    private val errorHandler: AppErrorHandler? = null,
 ) : PageComponent<T>,
     CoroutineScope {
     init {
@@ -121,6 +86,8 @@ internal class DefaultPageComponent<T>(
         val (page, error) = onLoadPage(page, config.perPage)
         if (error != null) {
             status.value = LoadingStatus.Error(error)
+
+            errorHandler?.submitError(error)
             return
         }
 

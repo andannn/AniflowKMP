@@ -30,8 +30,8 @@ import androidx.compose.ui.layout.onVisibilityChanged
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.aakira.napier.Napier
-import me.andannn.aniflow.data.paging.LoadingStatus
-import me.andannn.aniflow.data.paging.PageComponent
+import me.andannn.aniflow.data.LoadingStatus
+import me.andannn.aniflow.data.PageComponent
 
 private const val TAG = "PagingView"
 

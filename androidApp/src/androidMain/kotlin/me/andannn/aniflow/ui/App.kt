@@ -18,6 +18,7 @@ import androidx.navigation3.ui.DialogSceneStrategy.Companion.dialog
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.SinglePaneSceneStrategy
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
+import me.andannn.aniflow.util.rememberErrorHandlerNavEntryDecorator
 import me.andannn.aniflow.util.rememberResultStoreNavEntryDecorator
 
 @Composable
@@ -35,6 +36,7 @@ fun App(navigator: RootNavigator) {
                     rememberSavedStateNavEntryDecorator(),
                     rememberViewModelStoreNavEntryDecorator(),
                     rememberResultStoreNavEntryDecorator(),
+                    rememberErrorHandlerNavEntryDecorator(),
                 ),
             entryProvider =
                 entryProvider {
