@@ -8,6 +8,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":shared:datastore"))
+            implementation(project(":shared:network:engine-mock"))
             implementation(project(":shared:network:common"))
             api(libs.ktor.client.core)
             implementation(libs.ktor.client.logging)

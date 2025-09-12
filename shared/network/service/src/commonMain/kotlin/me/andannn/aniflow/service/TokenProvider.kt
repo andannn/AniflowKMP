@@ -12,3 +12,7 @@ interface TokenProvider {
      */
     suspend fun getAccessToken(): String?
 }
+
+internal class DummyTokenProvider : TokenProvider {
+    override suspend fun getAccessToken(): String? = "DummyAccessToken"
+}

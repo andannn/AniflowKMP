@@ -76,6 +76,7 @@ import me.andannn.aniflow.service.request.SearchStudioQuery
 import me.andannn.aniflow.service.request.ToggleFavoriteMutation
 import me.andannn.aniflow.service.request.UpdateUserSettingMutation
 import me.andannn.aniflow.service.request.toQueryBody
+import me.andannn.network.engine.MockHttpClientEngine
 
 open class ServerException(
     override val message: String,
@@ -96,8 +97,8 @@ class TokenExpiredException(
 /**
  * Service for interacting with AniList GraphQL API.
  */
-class AniListService(
-    engine: HttpClientEngine = PlatformHttpClientEngine,
+class AniListService constructor(
+    engine: HttpClientEngine,
     tokenProvider: TokenProvider,
 ) {
     private val client =
