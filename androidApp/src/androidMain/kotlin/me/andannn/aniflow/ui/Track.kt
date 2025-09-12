@@ -45,6 +45,7 @@ import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.TrackUiState
 import me.andannn.aniflow.data.model.define.MediaContentMode
 import me.andannn.aniflow.data.model.define.MediaListStatus
+import me.andannn.aniflow.ui.theme.ShapeHelper
 import me.andannn.aniflow.ui.widget.CustomPullToRefresh
 import me.andannn.aniflow.ui.widget.DefaultAppBar
 import me.andannn.aniflow.ui.widget.MediaRowItem
@@ -240,7 +241,7 @@ fun TrackContent(
                             Column {
                                 MediaRowItem(
                                     item = item,
-                                    shape = listItemShape(isFirst, isLast),
+                                    shape = ShapeHelper.listItemShape(isFirst, isLast),
                                     titleMaxLines = Int.MAX_VALUE,
                                     userTitleLanguage = state.userOptions.titleLanguage,
                                     onClick = {
@@ -260,45 +261,5 @@ fun TrackContent(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun listItemShape(
-    isFirst: Boolean,
-    isLast: Boolean,
-): RoundedCornerShape {
-    val isSingle: Boolean = isFirst && isLast
-    val edgeConerSize = MaterialTheme.shapes.large.topEnd
-    val middleConerSize = MaterialTheme.shapes.extraSmall.topStart
-
-    return if (isSingle) {
-        RoundedCornerShape(
-            topStart = edgeConerSize,
-            topEnd = edgeConerSize,
-            bottomStart = edgeConerSize,
-            bottomEnd = edgeConerSize,
-        )
-    } else if (isFirst) {
-        RoundedCornerShape(
-            topStart = edgeConerSize,
-            topEnd = edgeConerSize,
-            bottomStart = middleConerSize,
-            bottomEnd = middleConerSize,
-        )
-    } else if (isLast) {
-        RoundedCornerShape(
-            topStart = middleConerSize,
-            topEnd = middleConerSize,
-            bottomStart = edgeConerSize,
-            bottomEnd = edgeConerSize,
-        )
-    } else {
-        RoundedCornerShape(
-            topStart = middleConerSize,
-            topEnd = middleConerSize,
-            bottomStart = middleConerSize,
-            bottomEnd = middleConerSize,
-        )
     }
 }

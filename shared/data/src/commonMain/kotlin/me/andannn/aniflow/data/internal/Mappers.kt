@@ -32,6 +32,7 @@ import me.andannn.aniflow.data.model.define.MediaType
 import me.andannn.aniflow.data.model.define.StringKeyEnum
 import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
+import me.andannn.aniflow.data.model.define.deserialize
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelationWithUpdateLog
@@ -85,6 +86,20 @@ internal fun MediaType.toServiceType() =
     when (this) {
         MediaType.ANIME -> me.andannn.aniflow.service.dto.enums.MediaType.ANIME
         MediaType.MANGA -> me.andannn.aniflow.service.dto.enums.MediaType.MANGA
+    }
+
+internal fun UserStaffNameLanguage.toServiceType() =
+    when (this) {
+        UserStaffNameLanguage.NATIVE -> me.andannn.aniflow.service.dto.enums.UserStaffNameLanguage.NATIVE
+        UserStaffNameLanguage.ROMAJI -> me.andannn.aniflow.service.dto.enums.UserStaffNameLanguage.ROMAJI
+        UserStaffNameLanguage.ROMAJI_WESTERN -> me.andannn.aniflow.service.dto.enums.UserStaffNameLanguage.ROMAJI_WESTERN
+    }
+
+internal fun UserTitleLanguage.toServiceType() =
+    when (this) {
+        UserTitleLanguage.ROMAJI -> me.andannn.aniflow.service.dto.enums.UserTitleLanguage.ROMAJI
+        UserTitleLanguage.ENGLISH -> me.andannn.aniflow.service.dto.enums.UserTitleLanguage.ENGLISH
+        UserTitleLanguage.NATIVE -> me.andannn.aniflow.service.dto.enums.UserTitleLanguage.NATIVE
     }
 
 internal fun me.andannn.aniflow.service.dto.enums.MediaType.toDomainType() =
@@ -258,7 +273,7 @@ internal fun Media.toEntity() =
 internal fun MediaEntity.toDomain() =
     MediaModel(
         id = id,
-        type = mediaType?.let { StringKeyEnum.deserialize(it) },
+        type = mediaType?.deserialize(),
         title =
             Title(
                 english = englishTitle,
@@ -267,13 +282,13 @@ internal fun MediaEntity.toDomain() =
             ),
         coverImage = coverImageExtraLarge ?: coverImageLarge ?: coverImageMedium,
         description = description,
-        source = source?.let { StringKeyEnum.deserialize(it) },
-        status = status?.let { StringKeyEnum.deserialize(it) },
-        format = format?.let { StringKeyEnum.deserialize(it) },
+        source = source?.deserialize(),
+        status = status?.deserialize(),
+        format = format?.deserialize(),
         bannerImage = bannerImage,
         averageScore = averageScore?.toInt(),
         favourites = favourites?.toInt(),
-        season = season?.let { StringKeyEnum.deserialize(it) },
+        season = season?.deserialize(),
         seasonYear = seasonYear?.toInt(),
         episodes = episodes?.toInt(),
         ratedRank = ratedRanking?.toInt(),
@@ -383,7 +398,7 @@ internal fun MediaList.toEntity(mediaId: String) =
 internal fun MediaListEntity.toDomain() =
     MediaListModel(
         id = mediaListId,
-        status = listStatus?.let { StringKeyEnum.deserialize(it) },
+        status = listStatus?.deserialize(),
         progress = progress?.toInt(),
         notes = notes,
         repeat = repeat?.toInt(),

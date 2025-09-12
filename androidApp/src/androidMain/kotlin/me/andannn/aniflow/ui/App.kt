@@ -18,6 +18,7 @@ import androidx.navigation3.ui.DialogSceneStrategy.Companion.dialog
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.SinglePaneSceneStrategy
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
+import me.andannn.aniflow.util.rememberResultStoreNavEntryDecorator
 
 @Composable
 fun App(navigator: RootNavigator) {
@@ -33,31 +34,44 @@ fun App(navigator: RootNavigator) {
                     rememberSceneSetupNavEntryDecorator(),
                     rememberSavedStateNavEntryDecorator(),
                     rememberViewModelStoreNavEntryDecorator(),
+                    rememberResultStoreNavEntryDecorator(),
                 ),
             entryProvider =
                 entryProvider {
-                    entry<Screen.Home> {
+                    entry<Screen.Home>(clazzContentKey = { it.toJson() }) {
                         Home()
                     }
 
-                    entry<Screen.MediaCategoryList> {
+                    entry<Screen.MediaCategoryList>(clazzContentKey = { it.toJson() }) {
                         MediaCategoryPaging(
                             category = it.category,
                         )
                     }
 
-                    entry<Screen.Notification> {
+                    entry<Screen.Notification>(clazzContentKey = { it.toJson() }) {
                         Notification()
                     }
 
-                    entry(Screen.Search) {
+                    entry<Screen.Search>(clazzContentKey = { it.toJson() }) {
                         Search()
+                    }
+
+                    entry<Screen.Settings>(clazzContentKey = { it.toJson() }) {
+                        Settings()
                     }
 
                     entry<Screen.Dialog.Login>(
                         metadata = dialog(),
+                        clazzContentKey = { it.toJson() },
                     ) {
                         LoginDialog()
+                    }
+
+                    entry<Screen.Dialog.SettingOption>(
+                        metadata = dialog(),
+                        clazzContentKey = { it.toJson() },
+                    ) {
+                        SettingOptionDialog(it.settingItem)
                     }
                 },
         )

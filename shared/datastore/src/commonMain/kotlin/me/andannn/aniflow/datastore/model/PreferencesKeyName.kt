@@ -16,4 +16,6 @@ object PreferencesKeyName {
     const val STAFF_NAME_LANGUAGE_KEY_NAME = "staff_name_language"
 
     const val SENT_NOTIFICATION_ID_KEY_NAME = "sent_notification_id"
+
+    const val APP_THEME_KEY_NAME = "app_theme"
 }

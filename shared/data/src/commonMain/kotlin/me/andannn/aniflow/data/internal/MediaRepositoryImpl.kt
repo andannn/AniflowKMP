@@ -30,6 +30,7 @@ import me.andannn.aniflow.data.model.define.MediaStatus
 import me.andannn.aniflow.data.model.define.MediaType
 import me.andannn.aniflow.data.model.define.NotificationCategory
 import me.andannn.aniflow.data.model.define.StringKeyEnum
+import me.andannn.aniflow.data.model.define.deserialize
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.data.util.MediaListModificationSyncer
@@ -81,11 +82,7 @@ internal class MediaRepositoryImpl(
         userPreference.userData
             .map { it.contentMode }
             .map { modeString ->
-                if (modeString == null) {
-                    MediaContentMode.ANIME
-                } else {
-                    StringKeyEnum.deserialize(modeString)
-                }
+                modeString?.deserialize() ?: MediaContentMode.ANIME
             }.distinctUntilChanged()
 
     override suspend fun setContentMode(mode: MediaContentMode) {

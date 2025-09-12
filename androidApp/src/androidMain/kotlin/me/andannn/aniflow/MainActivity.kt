@@ -7,30 +7,46 @@ package me.andannn.aniflow
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation3.runtime.rememberNavBackStack
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.launch
+import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.BrowserAuthOperationHandler
+import me.andannn.aniflow.data.model.UserOptions
+import me.andannn.aniflow.data.model.define.Theme
 import me.andannn.aniflow.platform.BrowserAuthOperationHandlerImpl
 import me.andannn.aniflow.ui.App
 import me.andannn.aniflow.ui.DeepLinkHelper
+import me.andannn.aniflow.ui.LocalRootNavigator
 import me.andannn.aniflow.ui.RootNavigator
 import me.andannn.aniflow.ui.Screen
 import me.andannn.aniflow.ui.theme.AniflowTheme
+import me.andannn.aniflow.util.LocalResultStore
+import me.andannn.aniflow.util.ResultStore
 import me.andannn.aniflow.worker.SyncWorkHelper
 import org.koin.android.ext.android.getKoin
+import org.koin.compose.getKoin
 
 private val runTimePermissions =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -46,11 +62,29 @@ class MainActivity : ComponentActivity() {
         getKoin().get<BrowserAuthOperationHandler>() as BrowserAuthOperationHandlerImpl
     }
 
+    private val authRepository: AuthRepository by lazy { getKoin().get() }
+
     private val paddingDeepLinkNavigationScreen = mutableStateOf<Screen?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         browserAuthOperationHandler.setUpContext(this)
-        enableEdgeToEdge()
+        lifecycleScope.launch {
+            authRepository.getUserOptionsFlow().collect { option ->
+                when (option.appTheme) {
+                    Theme.DARK -> enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(scrim = Color.TRANSPARENT))
+                    Theme.LIGHT ->
+                        enableEdgeToEdge(
+                            statusBarStyle =
+                                SystemBarStyle.light(
+                                    scrim = Color.TRANSPARENT,
+                                    darkScrim = Color.TRANSPARENT,
+                                ),
+                        )
+
+                    else -> enableEdgeToEdge()
+                }
+            }
+        }
 
         // Ensure the periodic sync worker is registered
         SyncWorkHelper.registerPeriodicSyncWork(this)
@@ -91,17 +125,31 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            AniflowTheme {
-                val backStack = rememberNavBackStack<Screen>(Screen.Home)
-                val navigator = remember(backStack) { RootNavigator(backStack) }
+            val appTheme = rememberAppThemeSetting()
+            if (appTheme != null) {
+                val isDarkMode =
+                    when (appTheme) {
+                        Theme.SYSTEM -> isSystemInDarkTheme()
+                        Theme.LIGHT -> false
+                        Theme.DARK -> true
+                    }
+                AniflowTheme(isDarkTheme = isDarkMode) {
+                    val backStack = rememberNavBackStack<Screen>(Screen.Home)
+                    val navigator = remember(backStack) { RootNavigator(backStack) }
 
-                LaunchedEffect(paddingDeepLinkNavigationScreen.value) {
-                    paddingDeepLinkNavigationScreen.value?.let {
-                        navigator.navigateTo(it)
-                        paddingDeepLinkNavigationScreen.value = null
+                    LaunchedEffect(paddingDeepLinkNavigationScreen.value) {
+                        paddingDeepLinkNavigationScreen.value?.let {
+                            navigator.navigateTo(it)
+                            paddingDeepLinkNavigationScreen.value = null
+                        }
+                    }
+                    val resultStore = remember { ResultStore() }
+                    CompositionLocalProvider(
+                        LocalResultStore provides resultStore,
+                    ) {
+                        App(navigator)
                     }
                 }
-                App(navigator)
             }
         }
     }
@@ -135,4 +183,10 @@ class MainActivity : ComponentActivity() {
         }
         return true
     }
+}
+
+@Composable
+private fun rememberAppThemeSetting(authRepository: AuthRepository = getKoin().get()): Theme? {
+    val option = authRepository.getUserOptionsFlow().collectAsState(UserOptions())
+    return option.value.appTheme
 }

@@ -9,6 +9,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialExpressiveTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -32,21 +33,65 @@ private val LightColorScheme =
         primary = Purple40,
         secondary = PurpleGrey40,
         tertiary = Pink40,
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-     */
+        /* Other default colors to override
+        background = Color(0xFFFFFBFE),
+        surface = Color(0xFFFFFBFE),
+        onPrimary = Color.White,
+        onSecondary = Color.White,
+        onTertiary = Color.White,
+        onBackground = Color(0xFF1C1B1F),
+        onSurface = Color(0xFF1C1B1F),
+         */
     )
+
+object ShapeHelper {
+    @Composable
+    fun listItemShape(
+        isFirst: Boolean,
+        isLast: Boolean,
+    ): RoundedCornerShape {
+        val isSingle: Boolean = isFirst && isLast
+        val edgeConerSize = MaterialTheme.shapes.large.topEnd
+        val middleConerSize = MaterialTheme.shapes.extraSmall.topStart
+
+        return if (isSingle) {
+            RoundedCornerShape(
+                topStart = edgeConerSize,
+                topEnd = edgeConerSize,
+                bottomStart = edgeConerSize,
+                bottomEnd = edgeConerSize,
+            )
+        } else if (isFirst) {
+            RoundedCornerShape(
+                topStart = edgeConerSize,
+                topEnd = edgeConerSize,
+                bottomStart = middleConerSize,
+                bottomEnd = middleConerSize,
+            )
+        } else if (isLast) {
+            RoundedCornerShape(
+                topStart = middleConerSize,
+                topEnd = middleConerSize,
+                bottomStart = edgeConerSize,
+                bottomEnd = edgeConerSize,
+            )
+        } else {
+            RoundedCornerShape(
+                topStart = middleConerSize,
+                topEnd = middleConerSize,
+                bottomStart = middleConerSize,
+                bottomEnd = middleConerSize,
+            )
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun AniflowTheme(content: @Composable () -> Unit) {
-    val isDarkTheme = isSystemInDarkTheme()
+fun AniflowTheme(
+    isDarkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit,
+) {
     val supportsDynamicColor = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
     val darkColorScheme = darkColorScheme(primary = Color(0xFF66ffc7))
@@ -56,9 +101,11 @@ fun AniflowTheme(content: @Composable () -> Unit) {
             supportsDynamicColor && isDarkTheme -> {
                 dynamicDarkColorScheme(LocalContext.current)
             }
+
             supportsDynamicColor && !isDarkTheme -> {
                 dynamicLightColorScheme(LocalContext.current)
             }
+
             isDarkTheme -> darkColorScheme
             else -> expressiveLightColorScheme()
         }

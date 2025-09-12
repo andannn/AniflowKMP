@@ -22,8 +22,12 @@ import me.andannn.aniflow.data.internal.exceptions.toError
 import me.andannn.aniflow.data.model.UserModel
 import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.StringKeyEnum
+import me.andannn.aniflow.data.model.define.Theme
 import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
+import me.andannn.aniflow.data.model.define.deserialize
+import me.andannn.aniflow.data.util.UserSettingSyncer
+import me.andannn.aniflow.data.util.postMutationAndRevertWhenException
 import me.andannn.aniflow.database.MediaLibraryDao
 import me.andannn.aniflow.database.schema.UserEntity
 import me.andannn.aniflow.datastore.UserSettingPreferences
@@ -100,11 +104,13 @@ internal class AuthRepositoryImpl(
             .map {
                 UserOptions(
                     titleLanguage =
-                        it.titleLanguage?.let { StringKeyEnum.deserialize(it) }
+                        it.titleLanguage?.deserialize()
                             ?: UserTitleLanguage.Default,
                     staffNameLanguage =
-                        it.staffNameLanguage?.let { StringKeyEnum.deserialize(it) }
+                        it.staffNameLanguage?.deserialize()
                             ?: UserStaffNameLanguage.Default,
+                    appTheme =
+                        it.appTheme?.deserialize(),
                 )
             }.distinctUntilChanged()
 
@@ -112,6 +118,25 @@ internal class AuthRepositoryImpl(
         userPref.setAuthedUserId(null)
         userPref.clearAuthToken()
     }
+
+    override suspend fun updateUserSettings(
+        titleLanguage: UserTitleLanguage?,
+        staffCharacterNameLanguage: UserStaffNameLanguage?,
+        appTheme: Theme?,
+    ): AppError? =
+        UserSettingSyncer().postMutationAndRevertWhenException { old ->
+            var new = old
+            if (titleLanguage != null) {
+                new = new.copy(userTitleLanguage = titleLanguage)
+            }
+            if (staffCharacterNameLanguage != null) {
+                new = new.copy(userStaffNameLanguage = staffCharacterNameLanguage)
+            }
+            if (appTheme != null) {
+                new = new.copy(appTheme = appTheme)
+            }
+            new
+        }
 
     private suspend fun BrowserAuthOperationHandler.awaitAuthResult() =
         suspendCancellableCoroutine { cont ->

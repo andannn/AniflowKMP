@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -100,6 +101,10 @@ fun LoginDialog(
             navigator.popBackStack()
             navigator.navigateTo(Screen.Notification)
         },
+        onSettingClick = {
+            navigator.popBackStack()
+            navigator.navigateTo(Screen.Settings)
+        },
     )
 }
 
@@ -109,6 +114,7 @@ fun LoginDialogContent(
     onLoginClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onNotificationClick: () -> Unit,
+    onSettingClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val authedUser = state.authedUser
@@ -169,6 +175,21 @@ fun LoginDialogContent(
                         },
                         headlineContent = {
                             Text("Notification")
+                        },
+                    )
+                }
+                Surface(
+                    onClick = onSettingClick,
+                ) {
+                    ListItem(
+                        leadingContent = {
+                            Icon(
+                                imageVector = Icons.Outlined.Settings,
+                                contentDescription = null,
+                            )
+                        },
+                        headlineContent = {
+                            Text("Settings")
                         },
                     )
                 }
