@@ -22,7 +22,7 @@ public data class UserOptions constructor(
     /**
      * Whether the user wants to see adult content
      */
-    val appTheme: Theme? = null,
+    val appTheme: Theme = Theme.SYSTEM,
 ) {
     companion object {
         val Default = UserOptions()

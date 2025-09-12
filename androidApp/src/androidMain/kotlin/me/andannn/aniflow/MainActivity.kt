@@ -126,29 +126,27 @@ class MainActivity : ComponentActivity() {
             }
 
             val appTheme = rememberAppThemeSetting()
-            if (appTheme != null) {
-                val isDarkMode =
-                    when (appTheme) {
-                        Theme.SYSTEM -> isSystemInDarkTheme()
-                        Theme.LIGHT -> false
-                        Theme.DARK -> true
-                    }
-                AniflowTheme(isDarkTheme = isDarkMode) {
-                    val backStack = rememberNavBackStack<Screen>(Screen.Home)
-                    val navigator = remember(backStack) { RootNavigator(backStack) }
+            val isDarkMode =
+                when (appTheme) {
+                    Theme.SYSTEM -> isSystemInDarkTheme()
+                    Theme.LIGHT -> false
+                    Theme.DARK -> true
+                }
+            AniflowTheme(isDarkTheme = isDarkMode) {
+                val backStack = rememberNavBackStack<Screen>(Screen.Home)
+                val navigator = remember(backStack) { RootNavigator(backStack) }
 
-                    LaunchedEffect(paddingDeepLinkNavigationScreen.value) {
-                        paddingDeepLinkNavigationScreen.value?.let {
-                            navigator.navigateTo(it)
-                            paddingDeepLinkNavigationScreen.value = null
-                        }
+                LaunchedEffect(paddingDeepLinkNavigationScreen.value) {
+                    paddingDeepLinkNavigationScreen.value?.let {
+                        navigator.navigateTo(it)
+                        paddingDeepLinkNavigationScreen.value = null
                     }
-                    val resultStore = remember { ResultStore() }
-                    CompositionLocalProvider(
-                        LocalResultStore provides resultStore,
-                    ) {
-                        App(navigator)
-                    }
+                }
+                val resultStore = remember { ResultStore() }
+                CompositionLocalProvider(
+                    LocalResultStore provides resultStore,
+                ) {
+                    App(navigator)
                 }
             }
         }
@@ -186,7 +184,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun rememberAppThemeSetting(authRepository: AuthRepository = getKoin().get()): Theme? {
+private fun rememberAppThemeSetting(authRepository: AuthRepository = getKoin().get()): Theme {
     val option = authRepository.getUserOptionsFlow().collectAsState(UserOptions())
     return option.value.appTheme
 }

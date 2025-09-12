@@ -110,7 +110,7 @@ internal class AuthRepositoryImpl(
                         it.staffNameLanguage?.deserialize()
                             ?: UserStaffNameLanguage.Default,
                     appTheme =
-                        it.appTheme?.deserialize(),
+                        it.appTheme?.deserialize() ?: Theme.SYSTEM,
                 )
             }.distinctUntilChanged()
 
