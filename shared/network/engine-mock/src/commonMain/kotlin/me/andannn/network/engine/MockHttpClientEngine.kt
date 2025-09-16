@@ -82,8 +82,8 @@ val MockHttpClientEngine =
                             }
 
                             MEDIA_PAGE_QUERY_SCHEMA -> {
-                                respondAniListError()
-//                                respondString(MEDIA_PAGE_DATA)
+//                                respondAniListError()
+                                respondString(MEDIA_PAGE_DATA)
                             }
 
                             buildMediaDetailQuerySchema(withCharacterConnection = true) -> {
