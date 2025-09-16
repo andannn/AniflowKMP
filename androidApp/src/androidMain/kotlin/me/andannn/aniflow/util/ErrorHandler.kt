@@ -11,7 +11,6 @@ import androidx.compose.runtime.remember
 import io.github.aakira.napier.Napier
 import me.andannn.aniflow.data.AppError
 import me.andannn.aniflow.data.AppErrorSource
-import me.andannn.aniflow.util.SnackBarMessage.*
 
 private const val TAG = "ErrorHandler"
 
@@ -57,7 +56,7 @@ sealed interface ErrorHandleResult {
 
 private fun AppError.toAlert() =
     when (this) {
-        is AppError.ServerError -> ServerError(statusCode, message)
-        AppError.NetworkConnectionError -> NoNetWorkConnectionError
-        is AppError.OtherError -> FallBackRemoteError(message)
+        is AppError.ServerError -> SnackBarMessage.ServerError(statusCode, message)
+        AppError.NetworkConnectionError -> SnackBarMessage.NoNetWorkConnectionError
+        is AppError.OtherError -> SnackBarMessage.FallBackRemoteError(message)
     }

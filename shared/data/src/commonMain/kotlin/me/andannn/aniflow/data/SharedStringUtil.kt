@@ -137,7 +137,6 @@ fun SearchCategory.label() =
         SearchCategory.STUDIO -> "Studio"
     }
 
-
 fun Title?.getUserTitleString(titleLanguage: UserTitleLanguage?): String {
     titleLanguage ?: return ""
     val title = this ?: return ""
