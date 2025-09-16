@@ -14,8 +14,8 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.Json
 import me.andannn.aniflow.data.AuthRepository
-import me.andannn.aniflow.data.background.FetchNotificationTask
-import me.andannn.aniflow.data.background.SyncResult
+import me.andannn.aniflow.data.FetchNotificationTask
+import me.andannn.aniflow.data.SyncResult
 import me.andannn.aniflow.data.model.ActivityNotification
 import me.andannn.aniflow.data.model.AiringNotification
 import me.andannn.aniflow.data.model.FollowNotification

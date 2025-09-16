@@ -19,15 +19,14 @@ import me.andannn.aniflow.data.AppError
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.BrowserAuthOperationHandler
 import me.andannn.aniflow.data.internal.exceptions.toError
+import me.andannn.aniflow.data.internal.util.UserSettingSyncer
+import me.andannn.aniflow.data.internal.util.postMutationAndRevertWhenException
 import me.andannn.aniflow.data.model.UserModel
 import me.andannn.aniflow.data.model.UserOptions
-import me.andannn.aniflow.data.model.define.StringKeyEnum
 import me.andannn.aniflow.data.model.define.Theme
 import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import me.andannn.aniflow.data.model.define.deserialize
-import me.andannn.aniflow.data.util.UserSettingSyncer
-import me.andannn.aniflow.data.util.postMutationAndRevertWhenException
 import me.andannn.aniflow.database.MediaLibraryDao
 import me.andannn.aniflow.database.schema.UserEntity
 import me.andannn.aniflow.datastore.UserSettingPreferences

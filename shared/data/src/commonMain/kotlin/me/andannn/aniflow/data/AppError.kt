@@ -21,6 +21,8 @@ sealed class AppError(
         val statusCode: Int,
     ) : AppError(message)
 
+    data object NetworkConnectionError : AppError("No internet connection")
+
     data class OtherError(
         override val message: String,
     ) : AppError(message)

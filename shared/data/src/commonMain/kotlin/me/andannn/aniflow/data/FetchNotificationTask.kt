@@ -2,12 +2,10 @@
  * Copyright 2025, the AniflowKMP project contributors
  * SPDX-License-Identifier: Apache-2.0
  */
-package me.andannn.aniflow.data.background
+package me.andannn.aniflow.data
 
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.first
-import me.andannn.aniflow.data.AuthRepository
-import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.model.NotificationModel
 import me.andannn.aniflow.data.model.define.NotificationCategory
 import me.andannn.aniflow.datastore.UserSettingPreferences

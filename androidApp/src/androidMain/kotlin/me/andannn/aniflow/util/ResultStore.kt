@@ -24,6 +24,9 @@ val LocalScreenResultEmitter =
         error("No RootNavigator provided")
     }
 
+/**
+ * Provides a way to store and retrieve results from screens.
+ */
 val LocalResultStore =
     androidx.compose.runtime.staticCompositionLocalOf<ResultStore> {
         error("No RootNavigator provided")
@@ -84,7 +87,7 @@ class ResultStore {
             return
         }
 
-        cont.continuation.resumeWithException(CancellationException("Cancelled by user"))
+        cont.continuation.resumeWithException(CancellationException())
         continuationList.remove(cont)
     }
 

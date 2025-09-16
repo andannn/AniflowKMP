@@ -10,13 +10,19 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import me.andannn.aniflow.ui.Screen
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class ResultStoreTest {
     private val scope = TestScope()
-    private val resultStore = ResultStore()
+    private lateinit var resultStore: ResultStore
+
+    @BeforeTest
+    fun setup() {
+        resultStore = ResultStore()
+    }
 
     @Test
     fun testCancelResultStore() =

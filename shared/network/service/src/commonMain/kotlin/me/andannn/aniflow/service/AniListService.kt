@@ -23,7 +23,6 @@ import io.ktor.client.request.accept
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.utils.io.CancellationException
@@ -82,17 +81,27 @@ open class ServerException(
 ) : IllegalStateException(message)
 
 /**
- * Represents an error response from the AniList API.
+ * Represents an error response message from the AniList API.
  */
 class AniListServerException(
     val statusCode: Int,
     override val message: String,
 ) : ServerException(message)
 
-class UnauthorizedException(
+/**
+ * Token not provided or invalid.
+ *
+ * This exception is thrown when token is not set in [TokenProvider].
+ */
+class TokenNotFoundException(
     override val message: String,
 ) : ServerException(message)
 
+/**
+ * Token expired and refresh is not supported.
+ *
+ * This exception is thrown when the token is expired and refresh is attempted.
+ */
 class TokenExpiredException(
     override val message: String,
 ) : ServerException(message)
@@ -141,7 +150,7 @@ class AniListService constructor(
                                 accessToken = accessToken,
                                 refreshToken = null,
                             )
-                        } ?: throw UnauthorizedException("No access token available")
+                        } ?: throw TokenNotFoundException("No access token available")
                     }
 
                     refreshTokens {
@@ -164,7 +173,7 @@ class AniListService constructor(
     /**
      * Fetches the authenticated user's data.
      *
-     * @throws UnauthorizedException if no access token is available or the token is invalid.
+     * @throws TokenNotFoundException if no access token is available or the token is invalid.
      */
     suspend fun getAuthedUserData(): User = doGraphQlQuery(query = GetUserDataQuery).user
 
@@ -718,18 +727,10 @@ private suspend fun ResponseException.toAniListException(): ServerException {
         }
 
     return if (error != null) {
-        when (response.status) {
-            HttpStatusCode.Unauthorized -> {
-                UnauthorizedException(error.errors.first().message)
-            }
-
-            else -> {
-                AniListServerException(
-                    statusCode = response.status.value,
-                    error.errors.first().message,
-                )
-            }
-        }
+        AniListServerException(
+            statusCode = response.status.value,
+            error.errors.first().message,
+        )
     } else {
         ServerException(message.toString())
     }
