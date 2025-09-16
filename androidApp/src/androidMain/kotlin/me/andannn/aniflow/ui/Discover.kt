@@ -55,6 +55,7 @@ import me.andannn.aniflow.data.ErrorChannel
 import me.andannn.aniflow.data.HomeAppBarUiDataProvider
 import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.buildErrorChannel
+import me.andannn.aniflow.data.getUserTitleString
 import me.andannn.aniflow.data.model.DiscoverUiState
 import me.andannn.aniflow.data.model.HomeAppBarUiState
 import me.andannn.aniflow.data.model.MediaModel
@@ -64,7 +65,6 @@ import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.data.submitErrorOfSyncStatus
-import me.andannn.aniflow.data.util.getUserTitleString
 import me.andannn.aniflow.ui.widget.CustomPullToRefresh
 import me.andannn.aniflow.ui.widget.DefaultAppBar
 import me.andannn.aniflow.ui.widget.MediaPreviewItem

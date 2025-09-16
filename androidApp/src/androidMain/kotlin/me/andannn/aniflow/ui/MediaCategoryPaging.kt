@@ -34,10 +34,10 @@ import me.andannn.aniflow.data.ErrorChannel
 import me.andannn.aniflow.data.MediaCategoryPageComponent
 import me.andannn.aniflow.data.PageComponent
 import me.andannn.aniflow.data.buildErrorChannel
+import me.andannn.aniflow.data.getUserTitleString
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.MediaCategory
-import me.andannn.aniflow.data.util.getUserTitleString
 import me.andannn.aniflow.ui.widget.CommonItemFilledCard
 import me.andannn.aniflow.ui.widget.StaggeredGridPaging
 import me.andannn.aniflow.util.ErrorHandleSideEffect

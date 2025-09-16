@@ -48,24 +48,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
+import me.andannn.aniflow.data.getUserTitleString
+import me.andannn.aniflow.data.infoString
 import me.andannn.aniflow.data.model.MediaListModel
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.Title
-import me.andannn.aniflow.data.model.define.MediaFormat
-import me.andannn.aniflow.data.model.define.MediaSeason
-import me.andannn.aniflow.data.model.define.MediaSource
-import me.andannn.aniflow.data.model.define.MediaStatus
-import me.andannn.aniflow.data.model.define.MediaType
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
-import me.andannn.aniflow.data.util.formattedString
-import me.andannn.aniflow.data.util.getUserTitleString
-import me.andannn.aniflow.data.util.infoString
-import me.andannn.aniflow.data.util.releasingTimeString
+import me.andannn.aniflow.data.releasingTimeString
 import me.andannn.aniflow.ui.theme.AniflowTheme
 import kotlin.math.absoluteValue
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
 
 private val OptionIconWidth = 128.dp

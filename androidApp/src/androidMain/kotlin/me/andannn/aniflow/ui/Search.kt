@@ -106,6 +106,8 @@ import me.andannn.aniflow.data.PageComponent
 import me.andannn.aniflow.data.StaffSearchResultPageComponent
 import me.andannn.aniflow.data.StudioSearchResultPageComponent
 import me.andannn.aniflow.data.buildErrorChannel
+import me.andannn.aniflow.data.getUserTitleString
+import me.andannn.aniflow.data.label
 import me.andannn.aniflow.data.model.CharacterModel
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.SearchCategory
@@ -116,8 +118,6 @@ import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.MediaFormat
 import me.andannn.aniflow.data.model.define.MediaSeason
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
-import me.andannn.aniflow.data.util.getUserTitleString
-import me.andannn.aniflow.data.util.label
 import me.andannn.aniflow.ui.widget.CommonItemFilledCard
 import me.andannn.aniflow.ui.widget.OptionChips
 import me.andannn.aniflow.ui.widget.SelectOptionBottomSheet

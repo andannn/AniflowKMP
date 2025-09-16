@@ -37,6 +37,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import kotlinx.serialization.json.Json
+import me.andannn.aniflow.data.formattedString
+import me.andannn.aniflow.data.getUserTitleString
 import me.andannn.aniflow.data.model.ActivityNotification
 import me.andannn.aniflow.data.model.AiringNotification
 import me.andannn.aniflow.data.model.FollowNotification
@@ -46,11 +48,8 @@ import me.andannn.aniflow.data.model.MediaNotification
 import me.andannn.aniflow.data.model.NotificationModel
 import me.andannn.aniflow.data.model.UserModel
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
-import me.andannn.aniflow.data.util.formattedString
-import me.andannn.aniflow.data.util.getUserTitleString
 import me.andannn.aniflow.ui.theme.AniflowTheme
 import kotlin.time.Clock
-import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
 
