@@ -2,7 +2,7 @@
  * Copyright 2025, the AniflowKMP project contributors
  * SPDX-License-Identifier: Apache-2.0
  */
-package me.andannn.aniflow.data.paging
+package me.andannn.aniflow.data.internal.paging
 
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
@@ -18,7 +18,7 @@ import me.andannn.aniflow.data.PageComponent
 import me.andannn.aniflow.data.model.Page
 import me.andannn.aniflow.data.model.PageInfo
 
-val DEFAULT_CONFIG =
+internal val DEFAULT_CONFIG =
     PageConfig(
         perPage = 20,
     )

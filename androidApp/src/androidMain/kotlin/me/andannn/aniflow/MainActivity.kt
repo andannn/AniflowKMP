@@ -25,7 +25,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation3.runtime.rememberNavBackStack
@@ -38,7 +37,6 @@ import me.andannn.aniflow.data.model.define.Theme
 import me.andannn.aniflow.platform.BrowserAuthOperationHandlerImpl
 import me.andannn.aniflow.ui.App
 import me.andannn.aniflow.ui.DeepLinkHelper
-import me.andannn.aniflow.ui.LocalRootNavigator
 import me.andannn.aniflow.ui.RootNavigator
 import me.andannn.aniflow.ui.Screen
 import me.andannn.aniflow.ui.theme.AniflowTheme

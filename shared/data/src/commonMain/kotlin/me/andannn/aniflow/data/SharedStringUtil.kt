@@ -6,11 +6,13 @@ package me.andannn.aniflow.data.util
 
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.SearchCategory
+import me.andannn.aniflow.data.model.Title
 import me.andannn.aniflow.data.model.define.MediaFormat
 import me.andannn.aniflow.data.model.define.MediaSeason
 import me.andannn.aniflow.data.model.define.MediaSource
 import me.andannn.aniflow.data.model.define.MediaStatus
 import me.andannn.aniflow.data.model.define.MediaType
+import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -134,3 +136,13 @@ fun SearchCategory.label() =
         SearchCategory.STAFF -> "Staff"
         SearchCategory.STUDIO -> "Studio"
     }
+
+fun Title?.getUserTitleString(titleLanguage: UserTitleLanguage?): String {
+    titleLanguage ?: return ""
+    val title = this ?: return ""
+    return when (titleLanguage) {
+        UserTitleLanguage.ROMAJI -> title.romaji ?: title.english ?: title.native ?: ""
+        UserTitleLanguage.ENGLISH -> title.english ?: title.romaji ?: title.native ?: ""
+        UserTitleLanguage.NATIVE -> title.native ?: title.romaji ?: title.english ?: ""
+    }
+}

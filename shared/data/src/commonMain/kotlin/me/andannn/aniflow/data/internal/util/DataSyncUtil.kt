@@ -2,19 +2,15 @@
  * Copyright 2025, the AniflowKMP project contributors
  * SPDX-License-Identifier: Apache-2.0
  */
-package me.andannn.aniflow.data.util
+package me.andannn.aniflow.data.internal.util
 
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import me.andannn.aniflow.data.AppError
 import me.andannn.aniflow.data.internal.exceptions.toError
 import me.andannn.aniflow.data.internal.toDomainType
-import me.andannn.aniflow.data.internal.toEntity
 import me.andannn.aniflow.data.internal.toServiceType
-import me.andannn.aniflow.data.model.StaffCharacterName
 import me.andannn.aniflow.data.model.define.MediaListStatus
-import me.andannn.aniflow.data.model.define.StringKeyEnum
 import me.andannn.aniflow.data.model.define.Theme
 import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
 import me.andannn.aniflow.data.model.define.UserTitleLanguage

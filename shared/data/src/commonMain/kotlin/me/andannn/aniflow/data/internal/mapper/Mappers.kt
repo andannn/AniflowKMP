@@ -29,7 +29,6 @@ import me.andannn.aniflow.data.model.define.MediaSort
 import me.andannn.aniflow.data.model.define.MediaSource
 import me.andannn.aniflow.data.model.define.MediaStatus
 import me.andannn.aniflow.data.model.define.MediaType
-import me.andannn.aniflow.data.model.define.StringKeyEnum
 import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import me.andannn.aniflow.data.model.define.deserialize

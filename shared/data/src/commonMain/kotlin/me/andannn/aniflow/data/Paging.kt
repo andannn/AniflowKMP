@@ -7,6 +7,9 @@ package me.andannn.aniflow.data
 import com.rickclephas.kmp.nativecoroutines.NativeCoroutines
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import me.andannn.aniflow.data.internal.paging.DEFAULT_CONFIG
+import me.andannn.aniflow.data.internal.paging.DefaultPageComponent
+import me.andannn.aniflow.data.internal.paging.PageConfig
 import me.andannn.aniflow.data.model.CharacterModel
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.NotificationModel
@@ -15,16 +18,19 @@ import me.andannn.aniflow.data.model.StaffModel
 import me.andannn.aniflow.data.model.StudioModel
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.NotificationCategory
-import me.andannn.aniflow.data.paging.DEFAULT_CONFIG
-import me.andannn.aniflow.data.paging.DefaultPageComponent
-import me.andannn.aniflow.data.paging.PageConfig
 import org.koin.mp.KoinPlatform.getKoin
 
 // interop with swift.
 object PageComponentFactory {
-    fun createMediaCategoryPageComponent(category: MediaCategory): MediaCategoryPageComponent = MediaCategoryPageComponent(category)
+    fun createMediaCategoryPageComponent(
+        category: MediaCategory,
+        errorHandler: AppErrorHandler,
+    ): MediaCategoryPageComponent = MediaCategoryPageComponent(category, errorHandler = errorHandler)
 
-    fun createNotificationPageComponent(category: NotificationCategory): NotificationPageComponent = NotificationPageComponent(category)
+    fun createNotificationPageComponent(
+        category: NotificationCategory,
+        errorHandler: AppErrorHandler,
+    ): NotificationPageComponent = NotificationPageComponent(category, errorHandler = errorHandler)
 }
 
 sealed interface LoadingStatus {

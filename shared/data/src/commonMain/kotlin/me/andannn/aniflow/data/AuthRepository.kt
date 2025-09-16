@@ -26,7 +26,7 @@ interface BrowserAuthOperationHandler {
     fun getAuthResult(callBack: (AuthToken?) -> Unit)
 
     /**
-     * Cancel the authentication process.
+     * Cancel the authentication process by call site.
      */
     fun cancel()
 }
@@ -41,6 +41,10 @@ interface AuthRepository {
     @NativeCoroutines
     suspend fun startLoginProcessAndWaitResult(): AppError?
 
+    /**
+     * Get a flow of the authenticated user's data.
+     * The flow will emit null if the user is not authenticated.
+     */
     @NativeCoroutines
     fun getAuthedUserFlow(): Flow<UserModel?>
 

@@ -88,3 +88,9 @@ extension AuthRepository {
     }
     
 }
+
+extension AppErrorSource {
+    func getErrorAsyncSequence() -> NativeFlowAsyncSequence<[AppError], Error, KotlinUnit> {
+        asyncSequence(for: errorSharedFlow)
+    }
+}

@@ -6,10 +6,11 @@ package me.andannn.aniflow
 
 import android.app.Application
 import android.content.Context
-import me.andannn.aniflow.data.util.KoinHelper
-import me.andannn.aniflow.data.util.KoinHelper.Modules
-import me.andannn.aniflow.data.util.Logger
+import me.andannn.aniflow.data.KoinHelper
+import me.andannn.aniflow.data.KoinHelper.Modules
+import me.andannn.aniflow.data.Logger
 import me.andannn.aniflow.platform.BrowserAuthOperationHandlerImpl
+import me.andannn.aniflow.platform.NetworkConnectivityImpl
 import me.andannn.aniflow.ui.DiscoverViewModel
 import me.andannn.aniflow.ui.HomeViewModel
 import me.andannn.aniflow.ui.LoginDialogViewModel
@@ -39,6 +40,7 @@ class AniflowApplication : Application() {
                     androidContextModule(this@AniflowApplication),
                 ),
             BrowserAuthOperationHandlerImpl(),
+            NetworkConnectivityImpl(this@AniflowApplication),
         )
     }
 }

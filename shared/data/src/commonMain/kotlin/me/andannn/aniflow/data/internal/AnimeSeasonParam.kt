@@ -11,12 +11,12 @@ import me.andannn.aniflow.data.model.define.MediaSeason
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
-data class AnimeSeasonParam(
+internal data class AnimeSeasonParam(
     val seasonYear: Int,
     val season: MediaSeason,
 )
 
-fun AnimeSeasonParam.nextSeasonParam(): AnimeSeasonParam {
+internal fun AnimeSeasonParam.nextSeasonParam(): AnimeSeasonParam {
     val (nextSeasonYear, nextSeason) =
         when (this.season) {
             MediaSeason.WINTER -> seasonYear to MediaSeason.SPRING
@@ -28,7 +28,7 @@ fun AnimeSeasonParam.nextSeasonParam(): AnimeSeasonParam {
 }
 
 @OptIn(ExperimentalTime::class)
-fun currentSeasonByLocalDataTime(): AnimeSeasonParam {
+internal fun currentSeasonByLocalDataTime(): AnimeSeasonParam {
     val currentLocalDatetime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
     val year = currentLocalDatetime.year
     val month = currentLocalDatetime.month.number

@@ -9,9 +9,11 @@ class MediaCategoryPagingViewModel: ObservableObject {
     @Published var userOptions: UserOptions = UserOptions.companion.Default
     private var userOptionTask:  Task<(), any Error>? = nil
 
+    let errorChannel: ErrorChannel = AppErrorKt.buildErrorChannel()
+
     init(category: MediaCategory) {
         self.category = category
-        pagingComponent = PageComponentFactory.shared.createMediaCategoryPageComponent(category: category)
+        pagingComponent = PageComponentFactory.shared.createMediaCategoryPageComponent(category: category, errorHandler: errorChannel)
         
         userOptionTask = Task { [weak self] in
             guard let stream = self?.authRepository.getUserOptionsAsyncSequence() else { return }
@@ -24,13 +26,15 @@ class MediaCategoryPagingViewModel: ObservableObject {
     
     deinit {
         print("MediaCategoryPagingViewModel deinit")
+        userOptionTask?.cancel()
     }
 }
 
 struct MediaCategoryPaging: View {
     private let category: MediaCategory
     @StateObject private var viewModel: MediaCategoryPagingViewModel
-    
+    @StateObject private var snackbarManager = SnackbarManager()
+
     let cols = [GridItem(.adaptive(minimum: 120), spacing: 12)]
 
     init(category: MediaCategory) {
@@ -57,5 +61,7 @@ struct MediaCategoryPaging: View {
         )
         .navigationTitle(category.title)
         .navigationBarTitleDisplayMode(.inline)
+        .snackbar(manager: snackbarManager)
+        .errorHandling(source: viewModel.errorChannel, snackbarManager: snackbarManager)
     }
 }
