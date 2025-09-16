@@ -4,7 +4,6 @@ import BackgroundTasks
 
 @main
 struct iOSApp: App {
-
     @UIApplicationDelegateAdaptor(AppDelegate.self)
     var appDelegate: AppDelegate
     
@@ -23,26 +22,27 @@ struct iOSApp: App {
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     let authHandler: BrowserAuthOperationHandlerImpl = BrowserAuthOperationHandlerImpl()
-
+    let netWorkConnectivity: NetworkConnectivityImpl = NetworkConnectivityImpl()
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
-
+        
         KoinHelper.shared.startKoin(
             modules: KoinHelper.shared.Modules,
-            browserAuthOperationHandler: authHandler
+            browserAuthOperationHandler: authHandler,
+            networkConnectivity: netWorkConnectivity
         )
         
         BGTaskScheduler.shared.register(forTaskWithIdentifier: "me.aniflow.notifications", using: nil) { task in
             handleRefreshTask(task: task as! BGAppRefreshTask)
         }
         scheduleRefresh()
-
-        #if DEBUG
+        
+#if DEBUG
         print("Running in Debug mode")
         Logger.shared.enableDebugLog()
-        #else
+#else
         print("Running in Release mode")
-        #endif
-
+#endif
         return true
     }
 }
@@ -50,7 +50,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
 func scheduleRefresh() {
     print("scheduleRefresh")
-
+    
     let request = BGAppRefreshTaskRequest(identifier: "me.aniflow.notifications")
     request.earliestBeginDate = Date(timeIntervalSinceNow: 60 * 60)
     do {
@@ -62,13 +62,13 @@ func scheduleRefresh() {
 
 func handleRefreshTask(task: BGAppRefreshTask) {
     scheduleRefresh()
-
+    
     print("handleRefreshTask: \(task)")
     let notificationTask = Task {
         let result = await iOSNotificationWorker().doWork()
         task.setTaskCompleted(success: result)
     }
-
+    
     task.expirationHandler = {
         notificationTask.cancel()
     }

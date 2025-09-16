@@ -9,7 +9,8 @@ final class NotificationViewModel: ObservableObject {
     @Published var pagingComponent: NotificationPageComponent?
     
     private var cancellables = Set<AnyCancellable>()
-    
+    let errorChannel: ErrorChannel = AppErrorKt.buildErrorChannel()
+
     init() {
         $selectedCategory
             .removeDuplicates()
@@ -18,7 +19,7 @@ final class NotificationViewModel: ObservableObject {
                 
                 print("NotificationViewModel selectedCategory changed: \(category)")
                 self.pagingComponent?.dispose()
-                self.pagingComponent = PageComponentFactory.shared.createNotificationPageComponent(category: category)
+                self.pagingComponent = PageComponentFactory.shared.createNotificationPageComponent(category: category, errorHandler: errorChannel)
             }
             .store(in: &cancellables)
     }
@@ -35,9 +36,11 @@ final class NotificationViewModel: ObservableObject {
 
 struct Notification: View {
     @StateObject private var viewModel = NotificationViewModel()
+    @StateObject private var snackbarManager = SnackbarManager()
+
     @EnvironmentObject private var router: Router
     let cols = [GridItem(.adaptive(minimum: 120), spacing: 12)]
-    
+
     var body: some View {
         Group {
             if let pagingComponent = viewModel.pagingComponent {
@@ -69,6 +72,8 @@ struct Notification: View {
                 )
             }
         }
+        .snackbar(manager: snackbarManager)
+        .errorHandling(source: viewModel.errorChannel, snackbarManager: snackbarManager)
     }
 }
 

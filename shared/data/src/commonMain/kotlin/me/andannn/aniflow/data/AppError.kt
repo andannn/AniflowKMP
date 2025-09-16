@@ -4,6 +4,7 @@
  */
 package me.andannn.aniflow.data
 
+import com.rickclephas.kmp.nativecoroutines.NativeCoroutines
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 
@@ -35,6 +36,7 @@ interface AppErrorHandler {
 }
 
 interface AppErrorSource {
+    @NativeCoroutines
     val errorSharedFlow: SharedFlow<List<AppError>>
 }
 
@@ -54,7 +56,7 @@ internal class ErrorChannelImpl : ErrorChannel {
     override val errorSharedFlow: SharedFlow<List<AppError>> = MutableSharedFlow(replay = 1)
 
     override fun submitError(error: List<AppError>) {
-        (errorSharedFlow as MutableSharedFlow<List<AppError>>).tryEmit(error)
+        (errorSharedFlow as MutableSharedFlow<List<AppError>>).tryEmit(error.toSet().toList())
     }
 
     override fun submitError(error: AppError) {

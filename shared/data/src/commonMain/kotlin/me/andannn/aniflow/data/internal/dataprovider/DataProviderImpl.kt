@@ -130,7 +130,9 @@ private fun discoverUiStateFlow(): Flow<DiscoverUiState> {
                                     .minus(NEW_RELEASED_DAYS_THRESHOLD.days)
                                     .epochSeconds,
                         ).map {
-                            it.filter(MediaWithMediaListItem::haveNextEpisode)
+                            it
+                                .filter(MediaWithMediaListItem::haveNextEpisode)
+                                .sortedByDescending(MediaWithMediaListItem::airingScheduleUpdateTime)
                         }
                 } else {
                     flow { emit(emptyList()) }

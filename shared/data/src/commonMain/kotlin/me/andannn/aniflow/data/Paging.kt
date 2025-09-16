@@ -22,9 +22,15 @@ import org.koin.mp.KoinPlatform.getKoin
 
 // interop with swift.
 object PageComponentFactory {
-    fun createMediaCategoryPageComponent(category: MediaCategory): MediaCategoryPageComponent = MediaCategoryPageComponent(category)
+    fun createMediaCategoryPageComponent(
+        category: MediaCategory,
+        errorHandler: AppErrorHandler,
+    ): MediaCategoryPageComponent = MediaCategoryPageComponent(category, errorHandler = errorHandler)
 
-    fun createNotificationPageComponent(category: NotificationCategory): NotificationPageComponent = NotificationPageComponent(category)
+    fun createNotificationPageComponent(
+        category: NotificationCategory,
+        errorHandler: AppErrorHandler,
+    ): NotificationPageComponent = NotificationPageComponent(category, errorHandler = errorHandler)
 }
 
 sealed interface LoadingStatus {

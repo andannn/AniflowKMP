@@ -12,6 +12,8 @@ class TrackViewModel : ObservableObject {
     private var refreshCompleter: OneShotCompleter<Void>? = nil
     private var sideEffectTask: Task<Void, Never>? = nil
 
+    let errorChannel: ErrorChannel = AppErrorKt.buildErrorChannel()
+
     init() {
         print("TrackViewModel init")
         dataTask = Task { [weak self] in
@@ -40,6 +42,10 @@ class TrackViewModel : ObservableObject {
 
             do {
                 for try await status in stream {
+                    guard let self = self else { continue }
+
+                    AppErrorKt.submitErrorOfSyncStatus(self.errorChannel, status: status)
+
                     // handle side effect status.
                     print("TrackViewModel cancelLastAndRegisterUiSideEffect status: \(status)")
                     if completer != nil && !status.isLoading() && !isCompleted {
@@ -83,7 +89,8 @@ class TrackViewModel : ObservableObject {
 struct TrackView: View {
     @StateObject
     private var viewModel: TrackViewModel = TrackViewModel()
-    
+    @StateObject private var snackbarManager = SnackbarManager()
+
     var body: some View {
         let categoryWithItemsList = viewModel.uiState.categoryWithItems
         List {
@@ -117,5 +124,7 @@ struct TrackView: View {
                 print("Track error when refresh \(error)")
             }
         }
+        .snackbar(manager: snackbarManager)
+        .errorHandling(source: viewModel.errorChannel, snackbarManager: snackbarManager)
     }
 }

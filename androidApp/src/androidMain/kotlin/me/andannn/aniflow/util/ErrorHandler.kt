@@ -4,13 +4,18 @@
  */
 package me.andannn.aniflow.util
 
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.SnackbarVisuals
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import io.github.aakira.napier.Napier
 import me.andannn.aniflow.data.AppError
 import me.andannn.aniflow.data.AppErrorSource
+import me.andannn.aniflow.data.SnackBarMessage
+import me.andannn.aniflow.data.SnackbarShowDuration
+import me.andannn.aniflow.data.toAlert
 
 private const val TAG = "ErrorHandler"
 
@@ -24,7 +29,7 @@ fun ErrorHandleSideEffect(source: AppErrorSource) {
 
     LaunchedEffect(source) {
         source.errorSharedFlow.collect {
-            it.toSet().forEach {
+            it.forEach {
                 errorHandler.handleError(it)
             }
         }
@@ -54,9 +59,22 @@ sealed interface ErrorHandleResult {
     ) : ErrorHandleResult
 }
 
-private fun AppError.toAlert() =
+private fun SnackBarMessage.toSnackbarVisuals(): SnackbarVisuals {
+    val actionLabel = actionLabel
+    val duration = duration
+    val message = message
+    val withDismissAction = withDismissAction
+    return object : SnackbarVisuals {
+        override val actionLabel = actionLabel
+        override val duration = duration.toSnackbarDuration()
+        override val message = message
+        override val withDismissAction = withDismissAction
+    }
+}
+
+private fun SnackbarShowDuration.toSnackbarDuration(): SnackbarDuration =
     when (this) {
-        is AppError.ServerError -> SnackBarMessage.ServerError(statusCode, message)
-        AppError.NetworkConnectionError -> SnackBarMessage.NoNetWorkConnectionError
-        is AppError.OtherError -> SnackBarMessage.FallBackRemoteError(message)
+        SnackbarShowDuration.Short -> SnackbarDuration.Short
+        SnackbarShowDuration.Long -> SnackbarDuration.Long
+        SnackbarShowDuration.Indefinite -> SnackbarDuration.Indefinite
     }

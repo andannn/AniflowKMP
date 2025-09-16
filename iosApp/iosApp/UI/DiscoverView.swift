@@ -6,19 +6,21 @@ import Shared
 class DiscoverViewModel: ObservableObject {
     private let dataProvider: DiscoverUiDataProvider
     @Published public var uiState: DiscoverUiState = DiscoverUiState.companion.Empty
-
+    
     private var sideEffectTask: Task<Void, Never>? = nil
     private var refreshCompleter: OneShotCompleter<Void>? = nil
     private let mediaRepository: MediaRepository
     private var statusTask:  Task<(), any Error>? = nil
-
+    
+    let errorChannel: ErrorChannel = AppErrorKt.buildErrorChannel()
+    
     init() {
         print("DiscoverViewModel init")
         dataProvider = KoinHelper.shared.discoverDataProvider()
         mediaRepository = KoinHelper.shared.mediaRepository()
         statusTask = Task { [weak self] in
             guard let stream = self?.dataProvider.getdiscoverUiStateAsyncSequence() else { return }
-               
+            
             for try await state in stream {
                 self?.uiState = state
             }
@@ -32,7 +34,7 @@ class DiscoverViewModel: ObservableObject {
         sideEffectTask?.cancel()
         print("DiscoverViewModel deinit")
     }
-
+    
     func doRefreshAndAwait() async throws {
         refreshCompleter?.cancel()
         refreshCompleter = OneShotCompleter<Void>()
@@ -45,10 +47,13 @@ class DiscoverViewModel: ObservableObject {
         var isCompleted = false
         sideEffectTask = Task { [weak self] in
             guard let stream = self?.dataProvider.discoverUiSideEffectStatusSequence(force) else { return }
-
+            
             do {
                 for try await status in stream {
-                    // handle side effect status.
+                    guard let self = self else { continue }
+
+                    AppErrorKt.submitErrorOfSyncStatus(self.errorChannel, status: status)
+                    
                     print("Discover cancelLastAndRegisterUiSideEffect status: \(status)")
                     if completer != nil && !status.isLoading() && !isCompleted {
                         print("Discover cancelLastAndRegisterUiSideEffect refresh completed")
@@ -67,6 +72,7 @@ class DiscoverViewModel: ObservableObject {
 
 struct DiscoverView: View {
     @StateObject private var viewModel = DiscoverViewModel()
+    @StateObject private var snackbarManager = SnackbarManager()
     @EnvironmentObject var router: Router
     
     var body: some View {
@@ -91,10 +97,10 @@ struct DiscoverView: View {
                         MediaPreviewSector(
                             mediaList: categoryWithContents.medias,
                             userTitleLanguage: viewModel.uiState.userOptions.titleLanguage) { item in
-                            router.navigateTo(route: .notification)
-                            // onMediaClick
-                            // component.onMediaClick(media: item)
-                        }
+                                router.navigateTo(route: .notification)
+                                // onMediaClick
+                                // component.onMediaClick(media: item)
+                            }
                     }
                 }
             }
@@ -107,6 +113,8 @@ struct DiscoverView: View {
                 print("Discover error when refresh \(error)")
             }
         }
+        .snackbar(manager: snackbarManager)
+        .errorHandling(source: viewModel.errorChannel, snackbarManager: snackbarManager)
     }
 }
 
@@ -136,7 +144,7 @@ struct MediaPreviewItemWrapper: View {
     let media: MediaModel
     let userTitleLanguage: UserTitleLanguage
     let onMediaClick: (MediaModel) -> Void
-
+    
     var body: some View {
         let title = media.title?.getUserTitleString(titleLanguage: userTitleLanguage) ?? ""
         MediaPreviewItem(
