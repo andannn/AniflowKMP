@@ -106,6 +106,33 @@ internal class MediaRepositoryImpl(
         }
     }
 
+    override fun syncDetailMedia(
+        scope: CoroutineScope,
+        mediaId: String,
+    ) = with(mediaService) {
+        with(mediaLibraryDao) {
+            // sync data from service
+            syncDetailMediaToLocal(
+                mediaId = mediaId,
+                scope = scope,
+            )
+        }
+    }
+
+    override fun syncMediaListItemOfUser(
+        scope: CoroutineScope,
+        userId: String,
+        mediaId: String,
+    ) = with(mediaService) {
+        with(mediaLibraryDao) {
+            syncMediaListOfUserToLocal(
+                userId = userId,
+                mediaId = mediaId,
+                scope = scope,
+            )
+        }
+    }
+
     override fun getMediaListFlowByUserId(
         userId: String,
         mediaType: MediaType,
@@ -295,6 +322,45 @@ private fun syncMediaListInfoToLocal(
                 )
             database.upsertMediaListEntities(mediaList.map(MediaList::toRelation))
             Napier.d(tag = TAG) { "syncMediaListInfoToLocal finished" }
+            null
+        } catch (exception: ServerException) {
+            Napier.e { "Error when syncing local with remote: $exception" }
+            exception
+        }
+    }
+
+context(service: AniListService, database: MediaLibraryDao)
+private fun syncDetailMediaToLocal(
+    mediaId: String,
+    scope: CoroutineScope,
+): Deferred<Throwable?> =
+    scope.async {
+        Napier.d(tag = TAG) { "syncDetailMediaToLocal start: mediaId=$mediaId" }
+        try {
+            val detailMedia =
+                service.getDetailMedia(
+                    id = mediaId.toInt(),
+                )
+            Napier.d(tag = TAG) { "syncDetailMediaToLocal finished" }
+
+            null
+        } catch (exception: ServerException) {
+            Napier.e { "Error when syncing local with remote: $exception" }
+            exception
+        }
+    }
+
+context(service: AniListService, database: MediaLibraryDao)
+private fun syncMediaListOfUserToLocal(
+    mediaId: String,
+    userId: String,
+    scope: CoroutineScope,
+): Deferred<Throwable?> =
+    scope.async {
+        Napier.d(tag = TAG) { "syncDetailMediaToLocal start: mediaId=$mediaId, userId=$userId" }
+        try {
+            Napier.d(tag = TAG) { "syncDetailMediaToLocal finished" }
+
             null
         } catch (exception: ServerException) {
             Napier.e { "Error when syncing local with remote: $exception" }

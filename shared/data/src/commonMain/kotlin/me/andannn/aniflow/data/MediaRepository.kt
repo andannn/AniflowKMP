@@ -43,6 +43,17 @@ interface MediaRepository {
         mediaType: MediaType,
     ): Deferred<Throwable?>
 
+    fun syncDetailMedia(
+        scope: CoroutineScope,
+        mediaId: String,
+    ): Deferred<Throwable?>
+
+    fun syncMediaListItemOfUser(
+        scope: CoroutineScope,
+        userId: String,
+        mediaId: String,
+    ): Deferred<Throwable?>
+
     fun getMediaListFlowByUserId(
         userId: String,
         mediaType: MediaType,

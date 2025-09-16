@@ -154,7 +154,7 @@ fun buildMediaDetailQuerySchema(
 
         if (withStudioConnection) {
             append(
-                $$"""
+                """
                 studios {
                   nodes {
                     id
