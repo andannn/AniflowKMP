@@ -43,5 +43,9 @@ jobs:
       - name: run kotlin lint check
         run: ./gradlew ktlintCheck
 
+      - name: Run database migration tests
+        run: ./gradlew verifySqlDelightMigration
+
       - name: Run android unit tests
         run: ./gradlew allTest
+
