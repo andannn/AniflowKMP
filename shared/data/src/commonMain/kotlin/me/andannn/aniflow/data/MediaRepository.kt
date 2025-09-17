@@ -15,6 +15,7 @@ import me.andannn.aniflow.data.model.NotificationModel
 import me.andannn.aniflow.data.model.Page
 import me.andannn.aniflow.data.model.SearchSource
 import me.andannn.aniflow.data.model.StaffModel
+import me.andannn.aniflow.data.model.StaffWithRole
 import me.andannn.aniflow.data.model.StudioModel
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.MediaContentMode
@@ -128,4 +129,6 @@ interface MediaRepository {
     fun getMediaFlow(mediaId: String): Flow<MediaModel>
 
     fun getStudioOfMediaFlow(mediaId: String): Flow<List<StudioModel>>
+
+    fun getStaffOfMediaFlow(mediaId: String): Flow<List<StaffWithRole>>
 }

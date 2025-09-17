@@ -1,3 +1,7 @@
+/*
+ * Copyright 2025, the AniflowKMP project contributors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package me.andannn.aniflow.data.internal.dataprovider
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -13,6 +17,7 @@ import me.andannn.aniflow.data.internal.tasks.SyncDetailMediaTask
 import me.andannn.aniflow.data.internal.tasks.SyncMediaListItemOfAuthedUserTask
 import me.andannn.aniflow.data.internal.tasks.createSideEffectFlow
 import me.andannn.aniflow.data.model.DetailUiState
+import me.andannn.aniflow.data.util.combine
 
 class DetailMediaUiDataProviderImpl(
     override val mediaId: String,
@@ -23,6 +28,7 @@ class DetailMediaUiDataProviderImpl(
     override fun detailUiDataFlow(): Flow<DetailUiState> {
         val mediaFlow = mediaRepository.getMediaFlow(mediaId)
         val studioListFlow = mediaRepository.getStudioOfMediaFlow(mediaId)
+        val staffListFlow = mediaRepository.getStaffOfMediaFlow(mediaId)
         val userOptionsFlow = authRepository.getUserOptionsFlow()
         val authedUserFlow = authRepository.getAuthedUserFlow()
         val mediaListItemFlow =
@@ -42,13 +48,15 @@ class DetailMediaUiDataProviderImpl(
             userOptionsFlow,
             mediaListItemFlow,
             authedUserFlow,
-        ) { media, studioList, userOptions, mediaListItem, authedUser ->
+            staffListFlow,
+        ) { media, studioList, userOptions, mediaListItem, authedUser, staffList ->
             DetailUiState(
                 mediaModel = media,
                 mediaListItem = mediaListItem,
                 studioList = studioList,
                 userOptions = userOptions,
                 authedUser = authedUser,
+                staffList = staffList,
             )
         }
     }

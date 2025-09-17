@@ -6,6 +6,7 @@ package me.andannn.aniflow.database.relation
 
 import me.andannn.aniflow.database.schema.MediaEntity
 import me.andannn.aniflow.database.schema.MediaListEntity
+import me.andannn.aniflow.database.schema.StaffEntity
 
 data class MediaListAndMediaRelation(
     val mediaEntity: MediaEntity,
@@ -215,6 +216,59 @@ data class MediaListAndMediaRelationWithUpdateLog(
                         siteUrl = siteUrl,
                     ),
                 updateTime = updateTime,
+            )
+    }
+}
+
+data class StaffWithRole(
+    val role: String,
+    val staffEntity: StaffEntity,
+) {
+    companion object {
+        fun mapTo(
+            id: String,
+            largeImage: String?,
+            mediumImage: String?,
+            firstName: String?,
+            middleName: String?,
+            lastName: String?,
+            fullName: String?,
+            nativeName: String?,
+            description: String?,
+            gender: String?,
+            siteUrl: String?,
+            dateOfBirth: String?,
+            dateOfDeath: String?,
+            age: Long?,
+            isFavourite: Boolean?,
+            yearsActive: String?,
+            homeTown: String?,
+            bloodType: String?,
+            role: String,
+        ): StaffWithRole =
+            StaffWithRole(
+                role = role,
+                staffEntity =
+                    StaffEntity(
+                        id = id,
+                        largeImage = largeImage,
+                        mediumImage = mediumImage,
+                        firstName = firstName,
+                        middleName = middleName,
+                        lastName = lastName,
+                        fullName = fullName,
+                        nativeName = nativeName,
+                        description = description,
+                        gender = gender,
+                        siteUrl = siteUrl,
+                        dateOfBirth = dateOfBirth,
+                        dateOfDeath = dateOfDeath,
+                        age = age,
+                        isFavourite = isFavourite,
+                        yearsActive = yearsActive,
+                        homeTown = homeTown,
+                        bloodType = bloodType,
+                    ),
             )
     }
 }

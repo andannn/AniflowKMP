@@ -11,8 +11,8 @@ fun buildMediaDetailQuerySchema(
 ): String =
     buildString {
         append($$"query ($id: Int")
-        if (withCharacterConnection) append($$", $characterPage: Int, $characterPerPage: Int")
-        if (withStaffConnection) append($$", $staffPage: Int, $staffPerPage: Int, $staffLanguage: StaffLanguage")
+        if (withCharacterConnection) append($$", $characterPage: Int, $characterPerPage: Int, $staffLanguage: StaffLanguage")
+        if (withStaffConnection) append($$", $staffPage: Int, $staffPerPage: Int")
         append(") {")
         append(
             $$"""

@@ -1,3 +1,7 @@
+/*
+ * Copyright 2025, the AniflowKMP project contributors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package me.andannn.aniflow.ui
 
 import android.util.Log
@@ -93,6 +97,7 @@ fun DetailMedia(
         koinViewModel(
             parameters = { parametersOf(mediaId) },
         ),
+    navigator: RootNavigator = LocalRootNavigator.current,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isRefreshing by viewModel.isSideEffectRefreshing.collectAsStateWithLifecycle()
@@ -102,6 +107,7 @@ fun DetailMedia(
         isRefreshing = isRefreshing,
         modifier = Modifier,
         onPullRefresh = { viewModel.onPullRefresh() },
+        onPop = { navigator.popBackStack() },
     )
 
     ErrorHandleSideEffect(viewModel)

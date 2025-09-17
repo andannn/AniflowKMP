@@ -10,8 +10,10 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
+import me.andannn.aniflow.database.relation.StaffWithRole
 import me.andannn.aniflow.database.util.MediaEntityWithDefault
 import me.andannn.aniflow.database.util.MediaListEntityWithDefault
+import me.andannn.aniflow.database.util.StaffEntityWithDefault
 import me.andannn.aniflow.database.util.StudioEntityWithDefault
 import me.andannn.aniflow.database.util.UserEntityWithDefault
 import kotlin.test.AfterTest
@@ -304,6 +306,29 @@ class MediaLibraryDaoTest {
                     assertEquals("Studio A", it[0].name)
                     assertEquals("studio2", it[1].id)
                     assertEquals("Studio B", it[1].name)
+                }
+            }
+        }
+
+    @Test
+    fun getStaffOfMediaTest() =
+        testScope.runTest {
+            with(mediaLibraryDao) {
+                val staffList =
+                    listOf(
+                        StaffWithRole("job1", StaffEntityWithDefault("staff1", fullName = "Staff A")),
+                        StaffWithRole("job2", StaffEntityWithDefault("staff2", fullName = "Staff B")),
+                    )
+                upsertStaffOfMedia(
+                    mediaId = "media1",
+                    staffs = staffList,
+                )
+                getStaffOfMediaFlow("media1").first().let {
+                    assertEquals(2, it.size)
+                    assertEquals("staff1", it[0].staffEntity.id)
+                    assertEquals("Staff A", it[0].staffEntity.fullName)
+                    assertEquals("staff2", it[1].staffEntity.id)
+                    assertEquals("Staff B", it[1].staffEntity.fullName)
                 }
             }
         }

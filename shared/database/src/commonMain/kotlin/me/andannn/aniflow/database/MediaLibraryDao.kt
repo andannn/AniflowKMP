@@ -17,8 +17,10 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.withContext
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelationWithUpdateLog
+import me.andannn.aniflow.database.relation.StaffWithRole
 import me.andannn.aniflow.database.schema.MediaEntity
 import me.andannn.aniflow.database.schema.MediaListEntity
+import me.andannn.aniflow.database.schema.StaffEntity
 import me.andannn.aniflow.database.schema.StudioEntity
 import me.andannn.aniflow.database.schema.UserEntity
 
@@ -251,6 +253,34 @@ class MediaLibraryDao constructor(
         withDatabase {
             studioQueries
                 .getStudioOfMedia(mediaId)
+                .asFlow()
+                .mapToList(dispatcher)
+        }
+
+    suspend fun upsertStaffOfMedia(
+        mediaId: String,
+        staffs: List<StaffWithRole>,
+    ) = withDatabase {
+        withContext(dispatcher) {
+            transaction(true) {
+                staffQueries.deleteStaffOfMedia(mediaId)
+
+                staffs.forEach { staff ->
+                    staffQueries.upsertStaff(staff.staffEntity)
+                    staffQueries.upsertStaffMediaCrossRef(
+                        mediaId = mediaId,
+                        staffId = staff.staffEntity.id,
+                        role = staff.role,
+                    )
+                }
+            }
+        }
+    }
+
+    fun getStaffOfMediaFlow(mediaId: String): Flow<List<StaffWithRole>> =
+        withDatabase {
+            staffQueries
+                .getStaffOfMedia(mediaId, StaffWithRole::mapTo)
                 .asFlow()
                 .mapToList(dispatcher)
         }

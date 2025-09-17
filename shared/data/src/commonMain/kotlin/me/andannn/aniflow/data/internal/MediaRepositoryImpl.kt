@@ -23,6 +23,7 @@ import me.andannn.aniflow.data.model.NotificationModel
 import me.andannn.aniflow.data.model.Page
 import me.andannn.aniflow.data.model.SearchSource
 import me.andannn.aniflow.data.model.StaffModel
+import me.andannn.aniflow.data.model.StaffWithRole
 import me.andannn.aniflow.data.model.StudioModel
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.MediaContentMode
@@ -38,7 +39,6 @@ import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.database.MediaLibraryDao
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelationWithUpdateLog
 import me.andannn.aniflow.database.schema.MediaEntity
-import me.andannn.aniflow.database.schema.MediaListEntity
 import me.andannn.aniflow.database.schema.StudioEntity
 import me.andannn.aniflow.datastore.UserSettingPreferences
 import me.andannn.aniflow.service.AniListService
@@ -48,10 +48,10 @@ import me.andannn.aniflow.service.dto.Media
 import me.andannn.aniflow.service.dto.MediaList
 import me.andannn.aniflow.service.dto.NotificationUnion
 import me.andannn.aniflow.service.dto.Staff
+import me.andannn.aniflow.service.dto.StaffConnection
 import me.andannn.aniflow.service.dto.Studio
 import me.andannn.aniflow.service.dto.enums.NotificationType
 import me.andannn.aniflow.service.dto.enums.ScoreFormat
-import kotlin.with
 
 private const val TAG = "MediaRepository"
 
@@ -318,6 +318,11 @@ internal class MediaRepositoryImpl(
         mediaLibraryDao.getStudiosOfMediaFlow(mediaId).map {
             it.map(StudioEntity::toDomain)
         }
+
+    override fun getStaffOfMediaFlow(mediaId: String): Flow<List<StaffWithRole>> =
+        mediaLibraryDao.getStaffOfMediaFlow(mediaId).map {
+            it.map(me.andannn.aniflow.database.relation.StaffWithRole::toDomain)
+        }
 }
 
 private const val DEFAULT_CACHED_SIZE = 20
@@ -360,6 +365,8 @@ private fun syncDetailMediaToLocal(
                     .getDetailMedia(
                         id = mediaId.toInt(),
                         withStudioConnection = true,
+                        staffPage = 1,
+                        staffPerPage = 9,
                     ).media
             Napier.d(tag = TAG) { "syncDetailMediaToLocal finished" }
 
@@ -370,6 +377,13 @@ private fun syncDetailMediaToLocal(
                     ?.nodes
                     ?.filterNotNull()
                     ?.map(Studio::toEntity) ?: emptyList(),
+            )
+            database.upsertStaffOfMedia(
+                detailMedia.id.toString(),
+                detailMedia.staff
+                    ?.edges
+                    ?.filterNotNull()
+                    ?.map(StaffConnection.Edge::toEntity) ?: emptyList(),
             )
 
             null

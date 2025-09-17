@@ -6,6 +6,7 @@ package me.andannn.aniflow.database.util
 
 import me.andannn.aniflow.database.schema.MediaEntity
 import me.andannn.aniflow.database.schema.MediaListEntity
+import me.andannn.aniflow.database.schema.StaffEntity
 import me.andannn.aniflow.database.schema.UserEntity
 
 @Suppress("ktlint:standard:function-naming")
@@ -140,4 +141,45 @@ fun StudioEntityWithDefault(
     siteUrl = siteUrl,
     isAnimationStudio = isAnimationStudio,
     isFavorite = isFavorite,
+)
+
+@Suppress("ktlint:standard:function-naming")
+fun StaffEntityWithDefault(
+    id: String,
+    largeImage: String? = null,
+    mediumImage: String? = null,
+    firstName: String? = null,
+    middleName: String? = null,
+    lastName: String? = null,
+    fullName: String? = null,
+    nativeName: String? = null,
+    description: String? = null,
+    gender: String? = null,
+    siteUrl: String? = null,
+    dateOfBirth: String? = null,
+    dateOfDeath: String? = null,
+    age: Long? = null,
+    isFavourite: Boolean? = null,
+    yearsActive: String? = null,
+    homeTown: String? = null,
+    bloodType: String? = null,
+) = StaffEntity(
+    id = id,
+    largeImage = largeImage,
+    mediumImage = mediumImage,
+    firstName = firstName,
+    middleName = middleName,
+    lastName = lastName,
+    fullName = fullName,
+    nativeName = nativeName,
+    description = description,
+    gender = gender,
+    siteUrl = siteUrl,
+    dateOfBirth = dateOfBirth,
+    dateOfDeath = dateOfDeath,
+    age = age,
+    isFavourite = isFavourite,
+    yearsActive = yearsActive,
+    homeTown = homeTown,
+    bloodType = bloodType,
 )

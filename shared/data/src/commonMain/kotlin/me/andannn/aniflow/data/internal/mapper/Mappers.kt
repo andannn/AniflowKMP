@@ -36,8 +36,10 @@ import me.andannn.aniflow.data.model.define.deserialize
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelationWithUpdateLog
+import me.andannn.aniflow.database.relation.StaffWithRole
 import me.andannn.aniflow.database.schema.MediaEntity
 import me.andannn.aniflow.database.schema.MediaListEntity
+import me.andannn.aniflow.database.schema.StaffEntity
 import me.andannn.aniflow.database.schema.StudioEntity
 import me.andannn.aniflow.database.schema.UserEntity
 import me.andannn.aniflow.service.dto.ActivityLikeNotification
@@ -60,6 +62,7 @@ import me.andannn.aniflow.service.dto.NotificationUnion
 import me.andannn.aniflow.service.dto.Page
 import me.andannn.aniflow.service.dto.RelatedMediaAdditionNotification
 import me.andannn.aniflow.service.dto.Staff
+import me.andannn.aniflow.service.dto.StaffConnection
 import me.andannn.aniflow.service.dto.StaffName
 import me.andannn.aniflow.service.dto.Studio
 import me.andannn.aniflow.service.dto.User
@@ -280,6 +283,34 @@ internal fun Studio.toEntity() =
         siteUrl = siteUrl,
     )
 
+internal fun StaffConnection.Edge.toEntity() =
+    StaffWithRole(
+        staffEntity = node!!.toEntity(),
+        role = role ?: "",
+    )
+
+internal fun Staff.toEntity() =
+    StaffEntity(
+        id = id.toString(),
+        largeImage = image?.large,
+        mediumImage = image?.medium,
+        firstName = name?.first,
+        lastName = name?.last,
+        middleName = name?.middle,
+        fullName = name?.full,
+        nativeName = name?.native,
+        description = description,
+        gender = gender,
+        dateOfBirth = dateOfBirth?.toSimpleDate()?.let { Json.encodeToString(it) },
+        dateOfDeath = dateOfDeath?.toSimpleDate()?.let { Json.encodeToString(it) },
+        age = age?.toLong(),
+        isFavourite = isFavourite,
+        yearsActive = yearsActive?.joinToString(","),
+        homeTown = homeTown,
+        bloodType = bloodType,
+        siteUrl = siteUrl,
+    )
+
 internal fun MediaEntity.toDomain() =
     MediaModel(
         id = id,
@@ -324,6 +355,36 @@ internal fun StudioEntity.toDomain() =
         name = name ?: "",
         isFavourite = isFavorite ?: false,
         isAnimationStudio = isAnimationStudio ?: false,
+        siteUrl = siteUrl,
+    )
+
+internal fun StaffWithRole.toDomain() =
+    me.andannn.aniflow.data.model.StaffWithRole(
+        staff = staffEntity.toDomain(),
+        role = role,
+    )
+
+internal fun StaffEntity.toDomain() =
+    StaffModel(
+        id = id,
+        name =
+            StaffCharacterName(
+                first = firstName,
+                middle = middleName,
+                last = lastName,
+                full = fullName,
+                native = nativeName,
+            ),
+        image = largeImage ?: mediumImage,
+        description = description,
+        gender = gender,
+        dateOfBirth = dateOfBirth?.let { Json.decodeFromString<SimpleDate>(it) },
+        dateOfDeath = dateOfDeath?.let { Json.decodeFromString<SimpleDate>(it) },
+        age = age?.toInt(),
+        yearsActive = yearsActive?.split(',')?.map { it.toInt() },
+        homeTown = homeTown,
+        bloodType = bloodType,
+        isFavourite = isFavourite,
         siteUrl = siteUrl,
     )
 

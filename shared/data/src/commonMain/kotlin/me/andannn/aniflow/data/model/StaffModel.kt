@@ -4,6 +4,11 @@
  */
 package me.andannn.aniflow.data.model
 
+data class StaffWithRole(
+    val staff: StaffModel,
+    val role: String,
+)
+
 public data class StaffModel(
     /**
      * The id of the staff member

@@ -197,6 +197,7 @@ data class DetailUiState(
     val mediaModel: MediaModel?,
     val mediaListItem: MediaListModel? = null,
     val studioList: List<StudioModel> = emptyList(),
+    val staffList: List<StaffWithRole> = emptyList(),
     val userOptions: UserOptions = UserOptions.Default,
     val authedUser: UserModel? = null,
 ) {

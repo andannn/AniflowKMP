@@ -1,19 +1,5 @@
 import kotlin.Boolean;
 
-CREATE TABLE IF NOT EXISTS studioEntity(
-  id TEXT PRIMARY KEY NOT NULL,
-  name TEXT DEFAULT NULL,
-  siteUrl TEXT DEFAULT NULL,
-  isAnimationStudio INTEGER AS Boolean DEFAULT NULL,
-  isFavorite INTEGER AS Boolean DEFAULT NULL
-);
-
-CREATE TABLE IF NOT EXISTS studioMediaCrossRefEntity (
-  studioId TEXT NOT NULL,
-  mediaId TEXT NOT NULL,
-  PRIMARY KEY (studioId, mediaId)
-);
-
 CREATE TABLE IF NOT EXISTS staffEntity(
     id TEXT PRIMARY KEY NOT NULL,
     largeImage TEXT DEFAULT NULL,
@@ -41,4 +27,42 @@ CREATE TABLE IF NOT EXISTS staffMediaCrossRefEntity(
     role TEXT NOT NULL,
     PRIMARY KEY (staffId, mediaId)
 );
+
+upsertStaff:
+INSERT OR REPLACE INTO staffEntity (
+    id,
+    largeImage,
+    mediumImage,
+    firstName,
+    middleName,
+    lastName,
+    fullName,
+    nativeName,
+    description,
+    gender,
+    siteUrl,
+    dateOfBirth,
+    dateOfDeath,
+    age,
+    isFavourite,
+    yearsActive,
+    homeTown,
+    bloodType
+) VALUES ?;
+
+upsertStaffMediaCrossRef:
+INSERT OR REPLACE INTO staffMediaCrossRefEntity (
+    staffId,
+    mediaId,
+    role
+) VALUES (?, ?, ?);
+
+deleteStaffOfMedia:
+DELETE FROM staffMediaCrossRefEntity WHERE mediaId = ?;
+
+getStaffOfMedia:
+SELECT staffEntity.*, staffMediaCrossRefEntity.role FROM staffEntity
+INNER JOIN staffMediaCrossRefEntity ON staffMediaCrossRefEntity.staffId = staffEntity.id
+WHERE staffMediaCrossRefEntity.mediaId = ?;
+
 
