@@ -9,6 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.Flow
 import me.andannn.aniflow.data.model.CharacterModel
+import me.andannn.aniflow.data.model.MediaListModel
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.NotificationModel
 import me.andannn.aniflow.data.model.Page
@@ -59,6 +60,11 @@ interface MediaRepository {
         mediaType: MediaType,
         mediaListStatus: List<MediaListStatus>,
     ): Flow<List<MediaWithMediaListItem>>
+
+    fun getMediaListItemOfUserFlow(
+        userId: String,
+        mediaId: String,
+    ): Flow<MediaListModel?>
 
     fun getNewReleasedAnimeListFlow(
         userId: String,

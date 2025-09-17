@@ -182,6 +182,17 @@ class MediaLibraryDao constructor(
             }
         }
 
+    fun getMediaListItemFlow(
+        userId: String,
+        mediaId: String,
+    ): Flow<MediaListEntity?> =
+        withDatabase {
+            mediaListQueries
+                .getMediaListByMediaIdAndUserId(userId, mediaId)
+                .asFlow()
+                .mapToOneOrNull(dispatcher)
+        }
+
     /**
      * Update media list status and/or progress.
      *

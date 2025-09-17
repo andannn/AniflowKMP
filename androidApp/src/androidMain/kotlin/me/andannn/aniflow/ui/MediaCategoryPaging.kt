@@ -121,6 +121,9 @@ fun MediaCategoryPaging(
                 modifier = Modifier.padding(4.dp),
                 title = title,
                 coverImage = item.coverImage,
+                onClick = {
+                    navigator.navigateTo(Screen.DetailMedia(item.id))
+                },
             )
         }
     }

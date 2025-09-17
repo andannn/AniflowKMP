@@ -113,9 +113,6 @@ class TrackViewModel(
         cancelLastAndRegisterUiSideEffect(force = true)
     }
 
-    fun onClickListItem(item: MediaModel) {
-    }
-
     fun onDeleteItem(item: MediaListModel) {
         viewModelScope.launch {
             val error =
@@ -208,7 +205,9 @@ fun Track(
         appbarState = appBarState,
         isRefreshing = isRefreshing,
         onPullRefresh = viewModel::onPullRefresh,
-        onClickListItem = viewModel::onClickListItem,
+        onClickListItem = {
+            navigator.navigateTo(Screen.DetailMedia(it.id))
+        },
         onDeleteItem = viewModel::onDeleteItem,
         onMarkWatched = viewModel::onMarkWatched,
         onContentTypeChange = viewModel::changeContentMode,

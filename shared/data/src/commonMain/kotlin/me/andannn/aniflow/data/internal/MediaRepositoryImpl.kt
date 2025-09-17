@@ -17,6 +17,7 @@ import me.andannn.aniflow.data.internal.exceptions.toError
 import me.andannn.aniflow.data.internal.util.MediaListModificationSyncer
 import me.andannn.aniflow.data.internal.util.postMutationAndRevertWhenException
 import me.andannn.aniflow.data.model.CharacterModel
+import me.andannn.aniflow.data.model.MediaListModel
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.NotificationModel
 import me.andannn.aniflow.data.model.Page
@@ -37,6 +38,7 @@ import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.database.MediaLibraryDao
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelationWithUpdateLog
 import me.andannn.aniflow.database.schema.MediaEntity
+import me.andannn.aniflow.database.schema.MediaListEntity
 import me.andannn.aniflow.database.schema.StudioEntity
 import me.andannn.aniflow.datastore.UserSettingPreferences
 import me.andannn.aniflow.service.AniListService
@@ -151,6 +153,14 @@ internal class MediaRepositoryImpl(
                         .sortedByDescending { it.mediaListModel.updatedAt }
                 }
             }
+        }
+
+    override fun getMediaListItemOfUserFlow(
+        userId: String,
+        mediaId: String,
+    ): Flow<MediaListModel?> =
+        mediaLibraryDao.getMediaListItemFlow(userId, mediaId).map {
+            it?.toDomain()
         }
 
     override fun getNewReleasedAnimeListFlow(
@@ -346,10 +356,21 @@ private fun syncDetailMediaToLocal(
         Napier.d(tag = TAG) { "syncDetailMediaToLocal start: mediaId=$mediaId" }
         try {
             val detailMedia =
-                service.getDetailMedia(
-                    id = mediaId.toInt(),
-                )
+                service
+                    .getDetailMedia(
+                        id = mediaId.toInt(),
+                        withStudioConnection = true,
+                    ).media
             Napier.d(tag = TAG) { "syncDetailMediaToLocal finished" }
+
+            database.upsertMedias(listOf(detailMedia.toEntity()))
+            database.upsertStudiosOfMedia(
+                detailMedia.id.toString(),
+                detailMedia.studios
+                    ?.nodes
+                    ?.filterNotNull()
+                    ?.map(Studio::toEntity) ?: emptyList(),
+            )
 
             null
         } catch (exception: ServerException) {

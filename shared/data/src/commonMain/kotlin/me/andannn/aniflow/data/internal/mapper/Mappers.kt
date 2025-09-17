@@ -271,6 +271,15 @@ internal fun Media.toEntity() =
         ratedRanking = rankings?.firstOrNull { it?.type == MediaRankType.RATED }?.rank?.toLong(),
     )
 
+internal fun Studio.toEntity() =
+    StudioEntity(
+        id = id.toString(),
+        name = name,
+        isFavorite = isFavourite,
+        isAnimationStudio = isAnimationStudio,
+        siteUrl = siteUrl,
+    )
+
 internal fun MediaEntity.toDomain() =
     MediaModel(
         id = id,

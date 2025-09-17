@@ -5,6 +5,7 @@
 package me.andannn.aniflow.data.model
 
 import kotlinx.serialization.Serializable
+import me.andannn.aniflow.data.getUserTitleString
 import me.andannn.aniflow.data.model.define.MediaContentMode
 import me.andannn.aniflow.data.model.define.Theme
 import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
@@ -196,7 +197,12 @@ data class DetailUiState(
     val mediaModel: MediaModel?,
     val mediaListItem: MediaListModel? = null,
     val studioList: List<StudioModel> = emptyList(),
+    val userOptions: UserOptions = UserOptions.Default,
+    val authedUser: UserModel? = null,
 ) {
+    val title: String
+        get() = mediaModel?.title?.getUserTitleString(userOptions.titleLanguage) ?: ""
+
     companion object {
         val Empty =
             DetailUiState(

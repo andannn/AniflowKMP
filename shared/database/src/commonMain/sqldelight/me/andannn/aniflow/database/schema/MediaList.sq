@@ -41,6 +41,9 @@ WHERE mediaListEntity.userId = ? AND mediaEntity.mediaType = ? AND mediaListEnti
 getMediaListById:
 SELECT * FROM mediaListEntity WHERE mediaListId = ?;
 
+getMediaListByMediaIdAndUserId:
+SELECT * FROM mediaListEntity WHERE mediaId = ? AND userId = ?;
+
 updateMediaListStatus:
 UPDATE mediaListEntity SET listStatus = ? WHERE mediaListId = ?;
 
