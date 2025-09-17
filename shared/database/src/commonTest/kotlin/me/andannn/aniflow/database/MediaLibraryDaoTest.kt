@@ -11,6 +11,7 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
 import me.andannn.aniflow.database.relation.StaffWithRole
+import me.andannn.aniflow.database.schema.MediaListEntity
 import me.andannn.aniflow.database.util.MediaEntityWithDefault
 import me.andannn.aniflow.database.util.MediaListEntityWithDefault
 import me.andannn.aniflow.database.util.StaffEntityWithDefault
@@ -316,8 +317,14 @@ class MediaLibraryDaoTest {
             with(mediaLibraryDao) {
                 val staffList =
                     listOf(
-                        StaffWithRole("job1", StaffEntityWithDefault("staff1", fullName = "Staff A")),
-                        StaffWithRole("job2", StaffEntityWithDefault("staff2", fullName = "Staff B")),
+                        StaffWithRole(
+                            "job1",
+                            StaffEntityWithDefault("staff1", fullName = "Staff A"),
+                        ),
+                        StaffWithRole(
+                            "job2",
+                            StaffEntityWithDefault("staff2", fullName = "Staff B"),
+                        ),
                     )
                 upsertStaffOfMedia(
                     mediaId = "media1",
@@ -329,6 +336,39 @@ class MediaLibraryDaoTest {
                     assertEquals("Staff A", it[0].staffEntity.fullName)
                     assertEquals("staff2", it[1].staffEntity.id)
                     assertEquals("Staff B", it[1].staffEntity.fullName)
+                }
+            }
+        }
+
+    @Test
+    fun getMediaListItemFlowTest() =
+        testScope.runTest {
+            with(mediaLibraryDao) {
+                upsertMediaListEntities(
+                    listOf(
+                        MediaListAndMediaRelation(
+                            mediaEntity =
+                                MediaEntityWithDefault(
+                                    id = "media1",
+                                    englishTitle = "Media One",
+                                ),
+                            mediaListEntity =
+                                MediaListEntityWithDefault(
+                                    mediaListId = "list1",
+                                    userId = "user1",
+                                    mediaId = "media1",
+                                    listStatus = "CURRENT",
+                                ),
+                        ),
+                    ),
+                )
+
+                getMediaListItemFlow("user1", "media1").first().let {
+                    assertNotNull(it)
+                    assertEquals("list1", it.mediaListId)
+                    assertEquals("user1", it.userId)
+                    assertEquals("media1", it.mediaId)
+                    assertEquals("CURRENT", it.listStatus)
                 }
             }
         }

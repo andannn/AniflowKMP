@@ -190,7 +190,7 @@ class MediaLibraryDao constructor(
     ): Flow<MediaListEntity?> =
         withDatabase {
             mediaListQueries
-                .getMediaListByMediaIdAndUserId(userId, mediaId)
+                .getMediaListByMediaIdAndUserId(mediaId = mediaId, userId = userId)
                 .asFlow()
                 .mapToOneOrNull(dispatcher)
         }

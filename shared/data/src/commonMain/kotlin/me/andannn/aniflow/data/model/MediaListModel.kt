@@ -8,7 +8,7 @@ import me.andannn.aniflow.data.model.define.MediaListStatus
 
 data class MediaListModel(
     val id: String,
-    val status: MediaListStatus? = null,
+    val status: MediaListStatus,
     val score: Double? = null,
     val updatedAt: Int? = null,
     val progress: Int? = null,

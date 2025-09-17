@@ -41,6 +41,7 @@ import me.andannn.aniflow.data.getUserTitleString
 import me.andannn.aniflow.data.model.MediaListModel
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.Title
+import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.ui.theme.AniflowTheme
@@ -187,6 +188,7 @@ private fun NewReleaseCardPreview() {
                         mediaListModel =
                             MediaListModel(
                                 id = "1",
+                                status = MediaListStatus.DROPPED
                             ),
                         airingScheduleUpdateTime = null,
                     ),

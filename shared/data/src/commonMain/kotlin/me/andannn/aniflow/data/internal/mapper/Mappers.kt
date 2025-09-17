@@ -478,7 +478,7 @@ internal fun MediaList.toEntity(mediaId: String) =
 internal fun MediaListEntity.toDomain() =
     MediaListModel(
         id = mediaListId,
-        status = listStatus?.deserialize(),
+        status = listStatus?.deserialize() ?: error("listStatus cannot be null"),
         progress = progress?.toInt(),
         notes = notes,
         repeat = repeat?.toInt(),
