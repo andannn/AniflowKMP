@@ -19,6 +19,7 @@ import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelationWithUpdateLog
 import me.andannn.aniflow.database.schema.MediaEntity
 import me.andannn.aniflow.database.schema.MediaListEntity
+import me.andannn.aniflow.database.schema.StudioEntity
 import me.andannn.aniflow.database.schema.UserEntity
 
 class MediaLibraryDao constructor(
@@ -216,6 +217,32 @@ class MediaLibraryDao constructor(
             }
         }
     }
+
+    suspend fun upsertStudiosOfMedia(
+        mediaId: String,
+        studios: List<StudioEntity>,
+    ) = withDatabase {
+        withContext(dispatcher) {
+            transaction(true) {
+                studioQueries.deleteStudioOfMedia(mediaId)
+                studios.forEach { studio ->
+                    studioQueries.upsertStudio(studio)
+                    studioQueries.upsertStudioMediaCrossRef(
+                        mediaId = mediaId,
+                        studioId = studio.id,
+                    )
+                }
+            }
+        }
+    }
+
+    fun getStudiosOfMediaFlow(mediaId: String): Flow<List<StudioEntity>> =
+        withDatabase {
+            studioQueries
+                .getStudioOfMedia(mediaId)
+                .asFlow()
+                .mapToList(dispatcher)
+        }
 
     private inline fun <T> withDatabase(block: AniflowDatabase.() -> T): T = block.invoke(aniflowDatabase)
 }

@@ -19,7 +19,6 @@ import me.andannn.aniflow.data.model.define.toMediaType
 import me.andannn.aniflow.database.MediaLibraryDao
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import kotlin.getValue
 
 internal class SyncUserMediaListTask :
     SideEffectTask<SyncStatus>,

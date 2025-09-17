@@ -193,6 +193,14 @@ data class SettingUiState(
 )
 
 data class DetailUiState(
-    val mediaModel: MediaModel,
-    val mediaListItem: MediaListModel?,
-)
+    val mediaModel: MediaModel?,
+    val mediaListItem: MediaListModel? = null,
+    val studioList: List<StudioModel> = emptyList(),
+) {
+    companion object {
+        val Empty =
+            DetailUiState(
+                mediaModel = null,
+            )
+    }
+}

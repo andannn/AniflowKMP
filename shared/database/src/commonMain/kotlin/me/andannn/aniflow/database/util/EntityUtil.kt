@@ -126,3 +126,18 @@ fun MediaListEntityWithDefault(
     score = score,
     isPrivate = isPrivate,
 )
+
+@Suppress("ktlint:standard:function-naming")
+fun StudioEntityWithDefault(
+    id: String,
+    name: String? = null,
+    siteUrl: String? = null,
+    isAnimationStudio: Boolean? = null,
+    isFavorite: Boolean? = null,
+) = me.andannn.aniflow.database.schema.StudioEntity(
+    id = id,
+    name = name,
+    siteUrl = siteUrl,
+    isAnimationStudio = isAnimationStudio,
+    isFavorite = isFavorite,
+)

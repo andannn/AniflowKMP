@@ -30,7 +30,9 @@ val dataModule =
         singleOf(::DataProviderImpl).bind(HomeAppBarUiDataProvider::class)
         singleOf(::DataProviderImpl).bind(SettingUiDataProvider::class)
         singleOf(::DataProviderImpl).bind(TrackUiDataProvider::class)
-        singleOf(::DetailMediaUiDataProviderImpl).bind(DetailMediaUiDataProvider::class)
+        factory { (mediaId: String) -> DetailMediaUiDataProviderImpl(mediaId, get(), get()) }.bind(
+            DetailMediaUiDataProvider::class,
+        )
         includes(
             databaseModule,
             serviceModule,

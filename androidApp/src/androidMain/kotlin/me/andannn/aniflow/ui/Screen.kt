@@ -32,6 +32,11 @@ sealed interface Screen : NavKey {
     data object Settings : Screen
 
     @Serializable
+    data class DetailMedia(
+        val mediaId: String,
+    ) : Screen
+
+    @Serializable
     sealed interface Dialog : Screen {
         @Serializable
         data object Login : Dialog

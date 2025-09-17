@@ -93,7 +93,6 @@ class DiscoverViewModel(
             isSideEffectRefreshing,
             isLoginProcessing,
         ) { isSideEffectRefreshing, isLoginProcessing ->
-            Log.d(TAG, ":  isSideEffectRefreshing: $isSideEffectRefreshing, isLoginProcessing: $isLoginProcessing ")
             isSideEffectRefreshing || isLoginProcessing
         }.stateIn(
             viewModelScope,
@@ -194,7 +193,7 @@ fun Discover(
             navigator.navigateTo(Screen.Dialog.Login)
         },
         onMediaClick = {
-            navigator.navigateTo(Screen.Notification)
+            navigator.navigateTo(Screen.DetailMedia(it.id))
         },
         onPullRefresh = viewModel::onPullRefresh,
         onNavigateToMediaCategory = { category ->

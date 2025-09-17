@@ -12,6 +12,7 @@ import kotlinx.coroutines.test.runTest
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
 import me.andannn.aniflow.database.util.MediaEntityWithDefault
 import me.andannn.aniflow.database.util.MediaListEntityWithDefault
+import me.andannn.aniflow.database.util.StudioEntityWithDefault
 import me.andannn.aniflow.database.util.UserEntityWithDefault
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -275,6 +276,34 @@ class MediaLibraryDaoTest {
                     listStatus = listOf("CURRENT", "PLANNING"),
                 ).first().let { mediaList ->
                     assertNotNull(mediaList.first().updateTime)
+                }
+            }
+        }
+
+    @Test
+    fun getStudioOfMediaTest() =
+        testScope.runTest {
+            with(mediaLibraryDao) {
+                val studioList =
+                    listOf(
+                        StudioEntityWithDefault("studio1", "Studio A"),
+                        StudioEntityWithDefault("studio2", "Studio B"),
+                    )
+                upsertStudiosOfMedia(
+                    mediaId = "media1",
+                    studios = studioList,
+                )
+
+                getStudiosOfMediaFlow("none").first().let {
+                    assertEquals(0, it.size)
+                }
+
+                getStudiosOfMediaFlow("media1").first().let {
+                    assertEquals(2, it.size)
+                    assertEquals("studio1", it[0].id)
+                    assertEquals("Studio A", it[0].name)
+                    assertEquals("studio2", it[1].id)
+                    assertEquals("Studio B", it[1].name)
                 }
             }
         }

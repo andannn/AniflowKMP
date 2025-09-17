@@ -118,4 +118,8 @@ interface MediaRepository {
         perPage: Int,
         searchSource: SearchSource.Studio,
     ): Pair<Page<StudioModel>, AppError?>
+
+    fun getMediaFlow(mediaId: String): Flow<MediaModel>
+
+    fun getStudioOfMediaFlow(mediaId: String): Flow<List<StudioModel>>
 }

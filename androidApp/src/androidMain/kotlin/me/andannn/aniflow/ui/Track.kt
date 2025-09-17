@@ -91,9 +91,7 @@ class TrackViewModel(
         appBarUiDataProvider.appBarFlow().stateIn(
             viewModelScope,
             initialValue = HomeAppBarUiState(),
-            started =
-                kotlinx.coroutines.flow.SharingStarted
-                    .WhileSubscribed(5000),
+            started = SharingStarted.WhileSubscribed(5000),
         )
 
     init {

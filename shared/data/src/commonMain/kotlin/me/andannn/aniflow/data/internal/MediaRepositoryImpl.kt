@@ -37,6 +37,7 @@ import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.database.MediaLibraryDao
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelationWithUpdateLog
 import me.andannn.aniflow.database.schema.MediaEntity
+import me.andannn.aniflow.database.schema.StudioEntity
 import me.andannn.aniflow.datastore.UserSettingPreferences
 import me.andannn.aniflow.service.AniListService
 import me.andannn.aniflow.service.ServerException
@@ -300,6 +301,13 @@ internal class MediaRepositoryImpl(
             Page.empty<StudioModel>() to exception.toError()
         }
     }
+
+    override fun getMediaFlow(mediaId: String): Flow<MediaModel> = mediaLibraryDao.getMediaFlow(mediaId).map(MediaEntity::toDomain)
+
+    override fun getStudioOfMediaFlow(mediaId: String): Flow<List<StudioModel>> =
+        mediaLibraryDao.getStudiosOfMediaFlow(mediaId).map {
+            it.map(StudioEntity::toDomain)
+        }
 }
 
 private const val DEFAULT_CACHED_SIZE = 20

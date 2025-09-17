@@ -18,6 +18,7 @@ import me.andannn.aniflow.data.model.PageInfo
 import me.andannn.aniflow.data.model.SimpleDate
 import me.andannn.aniflow.data.model.StaffCharacterName
 import me.andannn.aniflow.data.model.StaffModel
+import me.andannn.aniflow.data.model.StudioModel
 import me.andannn.aniflow.data.model.Title
 import me.andannn.aniflow.data.model.Trailer
 import me.andannn.aniflow.data.model.UserModel
@@ -37,6 +38,7 @@ import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelationWithUpdateLog
 import me.andannn.aniflow.database.schema.MediaEntity
 import me.andannn.aniflow.database.schema.MediaListEntity
+import me.andannn.aniflow.database.schema.StudioEntity
 import me.andannn.aniflow.database.schema.UserEntity
 import me.andannn.aniflow.service.dto.ActivityLikeNotification
 import me.andannn.aniflow.service.dto.ActivityMentionNotification
@@ -304,6 +306,15 @@ internal fun MediaEntity.toDomain() =
                 site = trailerSite,
                 thumbnail = trailerThumbnail,
             ),
+        siteUrl = siteUrl,
+    )
+
+internal fun StudioEntity.toDomain() =
+    StudioModel(
+        id = id,
+        name = name ?: "",
+        isFavourite = isFavorite ?: false,
+        isAnimationStudio = isAnimationStudio ?: false,
         siteUrl = siteUrl,
     )
 
