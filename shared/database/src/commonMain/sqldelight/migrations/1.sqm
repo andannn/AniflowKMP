@@ -1,0 +1,16 @@
+import kotlin.Boolean;
+
+CREATE TABLE IF NOT EXISTS studioEntity(
+  id TEXT PRIMARY KEY NOT NULL,
+  name TEXT DEFAULT NULL,
+  siteUrl TEXT DEFAULT NULL,
+  isAnimationStudio INTEGER AS Boolean DEFAULT NULL,
+  isFavorite INTEGER AS Boolean DEFAULT NULL
+);
+
+CREATE TABLE IF NOT EXISTS studioMediaCrossRefEntity (
+  studioId TEXT NOT NULL,
+  mediaId TEXT NOT NULL,
+  PRIMARY KEY (studioId, mediaId)
+);
+

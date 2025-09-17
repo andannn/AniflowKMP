@@ -11,8 +11,10 @@ sqldelight {
     databases {
         create("AniflowDatabase") {
             dialect(libs.sqldelight.dialect.sqlite)
+            version = 2
             generateAsync = true
             packageName.set("me.andannn.aniflow.database")
+            schemaOutputDirectory.set(file("src/commonMain/sqldelight/databases"))
         }
     }
 }
@@ -35,5 +37,16 @@ kotlin {
         iosMain.dependencies {
             implementation(libs.sqldelight.native.driver)
         }
+    }
+}
+
+gradle.projectsEvaluated {
+    val targets =
+        listOf(
+            ":shared:database:bundleLibCompileToJarDebug",
+            ":shared:database:bundleLibCompileToJarRelease",
+        )
+    tasks.matching { it.path in targets }.configureEach {
+        finalizedBy(tasks.named("generateCommonMainAniflowDatabaseSchema"))
     }
 }
