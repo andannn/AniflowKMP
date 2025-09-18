@@ -21,7 +21,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import me.andannn.aniflow.data.model.HomeAppBarUiState
 import me.andannn.aniflow.data.model.define.MediaContentMode
+import me.andannn.aniflow.ui.theme.AppBackgroundColor
 import me.andannn.aniflow.ui.theme.AppNameFontFamily
+import me.andannn.aniflow.ui.theme.TopAppBarColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,14 +36,9 @@ fun DefaultAppBar(
     onSearchClick: () -> Unit = {},
 ) {
     val user = state.authedUser
-    val color =
-        TopAppBarDefaults.topAppBarColors().copy(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-            scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-        )
     TopAppBar(
         scrollBehavior = scrollBehavior,
-        colors = color,
+        colors = TopAppBarColors,
         title = {
             Text(
                 text = title,

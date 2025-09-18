@@ -26,6 +26,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.utils.io.CancellationException
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import me.andannn.aniflow.service.dto.ActivityUnion
 import me.andannn.aniflow.service.dto.AiringSchedule
@@ -140,8 +141,9 @@ class AniListService constructor(
             install(Auth) {
                 bearer {
                     sendWithoutRequest {
-                        // send token only if response is 401 Unauthorized
-                        false
+                        runBlocking {
+                            tokenProvider.getAccessToken() != null
+                        }
                     }
 
                     loadTokens {
@@ -195,6 +197,7 @@ class AniListService constructor(
         staffPage: Int? = null,
         staffPerPage: Int? = null,
         withStudioConnection: Boolean = false,
+        withRelationConnection: Boolean = false,
     ): MediaDetailResponse =
         doGraphQlQuery(
             query =
@@ -206,6 +209,7 @@ class AniListService constructor(
                     staffPage = staffPage,
                     staffPerPage = staffPerPage,
                     withStudioConnection = withStudioConnection,
+                    withRelationConnection = withRelationConnection,
                 ),
         )
 
@@ -515,7 +519,7 @@ class AniListService constructor(
      * @param studioId The ID of the studio to toggle (optional).
      */
     suspend fun toggleFavorite(
-        mediaId: Int? = null,
+        animeId: Int? = null,
         mangaId: Int? = null,
         characterId: Int? = null,
         staffId: Int? = null,
@@ -524,7 +528,7 @@ class AniListService constructor(
         doGraphQlQuery(
             query =
                 ToggleFavoriteMutation(
-                    mediaId = mediaId,
+                    animeId = animeId,
                     mangaId = mangaId,
                     characterId = characterId,
                     staffId = staffId,
@@ -698,7 +702,7 @@ class AniListService constructor(
                 .post {
                     setBody(
                         query.toQueryBody().also {
-//                            Napier.v(tag = TAG) { "doGraphQlQuery: $it" }
+                            Napier.v(tag = TAG) { "doGraphQlQuery: $it" }
                         },
                     )
                 }.let { response ->

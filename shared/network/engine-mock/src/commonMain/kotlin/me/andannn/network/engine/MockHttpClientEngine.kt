@@ -46,6 +46,7 @@ import me.andannn.network.engine.mock.DETAIL_STUDIO_DATA
 import me.andannn.network.engine.mock.MEDIA_LIST_ITEM_DATA
 import me.andannn.network.engine.mock.MEDIA_LIST_PAGE_DATA
 import me.andannn.network.engine.mock.MEDIA_PAGE_DATA
+import me.andannn.network.engine.mock.MEDIA_WITH_RELATIONS
 import me.andannn.network.engine.mock.NOTIFICATION_DATA
 import me.andannn.network.engine.mock.SAVED_MEDIA_LIST_RESPONSE
 import me.andannn.network.engine.mock.SEARCH_CHARACTER_RESULT_PAGE_DATA
@@ -92,6 +93,10 @@ val MockHttpClientEngine =
 
                             buildMediaDetailQuerySchema(withStaffConnection = true) -> {
                                 respondString(STAFF_PAGE_DATA)
+                            }
+
+                            buildMediaDetailQuerySchema(withRelations = true) -> {
+                                respondString(MEDIA_WITH_RELATIONS)
                             }
 
                             MEDIA_LIST_QUERY_SCHEMA -> {

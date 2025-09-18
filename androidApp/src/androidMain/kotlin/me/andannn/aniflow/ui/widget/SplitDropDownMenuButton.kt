@@ -1,3 +1,7 @@
+/*
+ * Copyright 2025, the AniflowKMP project contributors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package me.andannn.aniflow.ui.widget
 
 import androidx.compose.animation.core.animateFloatAsState
@@ -100,7 +104,10 @@ fun SplitDropDownMenuButton(
                         DropdownMenuItem(
                             modifier = Modifier.background(backgroundColor),
                             colors = colors,
-                            onClick = { onMenuItemClick(index) },
+                            onClick = {
+                                checked = false
+                                onMenuItemClick(index)
+                            },
                             text = { Text(item.label) },
                             leadingIcon = { Icon(item.icon, contentDescription = null) },
                         )

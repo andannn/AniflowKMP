@@ -296,7 +296,7 @@ private fun MediaListModelPreview() {
                     mediaListModel =
                         MediaListModel(
                             id = "1",
-                            status = MediaListStatus.DROPPED
+                            status = MediaListStatus.DROPPED,
                         ),
                     airingScheduleUpdateTime = null,
                 ),

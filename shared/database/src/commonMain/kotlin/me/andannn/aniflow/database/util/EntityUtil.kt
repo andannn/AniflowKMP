@@ -23,6 +23,7 @@ fun MediaEntityWithDefault(
     description: String? = null,
     episodes: Long? = null,
     seasonYear: Long? = null,
+    currentYearRanking: Long? = null,
     season: String? = null,
     source: String? = null,
     status: String? = null,
@@ -44,6 +45,9 @@ fun MediaEntityWithDefault(
     endDate: Long? = null,
     isFavourite: Boolean? = null,
     siteUrl: String? = null,
+    externalLinkList: String? = null,
+    meanScore: Long? = null,
+    currentYearPopularRanking: Long? = null,
 ) = MediaEntity(
     id = id,
     mediaType = mediaType,
@@ -76,6 +80,10 @@ fun MediaEntityWithDefault(
     timeUntilAiring = timeUntilAiring,
     isFavourite = isFavourite,
     siteUrl = siteUrl,
+    externalLinkList = externalLinkList,
+    currentYearRanking = currentYearRanking,
+    meanScore = meanScore,
+    currentYearPopularRanking = currentYearPopularRanking,
 )
 
 @Suppress("ktlint:standard:function-naming")

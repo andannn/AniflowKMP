@@ -24,6 +24,7 @@ data class MediaListAndMediaRelation(
             startedAt: String?,
             completedAt: String?,
             updatedAt: Long?,
+            currentYearRanking: Long?,
             repeat: Long?,
             score: Double?,
             isPrivate: Boolean?,
@@ -56,8 +57,11 @@ data class MediaListAndMediaRelation(
             ratedRanking: Long?,
             nextAiringEpisode: Long?,
             timeUntilAiring: Long?,
+            externalLinkList: String?,
             isFavourite: Boolean?,
             siteUrl: String?,
+            meanScore: Long?,
+            currentYearPopularRanking: Long?,
         ): MediaListAndMediaRelation =
             MediaListAndMediaRelation(
                 mediaEntity =
@@ -87,12 +91,16 @@ data class MediaListAndMediaRelation(
                         format = format,
                         trending = trending,
                         favourites = favourites,
+                        currentYearRanking = currentYearRanking,
                         popularRanking = popularRanking,
                         ratedRanking = ratedRanking,
                         nextAiringEpisode = nextAiringEpisode,
                         timeUntilAiring = timeUntilAiring,
                         isFavourite = isFavourite,
                         siteUrl = siteUrl,
+                        externalLinkList = externalLinkList,
+                        meanScore = meanScore,
+                        currentYearPopularRanking = currentYearPopularRanking,
                     ),
                 mediaListEntity =
                     MediaListEntity(
@@ -164,6 +172,10 @@ data class MediaListAndMediaRelationWithUpdateLog(
             timeUntilAiring: Long?,
             isFavourite: Boolean?,
             siteUrl: String?,
+            externalLinkList: String?,
+            currentYearRanking: Long?,
+            meanScore: Long?,
+            currentYearPopularRanking: Long?,
             updatedMediaId: String?,
             updateTime: Long?,
         ): MediaListAndMediaRelationWithUpdateLog =
@@ -184,6 +196,7 @@ data class MediaListAndMediaRelationWithUpdateLog(
                         score = score,
                         isPrivate = isPrivate,
                         id = id,
+                        currentYearRanking = currentYearRanking,
                         mediaType = mediaType,
                         englishTitle = englishTitle,
                         romajiTitle = romajiTitle,
@@ -214,6 +227,9 @@ data class MediaListAndMediaRelationWithUpdateLog(
                         timeUntilAiring = timeUntilAiring,
                         isFavourite = isFavourite,
                         siteUrl = siteUrl,
+                        externalLinkList = externalLinkList,
+                        meanScore = meanScore,
+                        currentYearPopularRanking = currentYearPopularRanking,
                     ),
                 updateTime = updateTime,
             )

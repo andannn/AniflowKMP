@@ -1,0 +1,19 @@
+CREATE TABLE mediaRelationEntity (
+    ownerId TEXT NOT NULL,
+    relationId TEXT NOT NULL,
+    relationType TEXT NOT NULL,
+    PRIMARY KEY (ownerId, relationId)
+);
+
+upsertMediaRelation:
+INSERT OR REPLACE INTO mediaRelationEntity (
+    ownerId,
+    relationId,
+    relationType
+) VALUES (?, ?, ?);
+
+getMediaRelationsOfMedia:
+SELECT mediaRelationEntity.relationType, mediaEntity.* FROM mediaRelationEntity
+JOIN mediaEntity ON mediaEntity.id = mediaRelationEntity.relationId
+WHERE mediaRelationEntity.ownerId = ?
+;

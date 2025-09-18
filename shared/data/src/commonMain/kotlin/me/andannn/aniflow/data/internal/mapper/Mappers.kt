@@ -8,6 +8,7 @@ import kotlinx.serialization.json.Json
 import me.andannn.aniflow.data.model.ActivityNotification
 import me.andannn.aniflow.data.model.CharacterModel
 import me.andannn.aniflow.data.model.EpisodeModel
+import me.andannn.aniflow.data.model.ExternalLink
 import me.andannn.aniflow.data.model.FollowNotification
 import me.andannn.aniflow.data.model.MediaDeletion
 import me.andannn.aniflow.data.model.MediaListModel
@@ -25,6 +26,7 @@ import me.andannn.aniflow.data.model.UserModel
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.MediaFormat
 import me.andannn.aniflow.data.model.define.MediaListStatus
+import me.andannn.aniflow.data.model.define.MediaRelation
 import me.andannn.aniflow.data.model.define.MediaSeason
 import me.andannn.aniflow.data.model.define.MediaSort
 import me.andannn.aniflow.data.model.define.MediaSource
@@ -33,7 +35,9 @@ import me.andannn.aniflow.data.model.define.MediaType
 import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import me.andannn.aniflow.data.model.define.deserialize
+import me.andannn.aniflow.data.model.relation.MediaModelWithRelationType
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
+import me.andannn.aniflow.database.relation.MediaEntityWithRelationType
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelationWithUpdateLog
 import me.andannn.aniflow.database.relation.StaffWithRole
@@ -58,6 +62,7 @@ import me.andannn.aniflow.service.dto.MediaDataChangeNotification
 import me.andannn.aniflow.service.dto.MediaDeletionNotification
 import me.andannn.aniflow.service.dto.MediaList
 import me.andannn.aniflow.service.dto.MediaMergeNotification
+import me.andannn.aniflow.service.dto.MediaRelations
 import me.andannn.aniflow.service.dto.NotificationUnion
 import me.andannn.aniflow.service.dto.Page
 import me.andannn.aniflow.service.dto.RelatedMediaAdditionNotification
@@ -237,6 +242,36 @@ internal fun me.andannn.aniflow.service.dto.enums.UserStaffNameLanguage.toDomain
         me.andannn.aniflow.service.dto.enums.UserStaffNameLanguage.UNKNOWN__ -> null
     }
 
+internal fun me.andannn.aniflow.service.dto.enums.MediaRelation.toDomainType() =
+    when (this) {
+        me.andannn.aniflow.service.dto.enums.MediaRelation.SEQUEL -> MediaRelation.SEQUEL
+        me.andannn.aniflow.service.dto.enums.MediaRelation.PREQUEL -> MediaRelation.PREQUEL
+        me.andannn.aniflow.service.dto.enums.MediaRelation.ADAPTATION -> MediaRelation.ADAPTATION
+        me.andannn.aniflow.service.dto.enums.MediaRelation.SPIN_OFF -> MediaRelation.SPIN_OFF
+        me.andannn.aniflow.service.dto.enums.MediaRelation.SUMMARY -> MediaRelation.SUMMARY
+        me.andannn.aniflow.service.dto.enums.MediaRelation.SIDE_STORY -> MediaRelation.SIDE_STORY
+        me.andannn.aniflow.service.dto.enums.MediaRelation.PARENT -> MediaRelation.PARENT
+        me.andannn.aniflow.service.dto.enums.MediaRelation.CHARACTER -> MediaRelation.CHARACTER
+        me.andannn.aniflow.service.dto.enums.MediaRelation.ALTERNATIVE -> MediaRelation.ALTERNATIVE
+        me.andannn.aniflow.service.dto.enums.MediaRelation.OTHER -> MediaRelation.OTHER
+        me.andannn.aniflow.service.dto.enums.MediaRelation.SOURCE -> MediaRelation.SOURCE
+        me.andannn.aniflow.service.dto.enums.MediaRelation.COMPILATION -> MediaRelation.COMPILATION
+        me.andannn.aniflow.service.dto.enums.MediaRelation.CONTAINS -> MediaRelation.CONTAINS
+        me.andannn.aniflow.service.dto.enums.MediaRelation.UNKNOWN__ -> null
+    }
+
+internal fun MediaRelations.Edge.toEntity() =
+    MediaEntityWithRelationType(
+        media = node!!.toEntity(),
+        relationType = relationType?.toDomainType()?.key ?: error("relationType cannot be null"),
+    )
+
+internal fun MediaEntityWithRelationType.toDomain(): MediaModelWithRelationType =
+    MediaModelWithRelationType(
+        media = media.toDomain(),
+        relationType = relationType.deserialize(),
+    )
+
 internal fun Media.toDomain() = toEntity().toDomain()
 
 internal fun Media.toEntity() =
@@ -255,6 +290,7 @@ internal fun Media.toEntity() =
         source = source?.toDomainType()?.key,
         bannerImage = bannerImage,
         averageScore = averageScore?.toLong(),
+        meanScore = meanScore?.toLong(),
         trending = trending?.toLong(),
         favourites = favourites?.toLong(),
         trailerId = trailer?.id,
@@ -270,8 +306,24 @@ internal fun Media.toEntity() =
         nextAiringEpisode = nextAiringEpisode?.episode?.toLong(),
         genres = Json.encodeToString(genres),
         siteUrl = null,
-        popularRanking = rankings?.firstOrNull { it?.type == MediaRankType.POPULAR }?.rank?.toLong(),
-        ratedRanking = rankings?.firstOrNull { it?.type == MediaRankType.RATED }?.rank?.toLong(),
+        popularRanking = rankings?.firstOrNull { it?.type == MediaRankType.POPULAR && it.allTime == true }?.rank?.toLong(),
+        currentYearPopularRanking = rankings?.firstOrNull { it?.type == MediaRankType.POPULAR && it.allTime == false }?.rank?.toLong(),
+        ratedRanking = rankings?.firstOrNull { it?.type == MediaRankType.RATED && it.allTime == true }?.rank?.toLong(),
+        currentYearRanking = rankings?.firstOrNull { it?.type == MediaRankType.RATED && it.allTime == false }?.rank?.toLong(),
+        externalLinkList =
+            Json.encodeToString(
+                externalLinks
+                    ?.filterNotNull()
+                    ?.map(me.andannn.aniflow.service.dto.ExternalLink::toDomain),
+            ),
+    )
+
+internal fun me.andannn.aniflow.service.dto.ExternalLink.toDomain() =
+    ExternalLink(
+        url = url,
+        site = site,
+        color = color,
+        icon = icon,
     )
 
 internal fun Studio.toEntity() =
@@ -328,12 +380,15 @@ internal fun MediaEntity.toDomain() =
         format = format?.deserialize(),
         bannerImage = bannerImage,
         averageScore = averageScore?.toInt(),
+        meanScore = meanScore?.toInt(),
         favourites = favourites?.toInt(),
         season = season?.deserialize(),
         seasonYear = seasonYear?.toInt(),
         episodes = episodes?.toInt(),
-        ratedRank = ratedRanking?.toInt(),
-        popularRank = popularRanking?.toInt(),
+        allTimeRatedRank = ratedRanking?.toInt(),
+        currentYearRatedRank = currentYearRanking?.toInt(),
+        allTimePopularRank = popularRanking?.toInt(),
+        currentYearPopularRank = currentYearPopularRanking?.toInt(),
         nextAiringEpisode =
             EpisodeModel(
                 episode = nextAiringEpisode?.toInt(),
@@ -343,10 +398,12 @@ internal fun MediaEntity.toDomain() =
         hashtag = hashtag?.split(' ') ?: emptyList(),
         trailer =
             Trailer(
+                id = trailerId,
                 site = trailerSite,
                 thumbnail = trailerThumbnail,
             ),
         siteUrl = siteUrl,
+        externalLinks = externalLinkList?.let { Json.decodeFromString(it) } ?: emptyList(),
     )
 
 internal fun StudioEntity.toDomain() =

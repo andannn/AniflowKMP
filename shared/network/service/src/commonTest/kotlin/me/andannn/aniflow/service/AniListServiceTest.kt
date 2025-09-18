@@ -48,6 +48,13 @@ class AniListServiceTest {
         }
 
     @Test
+    fun testGetDetailWithConnection() =
+        testScope.runTest {
+            val respond = serviceWithNoToken.getDetailMedia(id = 1, withRelationConnection = true)
+            assertIs<MediaDetailResponse>(respond)
+        }
+
+    @Test
     fun testGetMediaPage() =
         testScope.runTest {
             val respond =

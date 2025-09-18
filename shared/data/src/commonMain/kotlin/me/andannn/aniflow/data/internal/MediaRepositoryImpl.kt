@@ -14,7 +14,9 @@ import kotlinx.coroutines.flow.map
 import me.andannn.aniflow.data.AppError
 import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.internal.exceptions.toError
+import me.andannn.aniflow.data.internal.util.AddNewListItemSyncer
 import me.andannn.aniflow.data.internal.util.MediaListModificationSyncer
+import me.andannn.aniflow.data.internal.util.ToggleLikeSyncer
 import me.andannn.aniflow.data.internal.util.postMutationAndRevertWhenException
 import me.andannn.aniflow.data.model.CharacterModel
 import me.andannn.aniflow.data.model.MediaListModel
@@ -35,8 +37,10 @@ import me.andannn.aniflow.data.model.define.MediaType
 import me.andannn.aniflow.data.model.define.NotificationCategory
 import me.andannn.aniflow.data.model.define.deserialize
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
+import me.andannn.aniflow.data.model.relation.MediaModelWithRelationType
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.database.MediaLibraryDao
+import me.andannn.aniflow.database.relation.MediaEntityWithRelationType
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelationWithUpdateLog
 import me.andannn.aniflow.database.schema.MediaEntity
 import me.andannn.aniflow.database.schema.StudioEntity
@@ -46,6 +50,7 @@ import me.andannn.aniflow.service.ServerException
 import me.andannn.aniflow.service.dto.Character
 import me.andannn.aniflow.service.dto.Media
 import me.andannn.aniflow.service.dto.MediaList
+import me.andannn.aniflow.service.dto.MediaRelations
 import me.andannn.aniflow.service.dto.NotificationUnion
 import me.andannn.aniflow.service.dto.Staff
 import me.andannn.aniflow.service.dto.StaffConnection
@@ -239,6 +244,9 @@ internal class MediaRepositoryImpl(
             },
         )
 
+    override suspend fun addNewMediaToList(mediaId: String): AppError? =
+        AddNewListItemSyncer(mediaId).postMutationAndRevertWhenException(syncWhenItemChanged = false)
+
     override suspend fun searchMediaFromSource(
         page: Int,
         perPage: Int,
@@ -323,6 +331,21 @@ internal class MediaRepositoryImpl(
         mediaLibraryDao.getStaffOfMediaFlow(mediaId).map {
             it.map(me.andannn.aniflow.database.relation.StaffWithRole::toDomain)
         }
+
+    override fun getRelationsOfMediaFlow(mediaId: String): Flow<List<MediaModelWithRelationType>> =
+        mediaLibraryDao.getRelatedMediaOfMediaFlow(mediaId).map {
+            it.map(MediaEntityWithRelationType::toDomain)
+        }
+
+    override suspend fun toggleMediaItemLike(
+        mediaId: String,
+        mediaType: MediaType,
+    ): AppError? =
+        ToggleLikeSyncer(mediaId, mediaType).postMutationAndRevertWhenException { old ->
+            old.copy(
+                isFavourite = !(old.isFavourite ?: false),
+            )
+        }
 }
 
 private const val DEFAULT_CACHED_SIZE = 20
@@ -365,6 +388,7 @@ private fun syncDetailMediaToLocal(
                     .getDetailMedia(
                         id = mediaId.toInt(),
                         withStudioConnection = true,
+                        withRelationConnection = true,
                         staffPage = 1,
                         staffPerPage = 9,
                     ).media
@@ -386,6 +410,15 @@ private fun syncDetailMediaToLocal(
                     ?.map(StaffConnection.Edge::toEntity) ?: emptyList(),
             )
 
+            database.upsertMediaRelations(
+                detailMedia.id.toString(),
+                detailMedia.relations
+                    ?.edges
+                    ?.filterNotNull()
+                    ?.map(MediaRelations.Edge::toEntity)
+                    ?: emptyList(),
+            )
+
             null
         } catch (exception: ServerException) {
             Napier.e { "Error when syncing local with remote: $exception" }
@@ -403,7 +436,11 @@ private fun syncMediaListOfUserToLocal(
         Napier.d(tag = TAG) { "syncDetailMediaToLocal start: mediaId=$mediaId, userId=$userId" }
         try {
             Napier.d(tag = TAG) { "syncDetailMediaToLocal finished" }
-
+//            val mediaListItem =
+//                service.updateMediaList(
+//                    mediaId = mediaId.toInt(),
+//                )
+//            database.upsertMediaListEntity(mediaListItem.toEntity(mediaId))
             null
         } catch (exception: ServerException) {
             Napier.e { "Error when syncing local with remote: $exception" }

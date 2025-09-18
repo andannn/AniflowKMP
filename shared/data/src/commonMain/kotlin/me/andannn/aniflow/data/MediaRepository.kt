@@ -23,6 +23,7 @@ import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.model.define.MediaType
 import me.andannn.aniflow.data.model.define.NotificationCategory
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
+import me.andannn.aniflow.data.model.relation.MediaModelWithRelationType
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 
 interface MediaRepository {
@@ -99,6 +100,9 @@ interface MediaRepository {
     ): AppError?
 
     @NativeCoroutines
+    suspend fun addNewMediaToList(mediaId: String): AppError?
+
+    @NativeCoroutines
     suspend fun searchMediaFromSource(
         page: Int,
         perPage: Int,
@@ -131,4 +135,12 @@ interface MediaRepository {
     fun getStudioOfMediaFlow(mediaId: String): Flow<List<StudioModel>>
 
     fun getStaffOfMediaFlow(mediaId: String): Flow<List<StaffWithRole>>
+
+    fun getRelationsOfMediaFlow(mediaId: String): Flow<List<MediaModelWithRelationType>>
+
+    @NativeCoroutines
+    suspend fun toggleMediaItemLike(
+        mediaId: String,
+        mediaType: MediaType,
+    ): AppError?
 }

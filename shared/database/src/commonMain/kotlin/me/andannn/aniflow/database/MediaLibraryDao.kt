@@ -15,12 +15,12 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.withContext
+import me.andannn.aniflow.database.relation.MediaEntityWithRelationType
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelationWithUpdateLog
 import me.andannn.aniflow.database.relation.StaffWithRole
 import me.andannn.aniflow.database.schema.MediaEntity
 import me.andannn.aniflow.database.schema.MediaListEntity
-import me.andannn.aniflow.database.schema.StaffEntity
 import me.andannn.aniflow.database.schema.StudioEntity
 import me.andannn.aniflow.database.schema.UserEntity
 
@@ -116,6 +116,13 @@ class MediaLibraryDao constructor(
                         mediaQueries.upsertMedia(mediaListAndMediaRelation.mediaEntity)
                     }
                 }
+            }
+        }
+
+    suspend fun upsertMediaListEntity(mediaListEntity: MediaListEntity) =
+        withDatabase {
+            withContext(dispatcher) {
+                mediaListQueries.upsertMediaList(mediaListEntity)
             }
         }
 
@@ -281,6 +288,34 @@ class MediaLibraryDao constructor(
         withDatabase {
             staffQueries
                 .getStaffOfMedia(mediaId, StaffWithRole::mapTo)
+                .asFlow()
+                .mapToList(dispatcher)
+        }
+
+    suspend fun upsertMediaRelations(
+        mediaId: String,
+        relatedMedias: List<MediaEntityWithRelationType>,
+    ) = withDatabase {
+        withContext(dispatcher) {
+            transaction(true) {
+                relatedMedias.forEach { related ->
+                    mediaRelationQueries.upsertMediaRelation(
+                        ownerId = mediaId,
+                        relationId = related.media.id,
+                        relationType = related.relationType,
+                    )
+                    mediaQueries.upsertMedia(
+                        mediaEntity = related.media,
+                    )
+                }
+            }
+        }
+    }
+
+    fun getRelatedMediaOfMediaFlow(mediaId: String): Flow<List<MediaEntityWithRelationType>> =
+        withDatabase {
+            mediaRelationQueries
+                .getMediaRelationsOfMedia(mediaId, MediaEntityWithRelationType::mapTo)
                 .asFlow()
                 .mapToList(dispatcher)
         }

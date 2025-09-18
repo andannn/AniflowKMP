@@ -118,6 +118,7 @@ import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.MediaFormat
 import me.andannn.aniflow.data.model.define.MediaSeason
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
+import me.andannn.aniflow.ui.theme.PageHorizontalPadding
 import me.andannn.aniflow.ui.widget.CommonItemFilledCard
 import me.andannn.aniflow.ui.widget.OptionChips
 import me.andannn.aniflow.ui.widget.SelectOptionBottomSheet
@@ -508,6 +509,9 @@ fun Search(
         onClearAllClick = {
             viewModel.onClearAllClick()
         },
+        onNavigateToScreen = {
+            router.navigateTo(it)
+        },
     )
 
     ErrorHandleSideEffect(viewModel)
@@ -599,6 +603,7 @@ private fun SearchContent(
     onOptionChipClick: (OptionSheetType) -> Unit = {},
     onLabelChipClick: (Option<*>) -> Unit = {},
     onClearAllClick: () -> Unit = {},
+    onNavigateToScreen: (Screen) -> Unit = {},
 ) {
     Scaffold(
         modifier = modifier,
@@ -628,7 +633,7 @@ private fun SearchContent(
                     .padding(top = it.calculateTopPadding())
                     .fillMaxSize(),
             columns = StaggeredGridCells.Fixed(2),
-            contentPadding = PaddingValues(horizontal = 16.dp),
+            contentPadding = PaddingValues(horizontal = PageHorizontalPadding),
         ) {
             item(span = StaggeredGridItemSpan.FullLine) {
                 SearchSourceSelection(
@@ -704,6 +709,9 @@ private fun SearchContent(
                         onLoadNextPage = {
                             searchResultPagingController.loadNextPage()
                         },
+                        onClickItem = {
+                            onNavigateToScreen(Screen.DetailMedia(it.id))
+                        },
                     )
                 }
 
@@ -744,8 +752,9 @@ private fun SearchContent(
 fun LazyStaggeredGridScope.mediaSearchResultPaging(
     items: List<MediaModel>,
     status: LoadingStatus,
-    onLoadNextPage: () -> Unit,
     userTitleLanguage: UserTitleLanguage,
+    onLoadNextPage: () -> Unit,
+    onClickItem: (MediaModel) -> Unit,
 ) {
     pagingItems(
         items = items,
@@ -758,6 +767,9 @@ fun LazyStaggeredGridScope.mediaSearchResultPaging(
                 modifier = Modifier.padding(4.dp),
                 title = title,
                 coverImage = item.coverImage,
+                onClick = {
+                    onClickItem(item)
+                },
             )
         },
     )

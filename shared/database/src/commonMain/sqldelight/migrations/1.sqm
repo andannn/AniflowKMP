@@ -42,3 +42,21 @@ CREATE TABLE IF NOT EXISTS staffMediaCrossRefEntity(
     PRIMARY KEY (staffId, mediaId)
 );
 
+ALTER TABLE mediaEntity
+ADD COLUMN externalLinkList TEXT DEFAULT NULL;
+
+ALTER TABLE mediaEntity
+ADD COLUMN currentYearRanking INTEGER DEFAULT NULL;
+
+ALTER TABLE mediaEntity
+ADD COLUMN meanScore INTEGER DEFAULT NULL;
+
+ALTER TABLE mediaEntity
+ADD COLUMN currentYearPopularRanking INTEGER DEFAULT NULL;
+
+CREATE TABLE mediaRelationEntity (
+    ownerId TEXT NOT NULL,
+    relationId TEXT NOT NULL,
+    relationType TEXT NOT NULL,
+    PRIMARY KEY (ownerId, relationId)
+);

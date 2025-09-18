@@ -9,9 +9,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
+import me.andannn.aniflow.database.relation.MediaEntityWithRelationType
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
 import me.andannn.aniflow.database.relation.StaffWithRole
-import me.andannn.aniflow.database.schema.MediaListEntity
 import me.andannn.aniflow.database.util.MediaEntityWithDefault
 import me.andannn.aniflow.database.util.MediaListEntityWithDefault
 import me.andannn.aniflow.database.util.StaffEntityWithDefault
@@ -372,4 +372,31 @@ class MediaLibraryDaoTest {
                 }
             }
         }
+
+    @Test
+    fun getRelatedMediaOfMediaTest() {
+        testScope.runTest {
+            with(mediaLibraryDao) {
+                mediaLibraryDao.upsertMediaRelations(
+                    "media1",
+                    listOf(
+                        MediaEntityWithRelationType(
+                            relationType = "SEQUEL",
+                            media =
+                                MediaEntityWithDefault(
+                                    id = "media2",
+                                    englishTitle = "Media Two",
+                                ),
+                        ),
+                    ),
+                )
+                getRelatedMediaOfMediaFlow("media1").first().let {
+                    assertEquals(1, it.size)
+                    assertEquals("SEQUEL", it[0].relationType)
+                    assertEquals("media2", it[0].media.id)
+                    assertEquals("Media Two", it[0].media.englishTitle)
+                }
+            }
+        }
+    }
 }

@@ -93,6 +93,10 @@ public data class Media(
      */
     public val averageScore: Int? = null,
     /**
+     * Mean score of all the user's scores of the media
+     */
+    public val meanScore: Int? = null,
+    /**
      * The amount of user's who have favourited the media
      */
     public val favourites: Int? = null,
@@ -116,4 +120,8 @@ public data class Media(
      * The companies who produced the media
      */
     public val studios: StudioConnection? = null,
+    /**
+     * Other media in the same or connecting franchise
+     */
+    public val relations: MediaRelations? = null,
 )

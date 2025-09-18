@@ -9,13 +9,16 @@ import kotlinx.coroutines.flow.first
 import me.andannn.aniflow.data.AppError
 import me.andannn.aniflow.data.internal.exceptions.toError
 import me.andannn.aniflow.data.internal.toDomainType
+import me.andannn.aniflow.data.internal.toEntity
 import me.andannn.aniflow.data.internal.toServiceType
 import me.andannn.aniflow.data.model.define.MediaListStatus
+import me.andannn.aniflow.data.model.define.MediaType
 import me.andannn.aniflow.data.model.define.Theme
 import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import me.andannn.aniflow.data.model.define.deserialize
 import me.andannn.aniflow.database.MediaLibraryDao
+import me.andannn.aniflow.database.schema.MediaEntity
 import me.andannn.aniflow.database.schema.MediaListEntity
 import me.andannn.aniflow.datastore.UserSettingPreferences
 import me.andannn.aniflow.service.AniListService
@@ -44,10 +47,13 @@ internal interface DataSyncer<T> {
     ): T
 }
 
-internal suspend fun <T> DataSyncer<T>.postMutationAndRevertWhenException(modify: (T) -> T): AppError? {
+internal suspend fun <T> DataSyncer<T>.postMutationAndRevertWhenException(
+    syncWhenItemChanged: Boolean = true,
+    modify: (T) -> T = { it },
+): AppError? {
     val oldModel = getLocal()
     val newModel = modify(oldModel)
-    if (oldModel == newModel) {
+    if (syncWhenItemChanged && oldModel == newModel) {
         Napier.d(tag = TAG) { "postMutationAndRevertWhenException same item, just skip" }
         return null
     }
@@ -177,5 +183,66 @@ internal class UserSettingSyncer :
         fun needSync(new: Param): Boolean =
             userTitleLanguage != new.userTitleLanguage ||
                 userStaffNameLanguage != new.userStaffNameLanguage
+    }
+}
+
+internal class AddNewListItemSyncer(
+    private val mediaId: String,
+) : DataSyncer<MediaListEntity?>,
+    KoinComponent {
+    private val mediaLibraryDao: MediaLibraryDao by inject()
+    private val service: AniListService by inject()
+
+    override suspend fun getLocal(): MediaListEntity? {
+        // Just return null, as there is no existing item when adding a new one.
+        return null
+    }
+
+    override suspend fun saveLocal(data: MediaListEntity?) {
+        if (data != null) {
+            mediaLibraryDao.upsertMediaListEntity(data)
+        }
+    }
+
+    override suspend fun syncWithRemote(
+        old: MediaListEntity?,
+        new: MediaListEntity?,
+    ): MediaListEntity? =
+        service
+            .updateMediaList(
+                mediaId = mediaId.toInt(),
+                status = MediaListStatus.PLANNING.toServiceType(),
+                progress = 0,
+            ).toEntity(mediaId)
+}
+
+internal class ToggleLikeSyncer(
+    private val mediaId: String,
+    private val mediaType: MediaType,
+) : DataSyncer<MediaEntity>,
+    KoinComponent {
+    private val mediaLibraryDao: MediaLibraryDao by inject()
+    private val service: AniListService by inject()
+
+    override suspend fun getLocal(): MediaEntity = mediaLibraryDao.getMediaById(mediaId) ?: error("No media found with id $mediaId")
+
+    override suspend fun saveLocal(data: MediaEntity) {
+        mediaLibraryDao.upsertMedias(listOf(data))
+    }
+
+    override suspend fun syncWithRemote(
+        old: MediaEntity,
+        new: MediaEntity,
+    ): MediaEntity {
+        if (mediaType == MediaType.ANIME) {
+            service.toggleFavorite(
+                animeId = mediaId.toInt(),
+            )
+        } else {
+            service.toggleFavorite(
+                mangaId = mediaId.toInt(),
+            )
+        }
+        return service.getDetailMedia(mediaId.toInt()).media.toEntity()
     }
 }

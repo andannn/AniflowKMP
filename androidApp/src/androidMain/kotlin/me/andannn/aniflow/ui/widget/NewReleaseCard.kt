@@ -33,6 +33,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
@@ -139,13 +140,15 @@ fun NewReleaseCard(
 fun buildSpecialMessageText(
     text: String,
     numberColor: Color,
+    digitFontSize: TextUnit = 30.sp,
+    textFontSize: TextUnit = 18.sp,
 ) = buildAnnotatedString {
     text.forEach {
         if (it.isDigit()) {
             withStyle(
                 SpanStyle(
                     fontFamily = EspecialMessageFontFamily,
-                    fontSize = 30.sp,
+                    fontSize = digitFontSize,
                     color = numberColor,
                 ),
             ) {
@@ -155,7 +158,7 @@ fun buildSpecialMessageText(
             withStyle(
                 SpanStyle(
                     fontFamily = EspecialMessageFontFamily,
-                    fontSize = 18.sp,
+                    fontSize = textFontSize,
                 ),
             ) {
                 append(it)
@@ -188,7 +191,7 @@ private fun NewReleaseCardPreview() {
                         mediaListModel =
                             MediaListModel(
                                 id = "1",
-                                status = MediaListStatus.DROPPED
+                                status = MediaListStatus.DROPPED,
                             ),
                         airingScheduleUpdateTime = null,
                     ),

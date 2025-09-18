@@ -65,6 +65,8 @@ import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.data.submitErrorOfSyncStatus
+import me.andannn.aniflow.ui.theme.AppBackgroundColor
+import me.andannn.aniflow.ui.theme.PageHorizontalPadding
 import me.andannn.aniflow.ui.widget.CustomPullToRefresh
 import me.andannn.aniflow.ui.widget.DefaultAppBar
 import me.andannn.aniflow.ui.widget.MediaPreviewItem
@@ -248,13 +250,13 @@ fun DiscoverContent(
             modifier =
                 Modifier
                     .padding(top = it.calculateTopPadding())
-                    .background(color = MaterialTheme.colorScheme.surfaceContainer),
+                    .background(color = AppBackgroundColor),
             isRefreshing = isRefreshing,
             onPullRefresh = onPullRefresh,
         ) {
             LazyColumn(
                 state = rememberLazyListState(),
-                contentPadding = PaddingValues(horizontal = 16.dp),
+                contentPadding = PaddingValues(horizontal = PageHorizontalPadding),
             ) {
                 item(
                     key = "New release",

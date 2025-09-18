@@ -4,6 +4,11 @@
  */
 package me.andannn.aniflow.data.model
 
+import kotlinx.serialization.Serializable
+
+// When modifying this file, verify that JSON deserialization remains safe
+
+@Serializable
 public data class ExternalLink(
     /**
      * The url of the external link or base url of link source

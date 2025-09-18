@@ -7,6 +7,7 @@ package me.andannn.aniflow.data.internal.dataprovider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import me.andannn.aniflow.data.AuthRepository
@@ -17,6 +18,11 @@ import me.andannn.aniflow.data.internal.tasks.SyncDetailMediaTask
 import me.andannn.aniflow.data.internal.tasks.SyncMediaListItemOfAuthedUserTask
 import me.andannn.aniflow.data.internal.tasks.createSideEffectFlow
 import me.andannn.aniflow.data.model.DetailUiState
+import me.andannn.aniflow.data.model.MediaListModel
+import me.andannn.aniflow.data.model.MediaModel
+import me.andannn.aniflow.data.model.StaffWithRole
+import me.andannn.aniflow.data.model.StudioModel
+import me.andannn.aniflow.data.model.relation.MediaModelWithRelationType
 import me.andannn.aniflow.data.util.combine
 
 class DetailMediaUiDataProviderImpl(
@@ -29,6 +35,7 @@ class DetailMediaUiDataProviderImpl(
         val mediaFlow = mediaRepository.getMediaFlow(mediaId)
         val studioListFlow = mediaRepository.getStudioOfMediaFlow(mediaId)
         val staffListFlow = mediaRepository.getStaffOfMediaFlow(mediaId)
+        val relationsFlow = mediaRepository.getRelationsOfMediaFlow(mediaId)
         val userOptionsFlow = authRepository.getUserOptionsFlow()
         val authedUserFlow = authRepository.getAuthedUserFlow()
         val mediaListItemFlow =
@@ -42,23 +49,39 @@ class DetailMediaUiDataProviderImpl(
                     )
                 }
             }
+
+        val detailMediaFlow =
+            combine(
+                mediaFlow,
+                studioListFlow,
+                staffListFlow,
+                relationsFlow,
+                mediaListItemFlow,
+            ) { media, studioList, staffList, relations, mediaListItem ->
+                DetailMedia(
+                    media = media,
+                    studioList = studioList,
+                    staffList = staffList,
+                    relations = relations,
+                    mediaListItem = mediaListItem,
+                )
+            }
+
         return combine(
-            mediaFlow,
-            studioListFlow,
-            userOptionsFlow,
-            mediaListItemFlow,
+            detailMediaFlow,
             authedUserFlow,
-            staffListFlow,
-        ) { media, studioList, userOptions, mediaListItem, authedUser, staffList ->
+            userOptionsFlow,
+        ) { detailMedia, authedUser, userOptions ->
             DetailUiState(
-                mediaModel = media,
-                mediaListItem = mediaListItem,
-                studioList = studioList,
+                mediaModel = detailMedia.media,
+                mediaListItem = detailMedia.mediaListItem,
+                studioList = detailMedia.studioList,
+                staffList = detailMedia.staffList,
+                relations = detailMedia.relations,
                 userOptions = userOptions,
                 authedUser = authedUser,
-                staffList = staffList,
             )
-        }
+        }.distinctUntilChanged()
     }
 
     override fun detailUiSideEffect(forceRefreshFirstTime: Boolean): Flow<SyncStatus> =
@@ -68,3 +91,11 @@ class DetailMediaUiDataProviderImpl(
             SyncDetailMediaTask(mediaId),
         )
 }
+
+private data class DetailMedia(
+    val media: MediaModel?,
+    val mediaListItem: MediaListModel?,
+    val studioList: List<StudioModel>,
+    val staffList: List<StaffWithRole>,
+    val relations: List<MediaModelWithRelationType>,
+)

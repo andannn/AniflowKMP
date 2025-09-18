@@ -11,6 +11,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
@@ -46,7 +47,7 @@ private val LightColorScheme =
 
 object ShapeHelper {
     @Composable
-    fun listItemShape(
+    fun listItemShapeVertical(
         isFirst: Boolean,
         isLast: Boolean,
     ): RoundedCornerShape {
@@ -84,7 +85,61 @@ object ShapeHelper {
             )
         }
     }
+
+    @Composable
+    fun listItemShapeHorizontal(
+        isFirst: Boolean,
+        isLast: Boolean,
+    ): RoundedCornerShape {
+        val isSingle: Boolean = isFirst && isLast
+        val edgeCornerSize = MaterialTheme.shapes.large.topEnd
+        val middleCornerSize = MaterialTheme.shapes.extraSmall.topStart
+
+        return if (isSingle) {
+            RoundedCornerShape(
+                topStart = edgeCornerSize,
+                bottomStart = edgeCornerSize,
+                topEnd = edgeCornerSize,
+                bottomEnd = edgeCornerSize,
+            )
+        } else if (isFirst) {
+            RoundedCornerShape(
+                topStart = edgeCornerSize,
+                bottomStart = edgeCornerSize,
+                topEnd = middleCornerSize,
+                bottomEnd = middleCornerSize,
+            )
+        } else if (isLast) {
+            RoundedCornerShape(
+                topStart = middleCornerSize,
+                bottomStart = middleCornerSize,
+                topEnd = edgeCornerSize,
+                bottomEnd = edgeCornerSize,
+            )
+        } else {
+            RoundedCornerShape(
+                topStart = middleCornerSize,
+                bottomStart = middleCornerSize,
+                topEnd = middleCornerSize,
+                bottomEnd = middleCornerSize,
+            )
+        }
+    }
 }
+
+val PageHorizontalPadding = 16.dp
+
+val AppBackgroundColor
+    @Composable
+    get() = MaterialTheme.colorScheme.surfaceContainer
+
+val TopAppBarColors
+    @Composable
+    get() =
+        TopAppBarDefaults.topAppBarColors(
+            containerColor = AppBackgroundColor,
+            scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+        )
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable

@@ -102,6 +102,19 @@ val StyledTitleFontFamily =
         ),
     )
 
+@OptIn(ExperimentalTextApi::class)
+val StyledReadingContentFontFamily =
+    FontFamily(
+        Font(
+            R.font.roboto_serif_italic,
+            variationSettings =
+                FontVariation.Settings(
+                    FontVariation.weight(400),
+                    FontVariation.width(100f),
+                ),
+        ),
+    )
+
 private fun FontVariation.grade(value: Float) = FontVariation.Setting(name = "GRAD", value = value)
 
 private fun FontVariation.thickStroke(value: Float) = FontVariation.Setting(name = "XOPQ", value = value)

@@ -4,10 +4,12 @@
  */
 package me.andannn.aniflow.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -51,6 +53,9 @@ import me.andannn.aniflow.data.model.NotificationModel
 import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.NotificationCategory
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
+import me.andannn.aniflow.ui.theme.AppBackgroundColor
+import me.andannn.aniflow.ui.theme.PageHorizontalPadding
+import me.andannn.aniflow.ui.theme.TopAppBarColors
 import me.andannn.aniflow.ui.widget.NotificationItem
 import me.andannn.aniflow.ui.widget.VerticalListPaging
 import me.andannn.aniflow.util.ErrorHandleSideEffect
@@ -112,6 +117,7 @@ fun Notification(
         topBar = {
             MediumFlexibleTopAppBar(
                 scrollBehavior = scrollBehavior,
+                colors = TopAppBarColors,
                 title = {
                     Text("Notification")
                 },
@@ -161,7 +167,7 @@ fun Notification(
         },
     ) {
         NotificationPaging(
-            modifier = Modifier.padding(it),
+            modifier = Modifier.fillMaxSize().padding(it).background(AppBackgroundColor),
             pagingComponent = viewModel.pagingController,
             userTitleLanguage = userOptions.titleLanguage,
         )
@@ -180,7 +186,7 @@ fun NotificationPaging(
         VerticalListPaging(
             modifier = modifier,
             pageComponent = pagingComponent,
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+            contentPadding = PaddingValues(horizontal = PageHorizontalPadding),
             key = { it.id },
         ) { item ->
             NotificationItem(
