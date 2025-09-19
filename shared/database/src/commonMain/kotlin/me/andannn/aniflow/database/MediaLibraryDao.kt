@@ -15,6 +15,7 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.withContext
+import me.andannn.aniflow.database.relation.CharacterWithVoiceActorRelation
 import me.andannn.aniflow.database.relation.MediaEntityWithRelationType
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelationWithUpdateLog
@@ -317,6 +318,47 @@ class MediaLibraryDao constructor(
             mediaRelationQueries
                 .getMediaRelationsOfMedia(mediaId, MediaEntityWithRelationType::mapTo)
                 .asFlow()
+                .mapToList(dispatcher)
+        }
+
+    suspend fun upsertCharacterWithVoiceActorRelation(
+        mediaId: String,
+        language: String,
+        characters: List<CharacterWithVoiceActorRelation>,
+    ) = withDatabase {
+        withContext(dispatcher) {
+            transaction(true) {
+                characters.forEach { relation ->
+                    characterQueries.upsertCharacter(relation.character)
+                    characterQueries.upsertCharacterMediaCrossRefEntity(
+                        mediaId = mediaId,
+                        characterId = relation.character.id,
+                    )
+
+                    val voiceActor = relation.voiceActor ?: return@forEach
+                    staffQueries.upsertStaff(voiceActor)
+                    characterQueries.upsertCharacterVoiceActorCrossRefEntity(
+                        characterId = relation.character.id,
+                        staffId = voiceActor.id,
+                        language = language,
+                        role = relation.role,
+                    )
+                }
+            }
+        }
+    }
+
+    fun getCharacterWithVoiceActorOfMediaFlow(
+        mediaId: String,
+        language: String,
+    ): Flow<List<CharacterWithVoiceActorRelation>> =
+        withDatabase {
+            characterQueries
+                .getCharacterWithVoiceActorOfMedia(
+                    mediaId = mediaId,
+                    language = language,
+                    mapper = CharacterWithVoiceActorRelation::mapTo,
+                ).asFlow()
                 .mapToList(dispatcher)
         }
 

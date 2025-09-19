@@ -6,13 +6,16 @@ package me.andannn.aniflow.data
 
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.SearchCategory
+import me.andannn.aniflow.data.model.StaffCharacterName
 import me.andannn.aniflow.data.model.Title
 import me.andannn.aniflow.data.model.define.MediaFormat
 import me.andannn.aniflow.data.model.define.MediaSeason
 import me.andannn.aniflow.data.model.define.MediaSource
 import me.andannn.aniflow.data.model.define.MediaStatus
 import me.andannn.aniflow.data.model.define.MediaType
+import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
+import me.andannn.aniflow.service.dto.StaffName
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -145,4 +148,34 @@ fun Title?.getUserTitleString(titleLanguage: UserTitleLanguage?): String {
         UserTitleLanguage.ENGLISH -> title.english ?: title.romaji ?: title.native ?: ""
         UserTitleLanguage.NATIVE -> title.native ?: title.romaji ?: title.english ?: ""
     }
+}
+
+fun StaffCharacterName?.getNameString(staffName: UserStaffNameLanguage): String {
+    if (this == null) return ""
+
+    val romajiWestern =
+        listOfNotNull(first, middle, last)
+            .takeIf { it.isNotEmpty() }
+            ?.joinToString(" ")
+            ?.ifBlank { full }
+
+    val romaji =
+        listOfNotNull(last, first, middle)
+            .takeIf { it.isNotEmpty() }
+            ?.joinToString(" ")
+            ?.ifBlank { full }
+
+    return when (staffName) {
+        UserStaffNameLanguage.ROMAJI_WESTERN -> {
+            romajiWestern ?: romaji ?: native
+        }
+
+        UserStaffNameLanguage.ROMAJI -> {
+            romaji ?: romajiWestern ?: native
+        }
+
+        UserStaffNameLanguage.NATIVE -> {
+            native ?: romaji ?: romajiWestern
+        }
+    } ?: ""
 }

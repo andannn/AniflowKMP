@@ -20,6 +20,7 @@ import me.andannn.aniflow.ui.NotificationViewModel
 import me.andannn.aniflow.ui.SearchViewModel
 import me.andannn.aniflow.ui.SettingOptionViewModel
 import me.andannn.aniflow.ui.SettingsViewModel
+import me.andannn.aniflow.ui.TrackProgressDialogViewModel
 import me.andannn.aniflow.ui.TrackViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
@@ -63,6 +64,9 @@ private fun androidContextModule(application: AniflowApplication) =
         }
         viewModel {
             SettingOptionViewModel(it.get())
+        }
+        viewModel {
+            TrackProgressDialogViewModel(it.get(), get(), get())
         }
         viewModelOf(::SearchViewModel)
     }

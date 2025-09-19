@@ -4,12 +4,14 @@
  */
 package me.andannn.aniflow.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
@@ -17,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import io.github.aakira.napier.Napier
@@ -66,13 +69,16 @@ fun SettingOptionDialog(
             Modifier
                 .wrapContentSize(),
         shape = AlertDialogDefaults.shape,
+        color = AlertDialogDefaults.containerColor,
         tonalElevation = AlertDialogDefaults.TonalElevation,
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(vertical = 24.dp, horizontal = 16.dp),
         ) {
             Text(
+                modifier = Modifier.padding(bottom = 16.dp),
                 text = settingItem.title,
+                color = AlertDialogDefaults.titleContentColor,
                 style = MaterialTheme.typography.headlineSmallEmphasized,
             )
             when (settingItem) {
@@ -102,26 +108,28 @@ private fun ToggleSettingOptionContent(
         modifier = modifier,
     ) {
         options.forEach { option ->
-            Surface(
-                onClick = {
-                    onOptionClick(option)
+            ListItem(
+                modifier =
+                    Modifier.clickable {
+                        onOptionClick(option)
+                    },
+                colors =
+                    ListItemDefaults.colors(
+                        containerColor = Color.Transparent,
+                    ),
+                headlineContent = {
+                    Text(
+                        text = option.label,
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
                 },
-            ) {
-                ListItem(
-                    headlineContent = {
-                        Text(
-                            text = option.label,
-                            style = MaterialTheme.typography.bodyLarge,
-                        )
-                    },
-                    trailingContent = {
-                        RadioButton(
-                            selected = option == selected,
-                            onClick = null,
-                        )
-                    },
-                )
-            }
+                trailingContent = {
+                    RadioButton(
+                        selected = option == selected,
+                        onClick = null,
+                    )
+                },
+            )
         }
     }
 }

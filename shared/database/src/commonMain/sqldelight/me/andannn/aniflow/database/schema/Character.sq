@@ -1,0 +1,97 @@
+import kotlin.Boolean;
+
+CREATE TABLE characterEntity (
+    id TEXT PRIMARY KEY NOT NULL,
+    largeImage TEXT DEFAULT NULL,
+    mediumImage  TEXT DEFAULT NULL,
+    firstName  TEXT DEFAULT NULL,
+    middleName  TEXT DEFAULT NULL,
+    lastName  TEXT DEFAULT NULL,
+    fullName  TEXT DEFAULT NULL,
+    nativeName  TEXT DEFAULT NULL,
+    description  TEXT DEFAULT NULL,
+    gender  TEXT DEFAULT NULL,
+    age  TEXT DEFAULT NULL,
+    bloodType TEXT DEFAULT NULL,
+    siteUrl TEXT DEFAULT NULL,
+    dateOfBirth  TEXT DEFAULT NULL,
+    favourites INTEGER DEFAULT NULL,
+    isFavourite INTEGER AS Boolean DEFAULT NULL
+);
+
+CREATE TABLE characterMediaCrossRefEntity (
+    characterId TEXT NOT NULL,
+    mediaId TEXT NOT NULL,
+    PRIMARY KEY (characterId, mediaId)
+);
+
+CREATE TABLE characterVoiceActorCrossRefEntity (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    characterId TEXT NOT NULL,
+    staffId TEXT NOT NULL,
+    role TEXT DEFAULT NULL,
+    language TEXT NOT NULL,
+    UNIQUE (characterId, staffId)
+);
+
+upsertCharacter:
+INSERT OR REPLACE INTO characterEntity (
+    id,
+    largeImage,
+    mediumImage,
+    firstName,
+    middleName,
+    lastName,
+    fullName,
+    nativeName,
+    description,
+    gender,
+    age,
+    bloodType,
+    siteUrl,
+    dateOfBirth,
+    favourites,
+    isFavourite
+) VALUES ?;
+
+upsertCharacterMediaCrossRefEntity:
+INSERT OR REPLACE INTO characterMediaCrossRefEntity (
+    characterId,
+    mediaId
+) VALUES (?, ?);
+
+upsertCharacterVoiceActorCrossRefEntity:
+INSERT OR REPLACE INTO characterVoiceActorCrossRefEntity (
+    characterId,
+    staffId,
+    role,
+    language
+) VALUES (?, ?, ?, ?);
+
+getCharacterWithVoiceActorOfMedia:
+SELECT
+characterEntity.*,
+characterVoiceActorCrossRefEntity.role,
+staffEntity.id AS staffId,
+staffEntity.largeImage AS staffLargeImage,
+staffEntity.mediumImage AS staffMediumImage,
+staffEntity.firstName AS staffFirstName,
+staffEntity.middleName AS staffMiddleName,
+staffEntity.lastName AS staffLastName,
+staffEntity.fullName AS staffFullName,
+staffEntity.nativeName AS staffNativeName,
+staffEntity.description AS staffDescription,
+staffEntity.gender AS staffGender,
+staffEntity.siteUrl AS staffSiteUrl,
+staffEntity.dateOfBirth AS staffDateOfBirth,
+staffEntity.dateOfDeath AS staffDateOfDeath,
+staffEntity.age AS staffAge,
+staffEntity.isFavourite AS staffIsFavourite,
+staffEntity.yearsActive AS staffYearsActive,
+staffEntity.homeTown AS staffHomeTown,
+staffEntity.bloodType AS staffBloodType
+FROM characterEntity
+INNER JOIN characterMediaCrossRefEntity ON characterMediaCrossRefEntity.characterId = characterEntity.id
+LEFT JOIN characterVoiceActorCrossRefEntity ON characterEntity.id = characterVoiceActorCrossRefEntity.characterId
+LEFT JOIN staffEntity ON staffEntity.id = characterVoiceActorCrossRefEntity.staffId
+WHERE characterMediaCrossRefEntity.mediaId = ? AND characterVoiceActorCrossRefEntity.language = ?;

@@ -55,6 +55,19 @@ class AniListServiceTest {
         }
 
     @Test
+    fun testGetDetailCharacterStaffConnection() =
+        testScope.runTest {
+            val respond =
+                serviceWithNoToken.getDetailMedia(
+                    id = 1,
+                    characterPage = 1,
+                    characterPerPage = 10,
+                    characterStaffLanguage = StaffLanguage.ENGLISH,
+                )
+            assertIs<MediaDetailResponse>(respond)
+        }
+
+    @Test
     fun testGetMediaPage() =
         testScope.runTest {
             val respond =
