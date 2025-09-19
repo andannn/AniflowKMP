@@ -786,6 +786,7 @@ fun LazyStaggeredGridScope.characterSearchResultPaging(
         key = { it.id },
         onLoadNextPage = onLoadNextPage,
         itemContent = { item ->
+// TODO
             val title = item.name?.full ?: ""
             CommonItemFilledCard(
                 modifier = Modifier.padding(4.dp),

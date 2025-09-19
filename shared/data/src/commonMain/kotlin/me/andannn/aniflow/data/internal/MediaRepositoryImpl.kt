@@ -35,11 +35,14 @@ import me.andannn.aniflow.data.model.define.MediaSort
 import me.andannn.aniflow.data.model.define.MediaStatus
 import me.andannn.aniflow.data.model.define.MediaType
 import me.andannn.aniflow.data.model.define.NotificationCategory
+import me.andannn.aniflow.data.model.define.StaffLanguage
 import me.andannn.aniflow.data.model.define.deserialize
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
+import me.andannn.aniflow.data.model.relation.CharacterWithVoiceActor
 import me.andannn.aniflow.data.model.relation.MediaModelWithRelationType
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.database.MediaLibraryDao
+import me.andannn.aniflow.database.relation.CharacterWithVoiceActorRelation
 import me.andannn.aniflow.database.relation.MediaEntityWithRelationType
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelationWithUpdateLog
 import me.andannn.aniflow.database.schema.MediaEntity
@@ -48,6 +51,7 @@ import me.andannn.aniflow.datastore.UserSettingPreferences
 import me.andannn.aniflow.service.AniListService
 import me.andannn.aniflow.service.ServerException
 import me.andannn.aniflow.service.dto.Character
+import me.andannn.aniflow.service.dto.CharactersConnection
 import me.andannn.aniflow.service.dto.Media
 import me.andannn.aniflow.service.dto.MediaList
 import me.andannn.aniflow.service.dto.MediaRelations
@@ -117,12 +121,14 @@ internal class MediaRepositoryImpl(
     override fun syncDetailMedia(
         scope: CoroutineScope,
         mediaId: String,
+        voiceActorLanguage: StaffLanguage,
     ) = with(mediaService) {
         with(mediaLibraryDao) {
             // sync data from service
             syncDetailMediaToLocal(
                 mediaId = mediaId,
                 scope = scope,
+                voiceActorLanguage = voiceActorLanguage,
             )
         }
     }
@@ -337,6 +343,16 @@ internal class MediaRepositoryImpl(
             it.map(MediaEntityWithRelationType::toDomain)
         }
 
+    override fun getCharactersOfMediaFlow(
+        mediaId: String,
+        language: StaffLanguage,
+    ): Flow<List<CharacterWithVoiceActor>> =
+        mediaLibraryDao.getCharacterWithVoiceActorOfMediaFlow(mediaId, language.key).map {
+            it.map {
+                it.toDomain(language)
+            }
+        }
+
     override suspend fun toggleMediaItemLike(
         mediaId: String,
         mediaType: MediaType,
@@ -378,6 +394,7 @@ private fun syncMediaListInfoToLocal(
 context(service: AniListService, database: MediaLibraryDao)
 private fun syncDetailMediaToLocal(
     mediaId: String,
+    voiceActorLanguage: StaffLanguage,
     scope: CoroutineScope,
 ): Deferred<Throwable?> =
     scope.async {
@@ -391,6 +408,9 @@ private fun syncDetailMediaToLocal(
                         withRelationConnection = true,
                         staffPage = 1,
                         staffPerPage = 9,
+                        characterPage = 1,
+                        characterPerPage = 9,
+                        characterStaffLanguage = voiceActorLanguage.toServiceType(),
                     ).media
             Napier.d(tag = TAG) { "syncDetailMediaToLocal finished" }
 
@@ -416,6 +436,16 @@ private fun syncDetailMediaToLocal(
                     ?.edges
                     ?.filterNotNull()
                     ?.map(MediaRelations.Edge::toEntity)
+                    ?: emptyList(),
+            )
+
+            database.upsertCharacterWithVoiceActorRelation(
+                detailMedia.id.toString(),
+                voiceActorLanguage.key,
+                detailMedia.characters
+                    ?.edges
+                    ?.filterNotNull()
+                    ?.map(CharactersConnection.Edge::toEntity)
                     ?: emptyList(),
             )
 

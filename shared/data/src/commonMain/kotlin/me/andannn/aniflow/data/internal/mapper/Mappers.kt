@@ -23,6 +23,7 @@ import me.andannn.aniflow.data.model.StudioModel
 import me.andannn.aniflow.data.model.Title
 import me.andannn.aniflow.data.model.Trailer
 import me.andannn.aniflow.data.model.UserModel
+import me.andannn.aniflow.data.model.define.CharacterRole
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.MediaFormat
 import me.andannn.aniflow.data.model.define.MediaListStatus
@@ -32,15 +33,19 @@ import me.andannn.aniflow.data.model.define.MediaSort
 import me.andannn.aniflow.data.model.define.MediaSource
 import me.andannn.aniflow.data.model.define.MediaStatus
 import me.andannn.aniflow.data.model.define.MediaType
+import me.andannn.aniflow.data.model.define.StaffLanguage
 import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import me.andannn.aniflow.data.model.define.deserialize
+import me.andannn.aniflow.data.model.relation.CharacterWithVoiceActor
 import me.andannn.aniflow.data.model.relation.MediaModelWithRelationType
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
+import me.andannn.aniflow.database.relation.CharacterWithVoiceActorRelation
 import me.andannn.aniflow.database.relation.MediaEntityWithRelationType
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelationWithUpdateLog
 import me.andannn.aniflow.database.relation.StaffWithRole
+import me.andannn.aniflow.database.schema.CharacterEntity
 import me.andannn.aniflow.database.schema.MediaEntity
 import me.andannn.aniflow.database.schema.MediaListEntity
 import me.andannn.aniflow.database.schema.StaffEntity
@@ -55,6 +60,7 @@ import me.andannn.aniflow.service.dto.ActivityReplySubscribedNotification
 import me.andannn.aniflow.service.dto.AiringNotification
 import me.andannn.aniflow.service.dto.Character
 import me.andannn.aniflow.service.dto.CharacterName
+import me.andannn.aniflow.service.dto.CharactersConnection
 import me.andannn.aniflow.service.dto.FollowingNotification
 import me.andannn.aniflow.service.dto.FuzzyDate
 import me.andannn.aniflow.service.dto.Media
@@ -260,16 +266,89 @@ internal fun me.andannn.aniflow.service.dto.enums.MediaRelation.toDomainType() =
         me.andannn.aniflow.service.dto.enums.MediaRelation.UNKNOWN__ -> null
     }
 
+internal fun StaffLanguage.toServiceType() =
+    when (this) {
+        StaffLanguage.JAPANESE -> me.andannn.aniflow.service.dto.enums.StaffLanguage.JAPANESE
+        StaffLanguage.ENGLISH -> me.andannn.aniflow.service.dto.enums.StaffLanguage.ENGLISH
+        StaffLanguage.FRENCH -> me.andannn.aniflow.service.dto.enums.StaffLanguage.FRENCH
+        StaffLanguage.GERMAN -> me.andannn.aniflow.service.dto.enums.StaffLanguage.GERMAN
+        StaffLanguage.ITALIAN -> me.andannn.aniflow.service.dto.enums.StaffLanguage.ITALIAN
+        StaffLanguage.KOREAN -> me.andannn.aniflow.service.dto.enums.StaffLanguage.KOREAN
+        StaffLanguage.PORTUGUESE -> me.andannn.aniflow.service.dto.enums.StaffLanguage.PORTUGUESE
+        StaffLanguage.SPANISH -> me.andannn.aniflow.service.dto.enums.StaffLanguage.SPANISH
+        StaffLanguage.HEBREW -> me.andannn.aniflow.service.dto.enums.StaffLanguage.HEBREW
+        StaffLanguage.HUNGARIAN -> me.andannn.aniflow.service.dto.enums.StaffLanguage.HUNGARIAN
+    }
+
+internal fun me.andannn.aniflow.service.dto.enums.CharacterRole.toDomainType() =
+    when (this) {
+        me.andannn.aniflow.service.dto.enums.CharacterRole.MAIN -> CharacterRole.MAIN
+        me.andannn.aniflow.service.dto.enums.CharacterRole.SUPPORTING -> CharacterRole.SUPPORTING
+        me.andannn.aniflow.service.dto.enums.CharacterRole.BACKGROUND -> CharacterRole.BACKGROUND
+        me.andannn.aniflow.service.dto.enums.CharacterRole.UNKNOWN__ -> null
+    }
+
 internal fun MediaRelations.Edge.toEntity() =
     MediaEntityWithRelationType(
         media = node!!.toEntity(),
         relationType = relationType?.toDomainType()?.key ?: error("relationType cannot be null"),
     )
 
+internal fun CharactersConnection.Edge.toEntity() =
+    CharacterWithVoiceActorRelation(
+        character = node!!.toEntity(),
+        voiceActor = voiceActors?.firstOrNull()?.toEntity(),
+        role = role?.toDomainType()?.key,
+    )
+
+internal fun Character.toEntity() =
+    CharacterEntity(
+        id = id.toString(),
+        firstName = name?.first,
+        middleName = name?.middle,
+        lastName = name?.last,
+        fullName = name?.full,
+        nativeName = name?.native,
+        description = description,
+        isFavourite = isFavourite,
+        mediumImage = image?.medium,
+        largeImage = image?.large,
+        gender = gender,
+        age = age,
+        bloodType = bloodType,
+        siteUrl = siteUrl,
+        dateOfBirth = dateOfBirth?.toSimpleDate()?.let { Json.encodeToString(it) },
+        favourites = favourites?.toLong(),
+    )
+
 internal fun MediaEntityWithRelationType.toDomain(): MediaModelWithRelationType =
     MediaModelWithRelationType(
         media = media.toDomain(),
         relationType = relationType.deserialize(),
+    )
+
+internal fun CharacterWithVoiceActorRelation.toDomain(staffLanguage: StaffLanguage): CharacterWithVoiceActor =
+    CharacterWithVoiceActor(
+        character = character.toDomain(),
+        voiceActor = voiceActor?.toDomain(),
+        role = role?.deserialize(),
+        voiceActorLanguage = staffLanguage,
+    )
+
+internal fun CharacterEntity.toDomain() =
+    CharacterModel(
+        id = id,
+        name =
+            StaffCharacterName(
+                first = firstName,
+                middle = middleName,
+                last = lastName,
+                full = fullName,
+                native = nativeName,
+            ),
+        image = largeImage ?: mediumImage,
+        description = description,
+        isFavourite = isFavourite,
     )
 
 internal fun Media.toDomain() = toEntity().toDomain()
@@ -492,7 +571,7 @@ internal fun Staff.toDomain() =
     )
 
 internal fun Studio.toDomain() =
-    me.andannn.aniflow.data.model.StudioModel(
+    StudioModel(
         id = id.toString(),
         name = name,
         isFavourite = isFavourite,

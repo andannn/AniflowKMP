@@ -11,8 +11,10 @@ import me.andannn.aniflow.data.model.define.Theme
 import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import me.andannn.aniflow.data.model.relation.CategoryDataModel
+import me.andannn.aniflow.data.model.relation.CharacterWithVoiceActor
 import me.andannn.aniflow.data.model.relation.MediaModelWithRelationType
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
+import me.andannn.aniflow.database.relation.CharacterWithVoiceActorRelation
 
 data class DiscoverUiState(
     val categoryDataMap: CategoryDataModel = CategoryDataModel(),
@@ -199,6 +201,7 @@ data class DetailUiState(
     val mediaListItem: MediaListModel? = null,
     val studioList: List<StudioModel> = emptyList(),
     val staffList: List<StaffWithRole> = emptyList(),
+    val characters: List<CharacterWithVoiceActor> = emptyList(),
     val relations: List<MediaModelWithRelationType> = emptyList(),
     val userOptions: UserOptions = UserOptions.Default,
     val authedUser: UserModel? = null,

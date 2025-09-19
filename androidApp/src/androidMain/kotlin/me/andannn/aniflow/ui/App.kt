@@ -79,6 +79,15 @@ fun App(navigator: RootNavigator) {
                     ) {
                         SettingOptionDialog(it.settingItem)
                     }
+
+                    entry<Screen.Dialog.TrackProgressDialog>(
+                        metadata = dialog(),
+                        clazzContentKey = { it.toJson() },
+                    ) {
+                        TrackProgressDialog(
+                            mediaId = it.mediaId,
+                        )
+                    }
                 },
         )
     }

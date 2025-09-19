@@ -22,7 +22,9 @@ import me.andannn.aniflow.data.model.define.MediaContentMode
 import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.model.define.MediaType
 import me.andannn.aniflow.data.model.define.NotificationCategory
+import me.andannn.aniflow.data.model.define.StaffLanguage
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
+import me.andannn.aniflow.data.model.relation.CharacterWithVoiceActor
 import me.andannn.aniflow.data.model.relation.MediaModelWithRelationType
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 
@@ -49,6 +51,7 @@ interface MediaRepository {
     fun syncDetailMedia(
         scope: CoroutineScope,
         mediaId: String,
+        voiceActorLanguage: StaffLanguage,
     ): Deferred<Throwable?>
 
     fun syncMediaListItemOfUser(
@@ -137,6 +140,11 @@ interface MediaRepository {
     fun getStaffOfMediaFlow(mediaId: String): Flow<List<StaffWithRole>>
 
     fun getRelationsOfMediaFlow(mediaId: String): Flow<List<MediaModelWithRelationType>>
+
+    fun getCharactersOfMediaFlow(
+        mediaId: String,
+        language: StaffLanguage,
+    ): Flow<List<CharacterWithVoiceActor>>
 
     @NativeCoroutines
     suspend fun toggleMediaItemLike(

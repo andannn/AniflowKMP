@@ -1,0 +1,35 @@
+import kotlin.Boolean;
+
+CREATE TABLE characterEntity (
+    id TEXT PRIMARY KEY NOT NULL,
+    largeImage TEXT DEFAULT NULL,
+    mediumImage  TEXT DEFAULT NULL,
+    firstName  TEXT DEFAULT NULL,
+    middleName  TEXT DEFAULT NULL,
+    lastName  TEXT DEFAULT NULL,
+    fullName  TEXT DEFAULT NULL,
+    nativeName  TEXT DEFAULT NULL,
+    description  TEXT DEFAULT NULL,
+    gender  TEXT DEFAULT NULL,
+    age  TEXT DEFAULT NULL,
+    bloodType TEXT DEFAULT NULL,
+    siteUrl TEXT DEFAULT NULL,
+    dateOfBirth  TEXT DEFAULT NULL,
+    favourites INTEGER DEFAULT NULL,
+    isFavourite INTEGER AS Boolean DEFAULT NULL
+);
+
+CREATE TABLE characterMediaCrossRefEntity (
+    characterId TEXT NOT NULL,
+    mediaId TEXT NOT NULL,
+    PRIMARY KEY (characterId, mediaId)
+);
+
+CREATE TABLE characterVoiceActorCrossRefEntity (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    characterId TEXT NOT NULL,
+    staffId TEXT NOT NULL,
+    role TEXT DEFAULT NULL,
+    language TEXT NOT NULL,
+    UNIQUE (characterId, staffId)
+);

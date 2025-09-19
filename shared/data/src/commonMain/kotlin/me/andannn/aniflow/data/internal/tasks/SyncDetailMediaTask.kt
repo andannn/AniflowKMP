@@ -9,6 +9,7 @@ import kotlinx.coroutines.coroutineScope
 import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.SyncStatus
 import me.andannn.aniflow.data.internal.exceptions.toError
+import me.andannn.aniflow.data.model.define.StaffLanguage
 import me.andannn.aniflow.database.MediaLibraryDao
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -30,7 +31,13 @@ internal class SyncDetailMediaTask(
                 forceRefresh,
             ) {
                 coroutineScope {
-                    mediaRepo.syncDetailMedia(this, mediaItemId).await()?.toError()
+                    mediaRepo
+                        .syncDetailMedia(
+                            this,
+                            mediaId = mediaItemId,
+                            voiceActorLanguage = StaffLanguage.JAPANESE,
+                        ).await()
+                        ?.toError()
                 }
             }
         }

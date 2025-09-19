@@ -71,7 +71,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
@@ -96,9 +95,16 @@ import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.buildErrorChannel
 import me.andannn.aniflow.data.infoString
 import me.andannn.aniflow.data.model.DetailUiState
+import me.andannn.aniflow.data.model.ExternalLink
+import me.andannn.aniflow.data.model.MediaListModel
 import me.andannn.aniflow.data.model.MediaModel
+import me.andannn.aniflow.data.model.StaffWithRole
+import me.andannn.aniflow.data.model.StudioModel
+import me.andannn.aniflow.data.model.UserModel
+import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.model.launchUri
+import me.andannn.aniflow.data.model.relation.CharacterWithVoiceActor
 import me.andannn.aniflow.data.model.relation.MediaModelWithRelationType
 import me.andannn.aniflow.data.releasingTimeString
 import me.andannn.aniflow.data.submitErrorOfSyncStatus
@@ -107,14 +113,18 @@ import me.andannn.aniflow.ui.theme.PageHorizontalPadding
 import me.andannn.aniflow.ui.theme.ShapeHelper
 import me.andannn.aniflow.ui.theme.StyledReadingContentFontFamily
 import me.andannn.aniflow.ui.theme.TopAppBarColors
+import me.andannn.aniflow.ui.widget.CharacterRowItem
 import me.andannn.aniflow.ui.widget.CustomPullToRefresh
 import me.andannn.aniflow.ui.widget.InfoItemHorizon
 import me.andannn.aniflow.ui.widget.MediaRelationItem
 import me.andannn.aniflow.ui.widget.MenuItem
 import me.andannn.aniflow.ui.widget.SplitDropDownMenuButton
+import me.andannn.aniflow.ui.widget.StaffRowItem
 import me.andannn.aniflow.ui.widget.TitleWithContent
 import me.andannn.aniflow.ui.widget.buildSpecialMessageText
 import me.andannn.aniflow.util.ErrorHandleSideEffect
+import me.andannn.aniflow.util.LocalResultStore
+import me.andannn.aniflow.util.ResultStore
 import me.andannn.aniflow.util.rememberSnackBarHostState
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -123,7 +133,7 @@ import kotlin.time.ExperimentalTime
 private const val TAG = "DetailMedia"
 
 class DetailMediaViewModel(
-    mediaId: String,
+    private val mediaId: String,
     private val dataProvider: DetailMediaUiDataProvider,
     private val mediaRepository: MediaRepository,
 ) : ViewModel(),
@@ -207,6 +217,22 @@ class DetailMediaViewModel(
                     }
             }
     }
+
+    fun onTrackProgressClick(resultStore: ResultStore) {
+        viewModelScope.launch {
+            val result: Int = resultStore.awaitResultOf(Screen.Dialog.TrackProgressDialog(mediaId))
+            val listItem = uiState.value.mediaListItem
+            val media = uiState.value.mediaModel
+            if (media != null && listItem != null && result != listItem.progress) {
+                val isCompleted = result == media.episodes
+                mediaRepository.updateMediaListStatus(
+                    mediaListId = listItem.id,
+                    progress = result,
+                    status = if (isCompleted) MediaListStatus.COMPLETED else MediaListStatus.CURRENT,
+                )
+            }
+        }
+    }
 }
 
 @Composable
@@ -218,12 +244,21 @@ fun DetailMedia(
         ),
     navigator: RootNavigator = LocalRootNavigator.current,
     uriHandler: UriHandler = LocalUriHandler.current,
+    resultStore: ResultStore = LocalResultStore.current,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isRefreshing by viewModel.isSideEffectRefreshing.collectAsStateWithLifecycle()
 
     DetailMediaContent(
-        uiState = uiState,
+        title = uiState.title,
+        staffList = uiState.staffList,
+        mediaModel = uiState.mediaModel,
+        relations = uiState.relations,
+        studioList = uiState.studioList,
+        userOptions = uiState.userOptions,
+        mediaListItem = uiState.mediaListItem,
+        authedUser = uiState.authedUser,
+        characterList = uiState.characters,
         isRefreshing = isRefreshing,
         modifier = Modifier,
         onPullRefresh = { viewModel.onPullRefresh() },
@@ -236,6 +271,17 @@ fun DetailMedia(
             uriHandler.openUri(it)
         },
         onRelationItemClick = { navigator.navigateTo(Screen.DetailMedia(it.media.id)) },
+        onLoginClick = {},
+        onTrackProgressClick = {
+            navigator.navigateTo(Screen.Dialog.TrackProgressDialog(mediaId))
+            viewModel.onTrackProgressClick(resultStore)
+        },
+        onRatingClick = {},
+        onExternalLinkClick = { link ->
+            link.url?.let {
+                uriHandler.openUri(it)
+            }
+        },
     )
 
     ErrorHandleSideEffect(viewModel)
@@ -248,7 +294,15 @@ fun DetailMedia(
 )
 @Composable
 private fun DetailMediaContent(
-    uiState: DetailUiState,
+    title: String,
+    staffList: List<StaffWithRole>,
+    mediaModel: MediaModel?,
+    characterList: List<CharacterWithVoiceActor>,
+    relations: List<MediaModelWithRelationType>,
+    studioList: List<StudioModel>,
+    userOptions: UserOptions,
+    mediaListItem: MediaListModel?,
+    authedUser: UserModel?,
     isRefreshing: Boolean,
     modifier: Modifier = Modifier,
     onPullRefresh: () -> Unit = {},
@@ -260,6 +314,7 @@ private fun DetailMediaContent(
     onAddToListClick: () -> Unit = {},
     onTrailerClick: (String) -> Unit = {},
     onRelationItemClick: (MediaModelWithRelationType) -> Unit = {},
+    onExternalLinkClick: (ExternalLink) -> Unit = {},
     onPop: () -> Unit = {},
 ) {
     val exitAlwaysScrollBehavior =
@@ -273,12 +328,10 @@ private fun DetailMediaContent(
             TopAppBar(
                 colors = TopAppBarColors,
                 title = {
-                    Text(uiState.title)
+                    Text(title)
                 },
                 navigationIcon = {
-                    IconButton(onClick = {
-                        onPop()
-                    }) {
+                    IconButton(onClick = onPop) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
@@ -297,8 +350,8 @@ private fun DetailMediaContent(
             isRefreshing = isRefreshing,
             onPullRefresh = onPullRefresh,
         ) {
-            val staffList by rememberUpdatedState(uiState.staffList)
-            val banner by rememberUpdatedState(uiState.mediaModel?.bannerImage)
+            val staffList by rememberUpdatedState(staffList)
+            val banner by rememberUpdatedState(mediaModel?.bannerImage)
 
             Box(modifier = Modifier.fillMaxSize()) {
                 LazyColumn(
@@ -344,12 +397,12 @@ private fun DetailMediaContent(
                                     modifier = Modifier.weight(2f),
                                     shape = MaterialTheme.shapes.largeIncreased,
                                 ) {
-                                    val cover by rememberUpdatedState(uiState.mediaModel?.coverImage)
+                                    val cover by rememberUpdatedState(mediaModel?.coverImage)
                                     AsyncImage(
                                         modifier =
                                             Modifier
                                                 .fillMaxWidth()
-                                                .heightIn(min = 200.dp)
+                                                .heightIn(min = 200.dp, max = 300.dp)
                                                 .fillMaxHeight(),
                                         model = cover,
                                         contentDescription = null,
@@ -359,19 +412,30 @@ private fun DetailMediaContent(
 
                                 Spacer(Modifier.width(8.dp))
 
-                                if (uiState.mediaModel != null) {
+                                if (mediaModel != null) {
                                     InfoArea(
                                         modifier =
                                             Modifier
                                                 .weight(3f),
-                                        mediaModel = uiState.mediaModel,
+                                        mediaModel = mediaModel,
                                     )
                                 } else {
                                     Spacer(Modifier.weight(3f))
                                 }
                             }
 
-                            val hashTags by rememberUpdatedState(uiState.mediaModel?.hashtag)
+                            val infoString =
+                                remember(mediaModel) {
+                                    mediaModel?.infoString()
+                                }
+                            if (infoString != null) {
+                                Text(
+                                    modifier = Modifier.padding(top = 8.dp),
+                                    text = infoString,
+                                )
+                            }
+
+                            val hashTags by rememberUpdatedState(mediaModel?.hashtag)
                             if (!hashTags.isNullOrEmpty()) {
                                 val items = hashTags ?: emptyList()
                                 FlowRow(
@@ -389,19 +453,8 @@ private fun DetailMediaContent(
                                 }
                             }
 
-                            val infoString =
-                                remember(uiState.mediaModel) {
-                                    uiState.mediaModel?.infoString()
-                                }
-                            if (infoString != null) {
-                                Text(
-                                    modifier = Modifier.padding(top = 8.dp),
-                                    text = infoString,
-                                )
-                            }
-
-                            val nextEpisode = uiState.mediaModel?.nextAiringEpisode?.episode
-                            val durationUtilAir = uiState.mediaModel?.releasingTimeString()
+                            val nextEpisode = mediaModel?.nextAiringEpisode?.episode
+                            val durationUtilAir = mediaModel?.releasingTimeString()
                             if (nextEpisode != null && durationUtilAir != null) {
                                 val primaryColor = MaterialTheme.colorScheme.primary
                                 val text =
@@ -423,7 +476,7 @@ private fun DetailMediaContent(
                     }
 
                     item {
-                        val relations by rememberUpdatedState(uiState.relations)
+                        val relations by rememberUpdatedState(relations)
 
                         if (relations.isNotEmpty()) {
                             TitleWithContent(
@@ -431,7 +484,9 @@ private fun DetailMediaContent(
                                 title = "Relations",
                                 showMore = false,
                             ) {
-                                LazyRow {
+                                LazyRow(
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                ) {
                                     itemsIndexed(
                                         items = relations,
                                         key = { _, item -> item.media.id to item },
@@ -441,10 +496,10 @@ private fun DetailMediaContent(
                                         val shape =
                                             ShapeHelper.listItemShapeHorizontal(isFirst, isLast)
                                         MediaRelationItem(
-                                            modifier = Modifier.padding(horizontal = 1.dp),
+                                            modifier = Modifier,
                                             mediaRelation = item,
                                             shape = shape,
-                                            userTitleLanguage = uiState.userOptions.titleLanguage,
+                                            userTitleLanguage = userOptions.titleLanguage,
                                             onClick = {
                                                 onRelationItemClick(item)
                                             },
@@ -456,7 +511,7 @@ private fun DetailMediaContent(
                     }
 
                     item {
-                        val description by rememberUpdatedState(uiState.mediaModel?.description)
+                        val description by rememberUpdatedState(mediaModel?.description)
                         if (description != null) {
                             TitleWithContent(
                                 modifier = Modifier.padding(top = ContentSpacing),
@@ -470,6 +525,30 @@ private fun DetailMediaContent(
                                     lineHeight = 17.sp,
                                 )
                             }
+                        }
+                    }
+
+                    if (characterList.isNotEmpty()) {
+                        item {
+                            TitleWithContent(
+                                modifier = Modifier.padding(top = ContentSpacing),
+                                title = "Character",
+                                onMoreClick = {},
+                            )
+                        }
+
+                        itemsIndexed(
+                            items = characterList,
+                            key = { _, item -> item.hashCode() },
+                        ) { index, character ->
+                            val isFirst = index == 0
+                            val isLast = index == characterList.lastIndex
+                            CharacterRowItem(
+                                modifier = Modifier.padding(vertical = 1.dp),
+                                shape = ShapeHelper.listItemShapeVertical(isFirst, isLast),
+                                characterWithVoiceActor = character,
+                                userStaffLanguage = userOptions.staffNameLanguage,
+                            )
                         }
                     }
 
@@ -490,16 +569,15 @@ private fun DetailMediaContent(
                             val isLast = index == staffList.lastIndex
                             StaffRowItem(
                                 modifier = Modifier.padding(vertical = 1.dp),
-                                cover = staff.staff.image,
-                                staffName = staff.staff.name?.native ?: "",
-                                role = staff.role,
                                 shape = ShapeHelper.listItemShapeVertical(isFirst, isLast),
+                                staffWithRole = staff,
+                                userStaffLanguage = userOptions.staffNameLanguage,
                             )
                         }
                     }
 
                     item {
-                        val trailer by rememberUpdatedState(uiState.mediaModel?.trailer)
+                        val trailer by rememberUpdatedState(mediaModel?.trailer)
                         if (trailer?.id != null) {
                             TitleWithContent(
                                 modifier = Modifier.padding(top = ContentSpacing),
@@ -530,7 +608,7 @@ private fun DetailMediaContent(
                     }
 
                     item {
-                        val studios by rememberUpdatedState(uiState.studioList)
+                        val studios by rememberUpdatedState(studioList)
                         if (studios.isNotEmpty()) {
                             TitleWithContent(
                                 modifier = Modifier.padding(top = ContentSpacing),
@@ -554,7 +632,7 @@ private fun DetailMediaContent(
                     }
 
                     item {
-                        val externalLinks by rememberUpdatedState(uiState.mediaModel?.externalLinks)
+                        val externalLinks by rememberUpdatedState(mediaModel?.externalLinks)
                         if (!externalLinks.isNullOrEmpty()) {
                             TitleWithContent(
                                 modifier = Modifier.padding(top = ContentSpacing),
@@ -568,7 +646,9 @@ private fun DetailMediaContent(
                                     val items = externalLinks ?: emptyList()
                                     items.forEach { externalLink ->
                                         OutlinedButton(
-                                            onClick = {},
+                                            onClick = {
+                                                onExternalLinkClick(externalLink)
+                                            },
                                         ) {
                                             if (externalLink.icon != null) {
                                                 val tintColor =
@@ -594,16 +674,20 @@ private fun DetailMediaContent(
                             }
                         }
                     }
-                }
 
-                val authedUser = uiState.authedUser
-                val mediaListItem = uiState.mediaListItem
+                    item { Spacer(Modifier.height(64.dp)) }
+                }
 
                 HorizontalFloatingToolbar(
                     modifier =
                         Modifier
                             .align(Alignment.BottomCenter)
                             .padding(bottom = 32.dp),
+                    colors =
+                        FloatingToolbarDefaults.standardFloatingToolbarColors(
+                            toolbarContainerColor = MaterialTheme.colorScheme.primaryFixedDim.copy(alpha = 0.95f),
+                            toolbarContentColor = MaterialTheme.colorScheme.onPrimaryFixed,
+                        ),
                     scrollBehavior = exitAlwaysScrollBehavior,
                     expanded = true,
                     leadingContent = {
@@ -674,13 +758,13 @@ private fun DetailMediaContent(
                                     icon = {
                                         val isFavorite =
                                             rememberUpdatedState(
-                                                uiState.mediaModel?.isFavourite == true,
+                                                mediaModel?.isFavourite == true,
                                             )
                                         if (isFavorite.value) {
                                             Icon(
                                                 Icons.Outlined.Favorite,
                                                 contentDescription = null,
-                                                tint = MaterialTheme.colorScheme.primary,
+                                                tint = Color.Red,
                                             )
                                         } else {
                                             Icon(
@@ -754,46 +838,6 @@ private fun MediaListStatus.toMenuItem() =
                 icon = Icons.Filled.Repeat, // 重看 → 循环箭头
             )
     }
-
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-private fun StaffRowItem(
-    cover: String?,
-    staffName: String,
-    role: String?,
-    shape: Shape,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        modifier = modifier.height(90.dp),
-        shape = shape,
-    ) {
-        Row(modifier = Modifier.fillMaxWidth()) {
-            AsyncImage(
-                modifier = Modifier.width(72.dp),
-                model = cover,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-            )
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(staffName)
-                Spacer(modifier = Modifier.weight(1f))
-                if (role != null) {
-                    Text(
-                        role,
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                Spacer(modifier = Modifier.height(2.dp))
-            }
-        }
-    }
-}
 
 @OptIn(ExperimentalTime::class)
 @Composable

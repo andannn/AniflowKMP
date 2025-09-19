@@ -22,6 +22,9 @@ import me.andannn.aniflow.data.model.MediaListModel
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.StaffWithRole
 import me.andannn.aniflow.data.model.StudioModel
+import me.andannn.aniflow.data.model.define.StaffLanguage
+import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
+import me.andannn.aniflow.data.model.relation.CharacterWithVoiceActor
 import me.andannn.aniflow.data.model.relation.MediaModelWithRelationType
 import me.andannn.aniflow.data.util.combine
 
@@ -36,6 +39,8 @@ class DetailMediaUiDataProviderImpl(
         val studioListFlow = mediaRepository.getStudioOfMediaFlow(mediaId)
         val staffListFlow = mediaRepository.getStaffOfMediaFlow(mediaId)
         val relationsFlow = mediaRepository.getRelationsOfMediaFlow(mediaId)
+// TODO:
+        val characterFlow = mediaRepository.getCharactersOfMediaFlow(mediaId, StaffLanguage.JAPANESE)
         val userOptionsFlow = authRepository.getUserOptionsFlow()
         val authedUserFlow = authRepository.getAuthedUserFlow()
         val mediaListItemFlow =
@@ -57,13 +62,15 @@ class DetailMediaUiDataProviderImpl(
                 staffListFlow,
                 relationsFlow,
                 mediaListItemFlow,
-            ) { media, studioList, staffList, relations, mediaListItem ->
+                characterFlow,
+            ) { media, studioList, staffList, relations, mediaListItem, characters ->
                 DetailMedia(
                     media = media,
                     studioList = studioList,
                     staffList = staffList,
                     relations = relations,
                     mediaListItem = mediaListItem,
+                    characters = characters,
                 )
             }
 
@@ -78,6 +85,7 @@ class DetailMediaUiDataProviderImpl(
                 studioList = detailMedia.studioList,
                 staffList = detailMedia.staffList,
                 relations = detailMedia.relations,
+                characters = detailMedia.characters,
                 userOptions = userOptions,
                 authedUser = authedUser,
             )
@@ -98,4 +106,5 @@ private data class DetailMedia(
     val studioList: List<StudioModel>,
     val staffList: List<StaffWithRole>,
     val relations: List<MediaModelWithRelationType>,
+    val characters: List<CharacterWithVoiceActor>,
 )

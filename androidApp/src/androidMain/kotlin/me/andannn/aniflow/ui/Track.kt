@@ -135,6 +135,7 @@ class TrackViewModel(
                 mediaRepository.updateMediaListStatus(
                     mediaListId = item.id,
                     progress = (item.progress ?: 0) + 1,
+                    status = MediaListStatus.CURRENT,
                 )
             if (error != null) {
                 Napier.e(tag = TAG) { "Failed to onMarkWatched list item ${item.id} $error" }

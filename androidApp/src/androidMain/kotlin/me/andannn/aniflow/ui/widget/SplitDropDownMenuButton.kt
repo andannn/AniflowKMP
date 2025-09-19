@@ -48,11 +48,17 @@ fun SplitDropDownMenuButton(
 ) {
     var checked by remember { mutableStateOf(false) }
     val selectedItem = menuItemList[selectIndex]
+    val buttonColor =
+        ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     SplitButtonLayout(
         modifier = modifier,
         leadingButton = {
             SplitButtonDefaults.LeadingButton(
                 onClick = { checked = true },
+                colors = buttonColor,
             ) {
                 Icon(
                     selectedItem.icon,
@@ -67,6 +73,7 @@ fun SplitDropDownMenuButton(
             Box(modifier = Modifier.wrapContentSize()) {
                 SplitButtonDefaults.TrailingButton(
                     checked = checked,
+                    colors = buttonColor,
                     onCheckedChange = { checked = it },
                 ) {
                     val rotation: Float by

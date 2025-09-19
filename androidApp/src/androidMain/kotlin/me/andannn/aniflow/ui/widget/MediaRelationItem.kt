@@ -68,6 +68,7 @@ fun MediaRelationItem(
                 Spacer(Modifier.weight(1f))
                 Text(
                     text = mediaRelation.media.title.getUserTitleString(userTitleLanguage),
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
