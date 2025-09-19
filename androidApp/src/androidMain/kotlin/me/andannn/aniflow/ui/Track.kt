@@ -50,6 +50,7 @@ import me.andannn.aniflow.data.model.TrackUiState
 import me.andannn.aniflow.data.model.define.MediaContentMode
 import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.submitErrorOfSyncStatus
+import me.andannn.aniflow.ui.theme.AppBackgroundColor
 import me.andannn.aniflow.ui.theme.ShapeHelper
 import me.andannn.aniflow.ui.widget.CustomPullToRefresh
 import me.andannn.aniflow.ui.widget.DefaultAppBar
@@ -91,9 +92,7 @@ class TrackViewModel(
         appBarUiDataProvider.appBarFlow().stateIn(
             viewModelScope,
             initialValue = HomeAppBarUiState(),
-            started =
-                kotlinx.coroutines.flow.SharingStarted
-                    .WhileSubscribed(5000),
+            started = SharingStarted.WhileSubscribed(5000),
         )
 
     init {
@@ -113,9 +112,6 @@ class TrackViewModel(
     fun onPullRefresh() {
         Napier.d(tag = TAG) { "onPullRefresh:" }
         cancelLastAndRegisterUiSideEffect(force = true)
-    }
-
-    fun onClickListItem(item: MediaModel) {
     }
 
     fun onDeleteItem(item: MediaListModel) {
@@ -210,7 +206,9 @@ fun Track(
         appbarState = appBarState,
         isRefreshing = isRefreshing,
         onPullRefresh = viewModel::onPullRefresh,
-        onClickListItem = viewModel::onClickListItem,
+        onClickListItem = {
+            navigator.navigateTo(Screen.DetailMedia(it.id))
+        },
         onDeleteItem = viewModel::onDeleteItem,
         onMarkWatched = viewModel::onMarkWatched,
         onContentTypeChange = viewModel::changeContentMode,
@@ -261,7 +259,7 @@ fun TrackContent(
             modifier =
                 Modifier
                     .padding(top = it.calculateTopPadding())
-                    .background(color = MaterialTheme.colorScheme.surfaceContainer),
+                    .background(color = AppBackgroundColor),
             isRefreshing = isRefreshing,
             onPullRefresh = onPullRefresh,
         ) {
@@ -275,13 +273,13 @@ fun TrackContent(
                         ) {
                             Surface(
                                 modifier = Modifier.fillMaxWidth(),
-                                color = MaterialTheme.colorScheme.surfaceContainer,
+                                color = AppBackgroundColor,
                             ) {
                                 Text(
                                     modifier = Modifier.padding(top = 12.dp, start = 18.dp),
                                     text = category.title,
                                     style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.7f),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }
                         }
@@ -294,7 +292,7 @@ fun TrackContent(
                             Column {
                                 MediaRowItem(
                                     item = item,
-                                    shape = ShapeHelper.listItemShape(isFirst, isLast),
+                                    shape = ShapeHelper.listItemShapeVertical(isFirst, isLast),
                                     titleMaxLines = Int.MAX_VALUE,
                                     userTitleLanguage = state.userOptions.titleLanguage,
                                     onClick = {

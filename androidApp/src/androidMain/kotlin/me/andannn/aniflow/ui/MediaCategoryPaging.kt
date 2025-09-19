@@ -4,7 +4,9 @@
  */
 package me.andannn.aniflow.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material.icons.Icons
@@ -34,10 +36,13 @@ import me.andannn.aniflow.data.ErrorChannel
 import me.andannn.aniflow.data.MediaCategoryPageComponent
 import me.andannn.aniflow.data.PageComponent
 import me.andannn.aniflow.data.buildErrorChannel
+import me.andannn.aniflow.data.getUserTitleString
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.MediaCategory
-import me.andannn.aniflow.data.util.getUserTitleString
+import me.andannn.aniflow.ui.theme.AppBackgroundColor
+import me.andannn.aniflow.ui.theme.PageHorizontalPadding
+import me.andannn.aniflow.ui.theme.TopAppBarColors
 import me.andannn.aniflow.ui.widget.CommonItemFilledCard
 import me.andannn.aniflow.ui.widget.StaggeredGridPaging
 import me.andannn.aniflow.util.ErrorHandleSideEffect
@@ -93,6 +98,7 @@ fun MediaCategoryPaging(
         topBar = {
             MediumFlexibleTopAppBar(
                 scrollBehavior = scrollBehavior,
+                colors = TopAppBarColors,
                 title = {
                     Text(category.title, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 },
@@ -110,10 +116,14 @@ fun MediaCategoryPaging(
         },
     ) {
         StaggeredGridPaging(
-            modifier = Modifier.padding(it),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(it)
+                    .background(AppBackgroundColor),
             columns = StaggeredGridCells.Fixed(2),
             pageComponent = viewModel.pageComponent,
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+            contentPadding = PaddingValues(horizontal = PageHorizontalPadding),
             key = { it.id },
         ) { item ->
             val title = item.title.getUserTitleString(titleLanguage = userOptions.titleLanguage)
@@ -121,6 +131,9 @@ fun MediaCategoryPaging(
                 modifier = Modifier.padding(4.dp),
                 title = title,
                 coverImage = item.coverImage,
+                onClick = {
+                    navigator.navigateTo(Screen.DetailMedia(item.id))
+                },
             )
         }
     }

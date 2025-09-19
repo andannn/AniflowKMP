@@ -9,9 +9,13 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
+import me.andannn.aniflow.database.relation.MediaEntityWithRelationType
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
+import me.andannn.aniflow.database.relation.StaffWithRole
 import me.andannn.aniflow.database.util.MediaEntityWithDefault
 import me.andannn.aniflow.database.util.MediaListEntityWithDefault
+import me.andannn.aniflow.database.util.StaffEntityWithDefault
+import me.andannn.aniflow.database.util.StudioEntityWithDefault
 import me.andannn.aniflow.database.util.UserEntityWithDefault
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -278,4 +282,121 @@ class MediaLibraryDaoTest {
                 }
             }
         }
+
+    @Test
+    fun getStudioOfMediaTest() =
+        testScope.runTest {
+            with(mediaLibraryDao) {
+                val studioList =
+                    listOf(
+                        StudioEntityWithDefault("studio1", "Studio A"),
+                        StudioEntityWithDefault("studio2", "Studio B"),
+                    )
+                upsertStudiosOfMedia(
+                    mediaId = "media1",
+                    studios = studioList,
+                )
+
+                getStudiosOfMediaFlow("none").first().let {
+                    assertEquals(0, it.size)
+                }
+
+                getStudiosOfMediaFlow("media1").first().let {
+                    assertEquals(2, it.size)
+                    assertEquals("studio1", it[0].id)
+                    assertEquals("Studio A", it[0].name)
+                    assertEquals("studio2", it[1].id)
+                    assertEquals("Studio B", it[1].name)
+                }
+            }
+        }
+
+    @Test
+    fun getStaffOfMediaTest() =
+        testScope.runTest {
+            with(mediaLibraryDao) {
+                val staffList =
+                    listOf(
+                        StaffWithRole(
+                            "job1",
+                            StaffEntityWithDefault("staff1", fullName = "Staff A"),
+                        ),
+                        StaffWithRole(
+                            "job2",
+                            StaffEntityWithDefault("staff2", fullName = "Staff B"),
+                        ),
+                    )
+                upsertStaffOfMedia(
+                    mediaId = "media1",
+                    staffs = staffList,
+                )
+                getStaffOfMediaFlow("media1").first().let {
+                    assertEquals(2, it.size)
+                    assertEquals("staff1", it[0].staffEntity.id)
+                    assertEquals("Staff A", it[0].staffEntity.fullName)
+                    assertEquals("staff2", it[1].staffEntity.id)
+                    assertEquals("Staff B", it[1].staffEntity.fullName)
+                }
+            }
+        }
+
+    @Test
+    fun getMediaListItemFlowTest() =
+        testScope.runTest {
+            with(mediaLibraryDao) {
+                upsertMediaListEntities(
+                    listOf(
+                        MediaListAndMediaRelation(
+                            mediaEntity =
+                                MediaEntityWithDefault(
+                                    id = "media1",
+                                    englishTitle = "Media One",
+                                ),
+                            mediaListEntity =
+                                MediaListEntityWithDefault(
+                                    mediaListId = "list1",
+                                    userId = "user1",
+                                    mediaId = "media1",
+                                    listStatus = "CURRENT",
+                                ),
+                        ),
+                    ),
+                )
+
+                getMediaListItemFlow("user1", "media1").first().let {
+                    assertNotNull(it)
+                    assertEquals("list1", it.mediaListId)
+                    assertEquals("user1", it.userId)
+                    assertEquals("media1", it.mediaId)
+                    assertEquals("CURRENT", it.listStatus)
+                }
+            }
+        }
+
+    @Test
+    fun getRelatedMediaOfMediaTest() {
+        testScope.runTest {
+            with(mediaLibraryDao) {
+                mediaLibraryDao.upsertMediaRelations(
+                    "media1",
+                    listOf(
+                        MediaEntityWithRelationType(
+                            relationType = "SEQUEL",
+                            media =
+                                MediaEntityWithDefault(
+                                    id = "media2",
+                                    englishTitle = "Media Two",
+                                ),
+                        ),
+                    ),
+                )
+                getRelatedMediaOfMediaFlow("media1").first().let {
+                    assertEquals(1, it.size)
+                    assertEquals("SEQUEL", it[0].relationType)
+                    assertEquals("media2", it[0].media.id)
+                    assertEquals("Media Two", it[0].media.englishTitle)
+                }
+            }
+        }
+    }
 }

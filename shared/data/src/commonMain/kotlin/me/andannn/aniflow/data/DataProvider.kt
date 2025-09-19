@@ -6,6 +6,7 @@ package me.andannn.aniflow.data
 
 import com.rickclephas.kmp.nativecoroutines.NativeCoroutines
 import kotlinx.coroutines.flow.Flow
+import me.andannn.aniflow.data.model.DetailUiState
 import me.andannn.aniflow.data.model.DiscoverUiState
 import me.andannn.aniflow.data.model.HomeAppBarUiState
 import me.andannn.aniflow.data.model.SettingUiState
@@ -66,4 +67,14 @@ interface SettingUiDataProvider {
 
     @NativeCoroutines
     fun settingUiSideEffect(forceRefreshFirstTime: Boolean): Flow<SyncStatus>
+}
+
+interface DetailMediaUiDataProvider {
+    val mediaId: String
+
+    @NativeCoroutines
+    fun detailUiDataFlow(): Flow<DetailUiState>
+
+    @NativeCoroutines
+    fun detailUiSideEffect(forceRefreshFirstTime: Boolean): Flow<SyncStatus>
 }

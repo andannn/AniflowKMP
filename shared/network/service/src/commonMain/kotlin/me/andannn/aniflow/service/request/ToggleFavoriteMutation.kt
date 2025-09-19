@@ -10,7 +10,7 @@ import me.andannn.network.common.schemas.TOGGLE_FAVORITE_MUTATION_SCHEMA
 
 @Serializable
 internal data class ToggleFavoriteMutation(
-    val mediaId: Int?,
+    val animeId: Int?,
     val mangaId: Int?,
     val characterId: Int?,
     val staffId: Int?,

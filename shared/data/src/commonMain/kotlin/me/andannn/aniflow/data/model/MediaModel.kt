@@ -62,9 +62,11 @@ data class MediaModel(
     /**
      * External links to another site related to the media
      */
-    public val externalLinks: List<ExternalLink>? = emptyList(),
-    public val ratedRank: Int? = null,
-    public val popularRank: Int? = null,
+    public val externalLinks: List<ExternalLink> = emptyList(),
+    public val allTimeRatedRank: Int? = null,
+    public val currentYearRatedRank: Int? = null,
+    public val allTimePopularRank: Int? = null,
+    public val currentYearPopularRank: Int? = null,
     /**
      * Media trailer or advertisement
      */
@@ -85,6 +87,7 @@ data class MediaModel(
      * A weighted average score of all the user's scores of the media
      */
     public val averageScore: Int? = null,
+    public val meanScore: Int? = null,
     /**
      * The amount of user's who have favourited the media
      */

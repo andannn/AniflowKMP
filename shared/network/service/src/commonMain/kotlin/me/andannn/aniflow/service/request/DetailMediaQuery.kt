@@ -23,11 +23,14 @@ internal data class DetailMediaQuery(
     val staffPerPage: Int? = null,
     @Transient
     val withStudioConnection: Boolean = false,
+    @Transient
+    val withRelationConnection: Boolean = false,
 ) : GraphQLQuery<DataWrapper<MediaDetailResponse>> {
     override fun getSchema() =
         buildMediaDetailQuerySchema(
             withCharacterConnection = characterPage != null || characterPerPage != null || characterStaffLanguage != null,
             withStaffConnection = staffPage != null || staffPerPage != null,
             withStudioConnection = withStudioConnection,
+            withRelations = withRelationConnection,
         )
 }

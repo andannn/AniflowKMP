@@ -5,11 +5,13 @@
 package me.andannn.aniflow.data.model
 
 import kotlinx.serialization.Serializable
+import me.andannn.aniflow.data.getUserTitleString
 import me.andannn.aniflow.data.model.define.MediaContentMode
 import me.andannn.aniflow.data.model.define.Theme
 import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import me.andannn.aniflow.data.model.relation.CategoryDataModel
+import me.andannn.aniflow.data.model.relation.MediaModelWithRelationType
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 
 data class DiscoverUiState(
@@ -191,3 +193,23 @@ sealed interface SettingItem {
 data class SettingUiState(
     val settingGroupList: List<SettingGroup> = emptyList(),
 )
+
+data class DetailUiState(
+    val mediaModel: MediaModel?,
+    val mediaListItem: MediaListModel? = null,
+    val studioList: List<StudioModel> = emptyList(),
+    val staffList: List<StaffWithRole> = emptyList(),
+    val relations: List<MediaModelWithRelationType> = emptyList(),
+    val userOptions: UserOptions = UserOptions.Default,
+    val authedUser: UserModel? = null,
+) {
+    val title: String
+        get() = mediaModel?.title?.getUserTitleString(userOptions.titleLanguage) ?: ""
+
+    companion object {
+        val Empty =
+            DetailUiState(
+                mediaModel = null,
+            )
+    }
+}

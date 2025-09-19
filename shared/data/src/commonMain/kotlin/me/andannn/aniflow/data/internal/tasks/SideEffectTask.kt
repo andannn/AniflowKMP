@@ -63,6 +63,17 @@ internal sealed class TaskRefreshKey {
         val userId: String,
     ) : TaskRefreshKey()
 
+    @Serializable
+    data class SyncMediaListItem(
+        val userId: String,
+        val mediaId: String,
+    ) : TaskRefreshKey()
+
+    @Serializable
+    data class SyncDetailMediaItem(
+        val mediaId: String,
+    ) : TaskRefreshKey()
+
     fun key() = Json.encodeToString(this)
 }
 
@@ -194,5 +205,7 @@ internal fun TaskRefreshKey.refreshIntervalMs(): Long {
         is TaskRefreshKey.AllCategories -> hoursToMillis(12)
         is TaskRefreshKey.SyncUserMediaList -> hoursToMillis(12)
         is TaskRefreshKey.SyncUserCondition -> hoursToMillis(1)
+        is TaskRefreshKey.SyncDetailMediaItem -> hoursToMillis(1)
+        is TaskRefreshKey.SyncMediaListItem -> hoursToMillis(1)
     }
 }

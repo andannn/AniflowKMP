@@ -55,6 +55,7 @@ import me.andannn.aniflow.data.ErrorChannel
 import me.andannn.aniflow.data.HomeAppBarUiDataProvider
 import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.buildErrorChannel
+import me.andannn.aniflow.data.getUserTitleString
 import me.andannn.aniflow.data.model.DiscoverUiState
 import me.andannn.aniflow.data.model.HomeAppBarUiState
 import me.andannn.aniflow.data.model.MediaModel
@@ -64,7 +65,8 @@ import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.data.submitErrorOfSyncStatus
-import me.andannn.aniflow.data.util.getUserTitleString
+import me.andannn.aniflow.ui.theme.AppBackgroundColor
+import me.andannn.aniflow.ui.theme.PageHorizontalPadding
 import me.andannn.aniflow.ui.widget.CustomPullToRefresh
 import me.andannn.aniflow.ui.widget.DefaultAppBar
 import me.andannn.aniflow.ui.widget.MediaPreviewItem
@@ -93,7 +95,6 @@ class DiscoverViewModel(
             isSideEffectRefreshing,
             isLoginProcessing,
         ) { isSideEffectRefreshing, isLoginProcessing ->
-            Log.d(TAG, ":  isSideEffectRefreshing: $isSideEffectRefreshing, isLoginProcessing: $isLoginProcessing ")
             isSideEffectRefreshing || isLoginProcessing
         }.stateIn(
             viewModelScope,
@@ -194,7 +195,7 @@ fun Discover(
             navigator.navigateTo(Screen.Dialog.Login)
         },
         onMediaClick = {
-            navigator.navigateTo(Screen.Notification)
+            navigator.navigateTo(Screen.DetailMedia(it.id))
         },
         onPullRefresh = viewModel::onPullRefresh,
         onNavigateToMediaCategory = { category ->
@@ -249,13 +250,13 @@ fun DiscoverContent(
             modifier =
                 Modifier
                     .padding(top = it.calculateTopPadding())
-                    .background(color = MaterialTheme.colorScheme.surfaceContainer),
+                    .background(color = AppBackgroundColor),
             isRefreshing = isRefreshing,
             onPullRefresh = onPullRefresh,
         ) {
             LazyColumn(
                 state = rememberLazyListState(),
-                contentPadding = PaddingValues(horizontal = 16.dp),
+                contentPadding = PaddingValues(horizontal = PageHorizontalPadding),
             ) {
                 item(
                     key = "New release",

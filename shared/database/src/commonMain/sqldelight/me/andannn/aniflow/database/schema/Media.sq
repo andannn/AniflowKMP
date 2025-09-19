@@ -31,7 +31,11 @@ CREATE TABLE IF NOT EXISTS mediaEntity (
   nextAiringEpisode INTEGER DEFAULT NULL,
   timeUntilAiring INTEGER DEFAULT NULL,
   isFavourite INTEGER AS Boolean DEFAULT NULL ,
-  siteUrl TEXT DEFAULT NULL
+  siteUrl TEXT DEFAULT NULL,
+  externalLinkList TEXT DEFAULT NULL,
+  currentYearRanking INTEGER DEFAULT NULL,
+  meanScore INTEGER DEFAULT NULL,
+  currentYearPopularRanking INTEGER DEFAULT NULL
 );
 
 getAllMedias:
@@ -75,7 +79,10 @@ INSERT INTO mediaEntity (
   nextAiringEpisode,
   timeUntilAiring,
   isFavourite,
-  siteUrl
+  siteUrl,
+  externalLinkList,
+  currentYearRanking,
+  meanScore
 ) VALUES ?
 ON CONFLICT(id) DO UPDATE SET
   mediaType            = excluded.mediaType,
@@ -107,4 +114,8 @@ ON CONFLICT(id) DO UPDATE SET
   nextAiringEpisode    = excluded.nextAiringEpisode,
   timeUntilAiring      = excluded.timeUntilAiring,
   isFavourite          = excluded.isFavourite,
-  siteUrl              = excluded.siteUrl;
+  externalLinkList     = excluded.externalLinkList,
+  siteUrl              = excluded.siteUrl,
+  meanScore            = excluded.meanScore,
+  currentYearRanking   = excluded.currentYearRanking,
+  currentYearPopularRanking   = excluded.currentYearPopularRanking;

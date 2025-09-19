@@ -6,6 +6,7 @@ package me.andannn.aniflow.database.util
 
 import me.andannn.aniflow.database.schema.MediaEntity
 import me.andannn.aniflow.database.schema.MediaListEntity
+import me.andannn.aniflow.database.schema.StaffEntity
 import me.andannn.aniflow.database.schema.UserEntity
 
 @Suppress("ktlint:standard:function-naming")
@@ -22,6 +23,7 @@ fun MediaEntityWithDefault(
     description: String? = null,
     episodes: Long? = null,
     seasonYear: Long? = null,
+    currentYearRanking: Long? = null,
     season: String? = null,
     source: String? = null,
     status: String? = null,
@@ -43,6 +45,9 @@ fun MediaEntityWithDefault(
     endDate: Long? = null,
     isFavourite: Boolean? = null,
     siteUrl: String? = null,
+    externalLinkList: String? = null,
+    meanScore: Long? = null,
+    currentYearPopularRanking: Long? = null,
 ) = MediaEntity(
     id = id,
     mediaType = mediaType,
@@ -75,6 +80,10 @@ fun MediaEntityWithDefault(
     timeUntilAiring = timeUntilAiring,
     isFavourite = isFavourite,
     siteUrl = siteUrl,
+    externalLinkList = externalLinkList,
+    currentYearRanking = currentYearRanking,
+    meanScore = meanScore,
+    currentYearPopularRanking = currentYearPopularRanking,
 )
 
 @Suppress("ktlint:standard:function-naming")
@@ -125,4 +134,60 @@ fun MediaListEntityWithDefault(
     repeat = repeat,
     score = score,
     isPrivate = isPrivate,
+)
+
+@Suppress("ktlint:standard:function-naming")
+fun StudioEntityWithDefault(
+    id: String,
+    name: String? = null,
+    siteUrl: String? = null,
+    isAnimationStudio: Boolean? = null,
+    isFavorite: Boolean? = null,
+) = me.andannn.aniflow.database.schema.StudioEntity(
+    id = id,
+    name = name,
+    siteUrl = siteUrl,
+    isAnimationStudio = isAnimationStudio,
+    isFavorite = isFavorite,
+)
+
+@Suppress("ktlint:standard:function-naming")
+fun StaffEntityWithDefault(
+    id: String,
+    largeImage: String? = null,
+    mediumImage: String? = null,
+    firstName: String? = null,
+    middleName: String? = null,
+    lastName: String? = null,
+    fullName: String? = null,
+    nativeName: String? = null,
+    description: String? = null,
+    gender: String? = null,
+    siteUrl: String? = null,
+    dateOfBirth: String? = null,
+    dateOfDeath: String? = null,
+    age: Long? = null,
+    isFavourite: Boolean? = null,
+    yearsActive: String? = null,
+    homeTown: String? = null,
+    bloodType: String? = null,
+) = StaffEntity(
+    id = id,
+    largeImage = largeImage,
+    mediumImage = mediumImage,
+    firstName = firstName,
+    middleName = middleName,
+    lastName = lastName,
+    fullName = fullName,
+    nativeName = nativeName,
+    description = description,
+    gender = gender,
+    siteUrl = siteUrl,
+    dateOfBirth = dateOfBirth,
+    dateOfDeath = dateOfDeath,
+    age = age,
+    isFavourite = isFavourite,
+    yearsActive = yearsActive,
+    homeTown = homeTown,
+    bloodType = bloodType,
 )

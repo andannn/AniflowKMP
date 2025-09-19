@@ -8,11 +8,12 @@ fun buildMediaDetailQuerySchema(
     withCharacterConnection: Boolean = false,
     withStaffConnection: Boolean = false,
     withStudioConnection: Boolean = false,
+    withRelations: Boolean = false,
 ): String =
     buildString {
         append($$"query ($id: Int")
-        if (withCharacterConnection) append($$", $characterPage: Int, $characterPerPage: Int")
-        if (withStaffConnection) append($$", $staffPage: Int, $staffPerPage: Int, $staffLanguage: StaffLanguage")
+        if (withCharacterConnection) append($$", $characterPage: Int, $characterPerPage: Int, $staffLanguage: StaffLanguage")
+        if (withStaffConnection) append($$", $staffPage: Int, $staffPerPage: Int")
         append(") {")
         append(
             $$"""
@@ -61,6 +62,7 @@ fun buildMediaDetailQuerySchema(
                 format
                 bannerImage
                 averageScore
+                meanScore
                 favourites
                 trending
                 isFavourite
@@ -154,7 +156,7 @@ fun buildMediaDetailQuerySchema(
 
         if (withStudioConnection) {
             append(
-                $$"""
+                """
                 studios {
                   nodes {
                     id
@@ -162,6 +164,46 @@ fun buildMediaDetailQuerySchema(
                     isAnimationStudio
                     siteUrl
                     isFavourite
+                  }
+                }
+                """.trimIndent(),
+            )
+        }
+
+        if (withRelations) {
+            append(
+                """
+                relations {
+                  edges {
+                    relationType
+                    node {
+                      id
+                      title {
+                        romaji
+                        english
+                        native
+                      }
+                      type
+                      format
+                      status
+                      coverImage {
+                        large
+                        medium
+                        color
+                      }
+                      bannerImage
+                      isFavourite
+                      averageScore
+                      meanScore
+                      favourites
+                      trending
+                      nextAiringEpisode {
+                        id
+                        airingAt
+                        episode
+                        timeUntilAiring
+                      }
+                    }
                   }
                 }
                 """.trimIndent(),

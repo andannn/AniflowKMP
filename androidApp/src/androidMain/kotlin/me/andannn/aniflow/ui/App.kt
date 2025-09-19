@@ -62,6 +62,10 @@ fun App(navigator: RootNavigator) {
                         Settings()
                     }
 
+                    entry<Screen.DetailMedia>(clazzContentKey = { it.toJson() }) {
+                        DetailMedia(it.mediaId)
+                    }
+
                     entry<Screen.Dialog.Login>(
                         metadata = dialog(),
                         clazzContentKey = { it.toJson() },

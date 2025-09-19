@@ -49,6 +49,7 @@ query($page: Int, $perPage: Int, $userId: Int, $status_in: [MediaListStatus], $t
         episodes
         seasonYear
         season
+        isFavourite
         source
         status
         coverImage {

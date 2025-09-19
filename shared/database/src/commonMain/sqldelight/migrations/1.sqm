@@ -1,0 +1,62 @@
+import kotlin.Boolean;
+
+CREATE TABLE IF NOT EXISTS studioEntity(
+  id TEXT PRIMARY KEY NOT NULL,
+  name TEXT DEFAULT NULL,
+  siteUrl TEXT DEFAULT NULL,
+  isAnimationStudio INTEGER AS Boolean DEFAULT NULL,
+  isFavorite INTEGER AS Boolean DEFAULT NULL
+);
+
+CREATE TABLE IF NOT EXISTS studioMediaCrossRefEntity (
+  studioId TEXT NOT NULL,
+  mediaId TEXT NOT NULL,
+  PRIMARY KEY (studioId, mediaId)
+);
+
+CREATE TABLE IF NOT EXISTS staffEntity(
+    id TEXT PRIMARY KEY NOT NULL,
+    largeImage TEXT DEFAULT NULL,
+    mediumImage TEXT DEFAULT NULL,
+    firstName TEXT DEFAULT NULL,
+    middleName TEXT DEFAULT NULL,
+    lastName TEXT DEFAULT NULL,
+    fullName TEXT DEFAULT NULL,
+    nativeName TEXT DEFAULT NULL,
+    description TEXT DEFAULT NULL,
+    gender TEXT DEFAULT NULL,
+    siteUrl TEXT DEFAULT NULL,
+    dateOfBirth TEXT DEFAULT NULL,
+    dateOfDeath TEXT DEFAULT NULL,
+    age INTEGER DEFAULT NULL,
+    isFavourite INTEGER AS Boolean DEFAULT NULL,
+    yearsActive TEXT DEFAULT NULL,
+    homeTown TEXT DEFAULT NULL,
+    bloodType TEXT DEFAULT NULL
+);
+
+CREATE TABLE IF NOT EXISTS staffMediaCrossRefEntity(
+    staffId TEXT NOT NULL,
+    mediaId TEXT NOT NULL,
+    role TEXT NOT NULL,
+    PRIMARY KEY (staffId, mediaId)
+);
+
+ALTER TABLE mediaEntity
+ADD COLUMN externalLinkList TEXT DEFAULT NULL;
+
+ALTER TABLE mediaEntity
+ADD COLUMN currentYearRanking INTEGER DEFAULT NULL;
+
+ALTER TABLE mediaEntity
+ADD COLUMN meanScore INTEGER DEFAULT NULL;
+
+ALTER TABLE mediaEntity
+ADD COLUMN currentYearPopularRanking INTEGER DEFAULT NULL;
+
+CREATE TABLE mediaRelationEntity (
+    ownerId TEXT NOT NULL,
+    relationId TEXT NOT NULL,
+    relationType TEXT NOT NULL,
+    PRIMARY KEY (ownerId, relationId)
+);

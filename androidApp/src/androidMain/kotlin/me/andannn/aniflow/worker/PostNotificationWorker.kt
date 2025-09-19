@@ -16,6 +16,7 @@ import kotlinx.serialization.json.Json
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.FetchNotificationTask
 import me.andannn.aniflow.data.SyncResult
+import me.andannn.aniflow.data.getUserTitleString
 import me.andannn.aniflow.data.model.ActivityNotification
 import me.andannn.aniflow.data.model.AiringNotification
 import me.andannn.aniflow.data.model.FollowNotification
@@ -25,7 +26,6 @@ import me.andannn.aniflow.data.model.MediaNotification
 import me.andannn.aniflow.data.model.NotificationModel
 import me.andannn.aniflow.data.model.Title
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
-import me.andannn.aniflow.data.util.getUserTitleString
 import me.andannn.aniflow.ui.DeepLinkHelper.NOTIFICATION_DOMAIN
 import me.andannn.aniflow.util.Notification
 import me.andannn.aniflow.util.NotificationChannel

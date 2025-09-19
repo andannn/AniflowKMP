@@ -6,6 +6,7 @@ package me.andannn.aniflow.database.relation
 
 import me.andannn.aniflow.database.schema.MediaEntity
 import me.andannn.aniflow.database.schema.MediaListEntity
+import me.andannn.aniflow.database.schema.StaffEntity
 
 data class MediaListAndMediaRelation(
     val mediaEntity: MediaEntity,
@@ -23,6 +24,7 @@ data class MediaListAndMediaRelation(
             startedAt: String?,
             completedAt: String?,
             updatedAt: Long?,
+            currentYearRanking: Long?,
             repeat: Long?,
             score: Double?,
             isPrivate: Boolean?,
@@ -55,8 +57,11 @@ data class MediaListAndMediaRelation(
             ratedRanking: Long?,
             nextAiringEpisode: Long?,
             timeUntilAiring: Long?,
+            externalLinkList: String?,
             isFavourite: Boolean?,
             siteUrl: String?,
+            meanScore: Long?,
+            currentYearPopularRanking: Long?,
         ): MediaListAndMediaRelation =
             MediaListAndMediaRelation(
                 mediaEntity =
@@ -86,12 +91,16 @@ data class MediaListAndMediaRelation(
                         format = format,
                         trending = trending,
                         favourites = favourites,
+                        currentYearRanking = currentYearRanking,
                         popularRanking = popularRanking,
                         ratedRanking = ratedRanking,
                         nextAiringEpisode = nextAiringEpisode,
                         timeUntilAiring = timeUntilAiring,
                         isFavourite = isFavourite,
                         siteUrl = siteUrl,
+                        externalLinkList = externalLinkList,
+                        meanScore = meanScore,
+                        currentYearPopularRanking = currentYearPopularRanking,
                     ),
                 mediaListEntity =
                     MediaListEntity(
@@ -163,6 +172,10 @@ data class MediaListAndMediaRelationWithUpdateLog(
             timeUntilAiring: Long?,
             isFavourite: Boolean?,
             siteUrl: String?,
+            externalLinkList: String?,
+            currentYearRanking: Long?,
+            meanScore: Long?,
+            currentYearPopularRanking: Long?,
             updatedMediaId: String?,
             updateTime: Long?,
         ): MediaListAndMediaRelationWithUpdateLog =
@@ -183,6 +196,7 @@ data class MediaListAndMediaRelationWithUpdateLog(
                         score = score,
                         isPrivate = isPrivate,
                         id = id,
+                        currentYearRanking = currentYearRanking,
                         mediaType = mediaType,
                         englishTitle = englishTitle,
                         romajiTitle = romajiTitle,
@@ -213,8 +227,64 @@ data class MediaListAndMediaRelationWithUpdateLog(
                         timeUntilAiring = timeUntilAiring,
                         isFavourite = isFavourite,
                         siteUrl = siteUrl,
+                        externalLinkList = externalLinkList,
+                        meanScore = meanScore,
+                        currentYearPopularRanking = currentYearPopularRanking,
                     ),
                 updateTime = updateTime,
+            )
+    }
+}
+
+data class StaffWithRole(
+    val role: String,
+    val staffEntity: StaffEntity,
+) {
+    companion object {
+        fun mapTo(
+            id: String,
+            largeImage: String?,
+            mediumImage: String?,
+            firstName: String?,
+            middleName: String?,
+            lastName: String?,
+            fullName: String?,
+            nativeName: String?,
+            description: String?,
+            gender: String?,
+            siteUrl: String?,
+            dateOfBirth: String?,
+            dateOfDeath: String?,
+            age: Long?,
+            isFavourite: Boolean?,
+            yearsActive: String?,
+            homeTown: String?,
+            bloodType: String?,
+            role: String,
+        ): StaffWithRole =
+            StaffWithRole(
+                role = role,
+                staffEntity =
+                    StaffEntity(
+                        id = id,
+                        largeImage = largeImage,
+                        mediumImage = mediumImage,
+                        firstName = firstName,
+                        middleName = middleName,
+                        lastName = lastName,
+                        fullName = fullName,
+                        nativeName = nativeName,
+                        description = description,
+                        gender = gender,
+                        siteUrl = siteUrl,
+                        dateOfBirth = dateOfBirth,
+                        dateOfDeath = dateOfDeath,
+                        age = age,
+                        isFavourite = isFavourite,
+                        yearsActive = yearsActive,
+                        homeTown = homeTown,
+                        bloodType = bloodType,
+                    ),
             )
     }
 }

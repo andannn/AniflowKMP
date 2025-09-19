@@ -9,11 +9,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.Flow
 import me.andannn.aniflow.data.model.CharacterModel
+import me.andannn.aniflow.data.model.MediaListModel
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.NotificationModel
 import me.andannn.aniflow.data.model.Page
 import me.andannn.aniflow.data.model.SearchSource
 import me.andannn.aniflow.data.model.StaffModel
+import me.andannn.aniflow.data.model.StaffWithRole
 import me.andannn.aniflow.data.model.StudioModel
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.MediaContentMode
@@ -21,6 +23,7 @@ import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.model.define.MediaType
 import me.andannn.aniflow.data.model.define.NotificationCategory
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
+import me.andannn.aniflow.data.model.relation.MediaModelWithRelationType
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 
 interface MediaRepository {
@@ -43,11 +46,27 @@ interface MediaRepository {
         mediaType: MediaType,
     ): Deferred<Throwable?>
 
+    fun syncDetailMedia(
+        scope: CoroutineScope,
+        mediaId: String,
+    ): Deferred<Throwable?>
+
+    fun syncMediaListItemOfUser(
+        scope: CoroutineScope,
+        userId: String,
+        mediaId: String,
+    ): Deferred<Throwable?>
+
     fun getMediaListFlowByUserId(
         userId: String,
         mediaType: MediaType,
         mediaListStatus: List<MediaListStatus>,
     ): Flow<List<MediaWithMediaListItem>>
+
+    fun getMediaListItemOfUserFlow(
+        userId: String,
+        mediaId: String,
+    ): Flow<MediaListModel?>
 
     fun getNewReleasedAnimeListFlow(
         userId: String,
@@ -81,6 +100,9 @@ interface MediaRepository {
     ): AppError?
 
     @NativeCoroutines
+    suspend fun addNewMediaToList(mediaId: String): AppError?
+
+    @NativeCoroutines
     suspend fun searchMediaFromSource(
         page: Int,
         perPage: Int,
@@ -107,4 +129,18 @@ interface MediaRepository {
         perPage: Int,
         searchSource: SearchSource.Studio,
     ): Pair<Page<StudioModel>, AppError?>
+
+    fun getMediaFlow(mediaId: String): Flow<MediaModel>
+
+    fun getStudioOfMediaFlow(mediaId: String): Flow<List<StudioModel>>
+
+    fun getStaffOfMediaFlow(mediaId: String): Flow<List<StaffWithRole>>
+
+    fun getRelationsOfMediaFlow(mediaId: String): Flow<List<MediaModelWithRelationType>>
+
+    @NativeCoroutines
+    suspend fun toggleMediaItemLike(
+        mediaId: String,
+        mediaType: MediaType,
+    ): AppError?
 }

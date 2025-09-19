@@ -5,6 +5,7 @@
 package me.andannn.aniflow.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -46,7 +47,10 @@ import me.andannn.aniflow.data.model.SettingItem
 import me.andannn.aniflow.data.model.SettingOption
 import me.andannn.aniflow.data.model.SettingUiState
 import me.andannn.aniflow.data.submitErrorOfSyncStatus
+import me.andannn.aniflow.ui.theme.AppBackgroundColor
+import me.andannn.aniflow.ui.theme.PageHorizontalPadding
 import me.andannn.aniflow.ui.theme.ShapeHelper
+import me.andannn.aniflow.ui.theme.TopAppBarColors
 import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.LocalResultStore
 import me.andannn.aniflow.util.ResultStore
@@ -145,15 +149,9 @@ private fun SettingsContent(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         snackbarHost = { SnackbarHost(rememberSnackBarHostState()) },
         topBar = {
-            val colors =
-                TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                    scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-                )
-
             MediumFlexibleTopAppBar(
                 scrollBehavior = scrollBehavior,
-                colors = colors,
+                colors = TopAppBarColors,
                 title = {
                     Text("Settings")
                 },
@@ -174,8 +172,9 @@ private fun SettingsContent(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.surfaceContainer)
+                    .background(AppBackgroundColor)
                     .padding(it),
+            contentPadding = PaddingValues(horizontal = PageHorizontalPadding),
         ) {
             state.settingGroupList.forEachIndexed { index, settingGroup ->
                 if (settingGroup.settings.isNotEmpty()) {
@@ -184,13 +183,13 @@ private fun SettingsContent(
                     ) {
                         Surface(
                             modifier = Modifier.fillMaxWidth(),
-                            color = MaterialTheme.colorScheme.surfaceContainer,
+                            color = AppBackgroundColor,
                         ) {
                             Text(
                                 modifier = Modifier.padding(top = 12.dp, start = 18.dp),
                                 text = settingGroup.title,
                                 style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.7f),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                     }
@@ -200,9 +199,9 @@ private fun SettingsContent(
                     ) { index, setting ->
                         val isFirst = index == 0
                         val isLast = index == settingGroup.settings.lastIndex
-                        val shape = ShapeHelper.listItemShape(isFirst, isLast)
+                        val shape = ShapeHelper.listItemShapeVertical(isFirst, isLast)
                         SettingItem(
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 1.dp),
+                            modifier = Modifier.padding(vertical = 1.dp),
                             setting = setting,
                             shape = shape,
                             onItemClick = {
