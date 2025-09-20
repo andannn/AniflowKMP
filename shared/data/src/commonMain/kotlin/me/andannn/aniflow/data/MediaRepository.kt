@@ -157,4 +157,11 @@ interface MediaRepository {
         page: Int,
         perPage: Int,
     ): Pair<Page<StaffWithRole>, AppError?>
+
+    suspend fun getCharacterPageOfMedia(
+        mediaId: String,
+        characterStaffLanguage: StaffLanguage,
+        page: Int,
+        perPage: Int,
+    ): Pair<Page<CharacterWithVoiceActor>, AppError?>
 }

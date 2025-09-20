@@ -70,6 +70,10 @@ fun App(navigator: RootNavigator) {
                         DetailMediaStaffPaging(it.mediaId)
                     }
 
+                    entry<Screen.DetailCharacterPaging>(clazzContentKey = { it.toJson() }) {
+                        DetailMediaCharacterPaging(it.mediaId)
+                    }
+
                     entry<Screen.Dialog.Login>(
                         metadata = dialog(),
                         clazzContentKey = { it.toJson() },

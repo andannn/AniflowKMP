@@ -17,6 +17,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.carousel.HorizontalCenteredHeroCarousel
@@ -56,6 +57,7 @@ fun NewReleaseCard(
     modifier: Modifier = Modifier,
     items: List<MediaWithMediaListItem>,
     userTitleLanguage: UserTitleLanguage,
+    onItemClick: (MediaWithMediaListItem) -> Unit = {},
 ) {
     OutlinedCard(
         modifier = modifier.fillMaxWidth(),
@@ -65,7 +67,7 @@ fun NewReleaseCard(
             ),
     ) {
         Column(
-            modifier = Modifier.padding(start = 10.dp, end = 10.dp, top = 12.dp),
+            modifier = Modifier.padding(start = 10.dp, end = 10.dp, top = 12.dp, bottom = 8.dp),
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -93,6 +95,7 @@ fun NewReleaseCard(
                 contentPadding = PaddingValues(horizontal = 8.dp),
             ) { i ->
                 val item = items[i]
+
                 AsyncImage(
                     modifier =
                         Modifier
@@ -100,6 +103,7 @@ fun NewReleaseCard(
                             .height(110.dp)
                             .maskClip(MaterialTheme.shapes.extraLarge)
                             .clickable {
+                                onItemClick(item)
                                 animationScope.launch { state.animateScrollToItem(i) }
                             },
                     contentDescription = null,
@@ -127,11 +131,6 @@ fun NewReleaseCard(
 
                 Text(text = text)
                 Spacer(modifier = Modifier.weight(1f))
-                TextButton(
-                    onClick = {},
-                ) {
-                    Text("Detail")
-                }
             }
         }
     }

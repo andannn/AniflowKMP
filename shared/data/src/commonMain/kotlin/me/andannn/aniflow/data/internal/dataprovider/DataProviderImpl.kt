@@ -167,8 +167,8 @@ private fun trackUiStateFlow(): Flow<TrackUiState> {
             .distinctUntilChanged()
             .flatMapLatest { (authUser, contentMode) ->
                 if (authUser == null) {
-                    // If not authenticated, return an empty flow
-                    emptyFlow()
+                    // If not authenticated, emit an empty list
+                    flow { emit(emptyList()) }
                 } else {
                     mediaRepo.getMediaListFlowByUserId(
                         userId = authUser.id,

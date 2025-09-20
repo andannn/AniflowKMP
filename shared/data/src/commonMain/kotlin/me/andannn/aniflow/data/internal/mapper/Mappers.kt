@@ -422,6 +422,8 @@ internal fun StaffConnection.Edge.toEntity() =
 
 internal fun StaffConnection.Edge.toDomain() = toEntity().toDomain()
 
+internal fun CharactersConnection.Edge.toDomain(staffLanguage: StaffLanguage) = toEntity().toDomain(staffLanguage)
+
 internal fun Staff.toEntity() =
     StaffEntity(
         id = id.toString(),

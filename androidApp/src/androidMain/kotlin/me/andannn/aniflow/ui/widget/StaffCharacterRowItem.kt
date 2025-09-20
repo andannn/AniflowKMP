@@ -122,42 +122,44 @@ fun CharacterRowItem(
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            Column(modifier = Modifier.weight(1f)) {
-                Spacer(modifier = Modifier.height(2.dp))
-                val name =
-                    remember(characterWithVoiceActor, userStaffLanguage) {
-                        characterWithVoiceActor.voiceActor?.name.getNameString(userStaffLanguage)
-                    }
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = name,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    textAlign = TextAlign.End,
-                )
+            if (characterWithVoiceActor.voiceActor != null) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Spacer(modifier = Modifier.height(2.dp))
+                    val name =
+                        remember(characterWithVoiceActor, userStaffLanguage) {
+                            characterWithVoiceActor.voiceActor?.name.getNameString(userStaffLanguage)
+                        }
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = name,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = TextAlign.End,
+                    )
 
-                Spacer(modifier = Modifier.weight(1f))
+                    Spacer(modifier = Modifier.weight(1f))
 
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = characterWithVoiceActor.voiceActorLanguage.label(),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.End,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = characterWithVoiceActor.voiceActorLanguage.label(),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.End,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                AsyncImage(
+                    modifier = Modifier.width(72.dp),
+                    model = characterWithVoiceActor.voiceActor?.image,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
                 )
-                Spacer(modifier = Modifier.height(2.dp))
             }
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            AsyncImage(
-                modifier = Modifier.width(72.dp),
-                model = characterWithVoiceActor.voiceActor?.image,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-            )
         }
     }
 }

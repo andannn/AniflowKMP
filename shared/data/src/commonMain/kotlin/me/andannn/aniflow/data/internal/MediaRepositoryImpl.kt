@@ -42,7 +42,6 @@ import me.andannn.aniflow.data.model.relation.CharacterWithVoiceActor
 import me.andannn.aniflow.data.model.relation.MediaModelWithRelationType
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.database.MediaLibraryDao
-import me.andannn.aniflow.database.relation.CharacterWithVoiceActorRelation
 import me.andannn.aniflow.database.relation.MediaEntityWithRelationType
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelationWithUpdateLog
 import me.andannn.aniflow.database.schema.MediaEntity
@@ -377,8 +376,30 @@ internal class MediaRepositoryImpl(
                     staffPerPage = perPage,
                 ).media.staff!!.toPage().toDomain(StaffConnection.Edge::toDomain) to null
             } catch (exception: ServerException) {
-                Napier.e { "Error when loading media page: $exception" }
+                Napier.e { "Error when loading staff page: $exception" }
                 Page.empty<StaffWithRole>() to exception.toError()
+            }
+        }
+
+    override suspend fun getCharacterPageOfMedia(
+        mediaId: String,
+        characterStaffLanguage: StaffLanguage,
+        page: Int,
+        perPage: Int,
+    ): Pair<Page<CharacterWithVoiceActor>, AppError?> =
+        with(mediaService) {
+            try {
+                getDetailMedia(
+                    id = mediaId.toInt(),
+                    characterPage = page,
+                    characterPerPage = perPage,
+                    characterStaffLanguage = characterStaffLanguage.toServiceType(),
+                ).media.characters!!.toPage().toDomain {
+                    it.toDomain(characterStaffLanguage)
+                } to null
+            } catch (exception: ServerException) {
+                Napier.e { "Error when loading Character page: $exception" }
+                Page.empty<CharacterWithVoiceActor>() to exception.toError()
             }
         }
 }

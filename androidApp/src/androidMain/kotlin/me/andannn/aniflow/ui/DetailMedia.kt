@@ -87,8 +87,10 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.DetailMediaUiDataProvider
 import me.andannn.aniflow.data.ErrorChannel
 import me.andannn.aniflow.data.MediaRepository
@@ -136,6 +138,7 @@ class DetailMediaViewModel(
     private val mediaId: String,
     private val dataProvider: DetailMediaUiDataProvider,
     private val mediaRepository: MediaRepository,
+    private val authRepository: AuthRepository,
 ) : ViewModel(),
     ErrorChannel by buildErrorChannel() {
     init {
@@ -143,9 +146,6 @@ class DetailMediaViewModel(
             cancelLastAndRegisterUiSideEffect(force = false)
         }
     }
-
-    val isSideEffectRefreshing = MutableStateFlow(false)
-    private var sideEffectJob: Job? = null
 
     val uiState =
         dataProvider.detailUiDataFlow().stateIn(
@@ -155,6 +155,22 @@ class DetailMediaViewModel(
         )
 
     private var toggleFavoriteJob: Job? = null
+    private val isSideEffectRefreshing = MutableStateFlow(false)
+    private val isLoginProcessing = MutableStateFlow(false)
+
+    val isLoading =
+        combine(
+            isSideEffectRefreshing,
+            isLoginProcessing,
+        ) { isSideEffectRefreshing, isLoginProcessing ->
+            isSideEffectRefreshing || isLoginProcessing
+        }.stateIn(
+            viewModelScope,
+            initialValue = false,
+            started = SharingStarted.WhileSubscribed(5000),
+        )
+
+    private var sideEffectJob: Job? = null
 
     fun onPullRefresh() {
         Napier.d(tag = TAG) { "onPullRefresh:" }
@@ -233,6 +249,19 @@ class DetailMediaViewModel(
             }
         }
     }
+
+    fun onLoginClick() {
+        viewModelScope
+            .launch {
+                isLoginProcessing.value = true
+                val error = authRepository.startLoginProcessAndWaitResult()
+                if (error != null) {
+                    submitError(error)
+                }
+            }.invokeOnCompletion {
+                isLoginProcessing.value = false
+            }
+    }
 }
 
 @Composable
@@ -247,7 +276,7 @@ fun DetailMedia(
     resultStore: ResultStore = LocalResultStore.current,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val isRefreshing by viewModel.isSideEffectRefreshing.collectAsStateWithLifecycle()
+    val isRefreshing by viewModel.isLoading.collectAsStateWithLifecycle()
 
     DetailMediaContent(
         title = uiState.title,
@@ -271,7 +300,7 @@ fun DetailMedia(
             uriHandler.openUri(it)
         },
         onRelationItemClick = { navigator.navigateTo(Screen.DetailMedia(it.media.id)) },
-        onLoginClick = {},
+        onLoginClick = viewModel::onLoginClick,
         onTrackProgressClick = {
             navigator.navigateTo(Screen.Dialog.TrackProgressDialog(mediaId))
             viewModel.onTrackProgressClick(resultStore)
@@ -284,6 +313,9 @@ fun DetailMedia(
         },
         onStaffMoreClick = {
             navigator.navigateTo(Screen.DetailStaffPaging(mediaId))
+        },
+        onCharacterMoreClick = {
+            navigator.navigateTo(Screen.DetailCharacterPaging(mediaId))
         },
     )
 
@@ -319,6 +351,7 @@ private fun DetailMediaContent(
     onRelationItemClick: (MediaModelWithRelationType) -> Unit = {},
     onExternalLinkClick: (ExternalLink) -> Unit = {},
     onStaffMoreClick: () -> Unit = {},
+    onCharacterMoreClick: () -> Unit = {},
     onPop: () -> Unit = {},
 ) {
     val exitAlwaysScrollBehavior =
@@ -537,7 +570,7 @@ private fun DetailMediaContent(
                             TitleWithContent(
                                 modifier = Modifier.padding(top = ContentSpacing),
                                 title = "Character",
-                                onMoreClick = {},
+                                onMoreClick = onCharacterMoreClick,
                             )
                         }
 
@@ -709,8 +742,8 @@ private fun DetailMediaContent(
                             Button(
                                 colors =
                                     ButtonDefaults.textButtonColors(
-                                        containerColor = MaterialTheme.colorScheme.primary,
-                                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                     ),
                                 contentPadding = ButtonWithIconContentPadding,
                                 onClick = onAddToListClick,
@@ -726,8 +759,8 @@ private fun DetailMediaContent(
                             Button(
                                 colors =
                                     ButtonDefaults.textButtonColors(
-                                        containerColor = MaterialTheme.colorScheme.primary,
-                                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                     ),
                                 onClick = onLoginClick,
                             ) {
