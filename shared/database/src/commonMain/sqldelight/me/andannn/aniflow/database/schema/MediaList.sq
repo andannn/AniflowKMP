@@ -53,3 +53,7 @@ UPDATE mediaListEntity SET progress = ? WHERE mediaListId = ?;
 updateMediaListUpdatedAt:
 UPDATE mediaListEntity SET updatedAt = ? WHERE mediaListId = ?;
 
+updateMediaListScore:
+UPDATE mediaListEntity SET score = ? WHERE mediaListId = ?;
+
+

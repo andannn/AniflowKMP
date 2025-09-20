@@ -18,4 +18,5 @@ object PreferencesKeyName {
     const val SENT_NOTIFICATION_ID_KEY_NAME = "sent_notification_id"
 
     const val APP_THEME_KEY_NAME = "app_theme"
+    const val SCORE_FORMAT_KEY_NAME = "score_format"
 }

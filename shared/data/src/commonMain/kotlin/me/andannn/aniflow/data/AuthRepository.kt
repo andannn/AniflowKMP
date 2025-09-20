@@ -8,6 +8,7 @@ import com.rickclephas.kmp.nativecoroutines.NativeCoroutines
 import kotlinx.coroutines.flow.Flow
 import me.andannn.aniflow.data.model.UserModel
 import me.andannn.aniflow.data.model.UserOptions
+import me.andannn.aniflow.data.model.define.ScoreFormat
 import me.andannn.aniflow.data.model.define.Theme
 import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
@@ -76,5 +77,6 @@ interface AuthRepository {
         titleLanguage: UserTitleLanguage? = null,
         staffCharacterNameLanguage: UserStaffNameLanguage? = null,
         appTheme: Theme? = null,
+        scoreFormat: ScoreFormat? = null,
     ): AppError?
 }

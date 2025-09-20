@@ -84,7 +84,7 @@ class DetailMediaCharacterPagingViewModel(
             started =
                 SharingStarted
                     .WhileSubscribed(5000),
-            initialValue = UserOptions(),
+            initialValue = UserOptions.Default,
         )
 
     init {

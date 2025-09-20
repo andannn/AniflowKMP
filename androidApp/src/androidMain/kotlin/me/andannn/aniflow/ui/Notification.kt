@@ -75,7 +75,7 @@ class NotificationViewModel(
     val userOptions =
         authRepository.getUserOptionsFlow().stateIn(
             viewModelScope,
-            initialValue = UserOptions(),
+            initialValue = UserOptions.Default,
             started =
                 kotlinx.coroutines.flow.SharingStarted
                     .WhileSubscribed(5000),

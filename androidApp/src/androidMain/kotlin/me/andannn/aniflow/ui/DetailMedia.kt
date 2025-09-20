@@ -4,6 +4,7 @@
  */
 package me.andannn.aniflow.ui
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -76,7 +77,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.fromHtml
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
@@ -243,8 +249,8 @@ class DetailMediaViewModel(
                 val isCompleted = result == media.episodes
                 mediaRepository.updateMediaListStatus(
                     mediaListId = listItem.id,
-                    progress = result,
                     status = if (isCompleted) MediaListStatus.COMPLETED else MediaListStatus.CURRENT,
+                    progress = result,
                 )
             }
         }
@@ -261,6 +267,22 @@ class DetailMediaViewModel(
             }.invokeOnCompletion {
                 isLoginProcessing.value = false
             }
+    }
+
+    fun onRatingClick(resultStore: ResultStore) {
+        viewModelScope.launch {
+            val result: Float = resultStore.awaitResultOf(Screen.Dialog.ScoringDialog(mediaId))
+            val listItem = uiState.value.mediaListItem
+            if (listItem != null && result.toDouble() != listItem.score) {
+                val appError =
+                    mediaRepository.updateMediaListStatus(
+                        mediaListId = listItem.id,
+                        score = result,
+                    )
+
+                if (appError != null) submitError(appError)
+            }
+        }
     }
 }
 
@@ -296,7 +318,6 @@ fun DetailMedia(
         onAddToListClick = viewModel::onAddToListClick,
         onToggleFavoriteClick = viewModel::onToggleFavoriteClick,
         onTrailerClick = {
-            Napier.d(tag = TAG) { "onTrailerClick: $it" }
             uriHandler.openUri(it)
         },
         onRelationItemClick = { navigator.navigateTo(Screen.DetailMedia(it.media.id)) },
@@ -305,7 +326,10 @@ fun DetailMedia(
             navigator.navigateTo(Screen.Dialog.TrackProgressDialog(mediaId))
             viewModel.onTrackProgressClick(resultStore)
         },
-        onRatingClick = {},
+        onRatingClick = {
+            navigator.navigateTo(Screen.Dialog.ScoringDialog(mediaId))
+            viewModel.onRatingClick(resultStore)
+        },
         onExternalLinkClick = { link ->
             link.url?.let {
                 uriHandler.openUri(it)
@@ -480,11 +504,21 @@ private fun DetailMediaContent(
                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                                     verticalArrangement = Arrangement.spacedBy(2.dp),
                                 ) {
-                                    items.forEach { hashTag ->
+                                    items.filter { it.length > 1 }.forEach { hashTag ->
+                                        val text =
+                                            buildAnnotatedString {
+                                                withLink(
+                                                    LinkAnnotation.Url(
+                                                        "https://twitter.com/hashtag/${hashTag.substring(1)}?src=hashtag_click",
+                                                        TextLinkStyles(style = SpanStyle(color = Color(0xFF1DA1F2))),
+                                                    ),
+                                                ) {
+                                                    append(hashTag)
+                                                }
+                                            }
                                         Text(
                                             modifier = Modifier.alignByBaseline(),
-                                            text = hashTag,
-                                            color = Color(0xFF1DA1F2),
+                                            text = text,
                                         )
                                     }
                                 }
@@ -821,13 +855,13 @@ private fun DetailMediaContent(
                                     },
                                     label = "Track Progress",
                                 )
-//                                clickableItem(
-//                                    onClick = onRatingClick,
-//                                    icon = {
-//                                        Icon(Icons.Filled.StarRate, contentDescription = null)
-//                                    },
-//                                    label = "Give rating",
-//                                )
+                                clickableItem(
+                                    onClick = onRatingClick,
+                                    icon = {
+                                        Icon(Icons.Filled.StarRate, contentDescription = null)
+                                    },
+                                    label = "Give rating",
+                                )
                             }
                         }
                     },

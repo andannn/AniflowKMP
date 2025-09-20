@@ -13,6 +13,7 @@ import me.andannn.aniflow.data.internal.toEntity
 import me.andannn.aniflow.data.internal.toServiceType
 import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.model.define.MediaType
+import me.andannn.aniflow.data.model.define.ScoreFormat
 import me.andannn.aniflow.data.model.define.Theme
 import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
@@ -93,6 +94,7 @@ internal class MediaListModificationSyncer(
             status = data.mediaListStatus?.key,
             progress = data.progress?.toLong(),
             updateAt = data.updatedAt,
+            score = data.score?.toDouble(),
         )
     }
 
@@ -104,6 +106,7 @@ internal class MediaListModificationSyncer(
             id = mediaListId.toInt(),
             status = new.mediaListStatus?.toServiceType(),
             progress = new.progress,
+            score = new.score,
         ).toParam()
 
     private fun MediaListEntity.toParam() =
@@ -111,6 +114,7 @@ internal class MediaListModificationSyncer(
             mediaListStatus = listStatus?.deserialize(),
             progress = progress?.toInt(),
             updatedAt = updatedAt,
+            score = score?.toFloat(),
         )
 
     private fun MediaList.toParam() =
@@ -118,12 +122,14 @@ internal class MediaListModificationSyncer(
             mediaListStatus = status?.toDomainType(),
             progress = progress,
             updatedAt = updatedAt?.toLong(),
+            score = score?.toFloat(),
         )
 
     data class Param(
         val mediaListStatus: MediaListStatus? = null,
         val progress: Int? = null,
         val updatedAt: Long? = null,
+        val score: Float? = null,
     )
 }
 
@@ -139,6 +145,7 @@ internal class UserSettingSyncer :
                 userTitleLanguage = it.titleLanguage?.deserialize(),
                 userStaffNameLanguage = it.staffNameLanguage?.deserialize(),
                 appTheme = it.appTheme?.deserialize(),
+                scoreFormat = it.scoreFormat?.deserialize(),
             )
         }
 
@@ -152,6 +159,9 @@ internal class UserSettingSyncer :
         if (data.appTheme != null) {
             preferences.setAppTheme(data.appTheme.key)
         }
+        if (data.scoreFormat != null) {
+            preferences.setScoreFormat(data.scoreFormat.key)
+        }
     }
 
     override suspend fun syncWithRemote(
@@ -163,6 +173,7 @@ internal class UserSettingSyncer :
                 .updateUserSetting(
                     titleLanguage = new.userTitleLanguage?.toServiceType(),
                     userStaffNameLanguage = new.userStaffNameLanguage?.toServiceType(),
+                    scoreFormat = new.scoreFormat?.toServiceType(),
                 ).toParam()
         } else {
             new
@@ -172,6 +183,7 @@ internal class UserSettingSyncer :
         Param(
             userTitleLanguage = this?.options?.titleLanguage?.toDomainType(),
             userStaffNameLanguage = this?.options?.staffNameLanguage?.toDomainType(),
+            scoreFormat = this?.mediaListOptions?.scoreFormat?.toDomainType(),
         )
 
     data class Param(
@@ -179,10 +191,12 @@ internal class UserSettingSyncer :
         val displayAdultContent: Boolean? = null,
         val userStaffNameLanguage: UserStaffNameLanguage? = null,
         val appTheme: Theme? = null,
+        val scoreFormat: ScoreFormat? = null,
     ) {
         fun needSync(new: Param): Boolean =
             userTitleLanguage != new.userTitleLanguage ||
-                userStaffNameLanguage != new.userStaffNameLanguage
+                userStaffNameLanguage != new.userStaffNameLanguage ||
+                scoreFormat != new.scoreFormat
     }
 }
 

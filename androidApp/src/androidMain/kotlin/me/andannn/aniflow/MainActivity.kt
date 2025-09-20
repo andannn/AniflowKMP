@@ -183,6 +183,6 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun rememberAppThemeSetting(authRepository: AuthRepository = getKoin().get()): Theme {
-    val option = authRepository.getUserOptionsFlow().collectAsState(UserOptions())
+    val option = authRepository.getUserOptionsFlow().collectAsState(UserOptions.Default)
     return option.value.appTheme
 }

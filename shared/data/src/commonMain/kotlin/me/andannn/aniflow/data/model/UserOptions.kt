@@ -5,6 +5,7 @@
 package me.andannn.aniflow.data.model
 
 import kotlinx.serialization.Serializable
+import me.andannn.aniflow.data.model.define.ScoreFormat
 import me.andannn.aniflow.data.model.define.Theme
 import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
@@ -23,6 +24,7 @@ public data class UserOptions constructor(
      * Whether the user wants to see adult content
      */
     val appTheme: Theme = Theme.SYSTEM,
+    val scoreFormat: ScoreFormat = ScoreFormat.POINT_10,
 ) {
     companion object {
         val Default = UserOptions()

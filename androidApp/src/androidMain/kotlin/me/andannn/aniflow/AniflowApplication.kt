@@ -19,6 +19,7 @@ import me.andannn.aniflow.ui.HomeViewModel
 import me.andannn.aniflow.ui.LoginDialogViewModel
 import me.andannn.aniflow.ui.MediaCategoryPagingViewModel
 import me.andannn.aniflow.ui.NotificationViewModel
+import me.andannn.aniflow.ui.ScoringDialogViewModel
 import me.andannn.aniflow.ui.SearchViewModel
 import me.andannn.aniflow.ui.SettingOptionViewModel
 import me.andannn.aniflow.ui.SettingsViewModel
@@ -69,6 +70,9 @@ private fun androidContextModule(application: AniflowApplication) =
         }
         viewModel {
             MediaCategoryPagingViewModel(it.get(), get())
+        }
+        viewModel {
+            ScoringDialogViewModel(it.get(), get(), get())
         }
         viewModel {
             SettingOptionViewModel(it.get())

@@ -60,6 +60,11 @@ sealed interface Screen : NavKey {
         data class TrackProgressDialog(
             val mediaId: String,
         ) : Dialog
+
+        @Serializable
+        data class ScoringDialog(
+            val mediaId: String,
+        ) : Dialog
     }
 
     fun toJson(): String = Json.encodeToString<Screen>(this)

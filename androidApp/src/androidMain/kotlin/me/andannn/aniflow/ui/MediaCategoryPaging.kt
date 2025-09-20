@@ -70,7 +70,7 @@ class MediaCategoryPagingViewModel(
             started =
                 kotlinx.coroutines.flow.SharingStarted
                     .WhileSubscribed(5000),
-            initialValue = UserOptions(),
+            initialValue = UserOptions.Default,
         )
 
     override fun onCleared() {

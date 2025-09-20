@@ -17,28 +17,53 @@ query ($page: Int, $perPage: Int, $type: MediaType, $countryCode: CountryCode, $
     }
     media: media(type: $type, countryOfOrigin: $countryCode, seasonYear: $seasonYear, season: $season, status: $status, sort: $sort, format_in: $format_in, isAdult: $isAdult, startDate_greater: $startDate_greater, endDate_lesser: $endDate_lesser) {
       id
-      type
-      format
-      status
-      season
-      seasonYear
-      startDate {
-        year
-        month
-        day
+      title {
+        romaji
+        english
+        native
       }
-      bannerImage
+      type
+      description(asHtml: false)
+      episodes
+      seasonYear
+      season
+      source
+      genres
+      status
+      hashtag
+      isFavourite
+      externalLinks {
+        id
+        url
+        site
+        type
+        siteId
+        color
+        icon
+      }
+      rankings {
+        rank
+        type
+        allTime
+      }
+      trailer {
+        id
+        site
+        thumbnail
+      }
       coverImage {
         extraLarge
         large
         medium
         color
       }
-      title {
-        romaji
-        english
-        native
-      }
+      format
+      bannerImage
+      averageScore
+      meanScore
+      favourites
+      trending
+      isFavourite
       nextAiringEpisode {
         id
         airingAt
@@ -48,4 +73,5 @@ query ($page: Int, $perPage: Int, $type: MediaType, $countryCode: CountryCode, $
     }
   }
 }
+
 """

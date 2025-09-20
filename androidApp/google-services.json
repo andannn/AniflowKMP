@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "154141600373",
+    "project_id": "aniflowkmp",
+    "storage_bucket": "aniflowkmp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:154141600373:android:01a58076894b5d95e0263c",
+        "android_client_info": {
+          "package_name": "me.andannn.aniflow"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAA8KocYMQL8g-k5F_124CCoujJboEblno"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:154141600373:android:d33a9ee78862baf3e0263c",
+        "android_client_info": {
+          "package_name": "me.andannn.aniflow.debug"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAA8KocYMQL8g-k5F_124CCoujJboEblno"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

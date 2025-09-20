@@ -38,6 +38,8 @@ class UserSettingPreferences(
                             ?.split(",") ?: emptyList(),
                     appTheme =
                         preferences[stringPreferencesKey(PreferencesKeyName.APP_THEME_KEY_NAME)],
+                    scoreFormat =
+                        preferences[stringPreferencesKey(PreferencesKeyName.SCORE_FORMAT_KEY_NAME)],
                 )
             }
 
@@ -113,6 +115,14 @@ class UserSettingPreferences(
         preferences.updateData { currentPreferences ->
             currentPreferences.toMutablePreferences().apply {
                 this[stringPreferencesKey(PreferencesKeyName.APP_THEME_KEY_NAME)] = theme
+            }
+        }
+    }
+
+    suspend fun setScoreFormat(format: String) {
+        preferences.updateData { currentPreferences ->
+            currentPreferences.toMutablePreferences().apply {
+                this[stringPreferencesKey(PreferencesKeyName.SCORE_FORMAT_KEY_NAME)] = format
             }
         }
     }

@@ -216,6 +216,7 @@ class MediaLibraryDao constructor(
         status: String?,
         progress: Long?,
         updateAt: Long?,
+        score: Double?,
     ) = withDatabase {
         withContext(dispatcher) {
             status?.let {
@@ -234,6 +235,12 @@ class MediaLibraryDao constructor(
                 mediaListQueries.updateMediaListUpdatedAt(
                     mediaListId = mediaListId,
                     updatedAt = updateAt,
+                )
+            }
+            score?.let {
+                mediaListQueries.updateMediaListScore(
+                    mediaListId = mediaListId,
+                    score = score,
                 )
             }
         }
