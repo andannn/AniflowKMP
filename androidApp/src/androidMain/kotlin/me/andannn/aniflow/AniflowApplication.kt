@@ -11,6 +11,7 @@ import me.andannn.aniflow.data.KoinHelper.Modules
 import me.andannn.aniflow.data.Logger
 import me.andannn.aniflow.platform.BrowserAuthOperationHandlerImpl
 import me.andannn.aniflow.platform.NetworkConnectivityImpl
+import me.andannn.aniflow.platform.PresentationDummyHandler
 import me.andannn.aniflow.ui.DetailCharacterViewModel
 import me.andannn.aniflow.ui.DetailMediaCharacterPagingViewModel
 import me.andannn.aniflow.ui.DetailMediaStaffPagingViewModel
@@ -46,11 +47,18 @@ class AniflowApplication : Application() {
                     *Modules.toTypedArray(),
                     androidContextModule(this@AniflowApplication),
                 ),
-            BrowserAuthOperationHandlerImpl(),
-            NetworkConnectivityImpl(this@AniflowApplication),
+            browserAuthOperationHandler =
+                if (isPresentationMode()) {
+                    PresentationDummyHandler
+                } else {
+                    BrowserAuthOperationHandlerImpl()
+                },
+            networkConnectivity = NetworkConnectivityImpl(this@AniflowApplication),
         )
     }
 }
+
+fun isPresentationMode() = BuildConfig.PRESENTATION_TOKEN.isNotEmpty()
 
 private fun androidContextModule(application: AniflowApplication) =
     module {

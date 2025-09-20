@@ -45,13 +45,13 @@ jobs:
         run: chmod +x ./gradlew
 
 
-      - name: Build android apk
-        run: ./gradlew assembleRelease -P android.releaseSigning=true
-        env:
-          SIGNING_KEYSTORE_PATH: ./keystore/keystore.jks
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+#      - name: Build android apk
+#        run: ./gradlew assembleRelease -P android.releaseSigning=true
+#        env:
+#          SIGNING_KEYSTORE_PATH: ./keystore/keystore.jks
+#          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+#          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+#          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
 
       - name: Build android bundle
         run: ./gradlew bundleRelease -P android.releaseSigning=true
@@ -65,7 +65,7 @@ jobs:
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           files: |
-            androidApp/build/outputs/apk/release/androidApp-release.apk
-            androidApp/build/outputs/bundle/release/androidApp-release.aab
+            androidApp/build/outputs/bundle/presentationRelease/androidApp-presentation-release.aab
+            androidApp/build/outputs/bundle/productionRelease/androidApp-production-release.aab
           repo_token: "${{ secrets.TOKEN }}"
           prerelease: false

@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.net.toUri
 import io.github.aakira.napier.Napier
+import me.andannn.aniflow.BuildConfig
 import me.andannn.aniflow.data.AuthToken
 import me.andannn.aniflow.data.BrowserAuthOperationHandler
 
@@ -57,6 +58,8 @@ internal class BrowserAuthOperationHandlerImpl : BrowserAuthOperationHandler {
                     )
                 } ?: return
 
+            Napier.d(tag = TAG) { "onReceiveNewIntent $token" }
+
             (authState as? AuthState.Waiting)?.callBack?.invoke(token)
             authState = AuthState.INITIAL
         }
@@ -92,4 +95,19 @@ private sealed interface AuthState {
     data class Waiting(
         val callBack: (AuthToken?) -> Unit,
     ) : AuthState
+}
+
+object PresentationDummyHandler : BrowserAuthOperationHandler {
+    override fun getAuthResult(callBack: (AuthToken?) -> Unit) {
+        callBack(
+            AuthToken(
+                token = BuildConfig.PRESENTATION_TOKEN,
+                expiresInTime = 3600000,
+            ),
+        )
+    }
+
+    override fun cancel() {
+        // Do nothing
+    }
 }
