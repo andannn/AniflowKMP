@@ -4,7 +4,9 @@
  */
 package me.andannn.aniflow.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,18 +18,23 @@ import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -40,6 +47,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.model.UserModel
+import me.andannn.aniflow.ui.widget.AlertDialogContainer
+import me.andannn.aniflow.ui.widget.TransparentBackgroundListItem
 import me.andannn.aniflow.util.LocalScreenResultEmitter
 import me.andannn.aniflow.util.ScreenResultEmitter
 import org.koin.compose.viewmodel.koinViewModel
@@ -106,93 +115,90 @@ fun LoginDialogContent(
     modifier: Modifier = Modifier,
 ) {
     val authedUser = state.authedUser
-    Surface(
-        modifier =
-            modifier
-                .wrapContentSize(),
-        shape = AlertDialogDefaults.shape,
-        tonalElevation = AlertDialogDefaults.TonalElevation,
+    AlertDialogContainer(
+        modifier = modifier,
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
+        Row(
+            modifier = Modifier.height(IntrinsicSize.Min),
         ) {
-            Row(
-                modifier = Modifier.height(IntrinsicSize.Min),
+            IconButton(
+                onClick = { },
             ) {
-                IconButton(
-                    onClick = { },
-                ) {
-                    if (authedUser != null) {
-                        AsyncImage(
-                            model = authedUser.avatar,
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Outlined.Person,
-                            contentDescription = null,
-                        )
-                    }
+                if (authedUser != null) {
+                    AsyncImage(
+                        model = authedUser.avatar,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Outlined.Person,
+                        contentDescription = null,
+                    )
                 }
-                Text(
-                    text = authedUser?.name ?: "",
-                    maxLines = 1,
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier =
-                        Modifier
-                            .align(Alignment.CenterVertically)
-                            .padding(start = 8.dp),
-                )
             }
+            Text(
+                text = authedUser?.name ?: "",
+                maxLines = 1,
+                style = MaterialTheme.typography.titleLarge,
+                modifier =
+                    Modifier
+                        .align(Alignment.CenterVertically)
+                        .padding(start = 8.dp),
+            )
+        }
 
-            Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(4.dp))
 
-            HorizontalDivider()
+        HorizontalDivider()
 
-            if (authedUser != null) {
-                Surface(
-                    onClick = onNotificationClick,
-                ) {
-                    ListItem(
-                        leadingContent = {
-                            Icon(
-                                imageVector = Icons.Outlined.Notifications,
-                                contentDescription = null,
-                            )
-                        },
-                        headlineContent = {
-                            Text("Notification")
-                        },
+        if (authedUser != null) {
+            TransparentBackgroundListItem(
+                onClick = onNotificationClick,
+                leadingContent = {
+                    Icon(
+                        imageVector = Icons.Outlined.Notifications,
+                        contentDescription = null,
                     )
-                }
-                Surface(
-                    onClick = onSettingClick,
-                ) {
-                    ListItem(
-                        leadingContent = {
-                            Icon(
-                                imageVector = Icons.Outlined.Settings,
-                                contentDescription = null,
-                            )
-                        },
-                        headlineContent = {
-                            Text("Settings")
-                        },
+                },
+                headlineContent = {
+                    Text("Notification")
+                },
+            )
+            TransparentBackgroundListItem(
+                onClick = onSettingClick,
+                leadingContent = {
+                    Icon(
+                        imageVector = Icons.Outlined.Settings,
+                        contentDescription = null,
                     )
-                }
-                OutlinedButton(
-                    onClick = onLogoutClick,
-                ) {
-                    Text("Logout")
-                }
-            } else {
-                OutlinedButton(
-                    onClick = onLoginClick,
-                ) {
-                    Text("Login with AniList")
-                }
+                },
+                headlineContent = {
+                    Text("Settings")
+                },
+            )
+            OutlinedButton(
+                onClick = onLogoutClick,
+            ) {
+                Text("Logout")
+            }
+        } else {
+            OutlinedButton(
+                onClick = onLoginClick,
+            ) {
+                Text("Login with AniList")
             }
         }
     }
+//    Surface(
+//        modifier =
+//            modifier
+//                .wrapContentSize(),
+//        shape = AlertDialogDefaults.shape,
+//        tonalElevation = AlertDialogDefaults.TonalElevation,
+//    ) {
+//        Column(
+//            modifier = Modifier.padding(16.dp),
+//        )
+//    }
 }

@@ -5,23 +5,17 @@
 package me.andannn.aniflow.ui
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -41,7 +35,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
@@ -49,6 +42,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.MediaRepository
+import me.andannn.aniflow.ui.widget.AlertDialogContainer
 import me.andannn.aniflow.util.LocalScreenResultEmitter
 import me.andannn.aniflow.util.ScreenResultEmitter
 import org.koin.compose.viewmodel.koinViewModel
@@ -100,31 +94,24 @@ fun TrackProgressDialog(
     val mediaListModel by viewModel.mediaListModel.collectAsStateWithLifecycle()
     val mediaModel by viewModel.mediaModel.collectAsStateWithLifecycle()
 
-    Surface(
-        modifier =
-            Modifier
-                .wrapContentSize(),
-        shape = AlertDialogDefaults.shape,
-        color = AlertDialogDefaults.containerColor,
-        tonalElevation = AlertDialogDefaults.TonalElevation,
+    val nextAiringEp = mediaModel?.nextAiringEpisode?.episode
+    val totalEp = mediaModel?.episodes
+    val max =
+        if (nextAiringEp != null) {
+            if (totalEp == null) nextAiringEp - 1 else minOf(nextAiringEp - 1, totalEp)
+        } else {
+            totalEp
+        }
+    AlertDialogContainer(
+        title = "Track Progress",
     ) {
-        val nextAiringEp = mediaModel?.nextAiringEpisode?.episode
-        val totalEp = mediaModel?.episodes
-        val max =
-            if (nextAiringEp != null) {
-                if (totalEp == null) nextAiringEp - 1 else minOf(nextAiringEp - 1, totalEp)
-            } else {
-                totalEp
-            }
         TrackProgressDialogContent(
-            modifier = Modifier,
             initialProgress = mediaListModel?.progress ?: 0,
             maxEpisodes = max,
-            onSave = {
-                resultEmitter.emitResult(it)
-                navigator.popBackStack()
-            },
-        )
+        ) {
+            resultEmitter.emitResult(it)
+            navigator.popBackStack()
+        }
     }
 }
 
@@ -154,75 +141,64 @@ private fun TrackProgressDialogContent(
         focusRequester.requestFocus()
     }
 
-    Column(
-        modifier = modifier.padding(vertical = 24.dp, horizontal = 16.dp),
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(
-            modifier = Modifier.padding(bottom = 16.dp),
-            text = "Record Watch Progress",
-            color = AlertDialogDefaults.titleContentColor,
-            style = MaterialTheme.typography.headlineSmallEmphasized,
-        )
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
+        OutlinedButton(
+            modifier = Modifier.height(56.dp),
+            enabled = hasPrev,
+            onClick = {
+                safeUpdateProgress(value - 1)
+            },
         ) {
-            OutlinedButton(
-                modifier = Modifier.height(56.dp),
-                enabled = hasPrev,
-                onClick = {
-                    safeUpdateProgress(value - 1)
-                },
-            ) {
-                Text("−1")
-            }
-
-            OutlinedTextField(
-                modifier =
-                    Modifier
-                        .weight(1f)
-                        .focusRequester(focusRequester),
-                value =
-                    TextFieldValue(
-                        text = value.toString(),
-                        selection = TextRange(value.toString().length),
-                    ),
-                onValueChange = { new ->
-                    safeUpdateProgress(new.text.toIntOrNull() ?: 0)
-                },
-                singleLine = true,
-                keyboardOptions =
-                    KeyboardOptions(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Done,
-                    ),
-                suffix = {
-                    if (maxEpisodes != null) {
-                        Text(
-                            "/$maxEpisodes",
-                            color = LocalContentColor.current.copy(alpha = 0.6f),
-                        )
-                    }
-                },
-                keyboardActions =
-                    KeyboardActions(
-                        onDone = {
-                            onSave(value)
-                        },
-                    ),
-            )
-
-            OutlinedButton(
-                enabled = hasNext,
-                modifier = Modifier.height(56.dp),
-                onClick = {
-                    safeUpdateProgress(value + 1)
-                },
-            ) { Text("+1") }
+            Text("−1")
         }
 
-        Spacer(Modifier.width(16.dp))
+        OutlinedTextField(
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .focusRequester(focusRequester),
+            value =
+                TextFieldValue(
+                    text = value.toString(),
+                    selection = TextRange(value.toString().length),
+                ),
+            onValueChange = { new ->
+                safeUpdateProgress(new.text.toIntOrNull() ?: 0)
+            },
+            singleLine = true,
+            keyboardOptions =
+                KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Done,
+                ),
+            suffix = {
+                if (maxEpisodes != null) {
+                    Text(
+                        "/$maxEpisodes",
+                        color = LocalContentColor.current.copy(alpha = 0.6f),
+                    )
+                }
+            },
+            keyboardActions =
+                KeyboardActions(
+                    onDone = {
+                        onSave(value)
+                    },
+                ),
+        )
+
+        OutlinedButton(
+            enabled = hasNext,
+            modifier = Modifier.height(56.dp),
+            onClick = {
+                safeUpdateProgress(value + 1)
+            },
+        ) { Text("+1") }
     }
+
+    Spacer(Modifier.width(16.dp))
 }

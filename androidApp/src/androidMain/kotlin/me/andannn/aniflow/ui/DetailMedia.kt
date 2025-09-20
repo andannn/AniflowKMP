@@ -784,13 +784,13 @@ private fun DetailMediaContent(
                                     },
                                     label = "Track Progress",
                                 )
-                                clickableItem(
-                                    onClick = onRatingClick,
-                                    icon = {
-                                        Icon(Icons.Filled.StarRate, contentDescription = null)
-                                    },
-                                    label = "Give rating",
-                                )
+//                                clickableItem(
+//                                    onClick = onRatingClick,
+//                                    icon = {
+//                                        Icon(Icons.Filled.StarRate, contentDescription = null)
+//                                    },
+//                                    label = "Give rating",
+//                                )
                             }
                         }
                     },
