@@ -20,6 +20,7 @@ import me.andannn.aniflow.database.relation.MediaEntityWithRelationType
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelationWithUpdateLog
 import me.andannn.aniflow.database.relation.StaffWithRole
+import me.andannn.aniflow.database.schema.CharacterEntity
 import me.andannn.aniflow.database.schema.MediaEntity
 import me.andannn.aniflow.database.schema.MediaListEntity
 import me.andannn.aniflow.database.schema.StaffEntity
@@ -388,5 +389,23 @@ class MediaLibraryDao constructor(
                 .filterNotNull()
         }
 
+    fun getCharacterFlow(characterId: String): Flow<CharacterEntity> =
+        withDatabase {
+            characterQueries
+                .getCharacterById(characterId)
+                .asFlow()
+                .mapToOneOrNull(dispatcher)
+                .filterNotNull()
+        }
+
     private inline fun <T> withDatabase(block: AniflowDatabase.() -> T): T = block.invoke(aniflowDatabase)
+
+    suspend fun upsertCharacter(character: CharacterEntity) =
+        withDatabase {
+            withContext(dispatcher) {
+                transaction(true) {
+                    characterQueries.upsertCharacter(character)
+                }
+            }
+        }
 }

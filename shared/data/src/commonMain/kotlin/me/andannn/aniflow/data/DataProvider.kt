@@ -6,6 +6,7 @@ package me.andannn.aniflow.data
 
 import com.rickclephas.kmp.nativecoroutines.NativeCoroutines
 import kotlinx.coroutines.flow.Flow
+import me.andannn.aniflow.data.model.DetailCharacterUiState
 import me.andannn.aniflow.data.model.DetailStaffUiState
 import me.andannn.aniflow.data.model.DetailUiState
 import me.andannn.aniflow.data.model.DiscoverUiState
@@ -84,6 +85,14 @@ interface DetailStaffUiDataProvider {
     val staffId: String
 
     fun detailUiDataFlow(): Flow<DetailStaffUiState>
+
+    fun detailUiSideEffect(forceRefreshFirstTime: Boolean): Flow<SyncStatus>
+}
+
+interface DetailCharacterUiDataProvider {
+    val characterId: String
+
+    fun detailUiDataFlow(): Flow<DetailCharacterUiState>
 
     fun detailUiSideEffect(forceRefreshFirstTime: Boolean): Flow<SyncStatus>
 }

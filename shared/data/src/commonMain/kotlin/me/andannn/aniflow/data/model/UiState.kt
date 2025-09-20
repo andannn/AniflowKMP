@@ -241,3 +241,12 @@ data class DetailStaffUiState(
         val Empty = DetailStaffUiState(UserOptions.Default, null)
     }
 }
+
+data class DetailCharacterUiState(
+    val userOption: UserOptions,
+    val characterModel: CharacterModel?,
+) {
+    companion object {
+        val Empty = DetailCharacterUiState(UserOptions.Default, null)
+    }
+}

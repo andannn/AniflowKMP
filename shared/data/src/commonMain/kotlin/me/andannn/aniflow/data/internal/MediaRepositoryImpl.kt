@@ -45,6 +45,7 @@ import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.database.MediaLibraryDao
 import me.andannn.aniflow.database.relation.MediaEntityWithRelationType
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelationWithUpdateLog
+import me.andannn.aniflow.database.schema.CharacterEntity
 import me.andannn.aniflow.database.schema.MediaEntity
 import me.andannn.aniflow.database.schema.StaffEntity
 import me.andannn.aniflow.database.schema.StudioEntity
@@ -426,6 +427,23 @@ internal class MediaRepositoryImpl(
         }
 
     override fun getDetailStaff(staffId: String): Flow<StaffModel> = mediaLibraryDao.getStaffFlow(staffId).map(StaffEntity::toDomain)
+
+    override fun getDetailCharacter(characterId: String): Flow<CharacterModel> =
+        mediaLibraryDao.getCharacterFlow(characterId).map(CharacterEntity::toDomain)
+
+    override fun syncDetailCharacter(
+        scope: CoroutineScope,
+        characterId: String,
+    ): Deferred<Throwable?> =
+        with(mediaService) {
+            with(mediaLibraryDao) {
+                // sync data from service
+                syncDetailCharacterToLocal(
+                    characterId = characterId,
+                    scope = scope,
+                )
+            }
+        }
 }
 
 private const val DEFAULT_CACHED_SIZE = 20
@@ -450,6 +468,27 @@ private fun syncMediaListInfoToLocal(
                 )
             database.upsertMediaListEntities(mediaList.map(MediaList::toRelation))
             Napier.d(tag = TAG) { "syncMediaListInfoToLocal finished" }
+            null
+        } catch (exception: ServerException) {
+            Napier.e { "Error when syncing local with remote: $exception" }
+            exception
+        }
+    }
+
+context(service: AniListService, database: MediaLibraryDao)
+private fun syncDetailCharacterToLocal(
+    characterId: String,
+    scope: CoroutineScope,
+): Deferred<Throwable?> =
+    scope.async {
+        Napier.d(tag = TAG) { "syncDetailCharacterToLocal start: characterId=$characterId" }
+        try {
+            val character = service.getCharacterDetail(id = characterId.toInt())?.toEntity()
+            if (character != null) {
+                database.upsertCharacter(character)
+            }
+
+            Napier.d(tag = TAG) { "syncDetailCharacterToLocal finished" }
             null
         } catch (exception: ServerException) {
             Napier.e { "Error when syncing local with remote: $exception" }

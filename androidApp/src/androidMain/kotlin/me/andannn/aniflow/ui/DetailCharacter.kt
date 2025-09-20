@@ -4,6 +4,7 @@
  */
 package me.andannn.aniflow.ui
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -16,8 +17,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FloatingToolbarDefaults
-import androidx.compose.material3.FloatingToolbarExitDirection.Companion.Bottom
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -30,14 +29,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.fromHtml
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -49,13 +44,10 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.format
-import me.andannn.aniflow.data.DetailStaffUiDataProvider
+import me.andannn.aniflow.data.DetailCharacterUiDataProvider
 import me.andannn.aniflow.data.getNameString
-import me.andannn.aniflow.data.model.DetailStaffUiState
-import me.andannn.aniflow.data.model.SimpleDate
-import me.andannn.aniflow.data.model.StaffModel
+import me.andannn.aniflow.data.model.CharacterModel
+import me.andannn.aniflow.data.model.DetailCharacterUiState
 import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.ui.theme.AppBackgroundColor
 import me.andannn.aniflow.ui.theme.PageHorizontalPadding
@@ -66,11 +58,11 @@ import me.andannn.aniflow.util.rememberSnackBarHostState
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-private const val TAG = "DetailStaff"
+private const val TAG = "DetailCharacter"
 
-class DetailStaffViewModel(
-    private val staffId: String,
-    private val dataProvider: DetailStaffUiDataProvider,
+class DetailCharacterViewModel(
+    private val characterId: String,
+    private val dataProvider: DetailCharacterUiDataProvider,
 ) : ViewModel() {
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
@@ -87,25 +79,25 @@ class DetailStaffViewModel(
     val uiState =
         dataProvider.detailUiDataFlow().stateIn(
             viewModelScope,
-            initialValue = DetailStaffUiState.Empty,
+            initialValue = DetailCharacterUiState.Empty,
             started = SharingStarted.WhileSubscribed(5000),
         )
 }
 
 @Composable
-fun DetailStaff(
-    staffId: String,
-    viewModel: DetailStaffViewModel =
+fun DetailCharacter(
+    characterId: String,
+    viewModel: DetailCharacterViewModel =
         koinViewModel(
-            parameters = { parametersOf(staffId) },
+            parameters = { parametersOf(characterId) },
         ),
     navigator: RootNavigator = LocalRootNavigator.current,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
-    DetailStaffContent(
+    DetailCharacterContent(
         isLoading = isLoading,
-        staff = uiState.staffModel,
+        character = uiState.characterModel,
         options = uiState.userOption,
         onBack = { navigator.popBackStack() },
     )
@@ -113,12 +105,12 @@ fun DetailStaff(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun DetailStaffContent(
-    isLoading: Boolean,
-    staff: StaffModel?,
-    options: UserOptions,
+private fun DetailCharacterContent(
     modifier: Modifier = Modifier,
-    onBack: () -> Unit = {},
+    isLoading: Boolean,
+    character: CharacterModel?,
+    options: UserOptions,
+    onBack: () -> Unit,
 ) {
     Scaffold(
         modifier = modifier,
@@ -128,8 +120,8 @@ fun DetailStaffContent(
                 colors = TopAppBarColors,
                 title = {
                     val title =
-                        remember(options, staff) {
-                            staff?.name.getNameString(options.staffNameLanguage)
+                        remember(options, character) {
+                            character?.name.getNameString(options.staffNameLanguage)
                         }
                     Text(title)
                 },
@@ -167,7 +159,7 @@ fun DetailStaffContent(
                             shape = MaterialTheme.shapes.largeIncreased,
                         ) {
                             AsyncImage(
-                                model = staff?.image,
+                                model = character?.image,
                                 contentDescription = null,
                                 contentScale = ContentScale.Crop,
                             )
@@ -178,40 +170,38 @@ fun DetailStaffContent(
 
                 item {
                     val description =
-                        remember(staff) {
-                            staff?.description?.let {
+                        remember(character) {
+                            character?.description?.let {
                                 AnnotatedString.fromHtml(it)
                             }
                         }
                     val text =
                         buildAnnotatedString {
-                            staff?.dateOfBirth?.let {
+                            Log.d(TAG, "DetailCharacterContent: ${character?.age}")
+                            Log.d(TAG, "DetailCharacterContent: ${character?.dateOfBirth}")
+                            character?.dateOfBirth?.let {
                                 appendItem(
-                                    "Birth",
+                                    "Birthday",
                                     it.format(),
                                 )
                             }
-                            staff?.dateOfDeath?.let {
-                                appendItem("Death", it.format())
+                            character?.age?.let {
+                                appendItem("Age", it)
                             }
-                            staff?.age?.let {
-                                appendItem("Age", it.toString())
-                            }
-                            staff?.gender?.let {
+                            character?.gender?.let {
                                 appendItem("Gender", it)
                             }
-                            staff?.yearsActive?.let { activeYear ->
-                                val start = activeYear.getOrNull(0)
-                                val end = activeYear.getOrNull(1) ?: "Present"
-                                appendItem("Years active", "$start-$end")
-                            }
-                            staff?.homeTown?.let {
-                                appendItem("Hometown", it)
+                            character?.bloodType?.let {
+                                appendItem(
+                                    "BloodType",
+                                    it,
+                                )
                             }
                             description?.let {
                                 append(it)
                             }
                         }
+
                     Text(
                         text = text,
                         fontFamily = StyledReadingContentFontFamily,
@@ -223,25 +213,3 @@ fun DetailStaffContent(
         }
     }
 }
-
-fun AnnotatedString.Builder.appendItem(
-    key: String,
-    value: String,
-) {
-    withStyle(
-        style =
-            SpanStyle(
-                fontWeight = FontWeight.W700,
-            ),
-    ) {
-        append("$key: ")
-    }
-    append(value)
-    append("\n")
-}
-
-private fun SimpleDate.toLocalDate(): LocalDate? = day?.let { LocalDate(year, month, it) }
-
-fun SimpleDate.format(): String =
-    toLocalDate()?.format(LocalDate.Formats.ISO)
-        ?: "%04d-%02d".format(year, month)

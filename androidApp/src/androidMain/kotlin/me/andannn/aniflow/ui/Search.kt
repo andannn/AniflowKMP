@@ -725,6 +725,9 @@ private fun SearchContent(
                         onLoadNextPage = {
                             searchResultPagingController.loadNextPage()
                         },
+                        onClickItem = {
+                            onNavigateToScreen(Screen.DetailCharacter(it.id))
+                        },
                     )
                 }
 
@@ -787,6 +790,7 @@ fun LazyStaggeredGridScope.characterSearchResultPaging(
     userStaffNameLanguage: UserStaffNameLanguage,
     status: LoadingStatus,
     onLoadNextPage: () -> Unit,
+    onClickItem: (CharacterModel) -> Unit,
 ) {
     pagingItems(
         items = items,
@@ -799,6 +803,9 @@ fun LazyStaggeredGridScope.characterSearchResultPaging(
                 modifier = Modifier.padding(4.dp),
                 title = title,
                 coverImage = item.image,
+                onClick = {
+                    onClickItem(item)
+                },
             )
         },
     )

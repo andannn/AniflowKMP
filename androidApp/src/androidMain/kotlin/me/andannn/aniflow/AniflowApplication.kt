@@ -11,6 +11,7 @@ import me.andannn.aniflow.data.KoinHelper.Modules
 import me.andannn.aniflow.data.Logger
 import me.andannn.aniflow.platform.BrowserAuthOperationHandlerImpl
 import me.andannn.aniflow.platform.NetworkConnectivityImpl
+import me.andannn.aniflow.ui.DetailCharacterViewModel
 import me.andannn.aniflow.ui.DetailMediaCharacterPagingViewModel
 import me.andannn.aniflow.ui.DetailMediaStaffPagingViewModel
 import me.andannn.aniflow.ui.DetailMediaViewModel
@@ -83,6 +84,9 @@ private fun androidContextModule(application: AniflowApplication) =
         }
         viewModel {
             DetailStaffViewModel(it.get(), get(parameters = { it }))
+        }
+        viewModel {
+            DetailCharacterViewModel(it.get(), get(parameters = { it }))
         }
         viewModelOf(::SearchViewModel)
     }

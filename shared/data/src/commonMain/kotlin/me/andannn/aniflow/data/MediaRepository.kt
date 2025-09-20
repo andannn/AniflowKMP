@@ -175,4 +175,11 @@ interface MediaRepository {
     ): Pair<Page<CharacterWithVoiceActor>, AppError?>
 
     fun getDetailStaff(staffId: String): Flow<StaffModel>
+
+    fun getDetailCharacter(characterId: String): Flow<CharacterModel>
+
+    fun syncDetailCharacter(
+        scope: CoroutineScope,
+        characterId: String,
+    ): Deferred<Throwable?>
 }

@@ -102,6 +102,7 @@ import me.andannn.aniflow.data.ErrorChannel
 import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.buildErrorChannel
 import me.andannn.aniflow.data.infoString
+import me.andannn.aniflow.data.model.CharacterModel
 import me.andannn.aniflow.data.model.DetailUiState
 import me.andannn.aniflow.data.model.ExternalLink
 import me.andannn.aniflow.data.model.MediaListModel
@@ -345,6 +346,9 @@ fun DetailMedia(
         onStaffClick = {
             navigator.navigateTo(Screen.DetailStaff(it.id))
         },
+        onCharacterClick = {
+            navigator.navigateTo(Screen.DetailCharacter(it.id))
+        },
     )
 
     ErrorHandleSideEffect(viewModel)
@@ -381,6 +385,7 @@ private fun DetailMediaContent(
     onStaffMoreClick: () -> Unit = {},
     onCharacterMoreClick: () -> Unit = {},
     onStaffClick: (StaffModel) -> Unit = {},
+    onCharacterClick: (CharacterModel) -> Unit = {},
     onPop: () -> Unit = {},
 ) {
     val exitAlwaysScrollBehavior =
@@ -625,6 +630,7 @@ private fun DetailMediaContent(
                                 characterWithVoiceActor = character,
                                 userStaffLanguage = userOptions.staffNameLanguage,
                                 onStaffClick = onStaffClick,
+                                onCharacterClick = onCharacterClick,
                             )
                         }
                     }

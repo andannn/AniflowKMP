@@ -203,6 +203,11 @@ fun DetailMediaCharacterPaging(
                             Screen.DetailStaff(it.id),
                         )
                     },
+                    onCharacterClick = {
+                        navigator.navigateTo(
+                            Screen.DetailCharacter(it.id),
+                        )
+                    },
                 )
             }
         }

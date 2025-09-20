@@ -369,6 +369,12 @@ internal fun CharacterEntity.toDomain() =
         image = largeImage ?: mediumImage,
         description = description,
         isFavourite = isFavourite,
+        gender = gender,
+        age = age,
+        bloodType = bloodType,
+        siteUrl = siteUrl,
+        dateOfBirth = dateOfBirth?.let { Json.decodeFromString(it) },
+        favourites = favourites?.toInt(),
     )
 
 internal fun Media.toDomain() = toEntity().toDomain()
