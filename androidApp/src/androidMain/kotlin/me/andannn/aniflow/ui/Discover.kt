@@ -32,6 +32,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
@@ -65,6 +66,7 @@ import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.data.submitErrorOfSyncStatus
+import me.andannn.aniflow.isPresentationMode
 import me.andannn.aniflow.ui.theme.AppBackgroundColor
 import me.andannn.aniflow.ui.theme.PageHorizontalPadding
 import me.andannn.aniflow.ui.widget.CustomPullToRefresh
@@ -152,11 +154,7 @@ class DiscoverViewModel(
                 val result: LoginDialogResult = resultStore.awaitResultOf(Screen.Dialog.Login)
                 when (result) {
                     LoginDialogResult.ClickLogin -> {
-                        isLoginProcessing.value = true
-                        val error = authRepository.startLoginProcessAndWaitResult()
-                        if (error != null) {
-                            submitError(error)
-                        }
+                        startLoginProcess()
                     }
 
                     LoginDialogResult.ClickLogout -> {
@@ -166,6 +164,15 @@ class DiscoverViewModel(
             }.invokeOnCompletion {
                 isLoginProcessing.value = false
             }
+    }
+
+    suspend fun startLoginProcess() {
+        isLoginProcessing.value = true
+        val error = authRepository.startLoginProcessAndWaitResult()
+        if (error != null) {
+            submitError(error)
+        }
+        isLoginProcessing.value = false
     }
 }
 
@@ -179,6 +186,14 @@ fun Discover(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val isRefreshing by viewModel.isLoading.collectAsStateWithLifecycle()
     val appBarState by viewModel.appBarState.collectAsStateWithLifecycle()
+
+    if (isPresentationMode()) {
+        LaunchedEffect(Unit) {
+            val result: PresentationModeLoginAccepted = resultStore.awaitResultOf(Screen.Dialog.PresentationDialog)
+            viewModel.startLoginProcess()
+        }
+    }
+
     DiscoverContent(
         isRefreshing = isRefreshing,
         appbarState = appBarState,

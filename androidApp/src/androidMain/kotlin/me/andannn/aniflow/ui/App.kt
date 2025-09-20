@@ -4,10 +4,12 @@
  */
 package me.andannn.aniflow.ui
 
+import android.preference.DialogPreference
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entry
@@ -110,6 +112,20 @@ fun App(navigator: RootNavigator) {
                         TrackProgressDialog(
                             mediaId = it.mediaId,
                         )
+                    }
+
+                    entry<Screen.Dialog.PresentationDialog>(
+                        metadata =
+                            dialog(
+                                dialogProperties =
+                                    DialogProperties(
+                                        dismissOnBackPress = false,
+                                        dismissOnClickOutside = false,
+                                    ),
+                            ),
+                        clazzContentKey = { it.toJson() },
+                    ) {
+                        PresentationModeLoginDialog()
                     }
                 },
         )

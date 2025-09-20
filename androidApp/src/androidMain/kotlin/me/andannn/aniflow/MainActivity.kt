@@ -29,6 +29,8 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation3.runtime.rememberNavBackStack
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.BrowserAuthOperationHandler
@@ -56,16 +58,15 @@ private val runTimePermissions =
 private const val TAG = "MainActivity"
 
 class MainActivity : ComponentActivity() {
-    private val browserAuthOperationHandler: BrowserAuthOperationHandlerImpl by lazy {
-        getKoin().get<BrowserAuthOperationHandler>() as BrowserAuthOperationHandlerImpl
-    }
+    private val browserAuthOperationHandler: BrowserAuthOperationHandlerImpl?
+        get() = getKoin().get<BrowserAuthOperationHandler>() as? BrowserAuthOperationHandlerImpl
 
     private val authRepository: AuthRepository by lazy { getKoin().get() }
 
     private val paddingDeepLinkNavigationScreen = mutableStateOf<Screen?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        browserAuthOperationHandler.setUpContext(this)
+        browserAuthOperationHandler?.setUpContext(this)
         lifecycleScope.launch {
             authRepository.getUserOptionsFlow().collect { option ->
                 when (option.appTheme) {
@@ -140,6 +141,16 @@ class MainActivity : ComponentActivity() {
                         paddingDeepLinkNavigationScreen.value = null
                     }
                 }
+
+                if (isPresentationMode()) {
+                    LaunchedEffect(Unit) {
+                        val authedUser = getKoin().get<AuthRepository>().getAuthedUserFlow().first()
+                        if (authedUser == null) {
+                            navigator.navigateTo(Screen.Dialog.PresentationDialog)
+                        }
+                    }
+                }
+
                 val resultStore = remember { ResultStore() }
                 CompositionLocalProvider(
                     LocalResultStore provides resultStore,
@@ -153,12 +164,12 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         Napier.d(tag = TAG) { "onResume" }
-        browserAuthOperationHandler.onActivityResume()
+        browserAuthOperationHandler?.onActivityResume()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        browserAuthOperationHandler.clearContext()
+        browserAuthOperationHandler?.clearContext()
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -166,7 +177,7 @@ class MainActivity : ComponentActivity() {
 
         Napier.d(tag = TAG) { "onNewIntent ${intent.data}" }
 
-        browserAuthOperationHandler.onReceiveNewIntent(intent)
+        browserAuthOperationHandler?.onReceiveNewIntent(intent)
 
         paddingDeepLinkNavigationScreen.value = DeepLinkHelper.parseUri(intent.data.toString())
     }

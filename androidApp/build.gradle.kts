@@ -21,6 +21,24 @@ android {
         buildConfig = true
     }
 
+    flavorDimensions += "mode"
+
+    productFlavors {
+        create("presentation") {
+            dimension = "mode"
+            versionNameSuffix = "-presentation"
+
+            val token: String = project.findProperty("presentation.token") as? String ?: ""
+            buildConfigField("String", "PRESENTATION_TOKEN", "\"$token\"")
+        }
+
+        create("production") {
+            dimension = "mode"
+
+            buildConfigField("String", "PRESENTATION_TOKEN", "\"\"")
+        }
+    }
+
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"

@@ -75,6 +75,9 @@ sealed interface Screen : NavKey {
         data class ScoringDialog(
             val mediaId: String,
         ) : Dialog
+
+        @Serializable
+        data object PresentationDialog : Dialog
     }
 
     fun toJson(): String = Json.encodeToString<Screen>(this)
