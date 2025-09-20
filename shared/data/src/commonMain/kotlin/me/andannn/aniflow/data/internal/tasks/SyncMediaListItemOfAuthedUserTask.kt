@@ -45,12 +45,12 @@ internal class SyncMediaListItemOfAuthedUserTask(
                 }
             combine(
                 authedUserFlow,
-                mediaListItemFlow,
+                mediaListItemFlow.map { it != null },
                 authRepo.getUserOptionsFlow().map { it.scoreFormat },
-            ) { authedUser, mediaListItem, scoreFormat ->
-                Triple(authedUser, mediaListItem, scoreFormat)
-            }.distinctUntilChanged().collectLatest { (authedUser, mediaListItem, scoreFormat) ->
-                if (authedUser != null && mediaListItem != null) {
+            ) { authedUser, isMediaItemExist, scoreFormat ->
+                Triple(authedUser, isMediaItemExist, scoreFormat)
+            }.distinctUntilChanged().collectLatest { (authedUser, isMediaItemExist, scoreFormat) ->
+                if (authedUser != null && isMediaItemExist) {
                     Napier.d(tag = TAG) { "SyncMediaListItemOfAuthedUserTask sync $mediaItemId, authedUser $authedUser" }
                     val key =
                         TaskRefreshKey.SyncMediaListItem(
