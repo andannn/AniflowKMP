@@ -33,6 +33,7 @@ import me.andannn.aniflow.data.model.define.MediaSort
 import me.andannn.aniflow.data.model.define.MediaSource
 import me.andannn.aniflow.data.model.define.MediaStatus
 import me.andannn.aniflow.data.model.define.MediaType
+import me.andannn.aniflow.data.model.define.ScoreFormat
 import me.andannn.aniflow.data.model.define.StaffLanguage
 import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
@@ -288,6 +289,25 @@ internal fun me.andannn.aniflow.service.dto.enums.CharacterRole.toDomainType() =
         me.andannn.aniflow.service.dto.enums.CharacterRole.UNKNOWN__ -> null
     }
 
+internal fun ScoreFormat.toServiceType() =
+    when (this) {
+        ScoreFormat.POINT_100 -> me.andannn.aniflow.service.dto.enums.ScoreFormat.POINT_100
+        ScoreFormat.POINT_10 -> me.andannn.aniflow.service.dto.enums.ScoreFormat.POINT_10
+        ScoreFormat.POINT_10_DECIMAL -> me.andannn.aniflow.service.dto.enums.ScoreFormat.POINT_10_DECIMAL
+        ScoreFormat.POINT_5 -> me.andannn.aniflow.service.dto.enums.ScoreFormat.POINT_5
+        ScoreFormat.POINT_3 -> me.andannn.aniflow.service.dto.enums.ScoreFormat.POINT_3
+    }
+
+internal fun me.andannn.aniflow.service.dto.enums.ScoreFormat.toDomainType() =
+    when (this) {
+        me.andannn.aniflow.service.dto.enums.ScoreFormat.POINT_100 -> ScoreFormat.POINT_100
+        me.andannn.aniflow.service.dto.enums.ScoreFormat.POINT_10 -> ScoreFormat.POINT_10
+        me.andannn.aniflow.service.dto.enums.ScoreFormat.POINT_10_DECIMAL -> ScoreFormat.POINT_10_DECIMAL
+        me.andannn.aniflow.service.dto.enums.ScoreFormat.POINT_5 -> ScoreFormat.POINT_5
+        me.andannn.aniflow.service.dto.enums.ScoreFormat.POINT_3 -> ScoreFormat.POINT_3
+        me.andannn.aniflow.service.dto.enums.ScoreFormat.UNKNOWN__ -> null
+    }
+
 internal fun MediaRelations.Edge.toEntity() =
     MediaEntityWithRelationType(
         media = node!!.toEntity(),
@@ -419,6 +439,10 @@ internal fun StaffConnection.Edge.toEntity() =
         staffEntity = node!!.toEntity(),
         role = role ?: "",
     )
+
+internal fun StaffConnection.Edge.toDomain() = toEntity().toDomain()
+
+internal fun CharactersConnection.Edge.toDomain(staffLanguage: StaffLanguage) = toEntity().toDomain(staffLanguage)
 
 internal fun Staff.toEntity() =
     StaffEntity(

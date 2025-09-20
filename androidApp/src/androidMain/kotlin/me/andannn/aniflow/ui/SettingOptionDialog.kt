@@ -25,6 +25,8 @@ import androidx.lifecycle.ViewModel
 import io.github.aakira.napier.Napier
 import me.andannn.aniflow.data.model.SettingItem
 import me.andannn.aniflow.data.model.SettingOption
+import me.andannn.aniflow.ui.widget.AlertDialogContainer
+import me.andannn.aniflow.ui.widget.TransparentBackgroundListItem
 import me.andannn.aniflow.util.LocalScreenResultEmitter
 import me.andannn.aniflow.util.ScreenResultEmitter
 import org.koin.compose.viewmodel.koinViewModel
@@ -64,34 +66,19 @@ fun SettingOptionDialog(
     navigator: RootNavigator = LocalRootNavigator.current,
     resultEmitter: ScreenResultEmitter = LocalScreenResultEmitter.current,
 ) {
-    Surface(
-        modifier =
-            Modifier
-                .wrapContentSize(),
-        shape = AlertDialogDefaults.shape,
-        color = AlertDialogDefaults.containerColor,
-        tonalElevation = AlertDialogDefaults.TonalElevation,
+    AlertDialogContainer(
+        title = settingItem.title,
     ) {
-        Column(
-            modifier = Modifier.padding(vertical = 24.dp, horizontal = 16.dp),
-        ) {
-            Text(
-                modifier = Modifier.padding(bottom = 16.dp),
-                text = settingItem.title,
-                color = AlertDialogDefaults.titleContentColor,
-                style = MaterialTheme.typography.headlineSmallEmphasized,
-            )
-            when (settingItem) {
-                is SettingItem.SingleSelect -> {
-                    ToggleSettingOptionContent(
-                        selected = viewModel.selectedOptions.firstOrNull(),
-                        options = viewModel.options,
-                        onOptionClick = {
-                            resultEmitter.emitResult(it)
-                            navigator.popBackStack()
-                        },
-                    )
-                }
+        when (settingItem) {
+            is SettingItem.SingleSelect -> {
+                ToggleSettingOptionContent(
+                    selected = viewModel.selectedOptions.firstOrNull(),
+                    options = viewModel.options,
+                    onOptionClick = {
+                        resultEmitter.emitResult(it)
+                        navigator.popBackStack()
+                    },
+                )
             }
         }
     }
@@ -108,15 +95,10 @@ private fun ToggleSettingOptionContent(
         modifier = modifier,
     ) {
         options.forEach { option ->
-            ListItem(
-                modifier =
-                    Modifier.clickable {
-                        onOptionClick(option)
-                    },
-                colors =
-                    ListItemDefaults.colors(
-                        containerColor = Color.Transparent,
-                    ),
+            TransparentBackgroundListItem(
+                onClick = {
+                    onOptionClick(option)
+                },
                 headlineContent = {
                     Text(
                         text = option.label,

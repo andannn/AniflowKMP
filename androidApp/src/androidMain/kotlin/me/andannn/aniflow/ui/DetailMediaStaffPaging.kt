@@ -8,13 +8,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumFlexibleTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -24,7 +24,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -32,37 +31,31 @@ import androidx.lifecycle.viewModelScope
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.stateIn
 import me.andannn.aniflow.data.AuthRepository
+import me.andannn.aniflow.data.DetailMediaStaffPaging
 import me.andannn.aniflow.data.ErrorChannel
-import me.andannn.aniflow.data.MediaCategoryPageComponent
 import me.andannn.aniflow.data.PageComponent
 import me.andannn.aniflow.data.buildErrorChannel
-import me.andannn.aniflow.data.getUserTitleString
-import me.andannn.aniflow.data.model.MediaModel
+import me.andannn.aniflow.data.model.StaffWithRole
 import me.andannn.aniflow.data.model.UserOptions
-import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.ui.theme.AppBackgroundColor
 import me.andannn.aniflow.ui.theme.PageHorizontalPadding
 import me.andannn.aniflow.ui.theme.TopAppBarColors
-import me.andannn.aniflow.ui.widget.CommonItemFilledCard
-import me.andannn.aniflow.ui.widget.StaggeredGridPaging
+import me.andannn.aniflow.ui.widget.StaffRowItem
+import me.andannn.aniflow.ui.widget.VerticalListPaging
 import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.rememberSnackBarHostState
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-private const val TAG = "MediaCategoryPaging"
+private const val TAG = "DetailMediaStaffPaging"
 
-class MediaCategoryPagingViewModel(
-    private val category: MediaCategory,
-    private val authRepository: AuthRepository,
+class DetailMediaStaffPagingViewModel(
+    private val mediaId: String,
+    authRepository: AuthRepository,
 ) : ViewModel(),
     ErrorChannel by buildErrorChannel() {
-    val pageComponent: PageComponent<MediaModel> =
-        MediaCategoryPageComponent(category, errorHandler = this)
-
-    init {
-        Napier.d(tag = TAG) { "MediaCategoryPagingViewModel init. category: $category" }
-    }
+    val pageComponent: PageComponent<StaffWithRole> =
+        DetailMediaStaffPaging(mediaId, errorHandler = this)
 
     val userOptionsFlow =
         authRepository.getUserOptionsFlow().stateIn(
@@ -74,19 +67,19 @@ class MediaCategoryPagingViewModel(
         )
 
     override fun onCleared() {
-        Napier.d(tag = TAG) { "MediaCategoryPagingViewModel cleared. category: $category" }
+        Napier.d(tag = TAG) { "MediaCategoryPagingViewModel cleared. category: $mediaId" }
         pageComponent.dispose()
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun MediaCategoryPaging(
-    category: MediaCategory,
+fun DetailMediaStaffPaging(
+    mediaId: String,
     modifier: Modifier = Modifier,
-    viewModel: MediaCategoryPagingViewModel =
-        koinViewModel<MediaCategoryPagingViewModel>(
-            parameters = { parametersOf(category) },
+    viewModel: DetailMediaStaffPagingViewModel =
+        koinViewModel(
+            parameters = { parametersOf(mediaId) },
         ),
     navigator: RootNavigator = LocalRootNavigator.current,
 ) {
@@ -100,7 +93,7 @@ fun MediaCategoryPaging(
                 scrollBehavior = scrollBehavior,
                 colors = TopAppBarColors,
                 title = {
-                    Text(category.title, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text("Staff")
                 },
                 navigationIcon = {
                     IconButton(onClick = {
@@ -115,25 +108,21 @@ fun MediaCategoryPaging(
             )
         },
     ) {
-        StaggeredGridPaging(
+        VerticalListPaging(
             modifier =
                 Modifier
                     .fillMaxSize()
                     .padding(it)
                     .background(AppBackgroundColor),
-            columns = StaggeredGridCells.Fixed(2),
             pageComponent = viewModel.pageComponent,
             contentPadding = PaddingValues(horizontal = PageHorizontalPadding),
-            key = { it.id },
+            key = { index, _ -> index },
         ) { item ->
-            val title = item.title.getUserTitleString(titleLanguage = userOptions.titleLanguage)
-            CommonItemFilledCard(
+            StaffRowItem(
                 modifier = Modifier.padding(4.dp),
-                title = title,
-                coverImage = item.coverImage,
-                onClick = {
-                    navigator.navigateTo(Screen.DetailMedia(item.id))
-                },
+                shape = MaterialTheme.shapes.medium,
+                staffWithRole = item,
+                userStaffLanguage = userOptions.staffNameLanguage,
             )
         }
     }

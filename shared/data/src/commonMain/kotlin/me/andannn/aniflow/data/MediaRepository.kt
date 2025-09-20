@@ -22,6 +22,7 @@ import me.andannn.aniflow.data.model.define.MediaContentMode
 import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.model.define.MediaType
 import me.andannn.aniflow.data.model.define.NotificationCategory
+import me.andannn.aniflow.data.model.define.ScoreFormat
 import me.andannn.aniflow.data.model.define.StaffLanguage
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.data.model.relation.CharacterWithVoiceActor
@@ -46,6 +47,7 @@ interface MediaRepository {
         userId: String,
         status: List<MediaListStatus>,
         mediaType: MediaType,
+        scoreFormat: ScoreFormat,
     ): Deferred<Throwable?>
 
     fun syncDetailMedia(
@@ -58,6 +60,7 @@ interface MediaRepository {
         scope: CoroutineScope,
         userId: String,
         mediaId: String,
+        scoreFormat: ScoreFormat,
     ): Deferred<Throwable?>
 
     fun getMediaListFlowByUserId(
@@ -100,6 +103,7 @@ interface MediaRepository {
         mediaListId: String,
         status: MediaListStatus? = null,
         progress: Int? = null,
+        score: Float? = null,
     ): AppError?
 
     @NativeCoroutines
@@ -151,4 +155,17 @@ interface MediaRepository {
         mediaId: String,
         mediaType: MediaType,
     ): AppError?
+
+    suspend fun getStaffPageOfMedia(
+        mediaId: String,
+        page: Int,
+        perPage: Int,
+    ): Pair<Page<StaffWithRole>, AppError?>
+
+    suspend fun getCharacterPageOfMedia(
+        mediaId: String,
+        characterStaffLanguage: StaffLanguage,
+        page: Int,
+        perPage: Int,
+    ): Pair<Page<CharacterWithVoiceActor>, AppError?>
 }

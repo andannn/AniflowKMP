@@ -20,6 +20,7 @@ import me.andannn.aniflow.data.model.SettingOption
 import me.andannn.aniflow.data.model.SettingUiState
 import me.andannn.aniflow.data.model.UserModel
 import me.andannn.aniflow.data.model.UserOptions
+import me.andannn.aniflow.data.model.define.ScoreFormat
 import me.andannn.aniflow.data.model.define.Theme
 import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
@@ -69,6 +70,7 @@ private fun buildSettingGroup(
     val selectedTitleLanguage = userOptions.titleLanguage
     val selectedStaffNameLanguage = userOptions.staffNameLanguage
     val selectedTheme = userOptions.appTheme
+    val selectedScoreFormat = userOptions.scoreFormat
 
     fun titleLanguageSetting() =
         SettingItem.SingleSelect.build(
@@ -92,6 +94,17 @@ private fun buildSettingGroup(
             selectedOption = selectedStaffNameLanguage.option,
         )
 
+    fun scoreFormatSetting() =
+        SettingItem.SingleSelect.build(
+            title = "Score Format",
+            buildOptions = {
+                addAll(
+                    ScoreFormat.entries.map { it.option },
+                )
+            },
+            selectedOption = selectedScoreFormat.option,
+        )
+
     fun appSettingGroup() =
         SettingGroup.build(
             title = "App Settings",
@@ -104,7 +117,7 @@ private fun buildSettingGroup(
                                 Theme.entries.map { it.option },
                             )
                         },
-                        selectedOption = selectedTheme?.option ?: Theme.SYSTEM.option,
+                        selectedOption = selectedTheme.option,
                     ),
                 )
             },
@@ -116,6 +129,7 @@ private fun buildSettingGroup(
             settingItemList = {
                 add(titleLanguageSetting())
                 add(staffNameLanguageSetting())
+                add(scoreFormatSetting())
             },
         )
 
@@ -136,3 +150,6 @@ private val UserStaffNameLanguage.option: SettingOption
 
 private val Theme.option: SettingOption
     get() = SettingOption.ThemeModeOption(this)
+
+private val ScoreFormat.option: SettingOption
+    get() = SettingOption.ScoreFormatOption(this)

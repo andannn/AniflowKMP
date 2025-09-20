@@ -97,6 +97,7 @@ class SettingsViewModel(
     }
 
     private suspend fun handleChangeSetting(option: SettingOption) {
+        Napier.d(tag = TAG) { "handleChangeSetting: $option" }
         val error =
             when (option) {
                 is SettingOption.StaffCharacterNameOption ->
@@ -107,6 +108,9 @@ class SettingsViewModel(
 
                 is SettingOption.ThemeModeOption ->
                     authRepository.updateUserSettings(appTheme = option.value)
+
+                is SettingOption.ScoreFormatOption ->
+                    authRepository.updateUserSettings(scoreFormat = option.value)
             }
         if (error != null) {
             Napier.e(tag = TAG) { "Failed to update setting: $error. option $option" }

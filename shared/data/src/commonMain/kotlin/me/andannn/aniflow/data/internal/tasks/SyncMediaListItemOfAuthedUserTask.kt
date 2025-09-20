@@ -7,7 +7,9 @@ package me.andannn.aniflow.data.internal.tasks
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.SyncStatus
@@ -28,19 +30,28 @@ internal class SyncMediaListItemOfAuthedUserTask(
     override suspend fun WrappedProducerScope<SyncStatus>.register(forceRefresh: Boolean) =
         with(mediaLibraryDao) {
             Napier.d(tag = TAG) { "SyncMediaListItemOfAuthedUserTask run $mediaItemId" }
-
-            authRepo.getAuthedUserFlow().distinctUntilChanged().collectLatest { authedUser ->
+            combine(
+                authRepo.getAuthedUserFlow(),
+                authRepo.getUserOptionsFlow().map { it.scoreFormat },
+            ) { authedUser, scoreFormat ->
+                authedUser to scoreFormat
+            }.distinctUntilChanged().collectLatest { (authedUser, scoreFormat) ->
                 if (authedUser != null) {
                     Napier.d(tag = TAG) { "SyncMediaListItemOfAuthedUserTask sync $mediaItemId, authedUser $authedUser" }
-                    val key = TaskRefreshKey.SyncMediaListItem(userId = authedUser.id, mediaItemId)
+                    val key =
+                        TaskRefreshKey.SyncMediaListItem(userId = authedUser.id, mediaItemId, scoreFormat)
                     doRefreshIfNeeded2(
                         key,
                         forceRefresh,
                     ) {
                         coroutineScope {
                             mediaRepo
-                                .syncMediaListItemOfUser(this, authedUser.id, mediaItemId)
-                                .await()
+                                .syncMediaListItemOfUser(
+                                    this,
+                                    authedUser.id,
+                                    mediaItemId,
+                                    scoreFormat,
+                                ).await()
                                 ?.toError()
                         }
                     }

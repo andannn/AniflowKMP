@@ -23,6 +23,7 @@ import me.andannn.aniflow.data.internal.util.UserSettingSyncer
 import me.andannn.aniflow.data.internal.util.postMutationAndRevertWhenException
 import me.andannn.aniflow.data.model.UserModel
 import me.andannn.aniflow.data.model.UserOptions
+import me.andannn.aniflow.data.model.define.ScoreFormat
 import me.andannn.aniflow.data.model.define.Theme
 import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
@@ -104,12 +105,14 @@ internal class AuthRepositoryImpl(
                 UserOptions(
                     titleLanguage =
                         it.titleLanguage?.deserialize()
-                            ?: UserTitleLanguage.Default,
+                            ?: UserOptions.Default.titleLanguage,
                     staffNameLanguage =
                         it.staffNameLanguage?.deserialize()
-                            ?: UserStaffNameLanguage.Default,
+                            ?: UserOptions.Default.staffNameLanguage,
                     appTheme =
-                        it.appTheme?.deserialize() ?: Theme.SYSTEM,
+                        it.appTheme?.deserialize() ?: UserOptions.Default.appTheme,
+                    scoreFormat =
+                        it.scoreFormat?.deserialize() ?: UserOptions.Default.scoreFormat,
                 )
             }.distinctUntilChanged()
 
@@ -122,6 +125,7 @@ internal class AuthRepositoryImpl(
         titleLanguage: UserTitleLanguage?,
         staffCharacterNameLanguage: UserStaffNameLanguage?,
         appTheme: Theme?,
+        scoreFormat: ScoreFormat?,
     ): AppError? =
         UserSettingSyncer().postMutationAndRevertWhenException { old ->
             var new = old
@@ -133,6 +137,9 @@ internal class AuthRepositoryImpl(
             }
             if (appTheme != null) {
                 new = new.copy(appTheme = appTheme)
+            }
+            if (scoreFormat != null) {
+                new = new.copy(scoreFormat = scoreFormat)
             }
             new
         }

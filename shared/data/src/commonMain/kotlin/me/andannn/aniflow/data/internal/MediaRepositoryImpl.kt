@@ -35,6 +35,7 @@ import me.andannn.aniflow.data.model.define.MediaSort
 import me.andannn.aniflow.data.model.define.MediaStatus
 import me.andannn.aniflow.data.model.define.MediaType
 import me.andannn.aniflow.data.model.define.NotificationCategory
+import me.andannn.aniflow.data.model.define.ScoreFormat
 import me.andannn.aniflow.data.model.define.StaffLanguage
 import me.andannn.aniflow.data.model.define.deserialize
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
@@ -42,7 +43,6 @@ import me.andannn.aniflow.data.model.relation.CharacterWithVoiceActor
 import me.andannn.aniflow.data.model.relation.MediaModelWithRelationType
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.database.MediaLibraryDao
-import me.andannn.aniflow.database.relation.CharacterWithVoiceActorRelation
 import me.andannn.aniflow.database.relation.MediaEntityWithRelationType
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelationWithUpdateLog
 import me.andannn.aniflow.database.schema.MediaEntity
@@ -60,7 +60,7 @@ import me.andannn.aniflow.service.dto.Staff
 import me.andannn.aniflow.service.dto.StaffConnection
 import me.andannn.aniflow.service.dto.Studio
 import me.andannn.aniflow.service.dto.enums.NotificationType
-import me.andannn.aniflow.service.dto.enums.ScoreFormat
+import me.andannn.aniflow.service.dto.toPage
 
 private const val TAG = "MediaRepository"
 
@@ -106,6 +106,7 @@ internal class MediaRepositoryImpl(
         userId: String,
         status: List<MediaListStatus>,
         mediaType: MediaType,
+        scoreFormat: ScoreFormat,
     ) = with(mediaService) {
         with(mediaLibraryDao) {
             // sync data from service
@@ -114,6 +115,7 @@ internal class MediaRepositoryImpl(
                 status = status,
                 mediaType = mediaType,
                 scope = scope,
+                scoreFormat = scoreFormat,
             )
         }
     }
@@ -137,12 +139,14 @@ internal class MediaRepositoryImpl(
         scope: CoroutineScope,
         userId: String,
         mediaId: String,
+        scoreFormat: ScoreFormat,
     ) = with(mediaService) {
         with(mediaLibraryDao) {
             syncMediaListOfUserToLocal(
                 userId = userId,
                 mediaId = mediaId,
                 scope = scope,
+                scoreFormat = scoreFormat,
             )
         }
     }
@@ -236,6 +240,7 @@ internal class MediaRepositoryImpl(
         mediaListId: String,
         status: MediaListStatus?,
         progress: Int?,
+        score: Float?,
     ): AppError? =
         MediaListModificationSyncer(mediaListId = mediaListId).postMutationAndRevertWhenException(
             modify = {
@@ -245,6 +250,9 @@ internal class MediaRepositoryImpl(
                 }
                 if (progress != null) {
                     newItem = it.copy(progress = progress)
+                }
+                if (score != null) {
+                    newItem = it.copy(score = score)
                 }
                 newItem
             },
@@ -362,6 +370,46 @@ internal class MediaRepositoryImpl(
                 isFavourite = !(old.isFavourite ?: false),
             )
         }
+
+    override suspend fun getStaffPageOfMedia(
+        mediaId: String,
+        page: Int,
+        perPage: Int,
+    ): Pair<Page<StaffWithRole>, AppError?> =
+        with(mediaService) {
+            try {
+                getDetailMedia(
+                    id = mediaId.toInt(),
+                    staffPage = page,
+                    staffPerPage = perPage,
+                ).media.staff!!.toPage().toDomain(StaffConnection.Edge::toDomain) to null
+            } catch (exception: ServerException) {
+                Napier.e { "Error when loading staff page: $exception" }
+                Page.empty<StaffWithRole>() to exception.toError()
+            }
+        }
+
+    override suspend fun getCharacterPageOfMedia(
+        mediaId: String,
+        characterStaffLanguage: StaffLanguage,
+        page: Int,
+        perPage: Int,
+    ): Pair<Page<CharacterWithVoiceActor>, AppError?> =
+        with(mediaService) {
+            try {
+                getDetailMedia(
+                    id = mediaId.toInt(),
+                    characterPage = page,
+                    characterPerPage = perPage,
+                    characterStaffLanguage = characterStaffLanguage.toServiceType(),
+                ).media.characters!!.toPage().toDomain {
+                    it.toDomain(characterStaffLanguage)
+                } to null
+            } catch (exception: ServerException) {
+                Napier.e { "Error when loading Character page: $exception" }
+                Page.empty<CharacterWithVoiceActor>() to exception.toError()
+            }
+        }
 }
 
 private const val DEFAULT_CACHED_SIZE = 20
@@ -371,6 +419,7 @@ private fun syncMediaListInfoToLocal(
     userId: String,
     status: List<MediaListStatus>,
     mediaType: MediaType,
+    scoreFormat: ScoreFormat,
     scope: CoroutineScope,
 ): Deferred<Throwable?> =
     scope.async {
@@ -381,6 +430,7 @@ private fun syncMediaListInfoToLocal(
                     userId = userId,
                     status = status,
                     mediaType = mediaType,
+                    scoreFormat = scoreFormat,
                 )
             database.upsertMediaListEntities(mediaList.map(MediaList::toRelation))
             Napier.d(tag = TAG) { "syncMediaListInfoToLocal finished" }
@@ -461,16 +511,20 @@ private fun syncMediaListOfUserToLocal(
     mediaId: String,
     userId: String,
     scope: CoroutineScope,
+    scoreFormat: ScoreFormat,
 ): Deferred<Throwable?> =
     scope.async {
-        Napier.d(tag = TAG) { "syncDetailMediaToLocal start: mediaId=$mediaId, userId=$userId" }
+        Napier.d(tag = TAG) { "syncMediaListOfUserToLocal start: mediaId=$mediaId, userId=$userId" }
         try {
-            Napier.d(tag = TAG) { "syncDetailMediaToLocal finished" }
-//            val mediaListItem =
-//                service.updateMediaList(
-//                    mediaId = mediaId.toInt(),
-//                )
-//            database.upsertMediaListEntity(mediaListItem.toEntity(mediaId))
+            Napier.d(tag = TAG) { "syncMediaListOfUserToLocal finished" }
+
+            val mediaListItem =
+                service.getMediaListItem(
+                    mediaId = mediaId.toInt(),
+                    userId = userId.toInt(),
+                    scoreFormat = scoreFormat.toServiceType(),
+                ) ?: return@async null
+            database.upsertMediaListEntity(mediaListItem.toEntity(mediaId))
             null
         } catch (exception: ServerException) {
             Napier.e { "Error when syncing local with remote: $exception" }
@@ -483,6 +537,7 @@ private suspend fun fetchAllMediaList(
     userId: String,
     status: List<MediaListStatus>,
     mediaType: MediaType,
+    scoreFormat: ScoreFormat,
 ): List<MediaList> {
     val acc = mutableListOf<MediaList>()
     var page = 1
@@ -497,7 +552,7 @@ private suspend fun fetchAllMediaList(
                 perPage = 50,
                 statusIn = status.map(MediaListStatus::toServiceType),
                 type = mediaType.toServiceType(),
-                format = ScoreFormat.POINT_10_DECIMAL,
+                format = scoreFormat.toServiceType(),
             )
         acc += res.items
         pageCount++

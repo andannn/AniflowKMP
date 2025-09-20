@@ -32,6 +32,16 @@ sealed interface Screen : NavKey {
     data object Settings : Screen
 
     @Serializable
+    data class DetailStaffPaging(
+        val mediaId: String,
+    ) : Screen
+
+    @Serializable
+    data class DetailCharacterPaging(
+        val mediaId: String,
+    ) : Screen
+
+    @Serializable
     data class DetailMedia(
         val mediaId: String,
     ) : Screen
@@ -48,6 +58,11 @@ sealed interface Screen : NavKey {
 
         @Serializable
         data class TrackProgressDialog(
+            val mediaId: String,
+        ) : Dialog
+
+        @Serializable
+        data class ScoringDialog(
             val mediaId: String,
         ) : Dialog
     }

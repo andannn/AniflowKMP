@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -121,7 +122,7 @@ fun <T> VerticalListPaging(
     modifier: Modifier = Modifier,
     pageComponent: PageComponent<T>,
     contentPadding: PaddingValues = PaddingValues(0.dp),
-    key: (T) -> Any,
+    key: (index: Int, T) -> Any,
     itemContent: @Composable (T) -> Unit,
 ) {
     val items by pageComponent.items.collectAsStateWithLifecycle()
@@ -131,10 +132,10 @@ fun <T> VerticalListPaging(
         modifier = modifier,
         contentPadding = contentPadding,
     ) {
-        items(
+        itemsIndexed(
             items = items,
             key = key,
-        ) { item ->
+        ) { index, item ->
             itemContent(item)
         }
 

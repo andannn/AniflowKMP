@@ -5,14 +5,14 @@
 package me.andannn.network.common.schemas
 
 const val MEDIA_LIST_PAGE_QUERY_SCHEMA = $$"""
-query($page: Int, $perPage: Int, $userId: Int, $status_in: [MediaListStatus], $type: MediaType, $format: ScoreFormat){
+query ($page: Int, $perPage: Int, $userId: Int, $status_in: [MediaListStatus], $type: MediaType, $format: ScoreFormat) {
   Page(page: $page, perPage: $perPage) {
     pageInfo {
-        total
-        perPage
-        currentPage
-        lastPage
-        hasNextPage
+      total
+      perPage
+      currentPage
+      lastPage
+      hasNextPage
     }
     mediaList(userId: $userId, type: $type, status_in: $status_in) {
       id
@@ -44,24 +44,47 @@ query($page: Int, $perPage: Int, $userId: Int, $status_in: [MediaListStatus], $t
           native
         }
         type
-        format
         description(asHtml: false)
         episodes
         seasonYear
         season
-        isFavourite
         source
+        genres
         status
+        hashtag
+        isFavourite
+        externalLinks {
+          id
+          url
+          site
+          type
+          siteId
+          color
+          icon
+        }
+        rankings {
+          rank
+          type
+          allTime
+        }
+        trailer {
+          id
+          site
+          thumbnail
+        }
         coverImage {
           extraLarge
           large
           medium
           color
         }
+        format
         bannerImage
         averageScore
+        meanScore
         favourites
         trending
+        isFavourite
         nextAiringEpisode {
           id
           airingAt

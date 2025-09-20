@@ -17,6 +17,7 @@ import kotlinx.serialization.json.Json
 import me.andannn.aniflow.data.AppError
 import me.andannn.aniflow.data.SyncStatus
 import me.andannn.aniflow.data.model.define.MediaContentMode
+import me.andannn.aniflow.data.model.define.ScoreFormat
 import me.andannn.aniflow.database.MediaLibraryDao
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Clock
@@ -56,6 +57,7 @@ internal sealed class TaskRefreshKey {
     data class SyncUserMediaList(
         val mediaContentMode: MediaContentMode,
         val userId: String,
+        val scoreFormat: ScoreFormat,
     ) : TaskRefreshKey()
 
     @Serializable
@@ -67,6 +69,7 @@ internal sealed class TaskRefreshKey {
     data class SyncMediaListItem(
         val userId: String,
         val mediaId: String,
+        val scoreFormat: ScoreFormat,
     ) : TaskRefreshKey()
 
     @Serializable
@@ -206,6 +209,7 @@ internal fun TaskRefreshKey.refreshIntervalMs(): Long {
         is TaskRefreshKey.SyncUserMediaList -> hoursToMillis(12)
         is TaskRefreshKey.SyncUserCondition -> hoursToMillis(1)
         is TaskRefreshKey.SyncDetailMediaItem -> hoursToMillis(1)
-        is TaskRefreshKey.SyncMediaListItem -> hoursToMillis(1)
+// Always refresh the media list item of the authed user
+        is TaskRefreshKey.SyncMediaListItem -> 0
     }
 }

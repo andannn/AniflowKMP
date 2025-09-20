@@ -66,6 +66,21 @@ fun App(navigator: RootNavigator) {
                         DetailMedia(it.mediaId)
                     }
 
+                    entry<Screen.DetailStaffPaging>(clazzContentKey = { it.toJson() }) {
+                        DetailMediaStaffPaging(it.mediaId)
+                    }
+
+                    entry<Screen.DetailCharacterPaging>(clazzContentKey = { it.toJson() }) {
+                        DetailMediaCharacterPaging(it.mediaId)
+                    }
+
+                    entry<Screen.Dialog.ScoringDialog>(
+                        metadata = dialog(),
+                        clazzContentKey = { it.toJson() },
+                    ) {
+                        ScoringDialog(it.mediaId)
+                    }
+
                     entry<Screen.Dialog.Login>(
                         metadata = dialog(),
                         clazzContentKey = { it.toJson() },

@@ -341,7 +341,7 @@ class SearchViewModel(
     val userOptions =
         authRepository.getUserOptionsFlow().stateIn(
             viewModelScope,
-            initialValue = UserOptions(),
+            initialValue = UserOptions.Default,
             started = SharingStarted.WhileSubscribed(5000),
         )
     var selectedCategory by mutableStateOf(SearchCategory.ANIME)

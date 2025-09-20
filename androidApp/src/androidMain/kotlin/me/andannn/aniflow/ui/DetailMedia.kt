@@ -4,6 +4,7 @@
  */
 package me.andannn.aniflow.ui
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -76,7 +77,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.fromHtml
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
@@ -87,8 +93,10 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.DetailMediaUiDataProvider
 import me.andannn.aniflow.data.ErrorChannel
 import me.andannn.aniflow.data.MediaRepository
@@ -136,6 +144,7 @@ class DetailMediaViewModel(
     private val mediaId: String,
     private val dataProvider: DetailMediaUiDataProvider,
     private val mediaRepository: MediaRepository,
+    private val authRepository: AuthRepository,
 ) : ViewModel(),
     ErrorChannel by buildErrorChannel() {
     init {
@@ -143,9 +152,6 @@ class DetailMediaViewModel(
             cancelLastAndRegisterUiSideEffect(force = false)
         }
     }
-
-    val isSideEffectRefreshing = MutableStateFlow(false)
-    private var sideEffectJob: Job? = null
 
     val uiState =
         dataProvider.detailUiDataFlow().stateIn(
@@ -155,6 +161,22 @@ class DetailMediaViewModel(
         )
 
     private var toggleFavoriteJob: Job? = null
+    private val isSideEffectRefreshing = MutableStateFlow(false)
+    private val isLoginProcessing = MutableStateFlow(false)
+
+    val isLoading =
+        combine(
+            isSideEffectRefreshing,
+            isLoginProcessing,
+        ) { isSideEffectRefreshing, isLoginProcessing ->
+            isSideEffectRefreshing || isLoginProcessing
+        }.stateIn(
+            viewModelScope,
+            initialValue = false,
+            started = SharingStarted.WhileSubscribed(5000),
+        )
+
+    private var sideEffectJob: Job? = null
 
     fun onPullRefresh() {
         Napier.d(tag = TAG) { "onPullRefresh:" }
@@ -227,9 +249,38 @@ class DetailMediaViewModel(
                 val isCompleted = result == media.episodes
                 mediaRepository.updateMediaListStatus(
                     mediaListId = listItem.id,
-                    progress = result,
                     status = if (isCompleted) MediaListStatus.COMPLETED else MediaListStatus.CURRENT,
+                    progress = result,
                 )
+            }
+        }
+    }
+
+    fun onLoginClick() {
+        viewModelScope
+            .launch {
+                isLoginProcessing.value = true
+                val error = authRepository.startLoginProcessAndWaitResult()
+                if (error != null) {
+                    submitError(error)
+                }
+            }.invokeOnCompletion {
+                isLoginProcessing.value = false
+            }
+    }
+
+    fun onRatingClick(resultStore: ResultStore) {
+        viewModelScope.launch {
+            val result: Float = resultStore.awaitResultOf(Screen.Dialog.ScoringDialog(mediaId))
+            val listItem = uiState.value.mediaListItem
+            if (listItem != null && result.toDouble() != listItem.score) {
+                val appError =
+                    mediaRepository.updateMediaListStatus(
+                        mediaListId = listItem.id,
+                        score = result,
+                    )
+
+                if (appError != null) submitError(appError)
             }
         }
     }
@@ -247,7 +298,7 @@ fun DetailMedia(
     resultStore: ResultStore = LocalResultStore.current,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val isRefreshing by viewModel.isSideEffectRefreshing.collectAsStateWithLifecycle()
+    val isRefreshing by viewModel.isLoading.collectAsStateWithLifecycle()
 
     DetailMediaContent(
         title = uiState.title,
@@ -267,20 +318,28 @@ fun DetailMedia(
         onAddToListClick = viewModel::onAddToListClick,
         onToggleFavoriteClick = viewModel::onToggleFavoriteClick,
         onTrailerClick = {
-            Napier.d(tag = TAG) { "onTrailerClick: $it" }
             uriHandler.openUri(it)
         },
         onRelationItemClick = { navigator.navigateTo(Screen.DetailMedia(it.media.id)) },
-        onLoginClick = {},
+        onLoginClick = viewModel::onLoginClick,
         onTrackProgressClick = {
             navigator.navigateTo(Screen.Dialog.TrackProgressDialog(mediaId))
             viewModel.onTrackProgressClick(resultStore)
         },
-        onRatingClick = {},
+        onRatingClick = {
+            navigator.navigateTo(Screen.Dialog.ScoringDialog(mediaId))
+            viewModel.onRatingClick(resultStore)
+        },
         onExternalLinkClick = { link ->
             link.url?.let {
                 uriHandler.openUri(it)
             }
+        },
+        onStaffMoreClick = {
+            navigator.navigateTo(Screen.DetailStaffPaging(mediaId))
+        },
+        onCharacterMoreClick = {
+            navigator.navigateTo(Screen.DetailCharacterPaging(mediaId))
         },
     )
 
@@ -315,6 +374,8 @@ private fun DetailMediaContent(
     onTrailerClick: (String) -> Unit = {},
     onRelationItemClick: (MediaModelWithRelationType) -> Unit = {},
     onExternalLinkClick: (ExternalLink) -> Unit = {},
+    onStaffMoreClick: () -> Unit = {},
+    onCharacterMoreClick: () -> Unit = {},
     onPop: () -> Unit = {},
 ) {
     val exitAlwaysScrollBehavior =
@@ -443,11 +504,21 @@ private fun DetailMediaContent(
                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                                     verticalArrangement = Arrangement.spacedBy(2.dp),
                                 ) {
-                                    items.forEach { hashTag ->
+                                    items.filter { it.length > 1 }.forEach { hashTag ->
+                                        val text =
+                                            buildAnnotatedString {
+                                                withLink(
+                                                    LinkAnnotation.Url(
+                                                        "https://twitter.com/hashtag/${hashTag.substring(1)}?src=hashtag_click",
+                                                        TextLinkStyles(style = SpanStyle(color = Color(0xFF1DA1F2))),
+                                                    ),
+                                                ) {
+                                                    append(hashTag)
+                                                }
+                                            }
                                         Text(
                                             modifier = Modifier.alignByBaseline(),
-                                            text = hashTag,
-                                            color = Color(0xFF1DA1F2),
+                                            text = text,
                                         )
                                     }
                                 }
@@ -533,7 +604,7 @@ private fun DetailMediaContent(
                             TitleWithContent(
                                 modifier = Modifier.padding(top = ContentSpacing),
                                 title = "Character",
-                                onMoreClick = {},
+                                onMoreClick = onCharacterMoreClick,
                             )
                         }
 
@@ -557,7 +628,7 @@ private fun DetailMediaContent(
                             TitleWithContent(
                                 modifier = Modifier.padding(top = ContentSpacing),
                                 title = "Staff",
-                                onMoreClick = {},
+                                onMoreClick = onStaffMoreClick,
                             )
                         }
 
@@ -705,8 +776,8 @@ private fun DetailMediaContent(
                             Button(
                                 colors =
                                     ButtonDefaults.textButtonColors(
-                                        containerColor = MaterialTheme.colorScheme.primary,
-                                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                     ),
                                 contentPadding = ButtonWithIconContentPadding,
                                 onClick = onAddToListClick,
@@ -722,8 +793,8 @@ private fun DetailMediaContent(
                             Button(
                                 colors =
                                     ButtonDefaults.textButtonColors(
-                                        containerColor = MaterialTheme.colorScheme.primary,
-                                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                     ),
                                 onClick = onLoginClick,
                             ) {

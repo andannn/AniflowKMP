@@ -120,10 +120,6 @@ class DiscoverViewModel(
         }
     }
 
-    fun onMediaClick(media: MediaModel) {
-        Napier.d(tag = TAG) { "Media clicked:" }
-    }
-
     fun onPullRefresh() {
         Napier.d(tag = TAG) { "onPullRefresh:" }
         cancelLastAndRegisterUiSideEffect(force = true)
@@ -204,6 +200,9 @@ fun Discover(
         onSearchClick = {
             navigator.navigateTo(Screen.Search)
         },
+        onItemClick = {
+            navigator.navigateTo(Screen.DetailMedia(it.mediaModel.id))
+        },
         modifier = modifier,
     )
 
@@ -229,6 +228,7 @@ fun DiscoverContent(
     onContentTypeChange: (MediaContentMode) -> Unit = {},
     onAuthIconClick: () -> Unit = {},
     onSearchClick: () -> Unit = {},
+    onItemClick: (MediaWithMediaListItem) -> Unit = {},
 ) {
     val appBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
@@ -276,6 +276,7 @@ fun DiscoverContent(
                             NewReleaseCard(
                                 items = newReleasedMedia,
                                 userTitleLanguage = userTitleLanguage,
+                                onItemClick = onItemClick,
                             )
                         } else {
                             Spacer(

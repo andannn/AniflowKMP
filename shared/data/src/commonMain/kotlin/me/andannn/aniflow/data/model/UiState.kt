@@ -7,6 +7,7 @@ package me.andannn.aniflow.data.model
 import kotlinx.serialization.Serializable
 import me.andannn.aniflow.data.getUserTitleString
 import me.andannn.aniflow.data.model.define.MediaContentMode
+import me.andannn.aniflow.data.model.define.ScoreFormat
 import me.andannn.aniflow.data.model.define.Theme
 import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
@@ -19,7 +20,7 @@ import me.andannn.aniflow.database.relation.CharacterWithVoiceActorRelation
 data class DiscoverUiState(
     val categoryDataMap: CategoryDataModel = CategoryDataModel(),
     val newReleasedMedia: List<MediaWithMediaListItem> = emptyList(),
-    val userOptions: UserOptions = UserOptions(),
+    val userOptions: UserOptions = UserOptions.Default,
 ) {
     companion object {
         val Empty = DiscoverUiState()
@@ -28,7 +29,7 @@ data class DiscoverUiState(
 
 data class TrackUiState(
     private val items: List<MediaWithMediaListItem> = emptyList(),
-    val userOptions: UserOptions = UserOptions(),
+    val userOptions: UserOptions = UserOptions.Default,
 ) {
     companion object {
         val Empty = TrackUiState()
@@ -160,6 +161,21 @@ sealed interface SettingOption {
                     Theme.LIGHT -> "Light"
                     Theme.DARK -> "Dark"
                     Theme.SYSTEM -> "System"
+                }
+    }
+
+    @Serializable
+    data class ScoreFormatOption(
+        val value: ScoreFormat,
+    ) : SettingOption {
+        override val label: String
+            get() =
+                when (value) {
+                    ScoreFormat.POINT_100 -> "100 Point (55/100)"
+                    ScoreFormat.POINT_10 -> "10 Point (5/10)"
+                    ScoreFormat.POINT_10_DECIMAL -> "10 Point Decimal (5.5/10)"
+                    ScoreFormat.POINT_5 -> "5 Start (3/5)"
+                    ScoreFormat.POINT_3 -> "3 Point Smiley :)"
                 }
     }
 }

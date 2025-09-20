@@ -21,6 +21,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumFlexibleTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -41,85 +42,99 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.AuthRepository
+import me.andannn.aniflow.data.DetailMediaCharacterPaging
 import me.andannn.aniflow.data.ErrorChannel
-import me.andannn.aniflow.data.NotificationPageComponent
 import me.andannn.aniflow.data.PageComponent
 import me.andannn.aniflow.data.buildErrorChannel
-import me.andannn.aniflow.data.model.NotificationModel
 import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.NotificationCategory
-import me.andannn.aniflow.data.model.define.UserTitleLanguage
+import me.andannn.aniflow.data.model.define.StaffLanguage
+import me.andannn.aniflow.data.model.relation.CharacterWithVoiceActor
 import me.andannn.aniflow.ui.theme.AppBackgroundColor
 import me.andannn.aniflow.ui.theme.PageHorizontalPadding
 import me.andannn.aniflow.ui.theme.TopAppBarColors
-import me.andannn.aniflow.ui.widget.NotificationItem
+import me.andannn.aniflow.ui.widget.CharacterRowItem
 import me.andannn.aniflow.ui.widget.VerticalListPaging
 import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.rememberSnackBarHostState
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
-private const val TAG = "Notification"
+private const val TAG = "DetailMediaStaffPaging"
 
-class NotificationViewModel(
+class DetailMediaCharacterPagingViewModel(
+    private val mediaId: String,
     authRepository: AuthRepository,
 ) : ViewModel(),
     ErrorChannel by buildErrorChannel() {
-    private val _selectedCategory = MutableStateFlow(NotificationCategory.ALL)
+    private val _selectedLanguage = MutableStateFlow(StaffLanguage.JAPANESE)
 
-    val selectedCategory = _selectedCategory.asStateFlow()
-    var pagingController by mutableStateOf<PageComponent<NotificationModel>?>(null)
-    val userOptions =
+    val selectedLanguage = _selectedLanguage.asStateFlow()
+    var pagingController by
+        mutableStateOf<PageComponent<CharacterWithVoiceActor>?>(null)
+
+    val userOptionsFlow =
         authRepository.getUserOptionsFlow().stateIn(
-            viewModelScope,
-            initialValue = UserOptions.Default,
+            this.viewModelScope,
             started =
-                kotlinx.coroutines.flow.SharingStarted
+                SharingStarted
                     .WhileSubscribed(5000),
+            initialValue = UserOptions.Default,
         )
 
     init {
         viewModelScope.launch {
-            _selectedCategory.collect {
-                Napier.d(tag = TAG) { "selectedCategory changed: $it" }
+            _selectedLanguage.collect { language ->
+                Napier.d(tag = TAG) { "_selectedLanguage changed: $language" }
                 pagingController?.dispose()
                 pagingController =
-                    NotificationPageComponent(it, errorHandler = this@NotificationViewModel)
+                    DetailMediaCharacterPaging(
+                        mediaId,
+                        characterStaffLanguage = language,
+                        errorHandler = this@DetailMediaCharacterPagingViewModel,
+                    )
             }
         }
     }
 
-    fun selectCategory(category: NotificationCategory) {
-        _selectedCategory.value = category
+    fun setSelectLanguage(language: StaffLanguage) {
+        _selectedLanguage.value = language
     }
 
     override fun onCleared() {
+        Napier.d(tag = TAG) { "DetailMediaCharacterPagingViewModel cleared. category: $mediaId" }
         pagingController?.dispose()
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun Notification(
-    viewModel: NotificationViewModel = koinViewModel(),
+fun DetailMediaCharacterPaging(
+    mediaId: String,
+    modifier: Modifier = Modifier,
+    viewModel: DetailMediaCharacterPagingViewModel =
+        koinViewModel(
+            parameters = { parametersOf(mediaId) },
+        ),
     navigator: RootNavigator = LocalRootNavigator.current,
 ) {
-    val selected by viewModel.selectedCategory.collectAsStateWithLifecycle()
-    val userOptions by viewModel.userOptions.collectAsStateWithLifecycle()
-
+    val selectedLanguage by viewModel.selectedLanguage.collectAsStateWithLifecycle()
+    val userOptions by viewModel.userOptionsFlow.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         snackbarHost = { SnackbarHost(rememberSnackBarHostState()) },
         topBar = {
             MediumFlexibleTopAppBar(
                 scrollBehavior = scrollBehavior,
                 colors = TopAppBarColors,
                 title = {
-                    Text("Notification")
+                    Text("Character")
                 },
                 actions = {
                     var expanded by remember { mutableStateOf(false) }
@@ -134,18 +149,18 @@ fun Notification(
                             ) {
                                 Icon(Icons.Default.FilterAlt, contentDescription = "Filter")
                                 Spacer(Modifier.width(8.dp))
-                                Text(selected.label)
+                                Text(selectedLanguage.label())
                             }
                         }
                         DropdownMenu(
                             expanded = expanded,
                             onDismissRequest = { expanded = false },
                         ) {
-                            NotificationCategory.entries.forEach {
+                            StaffLanguage.entries.forEach {
                                 DropdownMenuItem(
-                                    text = { Text(it.label) },
+                                    text = { Text(it.label()) },
                                     onClick = {
-                                        viewModel.selectCategory(it)
+                                        viewModel.setSelectLanguage(it)
                                         expanded = false
                                     },
                                 )
@@ -166,43 +181,41 @@ fun Notification(
             )
         },
     ) {
-        NotificationPaging(
-            modifier = Modifier.fillMaxSize().padding(it).background(AppBackgroundColor),
-            pagingComponent = viewModel.pagingController,
-            userTitleLanguage = userOptions.titleLanguage,
-        )
+        val pageController = viewModel.pagingController
+        if (pageController != null) {
+            VerticalListPaging(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(it)
+                        .background(AppBackgroundColor),
+                pageComponent = pageController,
+                contentPadding = PaddingValues(horizontal = PageHorizontalPadding),
+                key = { index, _ -> index },
+            ) { item ->
+                CharacterRowItem(
+                    modifier = Modifier.padding(4.dp),
+                    shape = MaterialTheme.shapes.medium,
+                    characterWithVoiceActor = item,
+                    userStaffLanguage = userOptions.staffNameLanguage,
+                )
+            }
+        }
     }
 
     ErrorHandleSideEffect(viewModel)
 }
 
-@Composable
-fun NotificationPaging(
-    pagingComponent: PageComponent<NotificationModel>?,
-    modifier: Modifier = Modifier,
-    userTitleLanguage: UserTitleLanguage,
-) {
-    if (pagingComponent != null) {
-        VerticalListPaging(
-            modifier = modifier,
-            pageComponent = pagingComponent,
-            contentPadding = PaddingValues(horizontal = PageHorizontalPadding),
-            key = { index, it -> it.id },
-        ) { item ->
-            NotificationItem(
-                model = item,
-                userTitleLanguage = userTitleLanguage,
-            )
-        }
+fun StaffLanguage.label() =
+    when (this) {
+        StaffLanguage.JAPANESE -> "Japanese"
+        StaffLanguage.ENGLISH -> "English"
+        StaffLanguage.KOREAN -> "Korean"
+        StaffLanguage.ITALIAN -> "Italian"
+        StaffLanguage.SPANISH -> "Spanish"
+        StaffLanguage.PORTUGUESE -> "Portuguese"
+        StaffLanguage.FRENCH -> "French"
+        StaffLanguage.GERMAN -> "German"
+        StaffLanguage.HEBREW -> "Hebrew"
+        StaffLanguage.HUNGARIAN -> "Hungarian"
     }
-}
-
-private val NotificationCategory.label
-    get() =
-        when (this) {
-            NotificationCategory.ALL -> "All"
-            NotificationCategory.AIRING -> "Airing"
-            NotificationCategory.ACTIVITY -> "Activity"
-            NotificationCategory.FOLLOWS -> "Following"
-            NotificationCategory.MEDIA -> "Media"
-        }

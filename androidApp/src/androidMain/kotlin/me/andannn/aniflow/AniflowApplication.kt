@@ -11,12 +11,15 @@ import me.andannn.aniflow.data.KoinHelper.Modules
 import me.andannn.aniflow.data.Logger
 import me.andannn.aniflow.platform.BrowserAuthOperationHandlerImpl
 import me.andannn.aniflow.platform.NetworkConnectivityImpl
+import me.andannn.aniflow.ui.DetailMediaCharacterPagingViewModel
+import me.andannn.aniflow.ui.DetailMediaStaffPagingViewModel
 import me.andannn.aniflow.ui.DetailMediaViewModel
 import me.andannn.aniflow.ui.DiscoverViewModel
 import me.andannn.aniflow.ui.HomeViewModel
 import me.andannn.aniflow.ui.LoginDialogViewModel
 import me.andannn.aniflow.ui.MediaCategoryPagingViewModel
 import me.andannn.aniflow.ui.NotificationViewModel
+import me.andannn.aniflow.ui.ScoringDialogViewModel
 import me.andannn.aniflow.ui.SearchViewModel
 import me.andannn.aniflow.ui.SettingOptionViewModel
 import me.andannn.aniflow.ui.SettingsViewModel
@@ -57,10 +60,19 @@ private fun androidContextModule(application: AniflowApplication) =
         viewModelOf(::TrackViewModel)
         viewModelOf(::LoginDialogViewModel)
         viewModel {
-            DetailMediaViewModel(it.get(), get(parameters = { it }), get())
+            DetailMediaViewModel(it.get(), get(parameters = { it }), get(), get())
+        }
+        viewModel {
+            DetailMediaStaffPagingViewModel(it.get(), get(parameters = { it }))
+        }
+        viewModel {
+            DetailMediaCharacterPagingViewModel(it.get(), get(parameters = { it }))
         }
         viewModel {
             MediaCategoryPagingViewModel(it.get(), get())
+        }
+        viewModel {
+            ScoringDialogViewModel(it.get(), get(), get())
         }
         viewModel {
             SettingOptionViewModel(it.get())

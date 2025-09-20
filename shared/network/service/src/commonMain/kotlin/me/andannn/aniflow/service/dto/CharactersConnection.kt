@@ -28,3 +28,9 @@ public data class CharactersConnection(
         public val voiceActors: List<Staff?>? = null,
     )
 }
+
+fun CharactersConnection.toPage() =
+    Page(
+        pageInfo = pageInfo,
+        items = edges?.filterNotNull() ?: emptyList(),
+    )

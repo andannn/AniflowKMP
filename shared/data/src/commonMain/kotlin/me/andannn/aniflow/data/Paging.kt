@@ -15,9 +15,12 @@ import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.NotificationModel
 import me.andannn.aniflow.data.model.SearchSource
 import me.andannn.aniflow.data.model.StaffModel
+import me.andannn.aniflow.data.model.StaffWithRole
 import me.andannn.aniflow.data.model.StudioModel
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.NotificationCategory
+import me.andannn.aniflow.data.model.define.StaffLanguage
+import me.andannn.aniflow.data.model.relation.CharacterWithVoiceActor
 import org.koin.mp.KoinPlatform.getKoin
 
 // interop with swift.
@@ -175,6 +178,44 @@ class StudioSearchResultPageComponent(
                     page = page,
                     perPage = perPage,
                     searchSource = source,
+                )
+        },
+    )
+
+class DetailMediaStaffPaging(
+    private val mediaId: String,
+    config: PageConfig = DEFAULT_CONFIG,
+    private val errorHandler: AppErrorHandler? = null,
+    private val mediaRepository: MediaRepository = getKoin().get(),
+) : PageComponent<StaffWithRole> by DefaultPageComponent(
+        config = config,
+        errorHandler = errorHandler,
+        onLoadPage = { page, perPage ->
+            mediaRepository
+                .getStaffPageOfMedia(
+                    mediaId = mediaId,
+                    page = page,
+                    perPage = perPage,
+                )
+        },
+    )
+
+class DetailMediaCharacterPaging(
+    private val mediaId: String,
+    private val characterStaffLanguage: StaffLanguage,
+    config: PageConfig = DEFAULT_CONFIG,
+    private val errorHandler: AppErrorHandler? = null,
+    private val mediaRepository: MediaRepository = getKoin().get(),
+) : PageComponent<CharacterWithVoiceActor> by DefaultPageComponent(
+        config = config,
+        errorHandler = errorHandler,
+        onLoadPage = { page, perPage ->
+            mediaRepository
+                .getCharacterPageOfMedia(
+                    mediaId = mediaId,
+                    characterStaffLanguage = characterStaffLanguage,
+                    page = page,
+                    perPage = perPage,
                 )
         },
     )
