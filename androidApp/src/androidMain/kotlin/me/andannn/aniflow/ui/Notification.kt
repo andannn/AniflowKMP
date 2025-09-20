@@ -65,7 +65,7 @@ import org.koin.compose.viewmodel.koinViewModel
 private const val TAG = "Notification"
 
 class NotificationViewModel(
-    private val authRepository: AuthRepository,
+    authRepository: AuthRepository,
 ) : ViewModel(),
     ErrorChannel by buildErrorChannel() {
     private val _selectedCategory = MutableStateFlow(NotificationCategory.ALL)
@@ -187,7 +187,7 @@ fun NotificationPaging(
             modifier = modifier,
             pageComponent = pagingComponent,
             contentPadding = PaddingValues(horizontal = PageHorizontalPadding),
-            key = { it.id },
+            key = { index, it -> it.id },
         ) { item ->
             NotificationItem(
                 model = item,

@@ -32,6 +32,11 @@ sealed interface Screen : NavKey {
     data object Settings : Screen
 
     @Serializable
+    data class DetailStaffPaging(
+        val mediaId: String,
+    ) : Screen
+
+    @Serializable
     data class DetailMedia(
         val mediaId: String,
     ) : Screen

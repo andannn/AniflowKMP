@@ -282,6 +282,9 @@ fun DetailMedia(
                 uriHandler.openUri(it)
             }
         },
+        onStaffMoreClick = {
+            navigator.navigateTo(Screen.DetailStaffPaging(mediaId))
+        },
     )
 
     ErrorHandleSideEffect(viewModel)
@@ -315,6 +318,7 @@ private fun DetailMediaContent(
     onTrailerClick: (String) -> Unit = {},
     onRelationItemClick: (MediaModelWithRelationType) -> Unit = {},
     onExternalLinkClick: (ExternalLink) -> Unit = {},
+    onStaffMoreClick: () -> Unit = {},
     onPop: () -> Unit = {},
 ) {
     val exitAlwaysScrollBehavior =
@@ -557,7 +561,7 @@ private fun DetailMediaContent(
                             TitleWithContent(
                                 modifier = Modifier.padding(top = ContentSpacing),
                                 title = "Staff",
-                                onMoreClick = {},
+                                onMoreClick = onStaffMoreClick,
                             )
                         }
 

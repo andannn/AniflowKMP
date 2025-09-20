@@ -23,3 +23,9 @@ public data class StaffConnection(
         public val node: Staff? = null,
     )
 }
+
+fun StaffConnection.toPage() =
+    Page(
+        pageInfo = pageInfo,
+        items = edges?.filterNotNull() ?: emptyList(),
+    )

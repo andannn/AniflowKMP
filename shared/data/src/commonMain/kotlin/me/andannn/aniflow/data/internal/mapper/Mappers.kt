@@ -420,6 +420,8 @@ internal fun StaffConnection.Edge.toEntity() =
         role = role ?: "",
     )
 
+internal fun StaffConnection.Edge.toDomain() = toEntity().toDomain()
+
 internal fun Staff.toEntity() =
     StaffEntity(
         id = id.toString(),

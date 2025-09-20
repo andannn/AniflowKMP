@@ -61,6 +61,7 @@ import me.andannn.aniflow.service.dto.StaffConnection
 import me.andannn.aniflow.service.dto.Studio
 import me.andannn.aniflow.service.dto.enums.NotificationType
 import me.andannn.aniflow.service.dto.enums.ScoreFormat
+import me.andannn.aniflow.service.dto.toPage
 
 private const val TAG = "MediaRepository"
 
@@ -361,6 +362,24 @@ internal class MediaRepositoryImpl(
             old.copy(
                 isFavourite = !(old.isFavourite ?: false),
             )
+        }
+
+    override suspend fun getStaffPageOfMedia(
+        mediaId: String,
+        page: Int,
+        perPage: Int,
+    ): Pair<Page<StaffWithRole>, AppError?> =
+        with(mediaService) {
+            try {
+                getDetailMedia(
+                    id = mediaId.toInt(),
+                    staffPage = page,
+                    staffPerPage = perPage,
+                ).media.staff!!.toPage().toDomain(StaffConnection.Edge::toDomain) to null
+            } catch (exception: ServerException) {
+                Napier.e { "Error when loading media page: $exception" }
+                Page.empty<StaffWithRole>() to exception.toError()
+            }
         }
 }
 

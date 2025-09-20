@@ -151,4 +151,10 @@ interface MediaRepository {
         mediaId: String,
         mediaType: MediaType,
     ): AppError?
+
+    suspend fun getStaffPageOfMedia(
+        mediaId: String,
+        page: Int,
+        perPage: Int,
+    ): Pair<Page<StaffWithRole>, AppError?>
 }
