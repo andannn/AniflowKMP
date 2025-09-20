@@ -165,7 +165,7 @@ class AniListService constructor(
                 logger =
                     object : Logger {
                         override fun log(message: String) {
-                            Napier.d(tag = TAG) { message }
+                            Napier.v(tag = TAG) { message }
                         }
                     }
                 level = LogLevel.HEADERS

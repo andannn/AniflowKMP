@@ -47,6 +47,16 @@ sealed interface Screen : NavKey {
     ) : Screen
 
     @Serializable
+    data class DetailStaff(
+        val staffId: String,
+    ) : Screen
+
+    @Serializable
+    data class DetailCharacter(
+        val characterId: String,
+    ) : Screen
+
+    @Serializable
     sealed interface Dialog : Screen {
         @Serializable
         data object Login : Dialog

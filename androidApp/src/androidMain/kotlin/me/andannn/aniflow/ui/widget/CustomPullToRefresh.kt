@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 fun CustomPullToRefresh(
     modifier: Modifier = Modifier,
     isRefreshing: Boolean,
+    enable: Boolean = true,
     onPullRefresh: () -> Unit = {},
     content: @Composable () -> Unit,
 ) {
@@ -34,6 +35,7 @@ fun CustomPullToRefresh(
     Box(
         modifier =
             modifier.pullToRefresh(
+                enabled = enable,
                 state = pullToRefreshState,
                 isRefreshing = isRefreshing,
                 onRefresh = onPullRefresh,

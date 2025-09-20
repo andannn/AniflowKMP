@@ -102,10 +102,12 @@ import me.andannn.aniflow.data.ErrorChannel
 import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.buildErrorChannel
 import me.andannn.aniflow.data.infoString
+import me.andannn.aniflow.data.model.CharacterModel
 import me.andannn.aniflow.data.model.DetailUiState
 import me.andannn.aniflow.data.model.ExternalLink
 import me.andannn.aniflow.data.model.MediaListModel
 import me.andannn.aniflow.data.model.MediaModel
+import me.andannn.aniflow.data.model.StaffModel
 import me.andannn.aniflow.data.model.StaffWithRole
 import me.andannn.aniflow.data.model.StudioModel
 import me.andannn.aniflow.data.model.UserModel
@@ -341,6 +343,12 @@ fun DetailMedia(
         onCharacterMoreClick = {
             navigator.navigateTo(Screen.DetailCharacterPaging(mediaId))
         },
+        onStaffClick = {
+            navigator.navigateTo(Screen.DetailStaff(it.id))
+        },
+        onCharacterClick = {
+            navigator.navigateTo(Screen.DetailCharacter(it.id))
+        },
     )
 
     ErrorHandleSideEffect(viewModel)
@@ -376,6 +384,8 @@ private fun DetailMediaContent(
     onExternalLinkClick: (ExternalLink) -> Unit = {},
     onStaffMoreClick: () -> Unit = {},
     onCharacterMoreClick: () -> Unit = {},
+    onStaffClick: (StaffModel) -> Unit = {},
+    onCharacterClick: (CharacterModel) -> Unit = {},
     onPop: () -> Unit = {},
 ) {
     val exitAlwaysScrollBehavior =
@@ -619,6 +629,8 @@ private fun DetailMediaContent(
                                 shape = ShapeHelper.listItemShapeVertical(isFirst, isLast),
                                 characterWithVoiceActor = character,
                                 userStaffLanguage = userOptions.staffNameLanguage,
+                                onStaffClick = onStaffClick,
+                                onCharacterClick = onCharacterClick,
                             )
                         }
                     }
@@ -643,6 +655,9 @@ private fun DetailMediaContent(
                                 shape = ShapeHelper.listItemShapeVertical(isFirst, isLast),
                                 staffWithRole = staff,
                                 userStaffLanguage = userOptions.staffNameLanguage,
+                                onClick = {
+                                    onStaffClick(staff.staff)
+                                },
                             )
                         }
                     }

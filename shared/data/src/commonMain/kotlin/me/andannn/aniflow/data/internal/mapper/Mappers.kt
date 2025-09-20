@@ -369,6 +369,12 @@ internal fun CharacterEntity.toDomain() =
         image = largeImage ?: mediumImage,
         description = description,
         isFavourite = isFavourite,
+        gender = gender,
+        age = age,
+        bloodType = bloodType,
+        siteUrl = siteUrl,
+        dateOfBirth = dateOfBirth?.let { Json.decodeFromString(it) },
+        favourites = favourites?.toInt(),
     )
 
 internal fun Media.toDomain() = toEntity().toDomain()
@@ -541,7 +547,7 @@ internal fun StaffEntity.toDomain() =
         dateOfBirth = dateOfBirth?.let { Json.decodeFromString<SimpleDate>(it) },
         dateOfDeath = dateOfDeath?.let { Json.decodeFromString<SimpleDate>(it) },
         age = age?.toInt(),
-        yearsActive = yearsActive?.split(',')?.map { it.toInt() },
+        yearsActive = yearsActive?.split(',')?.map { it.toIntOrNull() },
         homeTown = homeTown,
         bloodType = bloodType,
         isFavourite = isFavourite,

@@ -228,3 +228,19 @@ private fun MockRequestHandleScope.respondAniListError(): HttpResponseData =
             }
             """.trimIndent(),
     )
+
+private fun MockRequestHandleScope.respondNoMediaListError(): HttpResponseData =
+    respondError(
+        status = HttpStatusCode.NotFound,
+        headers =
+            headersOf(
+                HttpHeaders.ContentType,
+                ContentType.Application.Json
+                    .withCharset(Charsets.UTF_8)
+                    .toString(),
+            ),
+        content =
+            """
+            {"errors":[{"message":"Not Found.","status":404,"locations":[{"line":3,"column":3}]}],"data":{"MediaList":null}}
+            """.trimIndent(),
+    )

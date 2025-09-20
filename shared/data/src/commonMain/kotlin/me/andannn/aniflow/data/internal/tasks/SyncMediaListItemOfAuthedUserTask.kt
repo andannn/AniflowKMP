@@ -5,10 +5,13 @@
 package me.andannn.aniflow.data.internal.tasks
 
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.MediaRepository
@@ -27,19 +30,34 @@ internal class SyncMediaListItemOfAuthedUserTask(
     private val authRepo: AuthRepository by inject()
     private val mediaLibraryDao: MediaLibraryDao by inject()
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun WrappedProducerScope<SyncStatus>.register(forceRefresh: Boolean) =
         with(mediaLibraryDao) {
             Napier.d(tag = TAG) { "SyncMediaListItemOfAuthedUserTask run $mediaItemId" }
+            val authedUserFlow = authRepo.getAuthedUserFlow()
+            val mediaListItemFlow =
+                authedUserFlow.flatMapLatest { authedUser ->
+                    if (authedUser == null) {
+                        flowOf(null)
+                    } else {
+                        getMediaListItemFlow(authedUser.id, mediaItemId)
+                    }
+                }
             combine(
-                authRepo.getAuthedUserFlow(),
+                authedUserFlow,
+                mediaListItemFlow,
                 authRepo.getUserOptionsFlow().map { it.scoreFormat },
-            ) { authedUser, scoreFormat ->
-                authedUser to scoreFormat
-            }.distinctUntilChanged().collectLatest { (authedUser, scoreFormat) ->
-                if (authedUser != null) {
+            ) { authedUser, mediaListItem, scoreFormat ->
+                Triple(authedUser, mediaListItem, scoreFormat)
+            }.distinctUntilChanged().collectLatest { (authedUser, mediaListItem, scoreFormat) ->
+                if (authedUser != null && mediaListItem != null) {
                     Napier.d(tag = TAG) { "SyncMediaListItemOfAuthedUserTask sync $mediaItemId, authedUser $authedUser" }
                     val key =
-                        TaskRefreshKey.SyncMediaListItem(userId = authedUser.id, mediaItemId, scoreFormat)
+                        TaskRefreshKey.SyncMediaListItem(
+                            userId = authedUser.id,
+                            mediaItemId,
+                            scoreFormat,
+                        )
                     doRefreshIfNeeded2(
                         key,
                         forceRefresh,

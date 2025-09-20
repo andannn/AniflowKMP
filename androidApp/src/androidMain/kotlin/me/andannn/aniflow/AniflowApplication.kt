@@ -11,9 +11,11 @@ import me.andannn.aniflow.data.KoinHelper.Modules
 import me.andannn.aniflow.data.Logger
 import me.andannn.aniflow.platform.BrowserAuthOperationHandlerImpl
 import me.andannn.aniflow.platform.NetworkConnectivityImpl
+import me.andannn.aniflow.ui.DetailCharacterViewModel
 import me.andannn.aniflow.ui.DetailMediaCharacterPagingViewModel
 import me.andannn.aniflow.ui.DetailMediaStaffPagingViewModel
 import me.andannn.aniflow.ui.DetailMediaViewModel
+import me.andannn.aniflow.ui.DetailStaffViewModel
 import me.andannn.aniflow.ui.DiscoverViewModel
 import me.andannn.aniflow.ui.HomeViewModel
 import me.andannn.aniflow.ui.LoginDialogViewModel
@@ -79,6 +81,12 @@ private fun androidContextModule(application: AniflowApplication) =
         }
         viewModel {
             TrackProgressDialogViewModel(it.get(), get(), get())
+        }
+        viewModel {
+            DetailStaffViewModel(it.get(), get(parameters = { it }))
+        }
+        viewModel {
+            DetailCharacterViewModel(it.get(), get(parameters = { it }))
         }
         viewModelOf(::SearchViewModel)
     }

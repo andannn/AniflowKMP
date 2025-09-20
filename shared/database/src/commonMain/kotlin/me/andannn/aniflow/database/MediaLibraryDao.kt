@@ -20,8 +20,10 @@ import me.andannn.aniflow.database.relation.MediaEntityWithRelationType
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelationWithUpdateLog
 import me.andannn.aniflow.database.relation.StaffWithRole
+import me.andannn.aniflow.database.schema.CharacterEntity
 import me.andannn.aniflow.database.schema.MediaEntity
 import me.andannn.aniflow.database.schema.MediaListEntity
+import me.andannn.aniflow.database.schema.StaffEntity
 import me.andannn.aniflow.database.schema.StudioEntity
 import me.andannn.aniflow.database.schema.UserEntity
 
@@ -369,5 +371,41 @@ class MediaLibraryDao constructor(
                 .mapToList(dispatcher)
         }
 
+    suspend fun upsertStaff(staff: StaffEntity) =
+        withDatabase {
+            withContext(dispatcher) {
+                transaction(true) {
+                    staffQueries.upsertStaff(staff)
+                }
+            }
+        }
+
+    fun getStaffFlow(staffId: String): Flow<StaffEntity> =
+        withDatabase {
+            staffQueries
+                .getStaffById(staffId)
+                .asFlow()
+                .mapToOneOrNull(dispatcher)
+                .filterNotNull()
+        }
+
+    fun getCharacterFlow(characterId: String): Flow<CharacterEntity> =
+        withDatabase {
+            characterQueries
+                .getCharacterById(characterId)
+                .asFlow()
+                .mapToOneOrNull(dispatcher)
+                .filterNotNull()
+        }
+
     private inline fun <T> withDatabase(block: AniflowDatabase.() -> T): T = block.invoke(aniflowDatabase)
+
+    suspend fun upsertCharacter(character: CharacterEntity) =
+        withDatabase {
+            withContext(dispatcher) {
+                transaction(true) {
+                    characterQueries.upsertCharacter(character)
+                }
+            }
+        }
 }

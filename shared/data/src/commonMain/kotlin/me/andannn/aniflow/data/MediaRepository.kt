@@ -56,6 +56,11 @@ interface MediaRepository {
         voiceActorLanguage: StaffLanguage,
     ): Deferred<Throwable?>
 
+    fun syncDetailStaff(
+        scope: CoroutineScope,
+        staffId: String,
+    ): Deferred<Throwable?>
+
     fun syncMediaListItemOfUser(
         scope: CoroutineScope,
         userId: String,
@@ -168,4 +173,13 @@ interface MediaRepository {
         page: Int,
         perPage: Int,
     ): Pair<Page<CharacterWithVoiceActor>, AppError?>
+
+    fun getDetailStaff(staffId: String): Flow<StaffModel>
+
+    fun getDetailCharacter(characterId: String): Flow<CharacterModel>
+
+    fun syncDetailCharacter(
+        scope: CoroutineScope,
+        characterId: String,
+    ): Deferred<Throwable?>
 }

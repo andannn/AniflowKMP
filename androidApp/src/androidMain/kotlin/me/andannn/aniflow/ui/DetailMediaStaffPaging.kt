@@ -123,6 +123,9 @@ fun DetailMediaStaffPaging(
                 shape = MaterialTheme.shapes.medium,
                 staffWithRole = item,
                 userStaffLanguage = userOptions.staffNameLanguage,
+                onClick = {
+                    navigator.navigateTo(Screen.DetailStaff(item.staff.id))
+                },
             )
         }
     }

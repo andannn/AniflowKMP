@@ -65,4 +65,5 @@ SELECT staffEntity.*, staffMediaCrossRefEntity.role FROM staffEntity
 INNER JOIN staffMediaCrossRefEntity ON staffMediaCrossRefEntity.staffId = staffEntity.id
 WHERE staffMediaCrossRefEntity.mediaId = ?;
 
-
+getStaffById:
+SELECT * FROM staffEntity WHERE id = ?;

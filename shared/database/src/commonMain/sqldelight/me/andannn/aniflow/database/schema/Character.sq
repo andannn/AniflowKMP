@@ -95,3 +95,6 @@ INNER JOIN characterMediaCrossRefEntity ON characterMediaCrossRefEntity.characte
 LEFT JOIN characterVoiceActorCrossRefEntity ON characterEntity.id = characterVoiceActorCrossRefEntity.characterId
 LEFT JOIN staffEntity ON staffEntity.id = characterVoiceActorCrossRefEntity.staffId
 WHERE characterMediaCrossRefEntity.mediaId = ? AND characterVoiceActorCrossRefEntity.language = ?;
+
+getCharacterById:
+SELECT * FROM characterEntity WHERE id = ?;
