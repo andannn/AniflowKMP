@@ -14,6 +14,7 @@ import me.andannn.aniflow.platform.NetworkConnectivityImpl
 import me.andannn.aniflow.ui.DetailMediaCharacterPagingViewModel
 import me.andannn.aniflow.ui.DetailMediaStaffPagingViewModel
 import me.andannn.aniflow.ui.DetailMediaViewModel
+import me.andannn.aniflow.ui.DetailStaffViewModel
 import me.andannn.aniflow.ui.DiscoverViewModel
 import me.andannn.aniflow.ui.HomeViewModel
 import me.andannn.aniflow.ui.LoginDialogViewModel
@@ -79,6 +80,9 @@ private fun androidContextModule(application: AniflowApplication) =
         }
         viewModel {
             TrackProgressDialogViewModel(it.get(), get(), get())
+        }
+        viewModel {
+            DetailStaffViewModel(it.get(), get(parameters = { it }))
         }
         viewModelOf(::SearchViewModel)
     }

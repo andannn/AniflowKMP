@@ -198,6 +198,11 @@ fun DetailMediaCharacterPaging(
                     shape = MaterialTheme.shapes.medium,
                     characterWithVoiceActor = item,
                     userStaffLanguage = userOptions.staffNameLanguage,
+                    onStaffClick = {
+                        navigator.navigateTo(
+                            Screen.DetailStaff(it.id),
+                        )
+                    },
                 )
             }
         }

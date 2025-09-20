@@ -81,7 +81,7 @@ private const val TAG = "Discover"
 
 class DiscoverViewModel(
     private val discoverDataProvider: DiscoverUiDataProvider,
-    private val appbarDataProvider: HomeAppBarUiDataProvider,
+    appbarDataProvider: HomeAppBarUiDataProvider,
     private val authRepository: AuthRepository,
     private val mediaRepository: MediaRepository,
 ) : ViewModel(),

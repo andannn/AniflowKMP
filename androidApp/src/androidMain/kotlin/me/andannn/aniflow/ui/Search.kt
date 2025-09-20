@@ -106,6 +106,7 @@ import me.andannn.aniflow.data.PageComponent
 import me.andannn.aniflow.data.StaffSearchResultPageComponent
 import me.andannn.aniflow.data.StudioSearchResultPageComponent
 import me.andannn.aniflow.data.buildErrorChannel
+import me.andannn.aniflow.data.getNameString
 import me.andannn.aniflow.data.getUserTitleString
 import me.andannn.aniflow.data.label
 import me.andannn.aniflow.data.model.CharacterModel
@@ -117,6 +118,7 @@ import me.andannn.aniflow.data.model.StudioModel
 import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.MediaFormat
 import me.andannn.aniflow.data.model.define.MediaSeason
+import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import me.andannn.aniflow.ui.theme.PageHorizontalPadding
 import me.andannn.aniflow.ui.widget.CommonItemFilledCard
@@ -719,6 +721,7 @@ private fun SearchContent(
                     characterSearchResultPaging(
                         items = items as List<CharacterModel>,
                         status = status,
+                        userStaffNameLanguage = userOptions.staffNameLanguage,
                         onLoadNextPage = {
                             searchResultPagingController.loadNextPage()
                         },
@@ -729,8 +732,12 @@ private fun SearchContent(
                     staffSearchResultPaging(
                         items = items as List<StaffModel>,
                         status = status,
+                        userStaffNameLanguage = userOptions.staffNameLanguage,
                         onLoadNextPage = {
                             searchResultPagingController.loadNextPage()
+                        },
+                        onItemClick = {
+                            onNavigateToScreen(Screen.DetailStaff(it.id))
                         },
                     )
                 }
@@ -777,6 +784,7 @@ fun LazyStaggeredGridScope.mediaSearchResultPaging(
 
 fun LazyStaggeredGridScope.characterSearchResultPaging(
     items: List<CharacterModel>,
+    userStaffNameLanguage: UserStaffNameLanguage,
     status: LoadingStatus,
     onLoadNextPage: () -> Unit,
 ) {
@@ -786,8 +794,7 @@ fun LazyStaggeredGridScope.characterSearchResultPaging(
         key = { it.id },
         onLoadNextPage = onLoadNextPage,
         itemContent = { item ->
-// TODO
-            val title = item.name?.full ?: ""
+            val title = item.name.getNameString(userStaffNameLanguage)
             CommonItemFilledCard(
                 modifier = Modifier.padding(4.dp),
                 title = title,
@@ -800,7 +807,9 @@ fun LazyStaggeredGridScope.characterSearchResultPaging(
 fun LazyStaggeredGridScope.staffSearchResultPaging(
     items: List<StaffModel>,
     status: LoadingStatus,
+    userStaffNameLanguage: UserStaffNameLanguage,
     onLoadNextPage: () -> Unit,
+    onItemClick: (StaffModel) -> Unit,
 ) {
     pagingItems(
         items = items,
@@ -808,11 +817,14 @@ fun LazyStaggeredGridScope.staffSearchResultPaging(
         key = { it.id },
         onLoadNextPage = onLoadNextPage,
         itemContent = { item ->
-            val title = item.name?.full ?: ""
+            val title = item.name.getNameString(userStaffNameLanguage)
             CommonItemFilledCard(
                 modifier = Modifier.padding(4.dp),
                 title = title,
                 coverImage = item.image,
+                onClick = {
+                    onItemClick(item)
+                },
             )
         },
     )

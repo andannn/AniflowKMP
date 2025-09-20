@@ -4,6 +4,7 @@
  */
 package me.andannn.aniflow.ui.widget
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -24,6 +25,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import me.andannn.aniflow.data.getNameString
+import me.andannn.aniflow.data.model.CharacterModel
+import me.andannn.aniflow.data.model.StaffModel
 import me.andannn.aniflow.data.model.StaffWithRole
 import me.andannn.aniflow.data.model.define.CharacterRole
 import me.andannn.aniflow.data.model.define.StaffLanguage
@@ -37,10 +40,12 @@ fun StaffRowItem(
     staffWithRole: StaffWithRole,
     userStaffLanguage: UserStaffNameLanguage,
     modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
 ) {
     Surface(
         modifier = modifier.height(90.dp),
         shape = shape,
+        onClick = onClick,
     ) {
         Row(modifier = Modifier.fillMaxWidth()) {
             AsyncImage(
@@ -83,82 +88,104 @@ fun CharacterRowItem(
     shape: Shape,
     userStaffLanguage: UserStaffNameLanguage,
     modifier: Modifier = Modifier,
+    onStaffClick: (StaffModel) -> Unit = {},
+    onCharacterClick: (CharacterModel) -> Unit = {},
 ) {
     Surface(
         modifier = modifier.height(90.dp),
         shape = shape,
     ) {
         Row(modifier = Modifier.fillMaxWidth()) {
-            AsyncImage(
-                modifier = Modifier.width(72.dp),
-                model = characterWithVoiceActor.character.image,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-            )
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Spacer(modifier = Modifier.height(2.dp))
-                val name =
-                    remember(characterWithVoiceActor, userStaffLanguage) {
-                        characterWithVoiceActor.character.name.getNameString(userStaffLanguage)
-                    }
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = name,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
+            Row(
+                modifier =
+                    Modifier.weight(1f).clickable {
+                        onCharacterClick(characterWithVoiceActor.character)
+                    },
+            ) {
+                AsyncImage(
+                    modifier = Modifier.width(72.dp),
+                    model = characterWithVoiceActor.character.image,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
                 )
-                Spacer(modifier = Modifier.weight(1f))
 
-                Text(
-                    characterWithVoiceActor.role?.label() ?: "",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Spacer(modifier = Modifier.height(2.dp))
-            }
+                Spacer(modifier = Modifier.width(8.dp))
 
-            Spacer(modifier = Modifier.width(8.dp))
-
-            if (characterWithVoiceActor.voiceActor != null) {
-                Column(modifier = Modifier.weight(1f)) {
+                Column {
                     Spacer(modifier = Modifier.height(2.dp))
                     val name =
                         remember(characterWithVoiceActor, userStaffLanguage) {
-                            characterWithVoiceActor.voiceActor?.name.getNameString(userStaffLanguage)
+                            characterWithVoiceActor.character.name.getNameString(userStaffLanguage)
                         }
                     Text(
                         modifier = Modifier.fillMaxWidth(),
                         text = name,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
-                        textAlign = TextAlign.End,
                     )
-
                     Spacer(modifier = Modifier.weight(1f))
 
                     Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = characterWithVoiceActor.voiceActorLanguage.label(),
+                        characterWithVoiceActor.role?.label() ?: "",
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.End,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                 }
+            }
 
-                Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(8.dp))
 
-                AsyncImage(
-                    modifier = Modifier.width(72.dp),
-                    model = characterWithVoiceActor.voiceActor?.image,
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                )
+            if (characterWithVoiceActor.voiceActor != null) {
+                Row(
+                    modifier =
+                        Modifier.weight(1f).clickable {
+                            characterWithVoiceActor.voiceActor?.let {
+                                onStaffClick(it)
+                            }
+                        },
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Spacer(modifier = Modifier.height(2.dp))
+                        val name =
+                            remember(characterWithVoiceActor, userStaffLanguage) {
+                                characterWithVoiceActor.voiceActor?.name.getNameString(
+                                    userStaffLanguage,
+                                )
+                            }
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = name,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            textAlign = TextAlign.End,
+                        )
+
+                        Spacer(modifier = Modifier.weight(1f))
+
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = characterWithVoiceActor.voiceActorLanguage.label(),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.End,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                    }
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    AsyncImage(
+                        modifier = Modifier.width(72.dp),
+                        model = characterWithVoiceActor.voiceActor?.image,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                    )
+                }
+            } else {
+                Spacer(Modifier.weight(1f))
             }
         }
     }
