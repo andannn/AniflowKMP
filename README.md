@@ -20,10 +20,9 @@ AniFlow is a Kotlin Multiplatform (KMP) app for browsing anime, viewing details 
 
 ## Architecture
 AniFlow follows a Kotlin Multiplatform + Native UI approach:
- - Data Layer
-   - Data Layer (Shared with Kotlin Multiplatform)
+ - Data Layer (Shared with Kotlin Multiplatform)
    - Networking (Ktor)
-   - Persistence (Room KMP, DataStore)
+   - Persistence (SqlDelight, DataStore)
  - UI Layer
    - Android: Jetpack Compose (Material3 Expressive design + navigation3 + ViewModel)
    - iOS: SwiftUI
