@@ -10,9 +10,9 @@ AniFlow is a Kotlin Multiplatform (KMP) app for browsing anime, viewing details 
 ### Android
 
 <p float="left">
-  <img src="androidApp/screenshot/Home.png" width="33%" />
-  <img src="androidApp/screenshot/Track.png" width="33%" />
-  <img src="androidApp/screenshot/Detail.png" width="33%" />
+  <img src="androidApp/screenshot/Home.png" width="32%" />
+  <img src="androidApp/screenshot/Track.png" width="32%" />
+  <img src="androidApp/screenshot/Detail.png" width="32%" />
 </p>
 
 ### iOS screenshots
