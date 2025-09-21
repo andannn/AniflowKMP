@@ -4,20 +4,7 @@
  */
 package me.andannn.network.common.schemas
 
-fun buildMediaDetailQuerySchema(
-    withCharacterConnection: Boolean = false,
-    withStaffConnection: Boolean = false,
-    withStudioConnection: Boolean = false,
-    withRelations: Boolean = false,
-): String =
-    buildString {
-        append($$"query ($id: Int")
-        if (withCharacterConnection) append($$", $characterPage: Int, $characterPerPage: Int, $staffLanguage: StaffLanguage")
-        if (withStaffConnection) append($$", $staffPage: Int, $staffPerPage: Int")
-        append(") {")
-        append(
-            $$"""
-            Media(id: $id) {
+const val MEDIA_BASIC_INFO = $$"""
                 id
                 title {
                   romaji
@@ -72,51 +59,46 @@ fun buildMediaDetailQuerySchema(
                   episode
                   timeUntilAiring
                 }
+"""
+
+fun buildMediaDetailQuerySchema(
+    withCharacterConnection: Boolean = false,
+    withStaffConnection: Boolean = false,
+    withStudioConnection: Boolean = false,
+    withRelations: Boolean = false,
+): String =
+    buildString {
+        append($$"query ($id: Int")
+        if (withCharacterConnection) append($$", $characterPage: Int, $characterPerPage: Int, $staffLanguage: StaffLanguage")
+        if (withStaffConnection) append($$", $staffPage: Int, $staffPerPage: Int")
+        append(") {")
+        append(
+            $$"""
+            Media(id: $id) {
+$$MEDIA_BASIC_INFO
             """,
         )
         if (withCharacterConnection) {
             append(
                 $$"""
-                characters(page: $characterPage, perPage: $characterPerPage, sort: RELEVANCE) {
-                  pageInfo {
-                    total
-                    perPage
-                    currentPage
-                    lastPage
-                    hasNextPage
-                  }
-                  edges {
-                    role
-                    node {
-                      id
-                      image {
-                        large
-                        medium
-                      }
-                      name {
-                        first
-                        middle
-                        last
-                        full
-                        native
-                      }
+                  characters(page: $characterPage, perPage: $characterPerPage, sort: RELEVANCE) {
+                    pageInfo {
+                      total
+                      perPage
+                      currentPage
+                      lastPage
+                      hasNextPage
                     }
-                    voiceActors(language: $staffLanguage, sort: LANGUAGE) {
-                      id
-                      image {
-                        large
-                        medium
+                    edges {
+                      role
+                      node {
+                        $$CHARACTER_BASIC_INFO
                       }
-                      name {
-                        first
-                        middle
-                        last
-                        full
-                        native
+                      voiceActors(language: $staffLanguage, sort: LANGUAGE) {
+                        $$STAFF_BASIC_INFO
                       }
                     }
                   }
-                }
                 """.trimIndent(),
             )
         }
@@ -124,32 +106,21 @@ fun buildMediaDetailQuerySchema(
         if (withStaffConnection) {
             append(
                 $$"""
-                staff(page: $staffPage, perPage: $staffPerPage, sort: FAVOURITES_DESC) {
-                  pageInfo {
-                    total
-                    perPage
-                    currentPage
-                    lastPage
-                    hasNextPage
-                  }
-                  edges {
-                    role
-                    node {
-                      id
-                      name {
-                        first
-                        middle
-                        last
-                        full
-                        native
-                      }
-                      image {
-                        large
-                        medium
+                  staff(page: $staffPage, perPage: $staffPerPage, sort: FAVOURITES_DESC) {
+                    pageInfo {
+                      total
+                      perPage
+                      currentPage
+                      lastPage
+                      hasNextPage
+                    }
+                    edges {
+                      role
+                      node {
+                        $$STAFF_BASIC_INFO
                       }
                     }
                   }
-                }
                 """.trimIndent(),
             )
         }

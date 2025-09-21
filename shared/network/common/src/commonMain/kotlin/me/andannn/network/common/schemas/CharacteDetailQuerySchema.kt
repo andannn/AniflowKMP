@@ -4,9 +4,7 @@
  */
 package me.andannn.network.common.schemas
 
-const val CHARACTER_DETAIL_QUERY_SCHEMA = $$"""
-query ($id: Int, $page: Int, $perPage: Int, $mediaSort: [MediaSort]) {
-  Character(id: $id) {
+const val CHARACTER_BASIC_INFO = $$"""
     id
     name {
       first
@@ -32,6 +30,11 @@ query ($id: Int, $page: Int, $perPage: Int, $mediaSort: [MediaSort]) {
     isFavourite
     siteUrl
     favourites
+"""
+const val CHARACTER_DETAIL_QUERY_SCHEMA = $$"""
+query ($id: Int, $page: Int, $perPage: Int, $mediaSort: [MediaSort]) {
+  Character(id: $id) {
+    $$CHARACTER_BASIC_INFO
     media(page: $page, perPage: $perPage, sort: $mediaSort) {
       pageInfo {
         total
