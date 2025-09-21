@@ -14,6 +14,7 @@ query ($id: Int, $page: Int, $perPage: Int, $sort: [MediaSort]) {
       last
       full
       native
+      alternative
     }
     image {
       large

@@ -121,7 +121,7 @@ fun MediaCategoryPaging(
                     .fillMaxSize()
                     .padding(it)
                     .background(AppBackgroundColor),
-            columns = StaggeredGridCells.Fixed(2),
+            columns = StaggeredGridCells.Adaptive(160.dp),
             pageComponent = viewModel.pageComponent,
             contentPadding = PaddingValues(horizontal = PageHorizontalPadding),
             key = { it.id },

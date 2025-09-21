@@ -382,7 +382,7 @@ class SearchViewModel(
             }
         }
 
-    var searchResultPagingController by mutableStateOf<PageComponent<*>>(EmptyPageComponent)
+    var searchResultPagingController by mutableStateOf<PageComponent<*>>(PageComponent.empty<Any>())
 
     init {
         viewModelScope.launch {
@@ -392,7 +392,6 @@ class SearchViewModel(
                 .collectLatest { source ->
                     Napier.d(tag = TAG) { "Search source updated: $source" }
                     searchResultPagingController.dispose()
-                    searchResultPagingController = EmptyPageComponent
 
                     searchResultPagingController =
                         when (source) {
@@ -420,7 +419,7 @@ class SearchViewModel(
                                     errorHandler = this@SearchViewModel,
                                 )
 
-                            null -> EmptyPageComponent
+                            null -> PageComponent.empty<Any>()
                         }
                 }
         }

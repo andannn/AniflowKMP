@@ -1,0 +1,5 @@
+ALTER TABLE staffEntity
+ADD COLUMN alternativeNameList TEXT DEFAULT NULL;
+
+ALTER TABLE characterEntity
+ADD COLUMN alternativeNameList TEXT DEFAULT NULL;

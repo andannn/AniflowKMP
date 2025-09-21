@@ -5,30 +5,46 @@
 package me.andannn.aniflow.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.FilterAlt
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FloatingToolbarDefaults
-import androidx.compose.material3.FloatingToolbarExitDirection.Companion.Bottom
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MediumFlexibleTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
@@ -38,6 +54,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -52,16 +69,29 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format
 import me.andannn.aniflow.data.DetailStaffUiDataProvider
+import me.andannn.aniflow.data.EmptyPageComponent
+import me.andannn.aniflow.data.ErrorChannel
+import me.andannn.aniflow.data.PageComponent
+import me.andannn.aniflow.data.StaffCharactersPaging
+import me.andannn.aniflow.data.buildErrorChannel
 import me.andannn.aniflow.data.getNameString
+import me.andannn.aniflow.data.label
+import me.andannn.aniflow.data.model.CharacterModel
 import me.andannn.aniflow.data.model.DetailStaffUiState
+import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.SimpleDate
 import me.andannn.aniflow.data.model.StaffModel
 import me.andannn.aniflow.data.model.UserOptions
+import me.andannn.aniflow.data.model.define.MediaSort
+import me.andannn.aniflow.data.model.relation.VoicedCharacterWithMedia
 import me.andannn.aniflow.ui.theme.AppBackgroundColor
 import me.andannn.aniflow.ui.theme.PageHorizontalPadding
 import me.andannn.aniflow.ui.theme.StyledReadingContentFontFamily
 import me.andannn.aniflow.ui.theme.TopAppBarColors
+import me.andannn.aniflow.ui.widget.CharacterWithMediaItem
 import me.andannn.aniflow.ui.widget.CustomPullToRefresh
+import me.andannn.aniflow.ui.widget.pagingItems
+import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.rememberSnackBarHostState
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -71,15 +101,36 @@ private const val TAG = "DetailStaff"
 class DetailStaffViewModel(
     private val staffId: String,
     private val dataProvider: DetailStaffUiDataProvider,
-) : ViewModel() {
+) : ViewModel(),
+    ErrorChannel by buildErrorChannel() {
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
+
+    private val _mediaSort = MutableStateFlow(MediaSort.START_DATE_DESC)
+    val mediaSort = _mediaSort.asStateFlow()
+
+    var pagingController by mutableStateOf<PageComponent<VoicedCharacterWithMedia>>(
+        PageComponent.empty(),
+    )
 
     init {
         viewModelScope.launch {
             dataProvider.detailUiSideEffect(false).collect {
                 Napier.d(tag = TAG) { "DetailStaffViewModel: sync status $it" }
                 _isLoading.value = it.isLoading()
+            }
+        }
+
+        viewModelScope.launch {
+            _mediaSort.collect { mediaSort ->
+                Napier.d(tag = TAG) { "_mediaSort changed: $mediaSort" }
+                pagingController.dispose()
+                pagingController =
+                    StaffCharactersPaging(
+                        staffId,
+                        mediaSort,
+                        errorHandler = this@DetailStaffViewModel,
+                    )
             }
         }
     }
@@ -90,6 +141,10 @@ class DetailStaffViewModel(
             initialValue = DetailStaffUiState.Empty,
             started = SharingStarted.WhileSubscribed(5000),
         )
+
+    fun setMediaSort(sort: MediaSort) {
+        _mediaSort.value = sort
+    }
 }
 
 @Composable
@@ -103,12 +158,28 @@ fun DetailStaff(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+    val selectedMediaSort by viewModel.mediaSort.collectAsStateWithLifecycle()
     DetailStaffContent(
         isLoading = isLoading,
         staff = uiState.staffModel,
         options = uiState.userOption,
+        selectedMediaSort = selectedMediaSort,
+        onSelectMediaSort = viewModel::setMediaSort,
+        pagingController = viewModel.pagingController,
+        onCharacterClick = {
+            navigator.navigateTo(
+                Screen.DetailCharacter(it.id),
+            )
+        },
+        onMediaClick = {
+            navigator.navigateTo(
+                Screen.DetailMedia(it.id),
+            )
+        },
         onBack = { navigator.popBackStack() },
     )
+
+    ErrorHandleSideEffect(viewModel)
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
@@ -117,21 +188,35 @@ fun DetailStaffContent(
     isLoading: Boolean,
     staff: StaffModel?,
     options: UserOptions,
+    selectedMediaSort: MediaSort,
+    pagingController: PageComponent<VoicedCharacterWithMedia>,
     modifier: Modifier = Modifier,
+    onSelectMediaSort: (MediaSort) -> Unit = {},
+    onCharacterClick: (CharacterModel) -> Unit = {},
+    onMediaClick: (MediaModel) -> Unit = {},
     onBack: () -> Unit = {},
 ) {
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
-        modifier = modifier,
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         snackbarHost = { SnackbarHost(rememberSnackBarHostState()) },
         topBar = {
-            TopAppBar(
+            MediumFlexibleTopAppBar(
                 colors = TopAppBarColors,
+                scrollBehavior = scrollBehavior,
                 title = {
                     val title =
                         remember(options, staff) {
                             staff?.name.getNameString(options.staffNameLanguage)
                         }
                     Text(title)
+                },
+                subtitle = {
+                    staff?.name?.alternative?.let { names ->
+                        Text(
+                            text = names.joinToString(", "),
+                        )
+                    }
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -153,10 +238,13 @@ fun DetailStaffContent(
             isRefreshing = isLoading,
             enable = false,
         ) {
-            LazyColumn(
+            val pagingItems = pagingController.items.collectAsStateWithLifecycle()
+            val pagingStatus = pagingController.status.collectAsStateWithLifecycle()
+            LazyVerticalStaggeredGrid(
                 contentPadding = PaddingValues(horizontal = PageHorizontalPadding),
+                columns = StaggeredGridCells.Adaptive(160.dp),
             ) {
-                item {
+                item(span = StaggeredGridItemSpan.FullLine) {
                     Row {
                         Spacer(Modifier.weight(1f))
                         Surface(
@@ -176,7 +264,7 @@ fun DetailStaffContent(
                     }
                 }
 
-                item {
+                item(span = StaggeredGridItemSpan.FullLine) {
                     val description =
                         remember(staff) {
                             staff?.description?.let {
@@ -217,6 +305,61 @@ fun DetailStaffContent(
                         fontFamily = StyledReadingContentFontFamily,
                         fontSize = 14.sp,
                         lineHeight = 17.sp,
+                    )
+                }
+
+                item(span = StaggeredGridItemSpan.FullLine) {
+                    var expanded by remember { mutableStateOf(false) }
+                    Box(contentAlignment = Alignment.CenterEnd) {
+                        Box(
+                            modifier =
+                                Modifier
+                                    .padding(16.dp),
+                        ) {
+                            TextButton(onClick = { expanded = !expanded }) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Icon(Icons.Default.FilterAlt, contentDescription = "Filter")
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(selectedMediaSort.label())
+                                }
+                            }
+                            DropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false },
+                            ) {
+                                MediaSort.entries.forEach {
+                                    DropdownMenuItem(
+                                        text = { Text(it.label()) },
+                                        onClick = {
+                                            onSelectMediaSort(it)
+                                            expanded = false
+                                        },
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                pagingItems(
+                    items = pagingItems.value,
+                    status = pagingStatus.value,
+                    key = { item -> item.hashCode() },
+                    onLoadNextPage = { pagingController.loadNextPage() },
+                ) { item ->
+                    CharacterWithMediaItem(
+                        modifier = Modifier.padding(4.dp),
+                        item = item,
+                        userTitleLanguage = options.titleLanguage,
+                        userStaffLanguage = options.staffNameLanguage,
+                        onCharacterClick = {
+                            onCharacterClick(item.character)
+                        },
+                        onMediaClick = {
+                            onMediaClick(item.media)
+                        },
                     )
                 }
             }

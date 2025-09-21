@@ -5,7 +5,7 @@
 package me.andannn.network.common.schemas
 
 const val CHARACTER_DETAIL_QUERY_SCHEMA = $$"""
-query ($id: Int, $page: Int, $perPage: Int) {
+query ($id: Int, $page: Int, $perPage: Int, $mediaSort: [MediaSort]) {
   Character(id: $id) {
     id
     name {
@@ -13,7 +13,8 @@ query ($id: Int, $page: Int, $perPage: Int) {
       middle
       last
       full
-      native
+      native,
+      alternative
     }
     image {
       medium
@@ -31,7 +32,7 @@ query ($id: Int, $page: Int, $perPage: Int) {
     isFavourite
     siteUrl
     favourites
-    media(page: $page, perPage: $perPage) {
+    media(page: $page, perPage: $perPage, sort: $mediaSort) {
       pageInfo {
         total
         perPage

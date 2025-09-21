@@ -171,6 +171,7 @@ fun StaffEntityWithDefault(
     yearsActive: String? = null,
     homeTown: String? = null,
     bloodType: String? = null,
+    alternativeNameList: String? = null,
 ) = StaffEntity(
     id = id,
     largeImage = largeImage,
@@ -190,4 +191,5 @@ fun StaffEntityWithDefault(
     yearsActive = yearsActive,
     homeTown = homeTown,
     bloodType = bloodType,
+    alternativeNameList = alternativeNameList,
 )

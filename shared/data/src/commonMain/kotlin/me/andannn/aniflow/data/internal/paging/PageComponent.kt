@@ -29,7 +29,7 @@ data class PageConfig(
 
 private const val TAG = "PageComponent"
 
-internal class DefaultPageComponent<T>(
+internal class DefaultPageComponent<T : Any>(
     private val config: PageConfig,
     private val onLoadPage: suspend (page: Int, perPage: Int) -> Pair<Page<T>, AppError?>,
     private val errorHandler: AppErrorHandler? = null,

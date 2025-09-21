@@ -18,7 +18,8 @@ CREATE TABLE IF NOT EXISTS staffEntity(
     isFavourite INTEGER AS Boolean DEFAULT NULL,
     yearsActive TEXT DEFAULT NULL,
     homeTown TEXT DEFAULT NULL,
-    bloodType TEXT DEFAULT NULL
+    bloodType TEXT DEFAULT NULL,
+    alternativeNameList TEXT DEFAULT NULL
 );
 
 CREATE TABLE IF NOT EXISTS staffMediaCrossRefEntity(
@@ -38,6 +39,7 @@ INSERT OR REPLACE INTO staffEntity (
     lastName,
     fullName,
     nativeName,
+    alternativeNameList,
     description,
     gender,
     siteUrl,

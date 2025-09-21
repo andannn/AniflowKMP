@@ -25,4 +25,8 @@ public data class StaffCharacterName(
      * The character's full name in their native language
      */
     public val native: String? = null,
+    /**
+     * Other names the staff member might be referred to as (pen names)
+     */
+    public val alternative: List<String> = emptyList(),
 )

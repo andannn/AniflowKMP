@@ -8,6 +8,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import me.andannn.aniflow.service.dto.CharacterDetailResponse
 import me.andannn.aniflow.service.dto.DataWrapper
+import me.andannn.aniflow.service.dto.enums.MediaSort
 import me.andannn.network.common.schemas.CHARACTER_DETAIL_QUERY_SCHEMA
 
 @Serializable
@@ -17,6 +18,7 @@ internal data class CharacterDetailQuery(
     val mediaConnectionPage: Int?,
     @SerialName("perPage")
     val mediaConnectionPerPage: Int?,
+    val mediaSort: List<MediaSort>? = null,
 ) : GraphQLQuery<DataWrapper<CharacterDetailResponse>> {
     override fun getSchema() = CHARACTER_DETAIL_QUERY_SCHEMA
 }

@@ -41,6 +41,7 @@ import me.andannn.aniflow.data.model.define.deserialize
 import me.andannn.aniflow.data.model.relation.CharacterWithVoiceActor
 import me.andannn.aniflow.data.model.relation.MediaModelWithRelationType
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
+import me.andannn.aniflow.data.model.relation.VoicedCharacterWithMedia
 import me.andannn.aniflow.database.relation.CharacterWithVoiceActorRelation
 import me.andannn.aniflow.database.relation.MediaEntityWithRelationType
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelation
@@ -65,6 +66,7 @@ import me.andannn.aniflow.service.dto.CharactersConnection
 import me.andannn.aniflow.service.dto.FollowingNotification
 import me.andannn.aniflow.service.dto.FuzzyDate
 import me.andannn.aniflow.service.dto.Media
+import me.andannn.aniflow.service.dto.MediaConnection
 import me.andannn.aniflow.service.dto.MediaDataChangeNotification
 import me.andannn.aniflow.service.dto.MediaDeletionNotification
 import me.andannn.aniflow.service.dto.MediaList
@@ -329,6 +331,7 @@ internal fun Character.toEntity() =
         lastName = name?.last,
         fullName = name?.full,
         nativeName = name?.native,
+        alternativeNameList = name?.alternative?.filterNotNull()?.let { Json.encodeToString(it) },
         description = description,
         isFavourite = isFavourite,
         mediumImage = image?.medium,
@@ -355,6 +358,14 @@ internal fun CharacterWithVoiceActorRelation.toDomain(staffLanguage: StaffLangua
         voiceActorLanguage = staffLanguage,
     )
 
+internal fun MediaConnection.Edge.toDomain() =
+    characters?.filterNotNull()?.map {
+        VoicedCharacterWithMedia(
+            character = it.toEntity().toDomain(),
+            media = node?.toDomain() ?: error("media cannot be null"),
+        )
+    } ?: emptyList()
+
 internal fun CharacterEntity.toDomain() =
     CharacterModel(
         id = id,
@@ -365,6 +376,7 @@ internal fun CharacterEntity.toDomain() =
                 last = lastName,
                 full = fullName,
                 native = nativeName,
+                alternative = alternativeNameList?.let { Json.decodeFromString(it) } ?: emptyList(),
             ),
         image = largeImage ?: mediumImage,
         description = description,
@@ -460,6 +472,7 @@ internal fun Staff.toEntity() =
         middleName = name?.middle,
         fullName = name?.full,
         nativeName = name?.native,
+        alternativeNameList = name?.alternative?.filterNotNull()?.let { Json.encodeToString(it) },
         description = description,
         gender = gender,
         dateOfBirth = dateOfBirth?.toSimpleDate()?.let { Json.encodeToString(it) },
@@ -540,6 +553,7 @@ internal fun StaffEntity.toDomain() =
                 last = lastName,
                 full = fullName,
                 native = nativeName,
+                alternative = alternativeNameList?.let { Json.decodeFromString(it) } ?: emptyList(),
             ),
         image = largeImage ?: mediumImage,
         description = description,
@@ -683,6 +697,19 @@ internal fun <T, R> Page<T>.toDomain(mapper: (T) -> R) =
                 hasNextPage = pageInfo?.hasNextPage ?: error("page info parameter is null"),
             ),
         items = items.map(mapper),
+    )
+
+internal fun <T, R> Page<T>.toDomainWithFlattenMapper(mapper: (T) -> List<R>) =
+    me.andannn.aniflow.data.model.Page(
+        pageInfo =
+            PageInfo(
+                total = pageInfo?.total ?: error("page info parameter is null"),
+                perPage = pageInfo?.perPage ?: error("page info parameter is null"),
+                currentPage = pageInfo?.currentPage ?: error("page info parameter is null"),
+                lastPage = pageInfo?.lastPage ?: error("page info parameter is null"),
+                hasNextPage = pageInfo?.hasNextPage ?: error("page info parameter is null"),
+            ),
+        items = items.flatMap(mapper),
     )
 
 internal fun NotificationUnion.toDomain(): NotificationModel =
