@@ -25,7 +25,7 @@ AniFlow follows a Kotlin Multiplatform + Native UI approach:
    - Networking (Ktor)
    - Persistence (Room KMP, DataStore)
  - UI Layer
-   - Android: Jetpack Compose (navigation3 + ViewModel)
+   - Android: Jetpack Compose (Material3 Expressive design + navigation3 + ViewModel)
    - iOS: SwiftUI
 
 Compose Multiplatform components are kept minimal for cross-platform utilities, but platform-native UI is the primary choice for user experience.
