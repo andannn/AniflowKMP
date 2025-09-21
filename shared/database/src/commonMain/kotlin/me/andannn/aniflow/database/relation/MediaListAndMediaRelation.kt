@@ -260,6 +260,7 @@ data class StaffWithRole(
             yearsActive: String?,
             homeTown: String?,
             bloodType: String?,
+            alternativeNameList: String?,
             role: String,
         ): StaffWithRole =
             StaffWithRole(
@@ -284,6 +285,7 @@ data class StaffWithRole(
                         yearsActive = yearsActive,
                         homeTown = homeTown,
                         bloodType = bloodType,
+                        alternativeNameList = alternativeNameList,
                     ),
             )
     }

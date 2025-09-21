@@ -14,7 +14,12 @@ internal const val DETAIL_STAFF_DATA = """
         "middle": null,
         "last": "Oda",
         "full": "Eiichirou Oda",
-        "native": "尾田栄一郎"
+        "native": "尾田栄一郎",
+        "alternative": [
+          "Tsukihimizu Kikondou (月火水木金土)",
+          "Odacchi (オダッチ)",
+          "Ei-chan (栄ちゃん)"
+        ]
       },
       "image": {
         "large": "https://s4.anilist.co/file/anilistcdn/staff/large/n96881-Cyv6wFJxpDw7.png",

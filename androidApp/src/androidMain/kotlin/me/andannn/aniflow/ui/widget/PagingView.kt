@@ -38,7 +38,7 @@ private const val TAG = "PagingView"
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun <T> VerticalGridPaging(
+fun <T : Any> VerticalGridPaging(
     modifier: Modifier = Modifier,
     columns: GridCells,
     pageComponent: PageComponent<T>,
@@ -69,8 +69,8 @@ fun <T> LazyGridScope.pagingItems(
     items: List<T>,
     status: LoadingStatus,
     key: (T) -> Any,
-    itemContent: @Composable (T) -> Unit,
     onLoadNextPage: () -> Unit,
+    itemContent: @Composable (T) -> Unit,
 ) {
     items(
         items = items,
@@ -118,7 +118,7 @@ fun <T> LazyGridScope.pagingItems(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun <T> VerticalListPaging(
+fun <T : Any> VerticalListPaging(
     modifier: Modifier = Modifier,
     pageComponent: PageComponent<T>,
     contentPadding: PaddingValues = PaddingValues(0.dp),
@@ -177,7 +177,7 @@ fun <T> VerticalListPaging(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun <T> StaggeredGridPaging(
+fun <T : Any> StaggeredGridPaging(
     modifier: Modifier = Modifier,
     columns: StaggeredGridCells,
     pageComponent: PageComponent<T>,
@@ -208,8 +208,8 @@ fun <T> LazyStaggeredGridScope.pagingItems(
     items: List<T>,
     status: LoadingStatus,
     key: (T) -> Any,
-    itemContent: @Composable (T) -> Unit,
     onLoadNextPage: () -> Unit,
+    itemContent: @Composable (T) -> Unit,
 ) {
     items(
         items = items,

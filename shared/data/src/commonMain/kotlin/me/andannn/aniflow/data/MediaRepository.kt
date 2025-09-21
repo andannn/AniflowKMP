@@ -20,6 +20,7 @@ import me.andannn.aniflow.data.model.StudioModel
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.MediaContentMode
 import me.andannn.aniflow.data.model.define.MediaListStatus
+import me.andannn.aniflow.data.model.define.MediaSort
 import me.andannn.aniflow.data.model.define.MediaType
 import me.andannn.aniflow.data.model.define.NotificationCategory
 import me.andannn.aniflow.data.model.define.ScoreFormat
@@ -28,6 +29,7 @@ import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.data.model.relation.CharacterWithVoiceActor
 import me.andannn.aniflow.data.model.relation.MediaModelWithRelationType
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
+import me.andannn.aniflow.data.model.relation.VoicedCharacterWithMedia
 
 interface MediaRepository {
     fun syncMediaCategory(
@@ -182,4 +184,18 @@ interface MediaRepository {
         scope: CoroutineScope,
         characterId: String,
     ): Deferred<Throwable?>
+
+    suspend fun getMediaPageOfStaff(
+        staffId: String,
+        page: Int,
+        perPage: Int,
+        mediaSort: MediaSort,
+    ): Pair<Page<VoicedCharacterWithMedia>, AppError?>
+
+    suspend fun getMediaPageOfCharacter(
+        character: String,
+        page: Int,
+        perPage: Int,
+        mediaSort: MediaSort,
+    ): Pair<Page<MediaModel>, AppError?>
 }

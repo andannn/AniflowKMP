@@ -547,6 +547,7 @@ class AniListService constructor(
         id: Int,
         mediaConnectionPage: Int? = null,
         mediaConnectionPerPage: Int? = null,
+        mediaSort: List<MediaSort>? = null,
     ): Character? =
         doGraphQlQuery(
             query =
@@ -554,6 +555,7 @@ class AniListService constructor(
                     id = id,
                     mediaConnectionPage = mediaConnectionPage,
                     mediaConnectionPerPage = mediaConnectionPerPage,
+                    mediaSort = mediaSort,
                 ),
         ).character
 

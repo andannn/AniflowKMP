@@ -93,4 +93,5 @@ public data class CharacterName(
      * The character's full name in their native language
      */
     public val native: String? = null,
+    public val alternative: List<String?>? = null,
 )

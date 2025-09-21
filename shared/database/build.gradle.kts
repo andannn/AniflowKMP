@@ -11,7 +11,7 @@ sqldelight {
     databases {
         create("AniflowDatabase") {
             dialect(libs.sqldelight.dialect.sqlite)
-            version = 3
+            version = 4
             generateAsync = true
             packageName.set("me.andannn.aniflow.database")
             schemaOutputDirectory.set(file("src/commonMain/sqldelight/databases"))

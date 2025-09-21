@@ -16,7 +16,8 @@ CREATE TABLE characterEntity (
     siteUrl TEXT DEFAULT NULL,
     dateOfBirth  TEXT DEFAULT NULL,
     favourites INTEGER DEFAULT NULL,
-    isFavourite INTEGER AS Boolean DEFAULT NULL
+    isFavourite INTEGER AS Boolean DEFAULT NULL,
+    alternativeNameList TEXT DEFAULT NULL
 );
 
 CREATE TABLE characterMediaCrossRefEntity (
@@ -44,6 +45,7 @@ INSERT OR REPLACE INTO characterEntity (
     lastName,
     fullName,
     nativeName,
+    alternativeNameList,
     description,
     gender,
     age,
@@ -80,6 +82,7 @@ staffEntity.middleName AS staffMiddleName,
 staffEntity.lastName AS staffLastName,
 staffEntity.fullName AS staffFullName,
 staffEntity.nativeName AS staffNativeName,
+staffEntity.alternativeNameList AS staffAlternativeNameList,
 staffEntity.description AS staffDescription,
 staffEntity.gender AS staffGender,
 staffEntity.siteUrl AS staffSiteUrl,

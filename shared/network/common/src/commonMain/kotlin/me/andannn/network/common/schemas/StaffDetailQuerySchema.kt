@@ -4,9 +4,7 @@
  */
 package me.andannn.network.common.schemas
 
-const val STAFF_DETAIL_QUERY_SCHEMA = $$"""
-query ($id: Int, $page: Int, $perPage: Int, $sort: [MediaSort]) {
-  Staff(id: $id) {
+const val STAFF_BASIC_INFO = $$"""
     id
     name {
       first
@@ -14,6 +12,7 @@ query ($id: Int, $page: Int, $perPage: Int, $sort: [MediaSort]) {
       last
       full
       native
+      alternative
     }
     image {
       large
@@ -37,6 +36,12 @@ query ($id: Int, $page: Int, $perPage: Int, $sort: [MediaSort]) {
     bloodType
     isFavourite
     siteUrl
+    """
+
+const val STAFF_DETAIL_QUERY_SCHEMA = $$"""
+query ($id: Int, $page: Int, $perPage: Int, $sort: [MediaSort]) {
+  Staff(id: $id) {
+    $$STAFF_BASIC_INFO
     characterMedia(sort: $sort, page: $page, perPage: $perPage) {
       pageInfo {
         total

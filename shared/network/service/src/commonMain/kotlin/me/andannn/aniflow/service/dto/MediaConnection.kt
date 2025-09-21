@@ -33,3 +33,15 @@ public data class MediaConnection(
         public val node: Media? = null,
     )
 }
+
+fun MediaConnection.toPage() =
+    Page(
+        pageInfo = pageInfo,
+        items = edges,
+    )
+
+fun MediaConnection.toMediaPage() =
+    Page(
+        pageInfo = pageInfo,
+        items = edges.mapNotNull { it.node },
+    )

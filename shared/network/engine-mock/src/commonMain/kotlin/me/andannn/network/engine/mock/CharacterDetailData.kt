@@ -14,7 +14,11 @@ const val CHARACTER_DETAIL_DATA = """
         "middle": null,
         "last": "Elric",
         "full": "Alphonse Elric",
-        "native": "アルフォンス・エルリック"
+        "native": "アルフォンス・エルリック",
+        "alternative": [
+          "Al",
+          "Armored Alchemist"
+        ]
       },
       "image": {
         "medium": "https://s4.anilist.co/file/anilistcdn/character/medium/b12-tCKu8yK5kFL5.jpg",

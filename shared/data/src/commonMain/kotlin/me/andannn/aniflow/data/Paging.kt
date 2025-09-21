@@ -18,9 +18,11 @@ import me.andannn.aniflow.data.model.StaffModel
 import me.andannn.aniflow.data.model.StaffWithRole
 import me.andannn.aniflow.data.model.StudioModel
 import me.andannn.aniflow.data.model.define.MediaCategory
+import me.andannn.aniflow.data.model.define.MediaSort
 import me.andannn.aniflow.data.model.define.NotificationCategory
 import me.andannn.aniflow.data.model.define.StaffLanguage
 import me.andannn.aniflow.data.model.relation.CharacterWithVoiceActor
+import me.andannn.aniflow.data.model.relation.VoicedCharacterWithMedia
 import org.koin.mp.KoinPlatform.getKoin
 
 // interop with swift.
@@ -48,7 +50,7 @@ sealed interface LoadingStatus {
     ) : LoadingStatus
 }
 
-interface PageComponent<T> {
+interface PageComponent<out T : Any> {
     @NativeCoroutines
     val items: StateFlow<List<T>>
 
@@ -62,10 +64,14 @@ interface PageComponent<T> {
      * This should be called when the component is no longer needed
      */
     fun dispose()
+
+    companion object {
+        fun <T : Any> empty() = EmptyPageComponent<T>()
+    }
 }
 
-object EmptyPageComponent : PageComponent<Nothing> {
-    override val items: StateFlow<List<Nothing>> = MutableStateFlow(emptyList())
+class EmptyPageComponent<T : Any> : PageComponent<T> {
+    override val items: StateFlow<List<T>> = MutableStateFlow(emptyList())
     override val status: StateFlow<LoadingStatus> = MutableStateFlow(LoadingStatus.Idle)
 
     override fun loadNextPage() {}
@@ -217,5 +223,43 @@ class DetailMediaCharacterPaging(
                     page = page,
                     perPage = perPage,
                 )
+        },
+    )
+
+class StaffCharactersPaging(
+    private val staffId: String,
+    private val sort: MediaSort,
+    config: PageConfig = DEFAULT_CONFIG,
+    private val errorHandler: AppErrorHandler? = null,
+    private val mediaRepository: MediaRepository = getKoin().get(),
+) : PageComponent<VoicedCharacterWithMedia> by DefaultPageComponent(
+        config = config,
+        errorHandler = errorHandler,
+        onLoadPage = { page, perPage ->
+            mediaRepository.getMediaPageOfStaff(
+                staffId = staffId,
+                page = page,
+                perPage = perPage,
+                mediaSort = sort,
+            )
+        },
+    )
+
+class CharacterDetailMediaPaging(
+    private val characterId: String,
+    private val sort: MediaSort,
+    config: PageConfig = DEFAULT_CONFIG,
+    private val errorHandler: AppErrorHandler? = null,
+    private val mediaRepository: MediaRepository = getKoin().get(),
+) : PageComponent<MediaModel> by DefaultPageComponent(
+        config = config,
+        errorHandler = errorHandler,
+        onLoadPage = { page, perPage ->
+            mediaRepository.getMediaPageOfCharacter(
+                character = characterId,
+                page = page,
+                perPage = perPage,
+                mediaSort = sort,
+            )
         },
     )

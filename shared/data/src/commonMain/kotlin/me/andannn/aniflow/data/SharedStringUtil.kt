@@ -10,6 +10,7 @@ import me.andannn.aniflow.data.model.StaffCharacterName
 import me.andannn.aniflow.data.model.Title
 import me.andannn.aniflow.data.model.define.MediaFormat
 import me.andannn.aniflow.data.model.define.MediaSeason
+import me.andannn.aniflow.data.model.define.MediaSort
 import me.andannn.aniflow.data.model.define.MediaSource
 import me.andannn.aniflow.data.model.define.MediaStatus
 import me.andannn.aniflow.data.model.define.MediaType
@@ -179,3 +180,12 @@ fun StaffCharacterName?.getNameString(staffName: UserStaffNameLanguage): String 
         }
     } ?: ""
 }
+
+fun MediaSort.label() =
+    when (this) {
+        MediaSort.START_DATE -> "Oldest"
+        MediaSort.START_DATE_DESC -> "Newest"
+        MediaSort.POPULARITY_DESC -> "Popularity"
+        MediaSort.TRENDING_DESC -> "Average Score"
+        MediaSort.FAVOURITES_DESC -> "Favorites"
+    }

@@ -30,6 +30,7 @@ data class CharacterWithVoiceActorRelation(
             dateOfBirth: String?,
             favourites: Long?,
             isFavourite: Boolean?,
+            alternativeNameList: String?,
             role: String?,
             staffId: String?,
             staffLargeImage: String?,
@@ -39,6 +40,7 @@ data class CharacterWithVoiceActorRelation(
             staffLastName: String?,
             staffFullName: String?,
             staffNativeName: String?,
+            staffAlternativeNameList: String?,
             staffDescription: String?,
             staffGender: String?,
             staffSiteUrl: String?,
@@ -62,6 +64,7 @@ data class CharacterWithVoiceActorRelation(
                         lastName = lastName,
                         fullName = fullName,
                         nativeName = nativeName,
+                        alternativeNameList = alternativeNameList,
                         description = description,
                         gender = gender,
                         age = age,
@@ -94,6 +97,7 @@ data class CharacterWithVoiceActorRelation(
                             yearsActive = staffYearsActive,
                             homeTown = staffHomeTown,
                             bloodType = staffBloodType,
+                            alternativeNameList = staffAlternativeNameList,
                         )
                     },
             )

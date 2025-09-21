@@ -42,6 +42,7 @@ import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.data.model.relation.CharacterWithVoiceActor
 import me.andannn.aniflow.data.model.relation.MediaModelWithRelationType
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
+import me.andannn.aniflow.data.model.relation.VoicedCharacterWithMedia
 import me.andannn.aniflow.database.MediaLibraryDao
 import me.andannn.aniflow.database.relation.MediaEntityWithRelationType
 import me.andannn.aniflow.database.relation.MediaListAndMediaRelationWithUpdateLog
@@ -55,6 +56,7 @@ import me.andannn.aniflow.service.ServerException
 import me.andannn.aniflow.service.dto.Character
 import me.andannn.aniflow.service.dto.CharactersConnection
 import me.andannn.aniflow.service.dto.Media
+import me.andannn.aniflow.service.dto.MediaConnection
 import me.andannn.aniflow.service.dto.MediaList
 import me.andannn.aniflow.service.dto.MediaRelations
 import me.andannn.aniflow.service.dto.NotificationUnion
@@ -62,6 +64,7 @@ import me.andannn.aniflow.service.dto.Staff
 import me.andannn.aniflow.service.dto.StaffConnection
 import me.andannn.aniflow.service.dto.Studio
 import me.andannn.aniflow.service.dto.enums.NotificationType
+import me.andannn.aniflow.service.dto.toMediaPage
 import me.andannn.aniflow.service.dto.toPage
 
 private const val TAG = "MediaRepository"
@@ -444,6 +447,53 @@ internal class MediaRepositoryImpl(
                 )
             }
         }
+
+    override suspend fun getMediaPageOfStaff(
+        staffId: String,
+        page: Int,
+        perPage: Int,
+        mediaSort: MediaSort,
+    ): Pair<Page<VoicedCharacterWithMedia>, AppError?> =
+        with(mediaService) {
+            try {
+                val page =
+                    getStaffDetail(
+                        staffId = staffId.toInt(),
+                        characterConnectionPage = page,
+                        characterConnectionPerPage = perPage,
+                        mediaSort = listOf(mediaSort.toServiceType()),
+                    )?.characterMedia?.toPage()?.toDomainWithFlattenMapper(MediaConnection.Edge::toDomain)
+                        ?: Page.empty()
+                page to null
+            } catch (exception: ServerException) {
+                Napier.e { "Error when loading Character page: $exception" }
+                Page.empty<VoicedCharacterWithMedia>() to exception.toError()
+            }
+        }
+
+    override suspend fun getMediaPageOfCharacter(
+        character: String,
+        page: Int,
+        perPage: Int,
+        mediaSort: MediaSort,
+    ): Pair<Page<MediaModel>, AppError?> =
+        try {
+            val page =
+                mediaService
+                    .getCharacterDetail(
+                        id = character.toInt(),
+                        mediaConnectionPage = page,
+                        mediaConnectionPerPage = perPage,
+                        mediaSort = listOf(mediaSort.toServiceType()),
+                    )?.media
+                    ?.toMediaPage()
+                    ?.toDomain(Media::toDomain)
+                    ?: Page.empty()
+            page to null
+        } catch (exception: ServerException) {
+            Napier.e { "Error when loading Character page: $exception" }
+            Page.empty<MediaModel>() to exception.toError()
+        }
 }
 
 private const val DEFAULT_CACHED_SIZE = 20
@@ -524,7 +574,7 @@ private fun syncDetailMediaToLocal(
     scope: CoroutineScope,
 ): Deferred<Throwable?> =
     scope.async {
-        Napier.d(tag = TAG) { "syncDetailMediaToLocal start: mediaId=$mediaId" }
+        Napier.d(tag = TAG) { "syncDetailMediaToLocal start: staffId=$mediaId" }
         try {
             val detailMedia =
                 service
@@ -590,7 +640,7 @@ private fun syncMediaListOfUserToLocal(
     scoreFormat: ScoreFormat,
 ): Deferred<Throwable?> =
     scope.async {
-        Napier.d(tag = TAG) { "syncMediaListOfUserToLocal start: mediaId=$mediaId, userId=$userId" }
+        Napier.d(tag = TAG) { "syncMediaListOfUserToLocal start: staffId=$mediaId, userId=$userId" }
         try {
             Napier.d(tag = TAG) { "syncMediaListOfUserToLocal finished" }
 
