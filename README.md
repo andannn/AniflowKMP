@@ -1,19 +1,36 @@
-This is a Kotlin Multiplatform project targeting Android, iOS.
+# AniFlow
 
-* `/composeApp` is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - `commonMain` is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    `iosMain` would be the right folder for such calls.
+An unofficial client for [AniList](https://anilist.co/home).
 
-* `/iosApp` contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform, 
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+AniFlow is a Kotlin Multiplatform (KMP) app for browsing anime, viewing details (staff, characters, rankings), and managing your list with scoring.
 
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+## Screenshots
 
-### Code style
+### Android
+
+<p float="left">
+  <img src="androidApp/screenshot/Home.png" width="33%" />
+  <img src="androidApp/screenshot/Track.png" width="33%" />
+  <img src="androidApp/screenshot/Detail.png" width="33%" />
+</p>
+
+### iOS screenshots
+
+
+## Architecture
+AniFlow follows a Kotlin Multiplatform + Native UI approach:
+ - Data Layer
+   - Data Layer (Shared with Kotlin Multiplatform)
+   - Networking (Ktor)
+   - Persistence (Room KMP, DataStore)
+ - UI Layer
+   - Android: Jetpack Compose (navigation3 + ViewModel)
+   - iOS: SwiftUI
+
+Compose Multiplatform components are kept minimal for cross-platform utilities, but platform-native UI is the primary choice for user experience.
+
+## Code style
 
 This project uses [ktlint](https://github.com/pinterest/ktlint).`
 
