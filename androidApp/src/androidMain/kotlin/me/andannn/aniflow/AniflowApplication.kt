@@ -91,10 +91,10 @@ private fun androidContextModule(application: AniflowApplication) =
             TrackProgressDialogViewModel(it.get(), get(), get())
         }
         viewModel {
-            DetailStaffViewModel(it.get(), get(parameters = { it }))
+            DetailStaffViewModel(it.get(), get(parameters = { it }), get())
         }
         viewModel {
-            DetailCharacterViewModel(it.get(), get(parameters = { it }))
+            DetailCharacterViewModel(it.get(), get(parameters = { it }), get())
         }
         viewModelOf(::SearchViewModel)
     }

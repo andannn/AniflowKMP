@@ -5,23 +5,29 @@
 package me.andannn.aniflow.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SplitButtonDefaults.ExtraLargeContainerHeight
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
@@ -189,6 +195,17 @@ class TrackViewModel(
                 isLoginProcessing.value = false
             }
     }
+
+    fun startLoginProcess() {
+        viewModelScope.launch {
+            isLoginProcessing.value = true
+            val error = authRepository.startLoginProcessAndWaitResult()
+            if (error != null) {
+                submitError(error)
+            }
+            isLoginProcessing.value = false
+        }
+    }
 }
 
 @Composable
@@ -220,6 +237,9 @@ fun Track(
         onSearchClick = {
             navigator.navigateTo(Screen.Search)
         },
+        onLogin = {
+            viewModel.startLoginProcess()
+        },
     )
 
     ErrorHandleSideEffect(viewModel)
@@ -239,6 +259,7 @@ fun TrackContent(
     onContentTypeChange: (MediaContentMode) -> Unit = {},
     onAuthIconClick: () -> Unit = {},
     onSearchClick: () -> Unit = {},
+    onLogin: () -> Unit = {},
 ) {
     val appBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
@@ -256,62 +277,100 @@ fun TrackContent(
             )
         },
     ) {
-        CustomPullToRefresh(
-            modifier =
-                Modifier
-                    .padding(top = it.calculateTopPadding())
-                    .background(color = AppBackgroundColor),
-            isRefreshing = isRefreshing,
-            onPullRefresh = onPullRefresh,
-        ) {
-            LazyColumn(
-                contentPadding = PaddingValues(horizontal = 8.dp),
+        if (state.authedUser == null) {
+            LoginRequired(
+                modifier =
+                    Modifier
+                        .padding(top = it.calculateTopPadding())
+                        .background(color = AppBackgroundColor),
+                onLoginClick = onLogin,
+            )
+        } else {
+            CustomPullToRefresh(
+                modifier =
+                    Modifier
+                        .padding(top = it.calculateTopPadding())
+                        .background(color = AppBackgroundColor),
+                isRefreshing = isRefreshing,
+                onPullRefresh = onPullRefresh,
             ) {
-                state.categoryWithItems.forEach { (category, items) ->
-                    if (items.isNotEmpty()) {
-                        stickyHeader(
-                            key = "header_${category.name}",
-                        ) {
-                            Surface(
-                                modifier = Modifier.fillMaxWidth(),
-                                color = AppBackgroundColor,
+                LazyColumn(
+                    contentPadding = PaddingValues(horizontal = 8.dp),
+                ) {
+                    state.categoryWithItems.forEach { (category, items) ->
+                        if (items.isNotEmpty()) {
+                            stickyHeader(
+                                key = "header_${category.name}",
                             ) {
-                                Text(
-                                    modifier = Modifier.padding(top = 12.dp, start = 18.dp),
-                                    text = category.title,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
+                                Surface(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    color = AppBackgroundColor,
+                                ) {
+                                    Text(
+                                        modifier = Modifier.padding(top = 12.dp, start = 18.dp),
+                                        text = category.title,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
                             }
-                        }
-                        itemsIndexed(
-                            items = items,
-                            key = { index, item -> item.mediaListModel.id },
-                        ) { index, item ->
-                            val isFirst = index == 0
-                            val isLast = index == items.lastIndex
-                            Column {
-                                MediaRowItem(
-                                    item = item,
-                                    shape = ShapeHelper.listItemShapeVertical(isFirst, isLast),
-                                    titleMaxLines = Int.MAX_VALUE,
-                                    userTitleLanguage = state.userOptions.titleLanguage,
-                                    onClick = {
-                                        onClickListItem(item.mediaModel)
-                                    },
-                                    onDelete = {
-                                        onDeleteItem(item.mediaListModel)
-                                    },
-                                    onMarkWatched = {
-                                        onMarkWatched(item.mediaListModel)
-                                    },
-                                )
-                                Spacer(Modifier.height(2.dp))
+                            itemsIndexed(
+                                items = items,
+                                key = { index, item -> item.mediaListModel.id },
+                            ) { index, item ->
+                                val isFirst = index == 0
+                                val isLast = index == items.lastIndex
+                                Column {
+                                    MediaRowItem(
+                                        item = item,
+                                        shape = ShapeHelper.listItemShapeVertical(isFirst, isLast),
+                                        titleMaxLines = Int.MAX_VALUE,
+                                        userTitleLanguage = state.userOptions.titleLanguage,
+                                        onClick = {
+                                            onClickListItem(item.mediaModel)
+                                        },
+                                        onDelete = {
+                                            onDeleteItem(item.mediaListModel)
+                                        },
+                                        onMarkWatched = {
+                                            onMarkWatched(item.mediaListModel)
+                                        },
+                                    )
+                                    Spacer(Modifier.height(2.dp))
+                                }
                             }
                         }
                     }
                 }
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun LoginRequired(
+    modifier: Modifier,
+    onLoginClick: () -> Unit = {},
+) {
+    Box(
+        modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center,
+    ) {
+        Button(
+            modifier = Modifier.height(ExtraLargeContainerHeight),
+            onClick = onLoginClick,
+            shapes =
+                ButtonDefaults.shapes(
+                    shape = ButtonDefaults.shape,
+                    pressedShape = ButtonDefaults.extraLargePressedShape,
+                ),
+        ) {
+            Text(
+                modifier = Modifier.padding(horizontal = 64.dp),
+                text = "Login",
+                style = MaterialTheme.typography.headlineLargeEmphasized,
+            )
         }
     }
 }

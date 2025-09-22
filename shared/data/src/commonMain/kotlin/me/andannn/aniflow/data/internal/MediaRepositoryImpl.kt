@@ -16,7 +16,9 @@ import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.internal.exceptions.toError
 import me.andannn.aniflow.data.internal.util.AddNewListItemSyncer
 import me.andannn.aniflow.data.internal.util.MediaListModificationSyncer
-import me.andannn.aniflow.data.internal.util.ToggleLikeSyncer
+import me.andannn.aniflow.data.internal.util.ToggleCharacterLikeSyncer
+import me.andannn.aniflow.data.internal.util.ToggleMediaLikeSyncer
+import me.andannn.aniflow.data.internal.util.ToggleStaffLikeSyncer
 import me.andannn.aniflow.data.internal.util.postMutationAndRevertWhenException
 import me.andannn.aniflow.data.model.CharacterModel
 import me.andannn.aniflow.data.model.MediaListModel
@@ -383,7 +385,21 @@ internal class MediaRepositoryImpl(
         mediaId: String,
         mediaType: MediaType,
     ): AppError? =
-        ToggleLikeSyncer(mediaId, mediaType).postMutationAndRevertWhenException { old ->
+        ToggleMediaLikeSyncer(mediaId, mediaType).postMutationAndRevertWhenException { old ->
+            old.copy(
+                isFavourite = !(old.isFavourite ?: false),
+            )
+        }
+
+    override suspend fun toggleStaffItemLike(staffId: String): AppError? =
+        ToggleStaffLikeSyncer(staffId).postMutationAndRevertWhenException { old ->
+            old.copy(
+                isFavourite = !(old.isFavourite ?: false),
+            )
+        }
+
+    override suspend fun toggleCharacterItemLike(characterId: String): AppError? =
+        ToggleCharacterLikeSyncer(characterId).postMutationAndRevertWhenException { old ->
             old.copy(
                 isFavourite = !(old.isFavourite ?: false),
             )

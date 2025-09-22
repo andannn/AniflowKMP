@@ -154,14 +154,15 @@ private fun discoverUiStateFlow(): Flow<DiscoverUiState> {
 @OptIn(ExperimentalCoroutinesApi::class)
 context(mediaRepo: MediaRepository, authRepo: AuthRepository)
 private fun trackUiStateFlow(): Flow<TrackUiState> {
+    val authedUserFlow = authRepo.getAuthedUserFlow()
     val userWithContentModeFlow =
         combine(
-            authRepo.getAuthedUserFlow(),
+            authedUserFlow,
             mediaRepo.getContentModeFlow(),
         ) { authedUser, contentMode -> Pair(authedUser, contentMode) }
     val userOptionsFlow = authRepo.getUserOptionsFlow()
 
-    val trackUiFlow =
+    val mediaListItemsFlow =
         userWithContentModeFlow
             .distinctUntilChanged()
             .flatMapLatest { (authUser, contentMode) ->
@@ -181,9 +182,10 @@ private fun trackUiStateFlow(): Flow<TrackUiState> {
                 }
             }
     return combine(
-        trackUiFlow,
+        mediaListItemsFlow,
+        authedUserFlow,
         userOptionsFlow,
-    ) { trackUi, userOptions ->
-        TrackUiState(items = trackUi, userOptions = userOptions)
+    ) { mediaListItems, authedUser, userOptions ->
+        TrackUiState(items = mediaListItems, userOptions = userOptions, authedUser = authedUser)
     }.distinctUntilChanged()
 }

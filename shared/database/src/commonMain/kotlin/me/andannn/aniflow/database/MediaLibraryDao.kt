@@ -37,6 +37,16 @@ class MediaLibraryDao constructor(
             withContext(dispatcher) { mediaQueries.getMedia(mediaId).awaitAsOneOrNull() }
         }
 
+    suspend fun getStaffById(staffId: String): StaffEntity? =
+        withDatabase {
+            withContext(dispatcher) { staffQueries.getStaffById(staffId).awaitAsOneOrNull() }
+        }
+
+    suspend fun getCharacterById(characterId: String): CharacterEntity? =
+        withDatabase {
+            withContext(dispatcher) { characterQueries.getCharacterById(characterId).awaitAsOneOrNull() }
+        }
+
     fun getMediaFlow(mediaId: String): Flow<MediaEntity> =
         withDatabase {
             mediaQueries

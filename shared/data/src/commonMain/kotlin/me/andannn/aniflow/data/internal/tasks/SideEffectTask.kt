@@ -221,7 +221,7 @@ internal fun TaskRefreshKey.refreshIntervalMs(): Long {
         is TaskRefreshKey.SyncDetailMediaItem -> hoursToMillis(1)
 // Always refresh the media list item of the authed user
         is TaskRefreshKey.SyncMediaListItem -> 0
-        is TaskRefreshKey.SyncDetailStaff -> hoursToMillis(12)
-        is TaskRefreshKey.SyncDetailCharacter -> hoursToMillis(12)
+        is TaskRefreshKey.SyncDetailStaff -> hoursToMillis(1)
+        is TaskRefreshKey.SyncDetailCharacter -> hoursToMillis(1)
     }
 }

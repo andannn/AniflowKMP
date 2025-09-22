@@ -163,6 +163,12 @@ interface MediaRepository {
         mediaType: MediaType,
     ): AppError?
 
+    @NativeCoroutines
+    suspend fun toggleStaffItemLike(staffId: String): AppError?
+
+    @NativeCoroutines
+    suspend fun toggleCharacterItemLike(characterId: String): AppError?
+
     suspend fun getStaffPageOfMedia(
         mediaId: String,
         page: Int,

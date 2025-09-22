@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
@@ -34,7 +33,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -55,6 +53,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import coil3.compose.AsyncImage
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -63,8 +62,8 @@ import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.CharacterDetailMediaPaging
 import me.andannn.aniflow.data.DetailCharacterUiDataProvider
 import me.andannn.aniflow.data.ErrorChannel
+import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.PageComponent
-import me.andannn.aniflow.data.StaffCharactersPaging
 import me.andannn.aniflow.data.buildErrorChannel
 import me.andannn.aniflow.data.getNameString
 import me.andannn.aniflow.data.getUserTitleString
@@ -74,14 +73,13 @@ import me.andannn.aniflow.data.model.DetailCharacterUiState
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.MediaSort
-import me.andannn.aniflow.data.model.relation.VoicedCharacterWithMedia
 import me.andannn.aniflow.ui.theme.AppBackgroundColor
 import me.andannn.aniflow.ui.theme.PageHorizontalPadding
 import me.andannn.aniflow.ui.theme.StyledReadingContentFontFamily
 import me.andannn.aniflow.ui.theme.TopAppBarColors
-import me.andannn.aniflow.ui.widget.CharacterWithMediaItem
 import me.andannn.aniflow.ui.widget.CommonItemFilledCard
 import me.andannn.aniflow.ui.widget.CustomPullToRefresh
+import me.andannn.aniflow.ui.widget.ToggleFavoriteButton
 import me.andannn.aniflow.ui.widget.pagingItems
 import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.rememberSnackBarHostState
@@ -93,6 +91,7 @@ private const val TAG = "DetailCharacter"
 class DetailCharacterViewModel(
     private val characterId: String,
     private val dataProvider: DetailCharacterUiDataProvider,
+    private val mediaRepository: MediaRepository,
 ) : ViewModel(),
     ErrorChannel by buildErrorChannel() {
     private val _isLoading = MutableStateFlow(false)
@@ -104,6 +103,8 @@ class DetailCharacterViewModel(
     var pagingController by mutableStateOf<PageComponent<MediaModel>>(
         PageComponent.empty(),
     )
+
+    private var toggleFavoriteJob: Job? = null
 
     init {
         viewModelScope.launch {
@@ -137,6 +138,22 @@ class DetailCharacterViewModel(
     fun setMediaSort(sort: MediaSort) {
         _mediaSort.value = sort
     }
+
+    fun onToggleFavoriteClick() {
+        if (toggleFavoriteJob != null && toggleFavoriteJob?.isCompleted == false) {
+            Napier.d(tag = TAG) { "onToggleFavoriteClick: last job is running, ignore this click" }
+            return
+        }
+
+        toggleFavoriteJob =
+            viewModelScope.launch {
+                val error =
+                    mediaRepository.toggleCharacterItemLike(
+                        uiState.value.characterModel?.id ?: error("toggle Favorite failed"),
+                    )
+                if (error != null) submitError(error)
+            }
+    }
 }
 
 @Composable
@@ -159,6 +176,7 @@ fun DetailCharacter(
         pagingController = viewModel.pagingController,
         onBack = { navigator.popBackStack() },
         onSelectMediaSort = viewModel::setMediaSort,
+        onToggleFavoriteClick = viewModel::onToggleFavoriteClick,
         onMediaClick = { navigator.navigateTo(Screen.DetailMedia(it.id)) },
     )
 
@@ -177,6 +195,7 @@ private fun DetailCharacterContent(
     onBack: () -> Unit,
     onSelectMediaSort: (MediaSort) -> Unit = {},
     onMediaClick: (MediaModel) -> Unit = {},
+    onToggleFavoriteClick: () -> Unit = {},
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
@@ -197,6 +216,14 @@ private fun DetailCharacterContent(
                     character?.name?.alternative?.let { names ->
                         Text(
                             text = names.joinToString(", "),
+                        )
+                    }
+                },
+                actions = {
+                    if (character != null) {
+                        ToggleFavoriteButton(
+                            isFavorite = character.isFavourite == true,
+                            onClick = onToggleFavoriteClick,
                         )
                     }
                 },

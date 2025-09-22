@@ -29,6 +29,7 @@ data class DiscoverUiState(
 
 data class TrackUiState(
     private val items: List<MediaWithMediaListItem> = emptyList(),
+    val authedUser: UserModel? = null,
     val userOptions: UserOptions = UserOptions.Default,
 ) {
     companion object {

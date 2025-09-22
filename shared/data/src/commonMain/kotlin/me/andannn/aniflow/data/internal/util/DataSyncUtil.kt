@@ -19,8 +19,10 @@ import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import me.andannn.aniflow.data.model.define.deserialize
 import me.andannn.aniflow.database.MediaLibraryDao
+import me.andannn.aniflow.database.schema.CharacterEntity
 import me.andannn.aniflow.database.schema.MediaEntity
 import me.andannn.aniflow.database.schema.MediaListEntity
+import me.andannn.aniflow.database.schema.StaffEntity
 import me.andannn.aniflow.datastore.UserSettingPreferences
 import me.andannn.aniflow.service.AniListService
 import me.andannn.aniflow.service.dto.MediaList
@@ -230,7 +232,7 @@ internal class AddNewListItemSyncer(
             ).toEntity(mediaId)
 }
 
-internal class ToggleLikeSyncer(
+internal class ToggleMediaLikeSyncer(
     private val mediaId: String,
     private val mediaType: MediaType,
 ) : DataSyncer<MediaEntity>,
@@ -258,5 +260,57 @@ internal class ToggleLikeSyncer(
             )
         }
         return service.getDetailMedia(mediaId.toInt()).media.toEntity()
+    }
+}
+
+internal class ToggleStaffLikeSyncer(
+    private val staffId: String,
+) : DataSyncer<StaffEntity>,
+    KoinComponent {
+    private val mediaLibraryDao: MediaLibraryDao by inject()
+    private val service: AniListService by inject()
+
+    override suspend fun getLocal(): StaffEntity = mediaLibraryDao.getStaffById(staffId) ?: error("No staff found with id $staffId")
+
+    override suspend fun saveLocal(data: StaffEntity) {
+        mediaLibraryDao.upsertStaff(data)
+    }
+
+    override suspend fun syncWithRemote(
+        old: StaffEntity,
+        new: StaffEntity,
+    ): StaffEntity {
+        service.toggleFavorite(
+            staffId = staffId.toInt(),
+        )
+        return service.getStaffDetail(staffId.toInt())?.toEntity()
+            ?: error("No staff found with id $staffId")
+    }
+}
+
+internal class ToggleCharacterLikeSyncer(
+    private val characterId: String,
+) : DataSyncer<CharacterEntity>,
+    KoinComponent {
+    private val mediaLibraryDao: MediaLibraryDao by inject()
+    private val service: AniListService by inject()
+
+    override suspend fun getLocal(): CharacterEntity =
+        mediaLibraryDao.getCharacterById(characterId)
+            ?: error("No staff found with id $characterId")
+
+    override suspend fun saveLocal(data: CharacterEntity) {
+        mediaLibraryDao.upsertCharacter(data)
+    }
+
+    override suspend fun syncWithRemote(
+        old: CharacterEntity,
+        new: CharacterEntity,
+    ): CharacterEntity {
+        service.toggleFavorite(
+            characterId = characterId.toInt(),
+        )
+        return service.getCharacterDetail(characterId.toInt())?.toEntity()
+            ?: error("No staff found with id $characterId")
     }
 }
