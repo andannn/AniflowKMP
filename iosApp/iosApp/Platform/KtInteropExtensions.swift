@@ -22,24 +22,36 @@ extension PageComponent {
 extension DiscoverUiDataProvider {
     func getdiscoverUiStateAsyncSequence()
     -> NativeFlowAsyncSequence<DiscoverUiState, Error, KotlinUnit> {
-        asyncSequence(for: discoverUiDataFlow())
+        asyncSequence(for: uiDataFlow())
     }
     
     func discoverUiSideEffectStatusSequence(_ forceRefreshFirstTime: Bool)
     -> NativeFlowAsyncSequence<SyncStatus, Error, KotlinUnit> {
-        asyncSequence(for: discoverUiSideEffect(forceRefreshFirstTime: forceRefreshFirstTime))
+        asyncSequence(for: uiSideEffect(forceRefreshFirstTime: forceRefreshFirstTime))
+    }
+}
+
+extension DetailStaffUiDataProvider {
+    func uiStateAsyncSequence()
+    -> NativeFlowAsyncSequence<DetailStaffUiState, Error, KotlinUnit> {
+        asyncSequence(for: uiDataFlow())
+    }
+    
+    func uiSideEffectStatusSequence(_ forceRefreshFirstTime: Bool)
+    -> NativeFlowAsyncSequence<SyncStatus, Error, KotlinUnit> {
+        asyncSequence(for: uiSideEffect(forceRefreshFirstTime: forceRefreshFirstTime))
     }
 }
 
 extension TrackUiDataProvider {
     func gettrackUiStateAsyncSequence()
     -> NativeFlowAsyncSequence<TrackUiState, Error, KotlinUnit> {
-        asyncSequence(for: trackUiDataFlow())
+        asyncSequence(for: uiDataFlow())
     }
     
     func trackUiSideEffectErrorSequence(_ forceRefreshFirstTime: Bool)
     -> NativeFlowAsyncSequence<SyncStatus, Error, KotlinUnit> {
-        asyncSequence(for: trackUiSideEffect(forceRefreshFirstTime: forceRefreshFirstTime))
+        asyncSequence(for: uiSideEffect(forceRefreshFirstTime: forceRefreshFirstTime))
     }
 }
 
@@ -50,20 +62,53 @@ extension HomeAppBarUiDataProvider {
     }
 }
 
+extension DetailMediaUiDataProvider {
+    func detailUiDataFlowAsyncSequence()
+    -> NativeFlowAsyncSequence<DetailUiState, Error, KotlinUnit> {
+        asyncSequence(for: uiDataFlow())
+    }
+    
+    func detailUiSideEffectAsyncSequence(_ forceRefreshFirstTime: Bool)
+    -> NativeFlowAsyncSequence<SyncStatus, Error, KotlinUnit> {
+        asyncSequence(for: uiSideEffect(forceRefreshFirstTime: forceRefreshFirstTime))
+    }
+}
+
+extension DetailCharacterUiDataProvider {
+    func uiDataFlowAsyncSequence()
+    -> NativeFlowAsyncSequence<DetailCharacterUiState, Error, KotlinUnit> {
+        asyncSequence(for: uiDataFlow())
+    }
+    
+    func uiSideEffectAsyncSequence(_ forceRefreshFirstTime: Bool)
+    -> NativeFlowAsyncSequence<SyncStatus, Error, KotlinUnit> {
+        asyncSequence(for: uiSideEffect(forceRefreshFirstTime: forceRefreshFirstTime))
+    }
+}
+
+extension SettingUiDataProvider {
+    func settingUiDataFlowAsyncSequence()
+    -> NativeFlowAsyncSequence<SettingUiState, Error, KotlinUnit> {
+        asyncSequence(for: uiDataFlow())
+    }
+    
+    func settingUiSideEffectAsyncSequence(_ forceRefreshFirstTime: Bool)
+    -> NativeFlowAsyncSequence<SyncStatus, Error, KotlinUnit> {
+        asyncSequence(for: uiSideEffect(forceRefreshFirstTime: forceRefreshFirstTime))
+    }
+}
+
 extension MediaRepository {
     func setContentMode(mode: MediaContentMode) async throws {
         try await asyncFunction(for: setContentMode(mode: mode))
     }
-    
-    func updateMediaStatus(mediaListId: String, status: MediaListStatus) async throws -> AppError? {
-        try await asyncFunction(for: updateMediaListStatus(mediaListId: mediaListId, status: status, progress: nil))
-    }
 
-    func updateMediaListProgress(mediaListId: String, progress: Int) async throws -> AppError? {
-        try await asyncFunction(for: updateMediaListStatus(mediaListId: mediaListId, status: nil, progress: KotlinInt(integerLiteral: progress)))
+    func updateMediaListProgress(mediaListId: String, progress: Int? = nil, score: Float? = nil, status: MediaListStatus? = nil) async throws -> AppError? {
+        let progress = progress.map { KotlinInt(integerLiteral: $0) }
+        let kScore: KotlinFloat?   = score.map { KotlinFloat(floatLiteral: Double($0)) }
+
+        return try await asyncFunction(for: updateMediaListStatus(mediaListId: mediaListId, status: status, progress: progress, score: kScore))
     }
-    
-    
 }
 
 extension FetchNotificationTask {

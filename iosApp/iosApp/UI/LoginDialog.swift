@@ -47,11 +47,12 @@ struct LoginDialogView: View {
     private var viewModel: LoginDialogViewModel = LoginDialogViewModel()
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             HStack(spacing: 12) {
                 Button(action: {}) {
                     avatarView
                 }
+                .buttonStyle(PlainButtonStyle())
                 
                 Text(viewModel.user?.name ?? "")
                     .font(.title3).fontWeight(.semibold)
@@ -67,16 +68,21 @@ struct LoginDialogView: View {
             if viewModel.user != nil {
                 Button("Logout", role: .destructive, action: {
                 })
-                .buttonStyle(.bordered)
+                .buttonStyle(.borderedProminent)
+                .tint(.red)
+                .frame(maxWidth: .infinity)
             } else {
                 Button("Login with AniList", action: {
                     viewModel.startLoginProcess()
                 })
-                .buttonStyle(.bordered)
+                .buttonStyle(.borderedProminent)
+                .tint(.blue)
+                .frame(maxWidth: .infinity)
             }
         }
-        .padding(16)
-        .frame(maxWidth: 320)
+        .padding(20)
+        .frame(maxWidth: 340)
+        .padding(.horizontal, 24)
     }
     
     @ViewBuilder
@@ -93,12 +99,15 @@ struct LoginDialogView: View {
                     ProgressView()
                 }
             }
-            .frame(width: 40, height: 40)
+            .frame(width: 44, height: 44)
             .clipShape(Circle())
+            .overlay(Circle().stroke(Color.accentColor, lineWidth: 2))
+            .shadow(radius: 2)
         } else {
             Image(systemName: "person.crop.circle")
                 .resizable().scaledToFit()
-                .frame(width: 40, height: 40)
+                .frame(width: 44, height: 44)
+                .overlay(Circle().stroke(Color.secondary, lineWidth: 1))
         }
     }
 }

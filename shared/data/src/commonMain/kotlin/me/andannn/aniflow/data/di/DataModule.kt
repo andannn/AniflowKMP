@@ -15,11 +15,13 @@ import me.andannn.aniflow.data.SettingUiDataProvider
 import me.andannn.aniflow.data.TrackUiDataProvider
 import me.andannn.aniflow.data.internal.AuthRepositoryImpl
 import me.andannn.aniflow.data.internal.MediaRepositoryImpl
-import me.andannn.aniflow.data.internal.dataprovider.DataProviderImpl
 import me.andannn.aniflow.data.internal.dataprovider.DetailCharacterUiDataProviderImpl
 import me.andannn.aniflow.data.internal.dataprovider.DetailMediaUiDataProviderImpl
 import me.andannn.aniflow.data.internal.dataprovider.DetailStaffUiDataProviderImpl
-import me.andannn.aniflow.data.model.DetailCharacterUiState
+import me.andannn.aniflow.data.internal.dataprovider.DiscoverUiDataProviderImpl
+import me.andannn.aniflow.data.internal.dataprovider.HomeAppBarUiDataProviderImpl
+import me.andannn.aniflow.data.internal.dataprovider.SettingDataProviderImpl
+import me.andannn.aniflow.data.internal.dataprovider.TrackUiDataProviderImpl
 import me.andannn.aniflow.database.di.databaseModule
 import me.andannn.aniflow.datastore.di.userPreferencesModule
 import me.andannn.aniflow.service.di.serviceModule
@@ -31,10 +33,10 @@ val dataModule =
     module {
         singleOf(::MediaRepositoryImpl).bind(MediaRepository::class)
         singleOf(::AuthRepositoryImpl).bind(AuthRepository::class)
-        singleOf(::DataProviderImpl).bind(DiscoverUiDataProvider::class)
-        singleOf(::DataProviderImpl).bind(HomeAppBarUiDataProvider::class)
-        singleOf(::DataProviderImpl).bind(SettingUiDataProvider::class)
-        singleOf(::DataProviderImpl).bind(TrackUiDataProvider::class)
+        singleOf(::DiscoverUiDataProviderImpl).bind(DiscoverUiDataProvider::class)
+        singleOf(::HomeAppBarUiDataProviderImpl).bind(HomeAppBarUiDataProvider::class)
+        singleOf(::SettingDataProviderImpl).bind(SettingUiDataProvider::class)
+        singleOf(::TrackUiDataProviderImpl).bind(TrackUiDataProvider::class)
         factory { (mediaId: String) -> DetailMediaUiDataProviderImpl(mediaId, get(), get()) }.bind(
             DetailMediaUiDataProvider::class,
         )

@@ -116,7 +116,7 @@ class DiscoverViewModel(
     init {
         cancelLastAndRegisterUiSideEffect()
         viewModelScope.launch {
-            discoverDataProvider.discoverUiDataFlow().collect {
+            discoverDataProvider.uiDataFlow().collect {
                 _state.value = it
             }
         }
@@ -139,7 +139,7 @@ class DiscoverViewModel(
         sideEffectJob?.cancel()
         sideEffectJob =
             viewModelScope.launch {
-                discoverDataProvider.discoverUiSideEffect(force).collect { status ->
+                discoverDataProvider.uiSideEffect(force).collect { status ->
                     Napier.d(tag = TAG) { "cancelLastAndRegisterUiSideEffect: sync status $status" }
                     isSideEffectRefreshing.value = status.isLoading()
 

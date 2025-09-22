@@ -62,8 +62,6 @@ struct HomeView: View {
         TabView(selection: $selection) {
             ForEach([TopLevelNavigation.discover,
                      .track,
-                     .social,
-                     .profile
             ], id: \.self) { tab in
                 screen(for: tab)
                     .tabItem {
@@ -108,14 +106,6 @@ struct HomeView: View {
             DiscoverView()
         case .track:
             TrackView()
-            //        case .social:
-            //            SocialView()
-            //        case .profile:
-            //            ProfileView()
-        default:
-            VStack {
-                Text("Dummy")
-            }
         }
     }
 }
@@ -123,15 +113,11 @@ struct HomeView: View {
 enum TopLevelNavigation {
     case discover
     case track
-    case social
-    case profile
     
     var selectedIcon: String {
         switch self {
         case .discover: return "sparkles"
         case .track: return "bookmark.fill"
-        case .social: return "bubble.left.and.bubble.right.fill"
-        case .profile: return "person.fill"
         }
     }
     
@@ -139,8 +125,6 @@ enum TopLevelNavigation {
         switch self {
         case .discover: return "sparkles"
         case .track: return "bookmark"
-        case .social: return "bubble.left.and.bubble.right"
-        case .profile: return "person"
         }
     }
     
@@ -148,8 +132,6 @@ enum TopLevelNavigation {
         switch self {
         case .discover: return "Discover"
         case .track: return "Track"
-        case .social: return "Social"
-        case .profile: return "Profile"
         }
     }
 }

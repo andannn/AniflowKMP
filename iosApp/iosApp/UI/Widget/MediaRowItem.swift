@@ -8,11 +8,23 @@ struct MediaRowSimple: View {
     var onDelete: () -> Void = {}
     var onMarkWatched: () -> Void = {}
 
+    private var title: String {
+        item.mediaModel.title?.getUserTitleString(titleLanguage: userTitleLanguage) ?? ""
+    }
+    private var imageURL: URL? {
+        URL(string: item.mediaModel.coverImage ?? "")
+    }
+    private var canMarkWatched: Bool {
+        item.haveNextEpisode
+    }
+    private var currentProgress: Int32 {
+        Int32(truncating: item.mediaListModel.progress ?? 0)
+    }
+    private var nextProgress: Int32 {
+        currentProgress + 1
+    }
+
     var body: some View {
-        let title = item.mediaModel.title?.getUserTitleString(titleLanguage: userTitleLanguage) ?? ""
-        let imageURL = URL(string: item.mediaModel.coverImage ?? "")
-        let canMarkWatched: Bool = item.haveNextEpisode
-        
         HStack(alignment: .top, spacing: 8) {
             AsyncImage(url: imageURL) { img in
                 img.resizable().scaledToFill()
@@ -28,7 +40,7 @@ struct MediaRowSimple: View {
                     .font(.headline)
                     .foregroundStyle(.secondary)
 
-                centerText
+                CenterTextView(item: item, nextProgress: nextProgress)
                     .padding(.vertical, 8)
 
                 Text(item.mediaModel.infoString())
@@ -36,63 +48,46 @@ struct MediaRowSimple: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .onTapGesture { onClick() }
+        .onTapGesture(perform: onClick)
         .swipeActions(edge: .leading, allowsFullSwipe: true) {
             if canMarkWatched {
-                Button {
-                    onMarkWatched()
-                } label: {
+                Button(action: onMarkWatched) {
                     Label("Mark watched", systemImage: "bookmark")
                 }
                 .tint(.indigo)
             }
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-            Button {
-                onDelete()
-            } label: {
+            Button(action: onDelete) {
                 Label("Delete", systemImage: "trash")
             }
             .tint(.red)
         }
     }
-    
-    var centerText: some View {
-        let currentProgress = item.mediaListModel.progress ?? 0
-        let nextProgress = Int32(truncating: currentProgress) + 1
-
-        if item.haveNextEpisode {
-            return buildSpecialMessageText(
-                "Next up: Episode \(nextProgress)",
-                Color.primary
-            )
-        } else if item.hasReleaseInfo {
-            let nextEpisode = item.mediaModel.nextAiringEpisode?.episode
-            let durationUntilAir = item.mediaModel.releasingTimeString() ?? ""
-            return buildSpecialMessageText(
-                "Episode \(nextEpisode ?? 0) in \(durationUntilAir)",
-                Color.primary
-            )
-        } else {
-            return buildSpecialMessageText(
-                "No upcoming episode",
-                Color.primary
-            )
-        }
-    }
 }
 
-func buildSpecialMessageText(_ text: String, _ numberColor: Color) -> Text {
-    var result = Text("")
-    for ch in text {
-        if ch.isNumber {
-            result = result + Text(String(ch))
-                .font(.custom("EspecialMessageFontFamily", size: 30))
-                .foregroundColor(numberColor)
+private struct CenterTextView: View {
+    let item: MediaWithMediaListItem
+    let nextProgress: Int32
+
+    var body: some View {
+        if item.haveNextEpisode {
+            Text("Next up: Episode \(nextProgress)")
+                .font(.body)
+                .foregroundColor(.primary)
+                .fontWeight(.medium)
+        } else if item.hasReleaseInfo {
+            let nextEpisode = item.mediaModel.nextAiringEpisode?.episode ?? 0
+            let durationUntilAir = item.mediaModel.releasingTimeString() ?? ""
+            Text("Episode \(nextEpisode) in \(durationUntilAir)")
+                .font(.body)
+                .foregroundColor(.primary)
+                .fontWeight(.medium)
         } else {
-            result = result + Text(String(ch))
-                .font(.custom("EspecialMessageFontFamily", size: 18))
+            Text("No upcoming episode")
+                .font(.body)
+                .foregroundColor(.primary)
+                .fontWeight(.medium)
         }
     }
-    return result
 }

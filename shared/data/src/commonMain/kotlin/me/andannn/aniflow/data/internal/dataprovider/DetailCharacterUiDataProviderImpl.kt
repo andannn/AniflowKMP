@@ -22,7 +22,7 @@ internal class DetailCharacterUiDataProviderImpl(
     private val authRepository: AuthRepository,
     private val mediaRepository: MediaRepository,
 ) : DetailCharacterUiDataProvider {
-    override fun detailUiDataFlow(): Flow<DetailCharacterUiState> =
+    override fun uiDataFlow(): Flow<DetailCharacterUiState> =
         combine(
             mediaRepository.getDetailCharacter(characterId),
             authRepository.getUserOptionsFlow(),
@@ -33,7 +33,7 @@ internal class DetailCharacterUiDataProviderImpl(
             )
         }.distinctUntilChanged()
 
-    override fun detailUiSideEffect(forceRefreshFirstTime: Boolean) =
+    override fun uiSideEffect(forceRefreshFirstTime: Boolean) =
         createSideEffectFlow(
             forceRefreshFirstTime,
             SyncDetailCharacterTask(characterId),

@@ -34,7 +34,7 @@ class DetailMediaUiDataProviderImpl(
     private val mediaRepository: MediaRepository,
 ) : DetailMediaUiDataProvider {
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun detailUiDataFlow(): Flow<DetailUiState> {
+    override fun uiDataFlow(): Flow<DetailUiState> {
         val mediaFlow = mediaRepository.getMediaFlow(mediaId)
         val studioListFlow = mediaRepository.getStudioOfMediaFlow(mediaId)
         val staffListFlow = mediaRepository.getStaffOfMediaFlow(mediaId)
@@ -91,7 +91,7 @@ class DetailMediaUiDataProviderImpl(
         }.distinctUntilChanged()
     }
 
-    override fun detailUiSideEffect(forceRefreshFirstTime: Boolean): Flow<SyncStatus> =
+    override fun uiSideEffect(forceRefreshFirstTime: Boolean): Flow<SyncStatus> =
         createSideEffectFlow(
             forceRefreshFirstTime,
             SyncMediaListItemOfAuthedUserTask(mediaId),

@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import me.andannn.aniflow.data.getNameString
+import me.andannn.aniflow.data.label
 import me.andannn.aniflow.data.model.CharacterModel
 import me.andannn.aniflow.data.model.StaffModel
 import me.andannn.aniflow.data.model.StaffWithRole
@@ -190,24 +191,3 @@ fun CharacterRowItem(
         }
     }
 }
-
-private fun CharacterRole.label() =
-    when (this) {
-        CharacterRole.MAIN -> "Main"
-        CharacterRole.SUPPORTING -> "Supporting"
-        CharacterRole.BACKGROUND -> "Background"
-    }
-
-private fun StaffLanguage.label() =
-    when (this) {
-        StaffLanguage.JAPANESE -> "Japanese"
-        StaffLanguage.ENGLISH -> "English"
-        StaffLanguage.KOREAN -> "Korean"
-        StaffLanguage.ITALIAN -> "Italian"
-        StaffLanguage.SPANISH -> "Spanish"
-        StaffLanguage.PORTUGUESE -> "Portuguese"
-        StaffLanguage.FRENCH -> "French"
-        StaffLanguage.GERMAN -> "German"
-        StaffLanguage.HEBREW -> "Hebrew"
-        StaffLanguage.HUNGARIAN -> "Hungarian"
-    }

@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import me.andannn.aniflow.data.getUserTitleString
 import me.andannn.aniflow.data.infoString
-import me.andannn.aniflow.data.model.define.MediaRelation
+import me.andannn.aniflow.data.label
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import me.andannn.aniflow.data.model.relation.MediaModelWithRelationType
 
@@ -90,20 +90,3 @@ fun MediaRelationItem(
         }
     }
 }
-
-private fun MediaRelation.label() =
-    when (this) {
-        MediaRelation.ADAPTATION -> "Adaptation"
-        MediaRelation.PREQUEL -> "Prequel"
-        MediaRelation.SEQUEL -> "Sequel"
-        MediaRelation.PARENT -> "Parent Story"
-        MediaRelation.SIDE_STORY -> "Side Story"
-        MediaRelation.CHARACTER -> "Character"
-        MediaRelation.SUMMARY -> "Summary"
-        MediaRelation.ALTERNATIVE -> "Alternative Version"
-        MediaRelation.SPIN_OFF -> "Spin-off"
-        MediaRelation.OTHER -> "Other"
-        MediaRelation.SOURCE -> "Source"
-        MediaRelation.COMPILATION -> "Compilation"
-        MediaRelation.CONTAINS -> "Contains"
-    }

@@ -19,7 +19,7 @@ class DetailStaffUiDataProviderImpl(
     private val authRepository: AuthRepository,
     private val mediaRepository: MediaRepository,
 ) : DetailStaffUiDataProvider {
-    override fun detailUiDataFlow(): Flow<DetailStaffUiState> =
+    override fun uiDataFlow(): Flow<DetailStaffUiState> =
         combine(
             mediaRepository.getDetailStaff(staffId),
             authRepository.getUserOptionsFlow(),
@@ -30,7 +30,7 @@ class DetailStaffUiDataProviderImpl(
             )
         }.distinctUntilChanged()
 
-    override fun detailUiSideEffect(forceRefreshFirstTime: Boolean) =
+    override fun uiSideEffect(forceRefreshFirstTime: Boolean) =
         createSideEffectFlow(
             forceRefreshFirstTime,
             SyncDetailStaffTask(staffId),

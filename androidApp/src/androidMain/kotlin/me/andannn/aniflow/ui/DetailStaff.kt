@@ -114,7 +114,7 @@ class DetailStaffViewModel(
 
     init {
         viewModelScope.launch {
-            dataProvider.detailUiSideEffect(false).collect {
+            dataProvider.uiSideEffect(false).collect {
                 Napier.d(tag = TAG) { "DetailStaffViewModel: sync status $it" }
                 _isLoading.value = it.isLoading()
             }
@@ -135,7 +135,7 @@ class DetailStaffViewModel(
     }
 
     val uiState =
-        dataProvider.detailUiDataFlow().stateIn(
+        dataProvider.uiDataFlow().stateIn(
             viewModelScope,
             initialValue = DetailStaffUiState.Empty,
             started = SharingStarted.WhileSubscribed(5000),

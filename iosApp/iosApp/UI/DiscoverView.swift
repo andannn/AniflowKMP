@@ -77,19 +77,18 @@ struct DiscoverView: View {
     
     var body: some View {
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: 16) {
+            LazyVStack(alignment: .leading, spacing: 20) {
                 if !viewModel.uiState.newReleasedMedia.isEmpty {
                     if #available(iOS 17.0, *) {
                         NewReleaseCard_iOS17(
                             items: viewModel.uiState.newReleasedMedia,
                             userTitleLanguage: viewModel.uiState.userOptions.titleLanguage
                         )
-                    } else {
-                        // Fallback on earlier versions
+                        .padding(.bottom, 8)
+                        .transition(.opacity)
                     }
                 }
-                
-                ForEach(Array(viewModel.uiState.categoryDataMap.content), id: \.category) { categoryWithContents in
+                ForEach(Array(viewModel.uiState.categoryDataMap.content), id: \ .category) { categoryWithContents in
                     TitleWithContent(title: categoryWithContents.category.title, onMoreClick: {
                         let category = categoryWithContents.category
                         router.navigateTo(route: AppRoute.mediaCategoryPaingList(category: category))
@@ -97,15 +96,17 @@ struct DiscoverView: View {
                         MediaPreviewSector(
                             mediaList: categoryWithContents.medias,
                             userTitleLanguage: viewModel.uiState.userOptions.titleLanguage) { item in
-                                router.navigateTo(route: .notification)
-                                // onMediaClick
-                                // component.onMediaClick(media: item)
+                                router.navigateTo(route: .detailMedia(mediaId: item.id))
                             }
                     }
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
             }
-            .padding()
+            .padding(.horizontal, 20)
+            .padding(.top, 16)
         }
+        .scrollContentBackground(.hidden)
+        .background(Color(.systemGroupedBackground))
         .refreshable {
             do {
                 try await viewModel.doRefreshAndAwait()
@@ -115,6 +116,20 @@ struct DiscoverView: View {
         }
         .snackbar(manager: snackbarManager)
         .errorHandling(source: viewModel.errorChannel, snackbarManager: snackbarManager)
+        .navigationTitle("Discover")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: {
+                    Task {
+                        try? await viewModel.doRefreshAndAwait()
+                    }
+                }) {
+                    Image(systemName: "arrow.clockwise")
+                }
+                .accessibilityLabel("Refresh")
+            }
+        }
+        .animation(.default, value: viewModel.uiState)
     }
 }
 
@@ -125,17 +140,17 @@ struct MediaPreviewSector: View {
     
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 0) {
+            HStack(spacing: 12) {
                 ForEach(mediaList, id: \.id) { media in
                     MediaPreviewItemWrapper(
                         media: media,
                         userTitleLanguage: userTitleLanguage,
                         onMediaClick: { media in onMediaClick(media) }
                     )
-                    .frame(width: 240)
+                    .frame(width: 150)
                 }
             }
-            .frame(maxWidth: .infinity)
+            .padding(.vertical, 4)
         }
     }
 }
@@ -153,6 +168,10 @@ struct MediaPreviewItemWrapper: View {
             coverImage: media.coverImage,
             onClick: { onMediaClick(media) }
         )
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .shadow(color: Color.black.opacity(0.08), radius: 4, x: 0, y: 2)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(title)
     }
 }
 
@@ -166,17 +185,17 @@ struct TitleWithContent<Content: View>: View {
             HStack {
                 Text(title)
                     .lineLimit(1)
-                    .font(.headline)
-                
+                    .font(.title3).fontWeight(.bold)
                 Spacer()
-                
                 Button(action: onMoreClick) {
-                    Text("More")
+                    Label("More", systemImage: "chevron.right")
+                        .labelStyle(.titleAndIcon)
                 }
+                .buttonStyle(.bordered)
+                .font(.subheadline)
             }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 6)
-            
+            .padding(.horizontal, 4)
+            .padding(.vertical, 4)
             content()
         }
     }

@@ -41,58 +41,49 @@ interface HomeAppBarUiDataProvider {
     fun appBarFlow(): Flow<HomeAppBarUiState>
 }
 
+interface DataProvider {
+    @NativeCoroutines
+    fun uiSideEffect(forceRefreshFirstTime: Boolean): Flow<SyncStatus>
+}
+
 /**
  * Provides data for the Discover UI components.
  */
-interface DiscoverUiDataProvider {
+interface DiscoverUiDataProvider : DataProvider {
     @NativeCoroutines
-    fun discoverUiDataFlow(): Flow<DiscoverUiState>
-
-    @NativeCoroutines
-    fun discoverUiSideEffect(forceRefreshFirstTime: Boolean): Flow<SyncStatus>
+    fun uiDataFlow(): Flow<DiscoverUiState>
 }
 
 /**
  * Provides data for the Track UI components.
  */
-interface TrackUiDataProvider {
+interface TrackUiDataProvider : DataProvider {
     @NativeCoroutines
-    fun trackUiDataFlow(): Flow<TrackUiState>
-
-    @NativeCoroutines
-    fun trackUiSideEffect(forceRefreshFirstTime: Boolean): Flow<SyncStatus>
+    fun uiDataFlow(): Flow<TrackUiState>
 }
 
-interface SettingUiDataProvider {
+interface SettingUiDataProvider : DataProvider {
     @NativeCoroutines
-    fun settingUiDataFlow(): Flow<SettingUiState>
-
-    @NativeCoroutines
-    fun settingUiSideEffect(forceRefreshFirstTime: Boolean): Flow<SyncStatus>
+    fun uiDataFlow(): Flow<SettingUiState>
 }
 
-interface DetailMediaUiDataProvider {
+interface DetailMediaUiDataProvider : DataProvider {
     val mediaId: String
 
     @NativeCoroutines
-    fun detailUiDataFlow(): Flow<DetailUiState>
-
-    @NativeCoroutines
-    fun detailUiSideEffect(forceRefreshFirstTime: Boolean): Flow<SyncStatus>
+    fun uiDataFlow(): Flow<DetailUiState>
 }
 
-interface DetailStaffUiDataProvider {
+interface DetailStaffUiDataProvider : DataProvider {
     val staffId: String
 
-    fun detailUiDataFlow(): Flow<DetailStaffUiState>
-
-    fun detailUiSideEffect(forceRefreshFirstTime: Boolean): Flow<SyncStatus>
+    @NativeCoroutines
+    fun uiDataFlow(): Flow<DetailStaffUiState>
 }
 
-interface DetailCharacterUiDataProvider {
+interface DetailCharacterUiDataProvider : DataProvider {
     val characterId: String
 
-    fun detailUiDataFlow(): Flow<DetailCharacterUiState>
-
-    fun detailUiSideEffect(forceRefreshFirstTime: Boolean): Flow<SyncStatus>
+    @NativeCoroutines
+    fun uiDataFlow(): Flow<DetailCharacterUiState>
 }

@@ -86,7 +86,7 @@ class TrackViewModel(
     ErrorChannel by buildErrorChannel() {
     val state =
         trackDataProvider
-            .trackUiDataFlow()
+            .uiDataFlow()
             .stateIn(
                 viewModelScope,
                 initialValue = TrackUiState.Empty,
@@ -171,7 +171,7 @@ class TrackViewModel(
         sideEffectJob =
             viewModelScope.launch {
                 trackDataProvider
-                    .trackUiSideEffect(forceRefreshFirstTime = force)
+                    .uiSideEffect(forceRefreshFirstTime = force)
                     .collect { status ->
                         Napier.d(tag = TAG) { "cancelLastAndRegisterUiSideEffect: sync status $status" }
                         isSideEffectRefreshing.value = status.isLoading()

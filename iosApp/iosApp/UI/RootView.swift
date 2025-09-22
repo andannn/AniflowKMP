@@ -10,6 +10,8 @@ struct RootView: View {
             HomeView()
                 .navigationDestination(for: AppRoute.self) { route in
                     switch route {
+                    case .home:
+                        fatalError()
                     case .mediaCategoryPaingList(let category):
                         MediaCategoryPaging(category: category)
                     case .notification:
@@ -17,8 +19,12 @@ struct RootView: View {
                         
                     case .stateObjOrObservableObj:
                         ContentView()
-                    default:
-                        fatalError()
+                    case .detailMedia(let mediaId):
+                        DetailMediaView(mediaId: mediaId)
+                    case .settings:
+                        SettingView()
+                    case .detailCharacter(characterId: let characterId):
+                        DetailCharacterView(characterId: characterId)
                     }
                 }
         }
@@ -57,6 +63,9 @@ enum AppRoute: Hashable {
     case home
     case mediaCategoryPaingList(category: MediaCategory)
     case notification
+    case settings
+    case detailCharacter(characterId: String)
+    case detailMedia(mediaId: String)
     
     // Demo:
     case stateObjOrObservableObj

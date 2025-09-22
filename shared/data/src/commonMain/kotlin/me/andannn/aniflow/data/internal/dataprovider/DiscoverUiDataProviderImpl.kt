@@ -14,20 +14,14 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.DiscoverUiDataProvider
-import me.andannn.aniflow.data.HomeAppBarUiDataProvider
 import me.andannn.aniflow.data.MediaRepository
-import me.andannn.aniflow.data.SettingUiDataProvider
 import me.andannn.aniflow.data.SyncStatus
-import me.andannn.aniflow.data.TrackUiDataProvider
 import me.andannn.aniflow.data.internal.tasks.RefreshAllCategoriesTask
 import me.andannn.aniflow.data.internal.tasks.SyncUserConditionTask
 import me.andannn.aniflow.data.internal.tasks.SyncUserMediaListTask
 import me.andannn.aniflow.data.internal.tasks.createSideEffectFlow
 import me.andannn.aniflow.data.model.DiscoverUiState
-import me.andannn.aniflow.data.model.HomeAppBarUiState
-import me.andannn.aniflow.data.model.TrackUiState
 import me.andannn.aniflow.data.model.define.MediaContentMode
-import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.model.define.toMediaType
 import me.andannn.aniflow.data.model.relation.CategoryDataModel
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
@@ -36,54 +30,22 @@ import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.ExperimentalTime
 
-internal class DataProviderImpl(
+class DiscoverUiDataProviderImpl(
     private val mediaRepo: MediaRepository,
     private val authRepo: AuthRepository,
-) : DiscoverUiDataProvider,
-    TrackUiDataProvider,
-    HomeAppBarUiDataProvider,
-    SettingUiDataProvider by SettingDataProviderImpl(authRepo) {
-    override fun discoverUiDataFlow(): Flow<DiscoverUiState> =
+) : DiscoverUiDataProvider {
+    override fun uiDataFlow(): Flow<DiscoverUiState> =
         context(mediaRepo, authRepo) {
             discoverUiStateFlow()
         }
 
-    override fun discoverUiSideEffect(forceRefreshFirstTime: Boolean): Flow<SyncStatus> =
+    override fun uiSideEffect(forceRefreshFirstTime: Boolean): Flow<SyncStatus> =
         createSideEffectFlow(
             forceRefreshFirstTime,
             RefreshAllCategoriesTask(),
             SyncUserMediaListTask(),
             SyncUserConditionTask(),
         )
-
-    override fun trackUiDataFlow(): Flow<TrackUiState> =
-        context(mediaRepo, authRepo) {
-            trackUiStateFlow()
-        }
-
-    override fun trackUiSideEffect(forceRefreshFirstTime: Boolean): Flow<SyncStatus> =
-        createSideEffectFlow(
-            forceRefreshFirstTime,
-            SyncUserMediaListTask(),
-        )
-
-    override fun appBarFlow(): Flow<HomeAppBarUiState> =
-        flow {
-            val authUserFlow = authRepo.getAuthedUserFlow()
-            val contentModeFlow = mediaRepo.getContentModeFlow()
-
-            combine(
-                authUserFlow,
-                contentModeFlow,
-            ) { authedUser, contentMode ->
-                HomeAppBarUiState(
-                    authedUser = authedUser,
-                    contentMode = contentMode,
-                )
-            }.distinctUntilChanged().collect {
-                emit(it)
-            }
-        }
 }
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTime::class)
@@ -144,44 +106,5 @@ private fun discoverUiStateFlow(): Flow<DiscoverUiState> {
             newReleasedMedia = newReleasedMedia,
             userOptions = userOption,
         )
-    }.distinctUntilChanged()
-}
-
-@OptIn(ExperimentalCoroutinesApi::class)
-context(mediaRepo: MediaRepository, authRepo: AuthRepository)
-private fun trackUiStateFlow(): Flow<TrackUiState> {
-    val authedUserFlow = authRepo.getAuthedUserFlow()
-    val userWithContentModeFlow =
-        combine(
-            authedUserFlow,
-            mediaRepo.getContentModeFlow(),
-        ) { authedUser, contentMode -> Pair(authedUser, contentMode) }
-    val userOptionsFlow = authRepo.getUserOptionsFlow()
-
-    val mediaListItemsFlow =
-        userWithContentModeFlow
-            .distinctUntilChanged()
-            .flatMapLatest { (authUser, contentMode) ->
-                if (authUser == null) {
-                    // If not authenticated, emit an empty list
-                    flow { emit(emptyList()) }
-                } else {
-                    mediaRepo.getMediaListFlowByUserId(
-                        userId = authUser.id,
-                        mediaListStatus =
-                            listOf(
-                                MediaListStatus.PLANNING,
-                                MediaListStatus.CURRENT,
-                            ),
-                        mediaType = contentMode.toMediaType(),
-                    )
-                }
-            }
-    return combine(
-        mediaListItemsFlow,
-        authedUserFlow,
-        userOptionsFlow,
-    ) { mediaListItems, authedUser, userOptions ->
-        TrackUiState(items = mediaListItems, userOptions = userOptions, authedUser = authedUser)
     }.distinctUntilChanged()
 }

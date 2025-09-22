@@ -211,7 +211,11 @@ sealed interface SettingItem {
 
 data class SettingUiState(
     val settingGroupList: List<SettingGroup> = emptyList(),
-)
+) {
+    companion object {
+        val Empty = SettingUiState()
+    }
+}
 
 data class DetailUiState(
     val mediaModel: MediaModel?,

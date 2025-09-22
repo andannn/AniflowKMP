@@ -40,26 +40,6 @@ struct MediaPreviewItem: View {
             }
             .clipShape(RoundedRectangle(cornerRadius: 24))
             .contentShape(RoundedRectangle(cornerRadius: 24))
-            .overlay(alignment: .topTrailing) {
-                if isFollowing {
-                    ZStack {
-                        Image(systemName: "bookmark.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 24, height: 24)
-                            .scaleEffect(x: 0.9, y: 1.4)
-                            .foregroundColor(.white)
-                        Image(systemName: "bookmark.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 24, height: 24)
-                            .scaleEffect(x: 0.8, y: 1.3)
-                            .foregroundColor(.orange)
-                    }
-                    .padding(.top, 8)
-                    .padding(.trailing, 8)
-                }
-            }
         }
         .buttonStyle(PlainButtonStyle())
     }

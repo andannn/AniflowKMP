@@ -163,7 +163,7 @@ class DetailMediaViewModel(
     }
 
     val uiState =
-        dataProvider.detailUiDataFlow().stateIn(
+        dataProvider.uiDataFlow().stateIn(
             viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = DetailUiState.Empty,
@@ -239,7 +239,7 @@ class DetailMediaViewModel(
         sideEffectJob =
             viewModelScope.launch {
                 dataProvider
-                    .detailUiSideEffect(forceRefreshFirstTime = force)
+                    .uiSideEffect(forceRefreshFirstTime = force)
                     .collect { status ->
                         Napier.d(tag = TAG) { "cancelLastAndRegisterUiSideEffect: sync status $status" }
                         isSideEffectRefreshing.value = status.isLoading()
