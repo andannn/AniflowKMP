@@ -42,6 +42,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.MediaRepository
+import me.andannn.aniflow.data.model.define.MediaStatus
 import me.andannn.aniflow.ui.widget.AlertDialogContainer
 import me.andannn.aniflow.util.LocalScreenResultEmitter
 import me.andannn.aniflow.util.ScreenResultEmitter
@@ -97,7 +98,9 @@ fun TrackProgressDialog(
     val nextAiringEp = mediaModel?.nextAiringEpisode?.episode
     val totalEp = mediaModel?.episodes
     val max =
-        if (nextAiringEp != null) {
+        if (mediaModel?.status == MediaStatus.NOT_YET_RELEASED) {
+            0
+        } else if (nextAiringEp != null) {
             if (totalEp == null) nextAiringEp - 1 else minOf(nextAiringEp - 1, totalEp)
         } else {
             totalEp

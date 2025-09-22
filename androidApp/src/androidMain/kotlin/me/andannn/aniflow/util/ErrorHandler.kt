@@ -58,23 +58,3 @@ sealed interface ErrorHandleResult {
         val snackbarResult: SnackbarResult,
     ) : ErrorHandleResult
 }
-
-private fun SnackBarMessage.toSnackbarVisuals(): SnackbarVisuals {
-    val actionLabel = actionLabel
-    val duration = duration
-    val message = message
-    val withDismissAction = withDismissAction
-    return object : SnackbarVisuals {
-        override val actionLabel = actionLabel
-        override val duration = duration.toSnackbarDuration()
-        override val message = message
-        override val withDismissAction = withDismissAction
-    }
-}
-
-private fun SnackbarShowDuration.toSnackbarDuration(): SnackbarDuration =
-    when (this) {
-        SnackbarShowDuration.Short -> SnackbarDuration.Short
-        SnackbarShowDuration.Long -> SnackbarDuration.Long
-        SnackbarShowDuration.Indefinite -> SnackbarDuration.Indefinite
-    }

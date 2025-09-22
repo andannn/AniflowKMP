@@ -39,7 +39,6 @@ class DetailMediaUiDataProviderImpl(
         val studioListFlow = mediaRepository.getStudioOfMediaFlow(mediaId)
         val staffListFlow = mediaRepository.getStaffOfMediaFlow(mediaId)
         val relationsFlow = mediaRepository.getRelationsOfMediaFlow(mediaId)
-// TODO:
         val characterFlow = mediaRepository.getCharactersOfMediaFlow(mediaId, StaffLanguage.JAPANESE)
         val userOptionsFlow = authRepository.getUserOptionsFlow()
         val authedUserFlow = authRepository.getAuthedUserFlow()

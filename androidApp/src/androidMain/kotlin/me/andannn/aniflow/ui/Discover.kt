@@ -148,7 +148,8 @@ class DiscoverViewModel(
             }
     }
 
-    fun onAuthIconClick(resultStore: ResultStore) {
+    context(resultStore: ResultStore)
+    fun onAuthIconClick() {
         viewModelScope
             .launch {
                 val result: LoginDialogResult = resultStore.awaitResultOf(Screen.Dialog.Login)
@@ -194,32 +195,34 @@ fun Discover(
         }
     }
 
-    DiscoverContent(
-        isRefreshing = isRefreshing,
-        appbarState = appBarState,
-        categoryDataList = state.categoryDataMap.content,
-        newReleasedMedia = state.newReleasedMedia,
-        userTitleLanguage = state.userOptions.titleLanguage,
-        onContentTypeChange = viewModel::changeContentMode,
-        onAuthIconClick = {
-            viewModel.onAuthIconClick(resultStore)
-            navigator.navigateTo(Screen.Dialog.Login)
-        },
-        onMediaClick = {
-            navigator.navigateTo(Screen.DetailMedia(it.id))
-        },
-        onPullRefresh = viewModel::onPullRefresh,
-        onNavigateToMediaCategory = { category ->
-            navigator.navigateTo(Screen.MediaCategoryList(category))
-        },
-        onSearchClick = {
-            navigator.navigateTo(Screen.Search)
-        },
-        onItemClick = {
-            navigator.navigateTo(Screen.DetailMedia(it.mediaModel.id))
-        },
-        modifier = modifier,
-    )
+    with(resultStore) {
+        DiscoverContent(
+            isRefreshing = isRefreshing,
+            appbarState = appBarState,
+            categoryDataList = state.categoryDataMap.content,
+            newReleasedMedia = state.newReleasedMedia,
+            userTitleLanguage = state.userOptions.titleLanguage,
+            onContentTypeChange = viewModel::changeContentMode,
+            onAuthIconClick = {
+                viewModel.onAuthIconClick()
+                navigator.navigateTo(Screen.Dialog.Login)
+            },
+            onMediaClick = {
+                navigator.navigateTo(Screen.DetailMedia(it.id))
+            },
+            onPullRefresh = viewModel::onPullRefresh,
+            onNavigateToMediaCategory = { category ->
+                navigator.navigateTo(Screen.MediaCategoryList(category))
+            },
+            onSearchClick = {
+                navigator.navigateTo(Screen.Search)
+            },
+            onItemClick = {
+                navigator.navigateTo(Screen.DetailMedia(it.mediaModel.id))
+            },
+            modifier = modifier,
+        )
+    }
 
     ErrorHandleSideEffect(viewModel)
 }

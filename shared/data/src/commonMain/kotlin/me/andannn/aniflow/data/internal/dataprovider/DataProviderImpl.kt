@@ -44,10 +44,8 @@ internal class DataProviderImpl(
     HomeAppBarUiDataProvider,
     SettingUiDataProvider by SettingDataProviderImpl(authRepo) {
     override fun discoverUiDataFlow(): Flow<DiscoverUiState> =
-        with(mediaRepo) {
-            with(authRepo) {
-                discoverUiStateFlow()
-            }
+        context(mediaRepo, authRepo) {
+            discoverUiStateFlow()
         }
 
     override fun discoverUiSideEffect(forceRefreshFirstTime: Boolean): Flow<SyncStatus> =
@@ -59,10 +57,8 @@ internal class DataProviderImpl(
         )
 
     override fun trackUiDataFlow(): Flow<TrackUiState> =
-        with(mediaRepo) {
-            with(authRepo) {
-                trackUiStateFlow()
-            }
+        context(mediaRepo, authRepo) {
+            trackUiStateFlow()
         }
 
     override fun trackUiSideEffect(forceRefreshFirstTime: Boolean): Flow<SyncStatus> =

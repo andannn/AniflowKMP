@@ -114,45 +114,39 @@ internal class MediaRepositoryImpl(
         status: List<MediaListStatus>,
         mediaType: MediaType,
         scoreFormat: ScoreFormat,
-    ) = with(mediaService) {
-        with(mediaLibraryDao) {
-            // sync data from service
-            syncMediaListInfoToLocal(
-                userId = userId,
-                status = status,
-                mediaType = mediaType,
-                scope = scope,
-                scoreFormat = scoreFormat,
-            )
-        }
+    ) = context(mediaService, mediaLibraryDao) {
+        // sync data from service
+        syncMediaListInfoToLocal(
+            userId = userId,
+            status = status,
+            mediaType = mediaType,
+            scope = scope,
+            scoreFormat = scoreFormat,
+        )
     }
 
     override fun syncDetailMedia(
         scope: CoroutineScope,
         mediaId: String,
         voiceActorLanguage: StaffLanguage,
-    ) = with(mediaService) {
-        with(mediaLibraryDao) {
-            // sync data from service
-            syncDetailMediaToLocal(
-                mediaId = mediaId,
-                scope = scope,
-                voiceActorLanguage = voiceActorLanguage,
-            )
-        }
+    ) = context(mediaService, mediaLibraryDao) {
+        // sync data from service
+        syncDetailMediaToLocal(
+            mediaId = mediaId,
+            scope = scope,
+            voiceActorLanguage = voiceActorLanguage,
+        )
     }
 
     override fun syncDetailStaff(
         scope: CoroutineScope,
         staffId: String,
-    ) = with(mediaService) {
-        with(mediaLibraryDao) {
-            // sync data from service
-            syncDetailStaffToLocal(
-                staffId = staffId,
-                scope = scope,
-            )
-        }
+    ) = context(mediaService, mediaLibraryDao) {
+        // sync data from service
+        syncDetailStaffToLocal(
+            staffId = staffId,
+            scope = scope,
+        )
     }
 
     override fun syncMediaListItemOfUser(
@@ -160,15 +154,13 @@ internal class MediaRepositoryImpl(
         userId: String,
         mediaId: String,
         scoreFormat: ScoreFormat,
-    ) = with(mediaService) {
-        with(mediaLibraryDao) {
-            syncMediaListOfUserToLocal(
-                userId = userId,
-                mediaId = mediaId,
-                scope = scope,
-                scoreFormat = scoreFormat,
-            )
-        }
+    ) = context(mediaService, mediaLibraryDao) {
+        syncMediaListOfUserToLocal(
+            userId = userId,
+            mediaId = mediaId,
+            scope = scope,
+            scoreFormat = scoreFormat,
+        )
     }
 
     override fun getMediaListFlowByUserId(
@@ -176,19 +168,16 @@ internal class MediaRepositoryImpl(
         mediaType: MediaType,
         mediaListStatus: List<MediaListStatus>,
     ): Flow<List<MediaWithMediaListItem>> =
-        with(mediaService) {
-            with(mediaLibraryDao) {
-                getMediaListFlow(
-                    userId = userId,
-                    mediaType = mediaType.key,
-                    listStatus = mediaListStatus.map { it.key },
-                ).map {
-                    it
-                        .map(MediaListAndMediaRelationWithUpdateLog::toDomain)
-                        .sortedByDescending { it.mediaListModel.updatedAt }
-                }
+        mediaLibraryDao
+            .getMediaListFlow(
+                userId = userId,
+                mediaType = mediaType.key,
+                listStatus = mediaListStatus.map { it.key },
+            ).map {
+                it
+                    .map(MediaListAndMediaRelationWithUpdateLog::toDomain)
+                    .sortedByDescending { it.mediaListModel.updatedAt }
             }
-        }
 
     override fun getMediaListItemOfUserFlow(
         userId: String,
@@ -202,22 +191,19 @@ internal class MediaRepositoryImpl(
         userId: String,
         timeSecondLaterThan: Long,
     ): Flow<List<MediaWithMediaListItem>> =
-        with(mediaService) {
-            with(mediaLibraryDao) {
-                getNewReleasedMediaListFlow(
-                    userId = userId,
-                    mediaType = MediaType.ANIME.key,
-                    listStatus =
-                        listOf(
-                            MediaListStatus.CURRENT,
-                            MediaListStatus.PLANNING,
-                        ).map { it.key },
-                    timeSecondLaterThan = timeSecondLaterThan,
-                ).map {
-                    it.map(MediaListAndMediaRelationWithUpdateLog::toDomain)
-                }
+        mediaLibraryDao
+            .getNewReleasedMediaListFlow(
+                userId = userId,
+                mediaType = MediaType.ANIME.key,
+                listStatus =
+                    listOf(
+                        MediaListStatus.CURRENT,
+                        MediaListStatus.PLANNING,
+                    ).map { it.key },
+                timeSecondLaterThan = timeSecondLaterThan,
+            ).map {
+                it.map(MediaListAndMediaRelationWithUpdateLog::toDomain)
             }
-        }
 
     override suspend fun loadMediaPageByCategory(
         category: MediaCategory,
@@ -262,21 +248,19 @@ internal class MediaRepositoryImpl(
         progress: Int?,
         score: Float?,
     ): AppError? =
-        MediaListModificationSyncer(mediaListId = mediaListId).postMutationAndRevertWhenException(
-            modify = {
-                var newItem = it
-                if (status != null) {
-                    newItem = it.copy(mediaListStatus = status)
-                }
-                if (progress != null) {
-                    newItem = it.copy(progress = progress)
-                }
-                if (score != null) {
-                    newItem = it.copy(score = score)
-                }
-                newItem
-            },
-        )
+        MediaListModificationSyncer(mediaListId = mediaListId).postMutationAndRevertWhenException {
+            var newItem = it
+            if (status != null) {
+                newItem = newItem.copy(mediaListStatus = status)
+            }
+            if (progress != null) {
+                newItem = newItem.copy(progress = progress)
+            }
+            if (score != null) {
+                newItem = newItem.copy(score = score)
+            }
+            newItem
+        }
 
     override suspend fun addNewMediaToList(mediaId: String): AppError? =
         AddNewListItemSyncer(mediaId).postMutationAndRevertWhenException(syncWhenItemChanged = false)
@@ -285,9 +269,9 @@ internal class MediaRepositoryImpl(
         page: Int,
         perPage: Int,
         searchSource: SearchSource.Media,
-    ) = with(mediaService) {
-        try {
-            searchMedia(
+    ) = try {
+        mediaService
+            .searchMedia(
                 page = page,
                 perPage = perPage,
                 keyword = searchSource.keyword,
@@ -297,61 +281,57 @@ internal class MediaRepositoryImpl(
                 formatIn = (searchSource as? SearchSource.Media.Anime)?.mediaFormat?.map(MediaFormat::toServiceType),
                 isAdult = false,
             ).toDomain(Media::toDomain) to null
-        } catch (exception: ServerException) {
-            Napier.e { "Error when loading media page: $exception" }
-            Page.empty<MediaModel>() to exception.toError()
-        }
+    } catch (exception: ServerException) {
+        Napier.e { "Error when loading media page: $exception" }
+        Page.empty<MediaModel>() to exception.toError()
     }
 
     override suspend fun searchCharacterFromSource(
         page: Int,
         perPage: Int,
         searchSource: SearchSource.Character,
-    ) = with(mediaService) {
-        try {
-            searchCharacter(
+    ) = try {
+        mediaService
+            .searchCharacter(
                 page = page,
                 perPage = perPage,
                 keyword = searchSource.keyword,
             ).toDomain(Character::toDomain) to null
-        } catch (exception: ServerException) {
-            Napier.e { "Error when loading media page: $exception" }
-            Page.empty<CharacterModel>() to exception.toError()
-        }
+    } catch (exception: ServerException) {
+        Napier.e { "Error when loading media page: $exception" }
+        Page.empty<CharacterModel>() to exception.toError()
     }
 
     override suspend fun searchStaffFromSource(
         page: Int,
         perPage: Int,
         searchSource: SearchSource.Staff,
-    ) = with(mediaService) {
-        try {
-            searchStaff(
+    ) = try {
+        mediaService
+            .searchStaff(
                 page = page,
                 perPage = perPage,
                 keyword = searchSource.keyword,
             ).toDomain(Staff::toDomain) to null
-        } catch (exception: ServerException) {
-            Napier.e { "Error when loading media page: $exception" }
-            Page.empty<StaffModel>() to exception.toError()
-        }
+    } catch (exception: ServerException) {
+        Napier.e { "Error when loading media page: $exception" }
+        Page.empty<StaffModel>() to exception.toError()
     }
 
     override suspend fun searchStudioFromSource(
         page: Int,
         perPage: Int,
         searchSource: SearchSource.Studio,
-    ) = with(mediaService) {
-        try {
-            searchStudio(
+    ) = try {
+        mediaService
+            .searchStudio(
                 page = page,
                 perPage = perPage,
                 keyword = searchSource.keyword,
             ).toDomain(Studio::toDomain) to null
-        } catch (exception: ServerException) {
-            Napier.e { "Error when loading media page: $exception" }
-            Page.empty<StudioModel>() to exception.toError()
-        }
+    } catch (exception: ServerException) {
+        Napier.e { "Error when loading media page: $exception" }
+        Page.empty<StudioModel>() to exception.toError()
     }
 
     override fun getMediaFlow(mediaId: String): Flow<MediaModel> = mediaLibraryDao.getMediaFlow(mediaId).map(MediaEntity::toDomain)
@@ -410,17 +390,18 @@ internal class MediaRepositoryImpl(
         page: Int,
         perPage: Int,
     ): Pair<Page<StaffWithRole>, AppError?> =
-        with(mediaService) {
-            try {
-                getDetailMedia(
+        try {
+            mediaService
+                .getDetailMedia(
                     id = mediaId.toInt(),
                     staffPage = page,
                     staffPerPage = perPage,
-                ).media.staff!!.toPage().toDomain(StaffConnection.Edge::toDomain) to null
-            } catch (exception: ServerException) {
-                Napier.e { "Error when loading staff page: $exception" }
-                Page.empty<StaffWithRole>() to exception.toError()
-            }
+                ).media.staff!!
+                .toPage()
+                .toDomain(StaffConnection.Edge::toDomain) to null
+        } catch (exception: ServerException) {
+            Napier.e { "Error when loading staff page: $exception" }
+            Page.empty<StaffWithRole>() to exception.toError()
         }
 
     override suspend fun getCharacterPageOfMedia(
@@ -429,20 +410,21 @@ internal class MediaRepositoryImpl(
         page: Int,
         perPage: Int,
     ): Pair<Page<CharacterWithVoiceActor>, AppError?> =
-        with(mediaService) {
-            try {
-                getDetailMedia(
+        try {
+            mediaService
+                .getDetailMedia(
                     id = mediaId.toInt(),
                     characterPage = page,
                     characterPerPage = perPage,
                     characterStaffLanguage = characterStaffLanguage.toServiceType(),
-                ).media.characters!!.toPage().toDomain {
+                ).media.characters!!
+                .toPage()
+                .toDomain {
                     it.toDomain(characterStaffLanguage)
                 } to null
-            } catch (exception: ServerException) {
-                Napier.e { "Error when loading Character page: $exception" }
-                Page.empty<CharacterWithVoiceActor>() to exception.toError()
-            }
+        } catch (exception: ServerException) {
+            Napier.e { "Error when loading Character page: $exception" }
+            Page.empty<CharacterWithVoiceActor>() to exception.toError()
         }
 
     override fun getDetailStaff(staffId: String): Flow<StaffModel> = mediaLibraryDao.getStaffFlow(staffId).map(StaffEntity::toDomain)
@@ -454,14 +436,12 @@ internal class MediaRepositoryImpl(
         scope: CoroutineScope,
         characterId: String,
     ): Deferred<Throwable?> =
-        with(mediaService) {
-            with(mediaLibraryDao) {
-                // sync data from service
-                syncDetailCharacterToLocal(
-                    characterId = characterId,
-                    scope = scope,
-                )
-            }
+        context(mediaService, mediaLibraryDao) {
+            // sync data from service
+            syncDetailCharacterToLocal(
+                characterId = characterId,
+                scope = scope,
+            )
         }
 
     override suspend fun getMediaPageOfStaff(
@@ -470,21 +450,22 @@ internal class MediaRepositoryImpl(
         perPage: Int,
         mediaSort: MediaSort,
     ): Pair<Page<VoicedCharacterWithMedia>, AppError?> =
-        with(mediaService) {
-            try {
-                val page =
-                    getStaffDetail(
+        try {
+            val page =
+                mediaService
+                    .getStaffDetail(
                         staffId = staffId.toInt(),
                         characterConnectionPage = page,
                         characterConnectionPerPage = perPage,
                         mediaSort = listOf(mediaSort.toServiceType()),
-                    )?.characterMedia?.toPage()?.toDomainWithFlattenMapper(MediaConnection.Edge::toDomain)
-                        ?: Page.empty()
-                page to null
-            } catch (exception: ServerException) {
-                Napier.e { "Error when loading Character page: $exception" }
-                Page.empty<VoicedCharacterWithMedia>() to exception.toError()
-            }
+                    )?.characterMedia
+                    ?.toPage()
+                    ?.toDomainWithFlattenMapper(MediaConnection.Edge::toDomain)
+                    ?: Page.empty()
+            page to null
+        } catch (exception: ServerException) {
+            Napier.e { "Error when loading Character page: $exception" }
+            Page.empty<VoicedCharacterWithMedia>() to exception.toError()
         }
 
     override suspend fun getMediaPageOfCharacter(

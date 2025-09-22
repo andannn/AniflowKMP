@@ -4,6 +4,8 @@
  */
 package me.andannn.aniflow.data
 
+import me.andannn.aniflow.data.model.MediaModel
+
 enum class SnackbarShowDuration {
     Short,
     Long,
@@ -22,6 +24,26 @@ sealed class SnackBarMessage(
 
     data object ToManyRequestsError : SnackBarMessage(
         message = "To many requests, please try again later",
+    )
+
+    data class MediaMarkWatched(
+        val title: String,
+        val ep: Int,
+    ) : SnackBarMessage(
+            message = "Ep $ep of $title marked as watched",
+            actionLabel = "Undo",
+        )
+
+    data class MediaMarkCompleted(
+        val title: String,
+        val ep: Int,
+    ) : SnackBarMessage(
+            message = "Ep $ep of $title marked as completed",
+            actionLabel = "Undo",
+        )
+
+    data object ScoreSaved : SnackBarMessage(
+        message = "Score saved",
     )
 
     /**

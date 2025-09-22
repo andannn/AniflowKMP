@@ -84,10 +84,8 @@ class SettingsViewModel(
         }
     }
 
-    fun onSettingItemClick(
-        resultStore: ResultStore,
-        settingItem: SettingItem,
-    ) {
+    context(resultStore: ResultStore)
+    fun onSettingItemClick(settingItem: SettingItem) {
         viewModelScope.launch {
             val option: SettingOption =
                 resultStore.awaitResultOf(Screen.Dialog.SettingOption(settingItem))
@@ -128,14 +126,16 @@ fun Settings(
 ) {
     val state = settingsViewModel.state.collectAsStateWithLifecycle()
 
-    SettingsContent(
-        state = state.value,
-        onPop = { router.popBackStack() },
-        onSettingItemClick = { settingItem ->
-            settingsViewModel.onSettingItemClick(resultStore, settingItem)
-            router.navigateTo(Screen.Dialog.SettingOption(settingItem))
-        },
-    )
+    with(resultStore) {
+        SettingsContent(
+            state = state.value,
+            onPop = { router.popBackStack() },
+            onSettingItemClick = { settingItem ->
+                settingsViewModel.onSettingItemClick(settingItem)
+                router.navigateTo(Screen.Dialog.SettingOption(settingItem))
+            },
+        )
+    }
 
     ErrorHandleSideEffect(settingsViewModel)
 }

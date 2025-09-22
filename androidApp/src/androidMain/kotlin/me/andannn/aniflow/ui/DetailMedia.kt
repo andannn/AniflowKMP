@@ -96,10 +96,12 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import me.andannn.aniflow.data.AppErrorHandler
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.DetailMediaUiDataProvider
 import me.andannn.aniflow.data.ErrorChannel
 import me.andannn.aniflow.data.MediaRepository
+import me.andannn.aniflow.data.SnackBarMessage
 import me.andannn.aniflow.data.buildErrorChannel
 import me.andannn.aniflow.data.infoString
 import me.andannn.aniflow.data.model.CharacterModel
@@ -113,6 +115,7 @@ import me.andannn.aniflow.data.model.StudioModel
 import me.andannn.aniflow.data.model.UserModel
 import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.MediaListStatus
+import me.andannn.aniflow.data.model.define.MediaStatus
 import me.andannn.aniflow.data.model.launchUri
 import me.andannn.aniflow.data.model.relation.CharacterWithVoiceActor
 import me.andannn.aniflow.data.model.relation.MediaModelWithRelationType
@@ -132,10 +135,14 @@ import me.andannn.aniflow.ui.widget.SplitDropDownMenuButton
 import me.andannn.aniflow.ui.widget.StaffRowItem
 import me.andannn.aniflow.ui.widget.TitleWithContent
 import me.andannn.aniflow.ui.widget.buildSpecialMessageText
+import me.andannn.aniflow.usecase.onMarkProgress
 import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.LocalResultStore
+import me.andannn.aniflow.util.LocalSnackbarHostStateHolder
 import me.andannn.aniflow.util.ResultStore
+import me.andannn.aniflow.util.SnackbarHostStateHolder
 import me.andannn.aniflow.util.rememberSnackBarHostState
+import me.andannn.aniflow.util.showSnackBarMessage
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import kotlin.time.ExperimentalTime
@@ -242,18 +249,21 @@ class DetailMediaViewModel(
             }
     }
 
-    fun onTrackProgressClick(resultStore: ResultStore) {
+    context(resultStore: ResultStore, snackbarHost: SnackbarHostStateHolder)
+    fun onTrackProgressClick() {
         viewModelScope.launch {
             val result: Int = resultStore.awaitResultOf(Screen.Dialog.TrackProgressDialog(mediaId))
-            val listItem = uiState.value.mediaListItem
-            val media = uiState.value.mediaModel
-            if (media != null && listItem != null && result != listItem.progress) {
-                val isCompleted = result == media.episodes
-                mediaRepository.updateMediaListStatus(
-                    mediaListId = listItem.id,
-                    status = if (isCompleted) MediaListStatus.COMPLETED else MediaListStatus.CURRENT,
-                    progress = result,
-                )
+            context(snackbarHost, mediaRepository, this) {
+                val listItem = uiState.value.mediaListItem
+                val media = uiState.value.mediaModel
+                if (media != null && listItem != null) {
+                    onMarkProgress(
+                        listItem,
+                        media,
+                        result,
+                        uiState.value.userOptions.titleLanguage,
+                    )
+                }
             }
         }
     }
@@ -271,7 +281,8 @@ class DetailMediaViewModel(
             }
     }
 
-    fun onRatingClick(resultStore: ResultStore) {
+    context(resultStore: ResultStore, snackbarHost: SnackbarHostStateHolder)
+    fun onRatingClick() {
         viewModelScope.launch {
             val result: Float = resultStore.awaitResultOf(Screen.Dialog.ScoringDialog(mediaId))
             val listItem = uiState.value.mediaListItem
@@ -282,7 +293,11 @@ class DetailMediaViewModel(
                         score = result,
                     )
 
-                if (appError != null) submitError(appError)
+                if (appError != null) {
+                    submitError(appError)
+                } else {
+                    snackbarHost.showSnackBarMessage(SnackBarMessage.ScoreSaved)
+                }
             }
         }
     }
@@ -298,58 +313,61 @@ fun DetailMedia(
     navigator: RootNavigator = LocalRootNavigator.current,
     uriHandler: UriHandler = LocalUriHandler.current,
     resultStore: ResultStore = LocalResultStore.current,
+    snackbarHostState: SnackbarHostStateHolder = LocalSnackbarHostStateHolder.current,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isRefreshing by viewModel.isLoading.collectAsStateWithLifecycle()
 
-    DetailMediaContent(
-        title = uiState.title,
-        staffList = uiState.staffList,
-        mediaModel = uiState.mediaModel,
-        relations = uiState.relations,
-        studioList = uiState.studioList,
-        userOptions = uiState.userOptions,
-        mediaListItem = uiState.mediaListItem,
-        authedUser = uiState.authedUser,
-        characterList = uiState.characters,
-        isRefreshing = isRefreshing,
-        modifier = Modifier,
-        onPullRefresh = { viewModel.onPullRefresh() },
-        onPop = { navigator.popBackStack() },
-        onChangeStatus = viewModel::onChangeListItemStatus,
-        onAddToListClick = viewModel::onAddToListClick,
-        onToggleFavoriteClick = viewModel::onToggleFavoriteClick,
-        onTrailerClick = {
-            uriHandler.openUri(it)
-        },
-        onRelationItemClick = { navigator.navigateTo(Screen.DetailMedia(it.media.id)) },
-        onLoginClick = viewModel::onLoginClick,
-        onTrackProgressClick = {
-            navigator.navigateTo(Screen.Dialog.TrackProgressDialog(mediaId))
-            viewModel.onTrackProgressClick(resultStore)
-        },
-        onRatingClick = {
-            navigator.navigateTo(Screen.Dialog.ScoringDialog(mediaId))
-            viewModel.onRatingClick(resultStore)
-        },
-        onExternalLinkClick = { link ->
-            link.url?.let {
+    context(resultStore, snackbarHostState) {
+        DetailMediaContent(
+            title = uiState.title,
+            staffList = uiState.staffList,
+            mediaModel = uiState.mediaModel,
+            relations = uiState.relations,
+            studioList = uiState.studioList,
+            userOptions = uiState.userOptions,
+            mediaListItem = uiState.mediaListItem,
+            authedUser = uiState.authedUser,
+            characterList = uiState.characters,
+            isRefreshing = isRefreshing,
+            modifier = Modifier,
+            onPullRefresh = { viewModel.onPullRefresh() },
+            onPop = { navigator.popBackStack() },
+            onChangeStatus = viewModel::onChangeListItemStatus,
+            onAddToListClick = viewModel::onAddToListClick,
+            onToggleFavoriteClick = viewModel::onToggleFavoriteClick,
+            onTrailerClick = {
                 uriHandler.openUri(it)
-            }
-        },
-        onStaffMoreClick = {
-            navigator.navigateTo(Screen.DetailStaffPaging(mediaId))
-        },
-        onCharacterMoreClick = {
-            navigator.navigateTo(Screen.DetailCharacterPaging(mediaId))
-        },
-        onStaffClick = {
-            navigator.navigateTo(Screen.DetailStaff(it.id))
-        },
-        onCharacterClick = {
-            navigator.navigateTo(Screen.DetailCharacter(it.id))
-        },
-    )
+            },
+            onRelationItemClick = { navigator.navigateTo(Screen.DetailMedia(it.media.id)) },
+            onLoginClick = viewModel::onLoginClick,
+            onTrackProgressClick = {
+                navigator.navigateTo(Screen.Dialog.TrackProgressDialog(mediaId))
+                viewModel.onTrackProgressClick()
+            },
+            onRatingClick = {
+                navigator.navigateTo(Screen.Dialog.ScoringDialog(mediaId))
+                viewModel.onRatingClick()
+            },
+            onExternalLinkClick = { link ->
+                link.url?.let {
+                    uriHandler.openUri(it)
+                }
+            },
+            onStaffMoreClick = {
+                navigator.navigateTo(Screen.DetailStaffPaging(mediaId))
+            },
+            onCharacterMoreClick = {
+                navigator.navigateTo(Screen.DetailCharacterPaging(mediaId))
+            },
+            onStaffClick = {
+                navigator.navigateTo(Screen.DetailStaff(it.id))
+            },
+            onCharacterClick = {
+                navigator.navigateTo(Screen.DetailCharacter(it.id))
+            },
+        )
+    }
 
     ErrorHandleSideEffect(viewModel)
 }
@@ -394,6 +412,129 @@ private fun DetailMediaContent(
         modifier = modifier.nestedScroll(exitAlwaysScrollBehavior),
         snackbarHost = { SnackbarHost(rememberSnackBarHostState()) },
         bottomBar = {
+            Box(Modifier.fillMaxWidth()) {
+                HorizontalFloatingToolbar(
+                    modifier =
+                        Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 32.dp),
+                    colors =
+                        FloatingToolbarDefaults.standardFloatingToolbarColors(
+                            toolbarContainerColor =
+                                MaterialTheme.colorScheme.primaryFixedDim.copy(
+                                    alpha = 0.95f,
+                                ),
+                            toolbarContentColor = MaterialTheme.colorScheme.onPrimaryFixed,
+                        ),
+                    scrollBehavior = exitAlwaysScrollBehavior,
+                    expanded = true,
+                    leadingContent = {
+                        if (mediaListItem != null) {
+                            val items =
+                                mediaModel?.status?.toMediaListOption() ?: MediaListStatus.entries
+                            SplitDropDownMenuButton(
+                                menuItemList = items.map { it.toMenuItem() },
+                                selectIndex = items.indexOf(mediaListItem.status),
+                                onMenuItemClick = {
+                                    onChangeStatus(items[it])
+                                },
+                            )
+                        }
+                        if (authedUser != null && mediaListItem == null) {
+                            Button(
+                                colors =
+                                    ButtonDefaults.textButtonColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    ),
+                                contentPadding = ButtonWithIconContentPadding,
+                                onClick = onAddToListClick,
+                            ) {
+                                Icon(Icons.Filled.Add, contentDescription = null)
+                                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                                Text("Add to List")
+                            }
+                        }
+                    },
+                    content = {
+                        if (authedUser == null) {
+                            Button(
+                                colors =
+                                    ButtonDefaults.textButtonColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    ),
+                                onClick = onLoginClick,
+                            ) {
+                                Icon(Icons.AutoMirrored.Filled.Login, contentDescription = null)
+                                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                                Text("Login")
+                            }
+                        }
+                    },
+                    trailingContent = {
+                        AppBarRow(
+                            overflowIndicator = { menuState ->
+                                IconButton(
+                                    onClick = {
+                                        if (menuState.isExpanded) {
+                                            menuState.dismiss()
+                                        } else {
+                                            menuState.show()
+                                        }
+                                    },
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.MoreVert,
+                                        contentDescription = "Localized description",
+                                    )
+                                }
+                            },
+                        ) {
+                            if (authedUser != null) {
+                                clickableItem(
+                                    onClick = onToggleFavoriteClick,
+                                    icon = {
+                                        val isFavorite =
+                                            rememberUpdatedState(
+                                                mediaModel?.isFavourite == true,
+                                            )
+                                        if (isFavorite.value) {
+                                            Icon(
+                                                Icons.Outlined.Favorite,
+                                                contentDescription = null,
+                                                tint = Color.Red,
+                                            )
+                                        } else {
+                                            Icon(
+                                                Icons.Outlined.FavoriteBorder,
+                                                contentDescription = null,
+                                            )
+                                        }
+                                    },
+                                    label = "Toggle favorite",
+                                )
+                            }
+                            if (authedUser != null && mediaListItem != null) {
+                                clickableItem(
+                                    onClick = onTrackProgressClick,
+                                    icon = {
+                                        Icon(Icons.Filled.Bookmarks, contentDescription = null)
+                                    },
+                                    label = "Track Progress",
+                                )
+                                clickableItem(
+                                    onClick = onRatingClick,
+                                    icon = {
+                                        Icon(Icons.Filled.StarRate, contentDescription = null)
+                                    },
+                                    label = "Give rating",
+                                )
+                            }
+                        }
+                    },
+                )
+            }
         },
         topBar = {
             TopAppBar(
@@ -519,8 +660,20 @@ private fun DetailMediaContent(
                                             buildAnnotatedString {
                                                 withLink(
                                                     LinkAnnotation.Url(
-                                                        "https://twitter.com/hashtag/${hashTag.substring(1)}?src=hashtag_click",
-                                                        TextLinkStyles(style = SpanStyle(color = Color(0xFF1DA1F2))),
+                                                        "https://twitter.com/hashtag/${
+                                                            hashTag.substring(
+                                                                1,
+                                                            )
+                                                        }?src=hashtag_click",
+                                                        TextLinkStyles(
+                                                            style =
+                                                                SpanStyle(
+                                                                    color =
+                                                                        Color(
+                                                                            0xFF1DA1F2,
+                                                                        ),
+                                                                ),
+                                                        ),
                                                     ),
                                                 ) {
                                                     append(hashTag)
@@ -763,124 +916,6 @@ private fun DetailMediaContent(
 
                     item { Spacer(Modifier.height(64.dp)) }
                 }
-
-                HorizontalFloatingToolbar(
-                    modifier =
-                        Modifier
-                            .align(Alignment.BottomCenter)
-                            .padding(bottom = 32.dp),
-                    colors =
-                        FloatingToolbarDefaults.standardFloatingToolbarColors(
-                            toolbarContainerColor = MaterialTheme.colorScheme.primaryFixedDim.copy(alpha = 0.95f),
-                            toolbarContentColor = MaterialTheme.colorScheme.onPrimaryFixed,
-                        ),
-                    scrollBehavior = exitAlwaysScrollBehavior,
-                    expanded = true,
-                    leadingContent = {
-                        if (mediaListItem != null) {
-                            val items = MediaListStatus.entries
-                            SplitDropDownMenuButton(
-                                menuItemList = MediaListStatus.entries.map { it.toMenuItem() },
-                                selectIndex = items.indexOf(mediaListItem.status),
-                                onMenuItemClick = {
-                                    onChangeStatus(items[it])
-                                },
-                            )
-                        }
-                        if (authedUser != null && mediaListItem == null) {
-                            Button(
-                                colors =
-                                    ButtonDefaults.textButtonColors(
-                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    ),
-                                contentPadding = ButtonWithIconContentPadding,
-                                onClick = onAddToListClick,
-                            ) {
-                                Icon(Icons.Filled.Add, contentDescription = null)
-                                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                                Text("Add to List")
-                            }
-                        }
-                    },
-                    content = {
-                        if (authedUser == null) {
-                            Button(
-                                colors =
-                                    ButtonDefaults.textButtonColors(
-                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    ),
-                                onClick = onLoginClick,
-                            ) {
-                                Icon(Icons.AutoMirrored.Filled.Login, contentDescription = null)
-                                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                                Text("Login")
-                            }
-                        }
-                    },
-                    trailingContent = {
-                        AppBarRow(
-                            overflowIndicator = { menuState ->
-                                IconButton(
-                                    onClick = {
-                                        if (menuState.isExpanded) {
-                                            menuState.dismiss()
-                                        } else {
-                                            menuState.show()
-                                        }
-                                    },
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Filled.MoreVert,
-                                        contentDescription = "Localized description",
-                                    )
-                                }
-                            },
-                        ) {
-                            if (authedUser != null) {
-                                clickableItem(
-                                    onClick = onToggleFavoriteClick,
-                                    icon = {
-                                        val isFavorite =
-                                            rememberUpdatedState(
-                                                mediaModel?.isFavourite == true,
-                                            )
-                                        if (isFavorite.value) {
-                                            Icon(
-                                                Icons.Outlined.Favorite,
-                                                contentDescription = null,
-                                                tint = Color.Red,
-                                            )
-                                        } else {
-                                            Icon(
-                                                Icons.Outlined.FavoriteBorder,
-                                                contentDescription = null,
-                                            )
-                                        }
-                                    },
-                                    label = "Toggle favorite",
-                                )
-                            }
-                            if (authedUser != null && mediaListItem != null) {
-                                clickableItem(
-                                    onClick = onTrackProgressClick,
-                                    icon = {
-                                        Icon(Icons.Filled.Bookmarks, contentDescription = null)
-                                    },
-                                    label = "Track Progress",
-                                )
-                                clickableItem(
-                                    onClick = onRatingClick,
-                                    icon = {
-                                        Icon(Icons.Filled.StarRate, contentDescription = null)
-                                    },
-                                    label = "Give rating",
-                                )
-                            }
-                        }
-                    },
-                )
             }
         }
     }
@@ -1028,4 +1063,30 @@ private fun String.toComposeColor(): Color {
     val g = argb.substring(4, 6).toInt(16) / 255f
     val b = argb.substring(6, 8).toInt(16) / 255f
     return Color(r, g, b, a)
+}
+
+private fun MediaStatus?.toMediaListOption(): List<MediaListStatus> {
+    val allOptions = MediaListStatus.entries
+    return when (this) {
+        MediaStatus.NOT_YET_RELEASED ->
+            listOf(
+                MediaListStatus.PLANNING,
+                MediaListStatus.DROPPED,
+            )
+
+        MediaStatus.RELEASING ->
+            allOptions.toMutableList().apply {
+                removeIf {
+                    it == MediaListStatus.COMPLETED || it == MediaListStatus.REPEATING
+                }
+            }
+
+        MediaStatus.FINISHED,
+        MediaStatus.CANCELLED,
+        MediaStatus.HIATUS,
+        null,
+        -> {
+            allOptions
+        }
+    }
 }
