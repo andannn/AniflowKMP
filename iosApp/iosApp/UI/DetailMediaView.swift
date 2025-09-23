@@ -41,6 +41,7 @@ class DetailMediaViewModel: ObservableObject {
 struct DetailMediaView: View {
     let mediaId: String
     @StateObject private var viewModel: DetailMediaViewModel
+    @EnvironmentObject var router: Router
     
     init(mediaId: String) {
         self.mediaId = mediaId
@@ -59,7 +60,22 @@ struct DetailMediaView: View {
             userOptions: uiState.userOptions,
             mediaListItem: uiState.mediaListItem,
             authedUser: uiState.authedUser,
-            isRefreshing: false
+            isRefreshing: false,
+            onRelationItemClick: { relationItem in
+                router.navigateTo(route: .detailMedia(mediaId: relationItem.media.id))
+            },
+            onStaffMoreClick: {
+                router.navigateTo(route: .mediaStaffPaging(mediaId: mediaId))
+            },
+            onCharacterMoreClick: {
+                router.navigateTo(route: .mediaCharacterPaging(mediaId: mediaId))
+            },
+            onStaffClick: { staff in
+                router.navigateTo(route: .detailStaff(staffId: staff.id))
+            },
+            onCharacterClick: { character in
+                router.navigateTo(route: .detailCharacter(characterId: character.id))
+            }
         )
     }
 }
@@ -265,7 +281,13 @@ public struct DetailMediaContent: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     ForEach(Array(relations.enumerated()), id: \.offset) { i, r in
-                        MediaRelationItem(userTitleLanguage: userOptions.titleLanguage, mediaRelation: relations[i])
+                        MediaRelationItem(
+                            userTitleLanguage: userOptions.titleLanguage,
+                            mediaRelation: relations[i],
+                            onClick: {
+                                onRelationItemClick(relations[i])
+                            }
+                        )
                     }
                 }
                 .padding(.vertical, 4)
@@ -277,33 +299,33 @@ public struct DetailMediaContent: View {
     @ViewBuilder private var aboutSection: some View {
         if let html = mediaModel?.description_, !html.isEmpty {
             SectionHeader(title: "About")
-            Text(stripHTML(html)).font(.body)
+            HTMLText(html: html)
         }
     }
     
-        @ViewBuilder private var characterSection: some View {
-            if !characterList.isEmpty {
-                SectionHeader(title: "Character", showMore: true, onMore: onCharacterMoreClick)
-                VStack(spacing: 0) {
-                    ForEach(Array(characterList.enumerated()), id: \.offset) { index, item in
-                        CharacterRowItem(
-                            characterWithVoiceActor: item,
-                            userStaffLanguage: userOptions.staffNameLanguage,
-                            onStaffClick: onStaffClick,
-                            onCharacterClick: onCharacterClick
-                        )
-                        .padding(.vertical, 4)
-                        if index < characterList.count - 1 {
-                            Divider().padding(.leading, 80)
-                        }
+    @ViewBuilder private var characterSection: some View {
+        if !characterList.isEmpty {
+            SectionHeader(title: "Character", showMore: true, onMore: onCharacterMoreClick)
+            VStack(spacing: 0) {
+                ForEach(Array(characterList.enumerated()), id: \.offset) { index, item in
+                    CharacterRowItem(
+                        characterWithVoiceActor: item,
+                        userStaffLanguage: userOptions.staffNameLanguage,
+                        onStaffClick: onStaffClick,
+                        onCharacterClick: onCharacterClick
+                    )
+                    .padding(.vertical, 4)
+                    if index < characterList.count - 1 {
+                        Divider().padding(.leading, 80)
                     }
                 }
-                .background(Color(.systemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                .shadow(color: Color.black.opacity(0.04), radius: 2, y: 1)
             }
+            .background(Color(.systemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .shadow(color: Color.black.opacity(0.04), radius: 2, y: 1)
         }
-
+    }
+    
     @ViewBuilder private var staffSection: some View {
         if !staffList.isEmpty {
             SectionHeader(title: "Staff", showMore: true, onMore: onStaffMoreClick)
@@ -387,7 +409,7 @@ public struct DetailMediaContent: View {
             }
         }
     }
-
+    
     //    @ViewBuilder private var bottomBar: some View {
     //        HStack(spacing: 12) {
     //            if let user = authedUser { // logged in
@@ -419,13 +441,4 @@ public struct DetailMediaContent: View {
     //        .background(.ultraThinMaterial)
     //    }
     //
-}
-
-func stripHTML(_ html: String) -> String {
-    html.replacingOccurrences(of: "<[^>]+>", with: " ", options: .regularExpression)
-        .replacingOccurrences(of: "&nbsp;", with: " ")
-        .replacingOccurrences(of: "&amp;", with: "&")
-        .replacingOccurrences(of: "&lt;", with: "<")
-        .replacingOccurrences(of: "&gt;", with: ">")
-        .trimmingCharacters(in: .whitespacesAndNewlines)
 }

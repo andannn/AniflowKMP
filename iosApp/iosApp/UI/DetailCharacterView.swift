@@ -1,6 +1,7 @@
-
 import SwiftUI
 import Shared
+import Foundation
+import UIKit
 
 @MainActor
 class DetailCharacterViewModel: ObservableObject {
@@ -101,9 +102,9 @@ struct DetailCharacterContentView: View {
                 // Details
                 VStack(alignment: .leading, spacing: 8) {
                     if let character = character {
-                        //                            if let birthday = character.dateOfBirth {
-                        //                                Text("Birthday: \(birthday.format())")
-                        //                            }
+                        if let birthday = character.dateOfBirth {
+                            Text("Birthday: \(birthday.format())")
+                        }
                         if let age = character.age {
                             Text("Age: \(age)")
                         }
@@ -113,9 +114,9 @@ struct DetailCharacterContentView: View {
                         if let bloodType = character.bloodType {
                             Text("Blood Type: \(bloodType)")
                         }
-                        //                            if let description = character.description {
-                        //                                Text(description)
-                        //                            }
+                        if let description = character.description_ {
+                            HTMLText(html: description)
+                        }
                     }
                 }
                 .font(.system(size: 14))
@@ -124,4 +125,3 @@ struct DetailCharacterContentView: View {
         }
     }
 }
-

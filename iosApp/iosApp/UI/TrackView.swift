@@ -5,15 +5,15 @@ import SwiftUI
 class TrackViewModel : ObservableObject {
     private let dataProvider: TrackUiDataProvider = KoinHelper.shared.trackDataProvider()
     private let mediaRepository = KoinHelper.shared.mediaRepository()
-
+    
     @Published var uiState: TrackUiState = TrackUiState.companion.Empty
-
+    
     private var dataTask : Task<(), any Error>? = nil
     private var refreshCompleter: OneShotCompleter<Void>? = nil
     private var sideEffectTask: Task<Void, Never>? = nil
-
+    
     let errorChannel: ErrorChannel = AppErrorKt.buildErrorChannel()
-
+    
     init() {
         print("TrackViewModel init")
         dataTask = Task { [weak self] in
@@ -39,13 +39,13 @@ class TrackViewModel : ObservableObject {
         var isCompleted = false
         sideEffectTask = Task { [weak self] in
             guard let stream = self?.dataProvider.trackUiSideEffectErrorSequence(force) else { return }
-
+            
             do {
                 for try await status in stream {
                     guard let self = self else { continue }
-
+                    
                     AppErrorKt.submitErrorOfSyncStatus(self.errorChannel, status: status)
-
+                    
                     // handle side effect status.
                     print("TrackViewModel cancelLastAndRegisterUiSideEffect status: \(status)")
                     if completer != nil && !status.isLoading() && !isCompleted {
@@ -92,32 +92,25 @@ struct TrackView: View {
     @StateObject
     private var viewModel: TrackViewModel = TrackViewModel()
     @StateObject private var snackbarManager = SnackbarManager()
-
+    @EnvironmentObject private var router: Router
+    
     var body: some View {
         let categoryWithItemsList = viewModel.uiState.categoryWithItems
         List {
-            ForEach(categoryWithItemsList, id: \.self.category) { group in
+            ForEach(categoryWithItemsList, id: \.category) { group in
                 if !group.items.isEmpty {
-                    Section(header: Text(group.category.title)) {
-                        ForEach(group.items.indices, id: \.self) { index in
-                            MediaRowSimple(
-                                item: group.items[index],
-                                userTitleLanguage: UserTitleLanguage.english,
-                                onDelete: {
-                                    viewModel.onDelete(item: group.items[index].mediaListModel)
-                                },
-                                onMarkWatched: {
-                                    viewModel.onMarkWatched(
-                                        item: group.items[index].mediaListModel
-                                    )
-                                }
-                            )
-                            .listRowInsets(EdgeInsets(top: 6, leading: 6, bottom: 6, trailing: 6))
+                    TrackSectionView(
+                        group: group,
+                        onDelete: { item in viewModel.onDelete(item: item) },
+                        onMarkWatched: { item in viewModel.onMarkWatched(item: item) },
+                        onClick: { item in
+                            router.navigateTo(route: .detailMedia(mediaId: item.mediaModel.id))
                         }
-                    }
+                    )
                 }
             }
         }
+        .listStyle(.insetGrouped)
         .contentMargins(.horizontal, 10, for: .scrollContent)
         .refreshable {
             do {
@@ -128,5 +121,59 @@ struct TrackView: View {
         }
         .snackbar(manager: snackbarManager)
         .errorHandling(source: viewModel.errorChannel, snackbarManager: snackbarManager)
+    }
+}
+
+struct TrackSectionView: View {
+    let group: TrackUiState.CategoryWithItems
+    let onDelete: (MediaListModel) -> Void
+    let onMarkWatched: (MediaListModel) -> Void
+    let onClick: (MediaWithMediaListItem) -> Void
+    
+    var body: some View {
+        Section(header:
+            Text(group.category.title)
+                .font(.headline)
+                .foregroundColor(.primary)
+                .padding(.top, 12)
+                .padding(.bottom, 4)
+        ) {
+            ForEach(group.items, id: \.mediaListModel.id) { item in
+                TrackRowView(
+                    item: item,
+                    onDelete: onDelete,
+                    onMarkWatched: onMarkWatched,
+                    onClick: onClick
+                )
+            }
+        }
+    }
+}
+
+struct TrackRowView: View {
+    let item: MediaWithMediaListItem
+    let onDelete: (MediaListModel) -> Void
+    let onMarkWatched: (MediaListModel) -> Void
+    let onClick: (MediaWithMediaListItem) -> Void
+    
+    var body: some View {
+        MediaRowSimple(
+            item: item,
+            userTitleLanguage: UserTitleLanguage.english,
+            onClick: { onClick(item) },
+            onDelete: { onDelete(item.mediaListModel) },
+            onMarkWatched: { onMarkWatched(item.mediaListModel) }
+        )
+        .padding(.vertical, 8)
+        .padding(.horizontal, 4)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color(.secondarySystemGroupedBackground))
+                .shadow(color: Color.black.opacity(0.06), radius: 3, x: 0, y: 2)
+        )
+        .listRowSeparator(.hidden)
+        .listRowBackground(Color.clear)
+        .accessibilityElement(children: .combine)
+//        .accessibilityLabel(item.mediaListModel.media?.title?.getUserTitleString(titleLanguage: .english) ?? "")
     }
 }

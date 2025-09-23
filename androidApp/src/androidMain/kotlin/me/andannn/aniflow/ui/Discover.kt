@@ -66,6 +66,7 @@ import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.data.submitErrorOfSyncStatus
+import me.andannn.aniflow.data.title
 import me.andannn.aniflow.isPresentationMode
 import me.andannn.aniflow.ui.theme.AppBackgroundColor
 import me.andannn.aniflow.ui.theme.PageHorizontalPadding
@@ -377,17 +378,3 @@ private fun MediaPreviewSector(
         }
     }
 }
-
-val MediaCategory.title
-    get() =
-        when (this) {
-            MediaCategory.CURRENT_SEASON_ANIME -> "Popular this season"
-            MediaCategory.NEXT_SEASON_ANIME -> "Upcoming next season"
-            MediaCategory.TRENDING_ANIME -> "Trending now"
-            MediaCategory.MOVIE_ANIME -> "Movie"
-            MediaCategory.TRENDING_MANGA -> "Trending manga"
-            MediaCategory.ALL_TIME_POPULAR_MANGA -> "All time popular manga"
-            MediaCategory.TOP_MANHWA -> "Top manhwa"
-            MediaCategory.NEW_ADDED_ANIME -> "New Added Anime"
-            MediaCategory.NEW_ADDED_MANGA -> "New added manga"
-        }

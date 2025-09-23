@@ -47,12 +47,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.AuthRepository
-import me.andannn.aniflow.data.DetailMediaCharacterPaging
+import me.andannn.aniflow.data.DetailMediaCharacterPageComponent
 import me.andannn.aniflow.data.ErrorChannel
 import me.andannn.aniflow.data.PageComponent
 import me.andannn.aniflow.data.buildErrorChannel
 import me.andannn.aniflow.data.model.UserOptions
-import me.andannn.aniflow.data.model.define.NotificationCategory
 import me.andannn.aniflow.data.model.define.StaffLanguage
 import me.andannn.aniflow.data.model.relation.CharacterWithVoiceActor
 import me.andannn.aniflow.ui.theme.AppBackgroundColor
@@ -93,7 +92,7 @@ class DetailMediaCharacterPagingViewModel(
                 Napier.d(tag = TAG) { "_selectedLanguage changed: $language" }
                 pagingController?.dispose()
                 pagingController =
-                    DetailMediaCharacterPaging(
+                    DetailMediaCharacterPageComponent(
                         mediaId,
                         characterStaffLanguage = language,
                         errorHandler = this@DetailMediaCharacterPagingViewModel,

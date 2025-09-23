@@ -36,6 +36,14 @@ object PageComponentFactory {
         category: NotificationCategory,
         errorHandler: AppErrorHandler,
     ): NotificationPageComponent = NotificationPageComponent(category, errorHandler = errorHandler)
+
+    fun createDetailMediaStaffPaging(mediaId: String): DetailMediaStaffPageComponent = DetailMediaStaffPageComponent(mediaId)
+
+    fun createDetailMediaCharacterPaging(mediaId: String): DetailMediaCharacterPageComponent =
+        DetailMediaCharacterPageComponent(
+            mediaId,
+            StaffLanguage.JAPANESE,
+        )
 }
 
 sealed interface LoadingStatus {
@@ -188,7 +196,7 @@ class StudioSearchResultPageComponent(
         },
     )
 
-class DetailMediaStaffPaging(
+class DetailMediaStaffPageComponent(
     private val mediaId: String,
     config: PageConfig = DEFAULT_CONFIG,
     private val errorHandler: AppErrorHandler? = null,
@@ -206,7 +214,7 @@ class DetailMediaStaffPaging(
         },
     )
 
-class DetailMediaCharacterPaging(
+class DetailMediaCharacterPageComponent(
     private val mediaId: String,
     private val characterStaffLanguage: StaffLanguage,
     config: PageConfig = DEFAULT_CONFIG,

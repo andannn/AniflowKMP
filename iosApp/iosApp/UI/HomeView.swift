@@ -1,54 +1,49 @@
-import UIKit
 import SwiftUI
 import Shared
 
 @MainActor
-class HomeViewModel: ObservableObject {
-    @Published public var uiState: HomeAppBarUiState = HomeAppBarUiState.companion.Empty
+final class HomeViewModel: ObservableObject {
+    @Published private(set) var uiState: HomeAppBarUiState = HomeAppBarUiState.companion.Empty
     private let dataProvider: HomeAppBarUiDataProvider
     private let mediaRepository: MediaRepository
-    private var dataTask : Task<(), any Error>? = nil
+    private var dataTask: Task<(), any Error>?
     
     init() {
-        print("HomeViewModel init")
         dataProvider = KoinHelper.shared.homeAppBarUiDataProvider()
         mediaRepository = KoinHelper.shared.mediaRepository()
         
+        setupDataStream()
+    }
+    
+    private func setupDataStream() {
         dataTask = Task { [weak self] in
             guard let stream = self?.dataProvider.appBarAsyncSequence() else { return }
             
-            for try await state in stream {
-                self?.uiState = state
+            do {
+                for try await state in stream {
+                    self?.uiState = state
+                }
+            } catch {
+                // TODO: Handle error state
+                print("Error in HomeViewModel data stream: \(error)")
             }
         }
     }
     
     func setContentMode(mode: MediaContentMode) {
-        print("Discover setContentMode \(mode)")
         Task {
             try await mediaRepository.setContentMode(mode: mode)
         }
     }
     
-    func toggleContentMode() {
-        if (uiState.contentMode == MediaContentMode.anime) {
-            setContentMode(mode: .manga)
-        } else {
-            setContentMode(mode: .anime)
-        }
-    }
-    
     deinit {
-        print("HomeViewModel deinit")
         dataTask?.cancel()
     }
 }
 
 struct HomeView: View {
     @StateObject private var viewModel = HomeViewModel()
-    
-    @State
-    private var selection: TopLevelNavigation = .discover
+    @State private var selectedTab = TopLevelNavigation.discover
     @EnvironmentObject var router: Router
     
     private var isAnimeBinding: Binding<Bool> {
@@ -59,54 +54,45 @@ struct HomeView: View {
     }
     
     var body: some View {
-        TabView(selection: $selection) {
-            ForEach([TopLevelNavigation.discover,
-                     .track,
-            ], id: \.self) { tab in
-                screen(for: tab)
-                    .tabItem {
-                        Image(systemName: selection == tab ? tab.selectedIcon : tab.unselectedIcon)
-                        Text(tab.label)
-                    }
-                    .tag(tab)
-            }
+        let title = selectedTab == .discover ? "Discover" : "Track"
+        TabView(selection: $selectedTab) {
+            DiscoverView()
+                .tabItem {
+                    Label(
+                        TopLevelNavigation.discover.label,
+                        systemImage: selectedTab == .discover ?
+                            TopLevelNavigation.discover.selectedIcon :
+                            TopLevelNavigation.discover.unselectedIcon
+                    )
+                }
+                .tag(TopLevelNavigation.discover)
+            
+            TrackView()
+                .tabItem {
+                    Label(
+                        TopLevelNavigation.track.label,
+                        systemImage: selectedTab == .track ?
+                            TopLevelNavigation.track.selectedIcon :
+                            TopLevelNavigation.track.unselectedIcon
+                    )
+                }
+                .tag(TopLevelNavigation.track)
         }
-        .navigationTitle(selection.label)
+        .navigationTitle(title)
         .toolbar {
             ToolbarItem(placement: .principal) {
-                ModeSwitchInToolbar(isAnime: isAnimeBinding)
+                ModeSwitchView(isAnime: isAnimeBinding)
+                    .accessibilityHint("Switch between anime and manga content")
             }
             
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    router.showAuthDialog()
-                } label: {
-                    if let avatarUrl = viewModel.uiState.authedUser?.avatar,
-                       let url = URL(string: avatarUrl) {
-                        AsyncImage(url: url) { image in
-                            image.resizable().aspectRatio(contentMode: .fill)
-                        } placeholder: {
-                            ProgressView()
-                        }
-                        .frame(width: 32, height: 32)
-                        .clipShape(Circle())
-                    } else {
-                        Image(systemName: "person.crop.circle")
-                            .font(.system(size: 24))
-                    }
-                }
+                AvatarButton(
+                    avatarUrl: viewModel.uiState.authedUser?.avatar,
+                    action: { router.showAuthDialog() }
+                )
             }
         }
-    }
-    
-    @ViewBuilder
-    private func screen(for tab: TopLevelNavigation) -> some View {
-        switch tab {
-        case .discover:
-            DiscoverView()
-        case .track:
-            TrackView()
-        }
+        .animation(.easeInOut, value: selectedTab)
     }
 }
 
@@ -133,24 +119,5 @@ enum TopLevelNavigation {
         case .discover: return "Discover"
         case .track: return "Track"
         }
-    }
-}
-
-private struct ModeSwitchInToolbar: View {
-    let isAnime: Binding<Bool>
-    
-    var body: some View {
-        Picker("", selection: isAnime) {
-            Image(systemName: "film.fill")
-                .tag(true)
-                .accessibilityLabel("Anime")
-            Image(systemName: "book.closed.fill")
-                .tag(false)
-                .accessibilityLabel("Manga")
-        }
-        .pickerStyle(.segmented)
-        .labelsHidden()
-        .controlSize(.small)
-        .frame(width: 140)
     }
 }

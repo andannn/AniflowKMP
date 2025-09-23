@@ -40,6 +40,7 @@ import me.andannn.aniflow.data.getUserTitleString
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.MediaCategory
+import me.andannn.aniflow.data.title
 import me.andannn.aniflow.ui.theme.AppBackgroundColor
 import me.andannn.aniflow.ui.theme.PageHorizontalPadding
 import me.andannn.aniflow.ui.theme.TopAppBarColors

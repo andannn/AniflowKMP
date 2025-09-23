@@ -1,4 +1,3 @@
-
 import SwiftUI
 import Shared
 
@@ -96,9 +95,9 @@ struct DetailStaffContentView: View {
                 // Details
                 VStack(alignment: .leading, spacing: 8) {
                     if let staff = staff {
-                        //                            if let birthday = character.dateOfBirth {
-                        //                                Text("Birthday: \(birthday.format())")
-                        //                            }
+                        if let birthday = staff.dateOfBirth {
+                            Text("Birthday: \(birthday.format())")
+                        }
                         if let age = staff.age {
                             Text("Age: \(age)")
                         }
@@ -108,15 +107,16 @@ struct DetailStaffContentView: View {
                         if let bloodType = staff.bloodType {
                             Text("Blood Type: \(bloodType)")
                         }
-                        //                            if let description = character.description {
-                        //                                Text(description)
-                        //                            }
+                        if let description = staff.description_ {
+                            HTMLText(html: description)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
                     }
                 }
                 .font(.system(size: 14))
-                .padding(.horizontal)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal)
         }
     }
 }
-

@@ -34,6 +34,7 @@ struct MediaCategoryPaging: View {
     private let category: MediaCategory
     @StateObject private var viewModel: MediaCategoryPagingViewModel
     @StateObject private var snackbarManager = SnackbarManager()
+    @EnvironmentObject private var router: Router
 
     let cols = [GridItem(.adaptive(minimum: 120), spacing: 12)]
 
@@ -55,11 +56,13 @@ struct MediaCategoryPaging: View {
                 MediaPreviewItemWrapper(
                     media: media,
                     userTitleLanguage: viewModel.userOptions.titleLanguage,
-                    onMediaClick: { media in  }
+                    onMediaClick: { media in
+                        router.navigateTo(route: .detailMedia(mediaId: media.id))
+                    }
                 )
             }
         )
-        .navigationTitle(category.title)
+        .navigationTitle(category.title_)
         .navigationBarTitleDisplayMode(.inline)
         .snackbar(manager: snackbarManager)
         .errorHandling(source: viewModel.errorChannel, snackbarManager: snackbarManager)

@@ -25,6 +25,12 @@ struct RootView: View {
                         SettingView()
                     case .detailCharacter(characterId: let characterId):
                         DetailCharacterView(characterId: characterId)
+                    case .mediaStaffPaging(mediaId: let mediaId):
+                        DetailMediaStaffPaging(mediaId: mediaId)
+                    case .detailStaff(staffId: let staffId):
+                        DetailStaffView(staffId: staffId)
+                    case .mediaCharacterPaging(mediaId: let mediaId):
+                        DetailMediaCharacterPaging(mediaId: mediaId)
                     }
                 }
         }
@@ -66,6 +72,9 @@ enum AppRoute: Hashable {
     case settings
     case detailCharacter(characterId: String)
     case detailMedia(mediaId: String)
+    case detailStaff(staffId: String)
+    case mediaStaffPaging(mediaId: String)
+    case mediaCharacterPaging(mediaId: String)
     
     // Demo:
     case stateObjOrObservableObj

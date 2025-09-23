@@ -13,7 +13,7 @@ public struct SectionHeader: View {
             Spacer()
             if showMore {
                 Button(action: onMore) {
-                    Label("更多", systemImage: "chevron.right")
+                    Label("More", systemImage: "chevron.right")
                         .labelStyle(.titleAndIcon)
                         .font(.subheadline)
                         .foregroundColor(.accentColor)

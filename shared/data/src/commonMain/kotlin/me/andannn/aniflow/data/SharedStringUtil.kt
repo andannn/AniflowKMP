@@ -9,6 +9,7 @@ import me.andannn.aniflow.data.model.SearchCategory
 import me.andannn.aniflow.data.model.StaffCharacterName
 import me.andannn.aniflow.data.model.Title
 import me.andannn.aniflow.data.model.define.CharacterRole
+import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.MediaFormat
 import me.andannn.aniflow.data.model.define.MediaRelation
 import me.andannn.aniflow.data.model.define.MediaSeason
@@ -229,3 +230,17 @@ fun StaffLanguage.label() =
         StaffLanguage.HEBREW -> "Hebrew"
         StaffLanguage.HUNGARIAN -> "Hungarian"
     }
+
+val MediaCategory.title
+    get() =
+        when (this) {
+            MediaCategory.CURRENT_SEASON_ANIME -> "Popular this season"
+            MediaCategory.NEXT_SEASON_ANIME -> "Upcoming next season"
+            MediaCategory.TRENDING_ANIME -> "Trending now"
+            MediaCategory.MOVIE_ANIME -> "Movie"
+            MediaCategory.TRENDING_MANGA -> "Trending manga"
+            MediaCategory.ALL_TIME_POPULAR_MANGA -> "All time popular manga"
+            MediaCategory.TOP_MANHWA -> "Top manhwa"
+            MediaCategory.NEW_ADDED_ANIME -> "New Added Anime"
+            MediaCategory.NEW_ADDED_MANGA -> "New added manga"
+        }

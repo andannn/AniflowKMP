@@ -51,7 +51,7 @@ class DiscoverViewModel: ObservableObject {
             do {
                 for try await status in stream {
                     guard let self = self else { continue }
-
+                    
                     AppErrorKt.submitErrorOfSyncStatus(self.errorChannel, status: status)
                     
                     print("Discover cancelLastAndRegisterUiSideEffect status: \(status)")
@@ -89,24 +89,24 @@ struct DiscoverView: View {
                     }
                 }
                 ForEach(Array(viewModel.uiState.categoryDataMap.content), id: \ .category) { categoryWithContents in
-                    TitleWithContent(title: categoryWithContents.category.title, onMoreClick: {
-                        let category = categoryWithContents.category
-                        router.navigateTo(route: AppRoute.mediaCategoryPaingList(category: category))
-                    }) {
+                    VStack{
+                        SectionHeader(title: categoryWithContents.category.title_, showMore: true, onMore: {
+                            let category = categoryWithContents.category
+                            router.navigateTo(route: AppRoute.mediaCategoryPaingList(category: category))
+                        })
                         MediaPreviewSector(
                             mediaList: categoryWithContents.medias,
-                            userTitleLanguage: viewModel.uiState.userOptions.titleLanguage) { item in
-                                router.navigateTo(route: .detailMedia(mediaId: item.id))
-                            }
+                            userTitleLanguage: viewModel.uiState.userOptions.titleLanguage
+                        ) { item in
+                            router.navigateTo(route: .detailMedia(mediaId: item.id))
+                        }
                     }
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
             }
             .padding(.horizontal, 20)
             .padding(.top, 16)
         }
         .scrollContentBackground(.hidden)
-        .background(Color(.systemGroupedBackground))
         .refreshable {
             do {
                 try await viewModel.doRefreshAndAwait()
@@ -116,7 +116,6 @@ struct DiscoverView: View {
         }
         .snackbar(manager: snackbarManager)
         .errorHandling(source: viewModel.errorChannel, snackbarManager: snackbarManager)
-        .navigationTitle("Discover")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: {
@@ -172,57 +171,5 @@ struct MediaPreviewItemWrapper: View {
         .shadow(color: Color.black.opacity(0.08), radius: 4, x: 0, y: 2)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(title)
-    }
-}
-
-struct TitleWithContent<Content: View>: View {
-    let title: String
-    let onMoreClick: () -> Void
-    let content: () -> Content
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text(title)
-                    .lineLimit(1)
-                    .font(.title3).fontWeight(.bold)
-                Spacer()
-                Button(action: onMoreClick) {
-                    Label("More", systemImage: "chevron.right")
-                        .labelStyle(.titleAndIcon)
-                }
-                .buttonStyle(.bordered)
-                .font(.subheadline)
-            }
-            .padding(.horizontal, 4)
-            .padding(.vertical, 4)
-            content()
-        }
-    }
-}
-
-extension MediaCategory {
-    var title: String {
-        switch self {
-        case .currentSeasonAnime:
-            return "Popular this season"
-        case .nextSeasonAnime:
-            return "Upcoming next season"
-        case .trendingAnime:
-            return "Trending now"
-        case .movieAnime:
-            return "Movie"
-        case .theNewAddedAnime:
-            return "New Added Anime"
-        case .trendingManga:
-            return "TODO"
-        case .allTimePopularManga:
-            return "TODO"
-        case .topManhwa:
-            return "TODO"
-        case .theNewAddedManga:
-            return "TODO"
-        default: fatalError("NEVER")
-        }
     }
 }
