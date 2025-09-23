@@ -4,7 +4,6 @@
  */
 package me.andannn.aniflow.ui
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -96,7 +95,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import me.andannn.aniflow.data.AppErrorHandler
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.DetailMediaUiDataProvider
 import me.andannn.aniflow.data.ErrorChannel
@@ -104,6 +102,8 @@ import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.SnackBarMessage
 import me.andannn.aniflow.data.buildErrorChannel
 import me.andannn.aniflow.data.infoString
+import me.andannn.aniflow.data.label
+import me.andannn.aniflow.data.model.BottomBarState
 import me.andannn.aniflow.data.model.CharacterModel
 import me.andannn.aniflow.data.model.DetailUiState
 import me.andannn.aniflow.data.model.ExternalLink
@@ -115,7 +115,6 @@ import me.andannn.aniflow.data.model.StudioModel
 import me.andannn.aniflow.data.model.UserModel
 import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.MediaListStatus
-import me.andannn.aniflow.data.model.define.MediaStatus
 import me.andannn.aniflow.data.model.launchUri
 import me.andannn.aniflow.data.model.relation.CharacterWithVoiceActor
 import me.andannn.aniflow.data.model.relation.MediaModelWithRelationType
@@ -327,9 +326,10 @@ fun DetailMedia(
             studioList = uiState.studioList,
             userOptions = uiState.userOptions,
             mediaListItem = uiState.mediaListItem,
-            authedUser = uiState.authedUser,
             characterList = uiState.characters,
             isRefreshing = isRefreshing,
+            bottomBarStatus = uiState.bottomBarStatus,
+            mediaListOption = uiState.mediaListOptions,
             modifier = Modifier,
             onPullRefresh = { viewModel.onPullRefresh() },
             onPop = { navigator.popBackStack() },
@@ -380,14 +380,15 @@ fun DetailMedia(
 @Composable
 private fun DetailMediaContent(
     title: String,
+    bottomBarStatus: BottomBarState,
     staffList: List<StaffWithRole>,
     mediaModel: MediaModel?,
+    mediaListOption: List<MediaListStatus>,
     characterList: List<CharacterWithVoiceActor>,
     relations: List<MediaModelWithRelationType>,
     studioList: List<StudioModel>,
     userOptions: UserOptions,
     mediaListItem: MediaListModel?,
-    authedUser: UserModel?,
     isRefreshing: Boolean,
     modifier: Modifier = Modifier,
     onPullRefresh: () -> Unit = {},
@@ -429,18 +430,17 @@ private fun DetailMediaContent(
                     scrollBehavior = exitAlwaysScrollBehavior,
                     expanded = true,
                     leadingContent = {
-                        if (mediaListItem != null) {
-                            val items =
-                                mediaModel?.status?.toMediaListOption() ?: MediaListStatus.entries
+                        if (bottomBarStatus == BottomBarState.AUTHED_WITH_LIST_ITEM) {
                             SplitDropDownMenuButton(
-                                menuItemList = items.map { it.toMenuItem() },
-                                selectIndex = items.indexOf(mediaListItem.status),
+                                modifier = Modifier.padding(horizontal = 4.dp),
+                                menuItemList = mediaListOption.map { it.toMenuItem() },
+                                selectIndex = mediaListOption.indexOf(mediaListItem!!.status),
                                 onMenuItemClick = {
-                                    onChangeStatus(items[it])
+                                    onChangeStatus(mediaListOption[it])
                                 },
                             )
                         }
-                        if (authedUser != null && mediaListItem == null) {
+                        if (bottomBarStatus == BottomBarState.AUTHED_WITHOUT_LIST_ITEM) {
                             Button(
                                 colors =
                                     ButtonDefaults.textButtonColors(
@@ -457,8 +457,9 @@ private fun DetailMediaContent(
                         }
                     },
                     content = {
-                        if (authedUser == null) {
+                        if (bottomBarStatus == BottomBarState.NEED_LOGIN) {
                             Button(
+                                modifier = Modifier.padding(horizontal = 4.dp),
                                 colors =
                                     ButtonDefaults.textButtonColors(
                                         containerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -491,7 +492,7 @@ private fun DetailMediaContent(
                                 }
                             },
                         ) {
-                            if (authedUser != null) {
+                            if (bottomBarStatus != BottomBarState.NEED_LOGIN) {
                                 clickableItem(
                                     onClick = onToggleFavoriteClick,
                                     icon = {
@@ -515,7 +516,7 @@ private fun DetailMediaContent(
                                     label = "Toggle favorite",
                                 )
                             }
-                            if (authedUser != null && mediaListItem != null) {
+                            if (bottomBarStatus == BottomBarState.AUTHED_WITH_LIST_ITEM) {
                                 clickableItem(
                                     onClick = onTrackProgressClick,
                                     icon = {
@@ -925,37 +926,37 @@ private fun MediaListStatus.toMenuItem() =
     when (this) {
         MediaListStatus.CURRENT ->
             MenuItem(
-                label = "Watching",
+                label = label(),
                 icon = Icons.Filled.PlayArrow, // 正在看 → 播放图标
             )
 
         MediaListStatus.PLANNING ->
             MenuItem(
-                label = "Planning",
+                label = label(),
                 icon = Icons.Filled.Schedule, // 计划中 → 时钟/日程图标
             )
 
         MediaListStatus.COMPLETED ->
             MenuItem(
-                label = "Completed",
+                label = label(),
                 icon = Icons.Filled.CheckCircle, // 完成 → 绿色对勾
             )
 
         MediaListStatus.DROPPED ->
             MenuItem(
-                label = "Dropped",
+                label = label(),
                 icon = Icons.Filled.Cancel, // 放弃 → 叉/禁用
             )
 
         MediaListStatus.PAUSED ->
             MenuItem(
-                label = "Paused",
+                label = label(),
                 icon = Icons.Filled.PauseCircle, // 暂停 → 暂停按钮
             )
 
         MediaListStatus.REPEATING ->
             MenuItem(
-                label = "Repeating",
+                label = label(),
                 icon = Icons.Filled.Repeat, // 重看 → 循环箭头
             )
     }
@@ -1063,30 +1064,4 @@ private fun String.toComposeColor(): Color {
     val g = argb.substring(4, 6).toInt(16) / 255f
     val b = argb.substring(6, 8).toInt(16) / 255f
     return Color(r, g, b, a)
-}
-
-private fun MediaStatus?.toMediaListOption(): List<MediaListStatus> {
-    val allOptions = MediaListStatus.entries
-    return when (this) {
-        MediaStatus.NOT_YET_RELEASED ->
-            listOf(
-                MediaListStatus.PLANNING,
-                MediaListStatus.DROPPED,
-            )
-
-        MediaStatus.RELEASING ->
-            allOptions.toMutableList().apply {
-                removeIf {
-                    it == MediaListStatus.COMPLETED || it == MediaListStatus.REPEATING
-                }
-            }
-
-        MediaStatus.FINISHED,
-        MediaStatus.CANCELLED,
-        MediaStatus.HIATUS,
-        null,
-        -> {
-            allOptions
-        }
-    }
 }

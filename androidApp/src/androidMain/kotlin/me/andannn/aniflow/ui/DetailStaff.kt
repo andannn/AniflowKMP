@@ -67,7 +67,7 @@ import me.andannn.aniflow.data.DetailStaffUiDataProvider
 import me.andannn.aniflow.data.ErrorChannel
 import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.PageComponent
-import me.andannn.aniflow.data.StaffCharactersPaging
+import me.andannn.aniflow.data.StaffCharactersPageComponent
 import me.andannn.aniflow.data.buildErrorChannel
 import me.andannn.aniflow.data.getNameString
 import me.andannn.aniflow.data.label
@@ -125,7 +125,7 @@ class DetailStaffViewModel(
                 Napier.d(tag = TAG) { "_mediaSort changed: $mediaSort" }
                 pagingController.dispose()
                 pagingController =
-                    StaffCharactersPaging(
+                    StaffCharactersPageComponent(
                         staffId,
                         mediaSort,
                         errorHandler = this@DetailStaffViewModel,

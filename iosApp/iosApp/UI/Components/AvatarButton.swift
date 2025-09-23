@@ -6,21 +6,14 @@ struct AvatarButton: View {
     
     var body: some View {
         Button(action: action) {
-            if let avatarUrl = avatarUrl,
-               let url = URL(string: avatarUrl) {
-                AsyncImage(url: url) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } placeholder: {
-                    ProgressView()
-                }
-                .frame(width: 32, height: 32)
-                .clipShape(Circle())
-                .overlay(
-                    Circle()
-                        .stroke(Color(.systemGray5), lineWidth: 1)
-                )
+            if let avatarUrl = avatarUrl {
+                CustomAsyncImage(url: avatarUrl, contentMode: .fill)
+                    .frame(width: 32, height: 32)
+                    .clipShape(Circle())
+                    .overlay(
+                        Circle()
+                            .stroke(Color(.systemGray5), lineWidth: 1)
+                    )
             } else {
                 Image(systemName: "person.crop.circle")
                     .font(.system(size: 24))

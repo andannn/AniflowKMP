@@ -66,7 +66,7 @@ class TrackViewModel : ObservableObject {
         print("TrackViewModel onMarkWatched click E")
         Task {
             let current = Int(truncating: item.progress ?? 0)
-            let error = try await mediaRepository.updateMediaListProgress(
+            let error = try await mediaRepository.updateMediaListStatus(
                 mediaListId: item.id,
                 progress: current + 1
             )
@@ -77,7 +77,7 @@ class TrackViewModel : ObservableObject {
     func onDelete(item: MediaListModel) {
         print("TrackViewModel onDelete click")
         Task {
-            try await mediaRepository.updateMediaListProgress(mediaListId: item.id,status: .dropped)
+            try await mediaRepository.updateMediaListStatus(mediaListId: item.id,status: .dropped)
         }
     }
     

@@ -16,20 +16,10 @@ struct CharacterRowItem: View {
                 // Character section (left)
                 Button(action: { onCharacterClick(characterWithVoiceActor.character) }) {
                     HStack(spacing: 8) {
-                        AsyncImage(url: URL(string: characterWithVoiceActor.character.image ?? "")) { phase in
-                            switch phase {
-                            case .empty:
-                                Color.gray.opacity(0.2)
-                            case .success(let img):
-                                img.resizable().scaledToFill()
-                            case .failure:
-                                Color.gray.opacity(0.2)
-                            @unknown default:
-                                Color.gray.opacity(0.2)
-                            }
-                        }
-                        .frame(width: 72, height: 90)
-                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                        // replaced AsyncImage with CustomAsyncImage
+                        CustomAsyncImage(url: characterWithVoiceActor.character.image)
+                            .frame(width: 72, height: 90)
+                            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
 
                         VStack(alignment: .leading, spacing: 4) {
                             let name = characterWithVoiceActor.character.name?.getNameString(staffName: userStaffLanguage) ?? ""
@@ -68,20 +58,11 @@ struct CharacterRowItem: View {
                                     .truncationMode(.tail)
                             }
                             .frame(height: 90)
-                            AsyncImage(url: URL(string: va.image ?? "")) { phase in
-                                switch phase {
-                                case .empty:
-                                    Color.gray.opacity(0.2)
-                                case .success(let img):
-                                    img.resizable().scaledToFill()
-                                case .failure:
-                                    Color.gray.opacity(0.2)
-                                @unknown default:
-                                    Color.gray.opacity(0.2)
-                                }
-                            }
-                            .frame(width: 72, height: 90)
-                            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+
+                            // replaced AsyncImage with CustomAsyncImage
+                            CustomAsyncImage(url: va.image)
+                                .frame(width: 72, height: 90)
+                                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                         }
                     }
                     .buttonStyle(.plain)

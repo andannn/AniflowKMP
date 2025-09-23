@@ -5,8 +5,11 @@
 package me.andannn.aniflow.data.model
 
 import kotlinx.serialization.Serializable
+import me.andannn.aniflow.data.getNameString
 import me.andannn.aniflow.data.getUserTitleString
 import me.andannn.aniflow.data.model.define.MediaContentMode
+import me.andannn.aniflow.data.model.define.MediaListStatus
+import me.andannn.aniflow.data.model.define.MediaStatus
 import me.andannn.aniflow.data.model.define.ScoreFormat
 import me.andannn.aniflow.data.model.define.Theme
 import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
@@ -16,6 +19,7 @@ import me.andannn.aniflow.data.model.relation.CharacterWithVoiceActor
 import me.andannn.aniflow.data.model.relation.MediaModelWithRelationType
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.database.relation.CharacterWithVoiceActorRelation
+import me.andannn.aniflow.service.dto.MediaListOptions
 
 data class DiscoverUiState(
     val categoryDataMap: CategoryDataModel = CategoryDataModel(),
@@ -217,6 +221,12 @@ data class SettingUiState(
     }
 }
 
+enum class BottomBarState {
+    NEED_LOGIN,
+    AUTHED_WITHOUT_LIST_ITEM,
+    AUTHED_WITH_LIST_ITEM,
+}
+
 data class DetailUiState(
     val mediaModel: MediaModel?,
     val mediaListItem: MediaListModel? = null,
@@ -229,6 +239,42 @@ data class DetailUiState(
 ) {
     val title: String
         get() = mediaModel?.title?.getUserTitleString(userOptions.titleLanguage) ?: ""
+    val bottomBarStatus: BottomBarState
+        get() =
+            when {
+                authedUser == null -> BottomBarState.NEED_LOGIN
+                mediaListItem == null -> BottomBarState.AUTHED_WITHOUT_LIST_ITEM
+                else -> BottomBarState.AUTHED_WITH_LIST_ITEM
+            }
+
+    val mediaListOptions: List<MediaListStatus> =
+        run {
+            val status = mediaModel?.status
+            val allOptions = MediaListStatus.entries
+            when (status) {
+                MediaStatus.NOT_YET_RELEASED ->
+                    listOf(
+                        MediaListStatus.PLANNING,
+                        MediaListStatus.DROPPED,
+                    )
+
+                MediaStatus.RELEASING ->
+                    listOf(
+                        MediaListStatus.CURRENT,
+                        MediaListStatus.PLANNING,
+                        MediaListStatus.DROPPED,
+                        MediaListStatus.PAUSED,
+                    )
+
+                MediaStatus.FINISHED,
+                MediaStatus.CANCELLED,
+                MediaStatus.HIATUS,
+                null,
+                -> {
+                    allOptions
+                }
+            }
+        }
 
     companion object {
         val Empty =
@@ -242,6 +288,9 @@ data class DetailStaffUiState(
     val userOption: UserOptions,
     val staffModel: StaffModel?,
 ) {
+    val title
+        get() = staffModel?.name.getNameString(userOption.staffNameLanguage)
+
     companion object {
         val Empty = DetailStaffUiState(UserOptions.Default, null)
     }
@@ -251,6 +300,9 @@ data class DetailCharacterUiState(
     val userOption: UserOptions,
     val characterModel: CharacterModel?,
 ) {
+    val title
+        get() = characterModel?.name.getNameString(userOption.staffNameLanguage)
+
     companion object {
         val Empty = DetailCharacterUiState(UserOptions.Default, null)
     }

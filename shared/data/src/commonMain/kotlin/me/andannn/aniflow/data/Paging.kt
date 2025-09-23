@@ -44,6 +44,24 @@ object PageComponentFactory {
             mediaId,
             StaffLanguage.JAPANESE,
         )
+
+    fun createStaffCharactersPaging(
+        staffId: String,
+        sort: MediaSort,
+    ): StaffCharactersPageComponent =
+        StaffCharactersPageComponent(
+            staffId,
+            sort,
+        )
+
+    fun characterDetailMediaPaging(
+        characterId: String,
+        sort: MediaSort,
+    ): CharacterDetailMediaPaging =
+        CharacterDetailMediaPaging(
+            characterId,
+            sort,
+        )
 }
 
 sealed interface LoadingStatus {
@@ -234,7 +252,7 @@ class DetailMediaCharacterPageComponent(
         },
     )
 
-class StaffCharactersPaging(
+class StaffCharactersPageComponent(
     private val staffId: String,
     private val sort: MediaSort,
     config: PageConfig = DEFAULT_CONFIG,

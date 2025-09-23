@@ -1,4 +1,3 @@
-
 import SwiftUI
 import Shared
 
@@ -10,26 +9,11 @@ struct MediaRelationItem: View {
         Button(action: onClick) {
             HStack(spacing: 12) {
                 // Cover Image
-                if let cover = mediaRelation.media.coverImage, let url = URL(string: cover) {
-                    AsyncImage(url: url) { phase in
-                        switch phase {
-                        case .empty:
-                            ZStack {
-                                Rectangle().fill(Color.gray.opacity(0.15))
-                                ProgressView()
-                            }
-                        case .success(let img):
-                            img.resizable().scaledToFill()
-                        case .failure:
-                            Rectangle().fill(Color.gray.opacity(0.15))
-                        @unknown default:
-                            Rectangle().fill(Color.gray.opacity(0.15))
-                        }
-                    }
+                CustomAsyncImage(url: mediaRelation.media.coverImage)
                     .aspectRatio(3/4, contentMode: .fit)
                     .frame(width: 72, height: 96)
                     .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                }
+                
                 // Info Column
                 VStack(alignment: .leading, spacing: 6) {
                     Text(mediaRelation.relationType.label())

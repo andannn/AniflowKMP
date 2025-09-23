@@ -11,6 +11,7 @@ import me.andannn.aniflow.data.model.Title
 import me.andannn.aniflow.data.model.define.CharacterRole
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.MediaFormat
+import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.model.define.MediaRelation
 import me.andannn.aniflow.data.model.define.MediaSeason
 import me.andannn.aniflow.data.model.define.MediaSort
@@ -244,3 +245,13 @@ val MediaCategory.title
             MediaCategory.NEW_ADDED_ANIME -> "New Added Anime"
             MediaCategory.NEW_ADDED_MANGA -> "New added manga"
         }
+
+fun MediaListStatus.label() =
+    when (this) {
+        MediaListStatus.CURRENT -> "Watching"
+        MediaListStatus.PLANNING -> "Planning"
+        MediaListStatus.COMPLETED -> "Completed"
+        MediaListStatus.DROPPED -> "Dropped"
+        MediaListStatus.PAUSED -> "Paused"
+        MediaListStatus.REPEATING -> "Repeating"
+    }

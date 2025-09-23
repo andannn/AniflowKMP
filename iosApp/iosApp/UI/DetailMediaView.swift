@@ -7,9 +7,13 @@ class DetailMediaViewModel: ObservableObject {
     @Published public var uiState: DetailUiState = DetailUiState.companion.Empty
     
     private let dataProvider: DetailMediaUiDataProvider
+    private let mediaRepository: MediaRepository = KoinHelper.shared.mediaRepository()
     
     private var dataTask:  Task<(), any Error>? = nil
     private var sideEffectTask:  Task<(), any Error>? = nil
+    private var favoriteChangeTask:  Task<(), any Error>? = nil
+    
+    private var isFavoriteChanging: Bool = false
     
     init(mediaId: String) {
         self.mediaId = mediaId
@@ -31,10 +35,52 @@ class DetailMediaViewModel: ObservableObject {
         
     }
     
+    func onChangeListItemStatus(status: MediaListStatus) {
+        Task {
+            guard let mediaListId = uiState.mediaListItem?.id else {
+                fatalError("mediaListId is nil")
+            }
+            let error = try await mediaRepository.updateMediaListStatus(mediaListId: mediaListId, status: status)
+        }
+    }
+    
+    func onAddToListClick() {
+        Task {
+            guard let mediaId = uiState.mediaModel?.id else {
+                fatalError("mediaListId is nil")
+            }
+            let error = try await mediaRepository.addNewMediaToList(mediaId: mediaId)
+        }
+    }
+    
+    func onToggleFavoriteClick() {
+        if isFavoriteChanging  {
+            return
+        }
+
+        favoriteChangeTask = Task {
+            isFavoriteChanging = true
+            guard let mediaId = uiState.mediaModel?.id else {
+                fatalError("mediaListId is nil")
+            }
+            guard let mediaType = uiState.mediaModel?.type else {
+                fatalError("mediaListId is nil")
+            }
+            
+            do {
+                let error = try await mediaRepository.toggleMediaItemLike(mediaId: mediaId, mediaType: mediaType)
+                isFavoriteChanging = false
+            } catch {
+                isFavoriteChanging = false
+            }
+        }
+    }
+    
     
     deinit {
         print("DetailMediaViewModel deinit")
         dataTask?.cancel()
+        sideEffectTask?.cancel()
     }
 }
 
@@ -52,8 +98,10 @@ struct DetailMediaView: View {
         let uiState = viewModel.uiState
         DetailMediaContent(
             title: uiState.title,
+            bottomBarStatus: uiState.bottomBarStatus,
             staffList: uiState.staffList,
             mediaModel: uiState.mediaModel,
+            mediaListOption: uiState.mediaListOptions,
             characterList: uiState.characters,
             relations: uiState.relations,
             studioList: uiState.studioList,
@@ -61,6 +109,15 @@ struct DetailMediaView: View {
             mediaListItem: uiState.mediaListItem,
             authedUser: uiState.authedUser,
             isRefreshing: false,
+            onChangeStatus: { status in
+                viewModel.onChangeListItemStatus(status: status)
+            },
+            onToggleFavoriteClick: {
+                viewModel.onToggleFavoriteClick()
+            },
+            onAddToListClick: {
+                viewModel.onAddToListClick()
+            },
             onRelationItemClick: { relationItem in
                 router.navigateTo(route: .detailMedia(mediaId: relationItem.media.id))
             },
@@ -85,9 +142,11 @@ struct DetailMediaView: View {
 public struct DetailMediaContent: View {
     // Inputs (mirror Compose signature as much as makes sense in SwiftUI)
     public let title: String
+    public let bottomBarStatus: BottomBarState
     public let staffList: [StaffWithRole]
     public let mediaModel: MediaModel?
     public let characterList: [CharacterWithVoiceActor]
+    public let mediaListOption: [MediaListStatus]
     public let relations: [MediaModelWithRelationType]
     public let studioList: [StudioModel]
     public let userOptions: UserOptions
@@ -116,8 +175,10 @@ public struct DetailMediaContent: View {
     
     public init(
         title: String,
+        bottomBarStatus: BottomBarState,
         staffList: [StaffWithRole],
         mediaModel: MediaModel?,
+        mediaListOption: [MediaListStatus],
         characterList: [CharacterWithVoiceActor],
         relations: [MediaModelWithRelationType],
         studioList: [StudioModel],
@@ -143,7 +204,9 @@ public struct DetailMediaContent: View {
     ) {
         self.title = title
         self.staffList = staffList
+        self.bottomBarStatus = bottomBarStatus
         self.mediaModel = mediaModel
+        self.mediaListOption = mediaListOption
         self.characterList = characterList
         self.relations = relations
         self.studioList = studioList
@@ -190,24 +253,92 @@ public struct DetailMediaContent: View {
             .background(Color(.systemBackground))
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
-            //                        .toolbar { topToolbar }
-            //                        .safeAreaInset(edge: .bottom) { bottomBar }
             .refreshable { onPullRefresh() }
         }
+        // Floating pill + FAB bottom bar using safeAreaInset for precise control
+        .safeAreaInset(edge: .bottom) {
+            floatingBottomBar
+        }
+    }
+    
+    private var floatingBottomBar: some View {
+        ZStack {
+            // Centered pill
+            HStack {
+                Spacer()
+                HStack(spacing: 12) {
+                    if bottomBarStatus == .authedWithListItem {
+                        MediaListOptionFilterMenu(
+                            selectedCategory: mediaListItem?.status ??  .current,
+                            onSelectCategory: { status in
+                                onChangeStatus(status)
+                            },
+                            options: mediaListOption
+                        )
+                    }
+                    
+                    if bottomBarStatus == .authedWithoutListItem {
+                        Button(action: { onAddToListClick() }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "plus")
+                                Text("Add to List")
+                            }
+                        }
+                    }
+                    
+                    if bottomBarStatus != .needLogin {
+                        ToggleLikeButton(
+                            isLiked: mediaModel?.isFavourite ?? false,
+                            onToggle: {
+                                onToggleFavoriteClick()
+                            }
+                        )
+                    }
+                    
+                    if bottomBarStatus == .needLogin {
+                        Button(action: { onLoginClick() }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "person")
+                                Text("Login")
+                            }
+                        }
+                    }
+                    
+                    if bottomBarStatus == .authedWithListItem {
+                        Button(action: { onTrackProgressClick() }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "bookmark.fill")
+                            }
+                        }
+                        
+                        Button(action: {  }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "star.fill")
+                            }
+                        }
+                    }
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 20)
+                .background(.ultraThinMaterial)
+                .clipShape(Capsule())
+                .shadow(color: Color.black.opacity(0.12), radius: 8, x: 0, y: 4)
+                Spacer()
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.top, 6)
+        .padding(.bottom, 10)
     }
     
     // MARK: - Sections
     @ViewBuilder private var bannerSection: some View {
         if let url = mediaModel?.bannerImage {
-            AsyncImage(url: URL(string: url)) { phase in
-                switch phase {
-                case .empty: Rectangle().fill(.ultraThinMaterial).frame(height: 110)
-                case .success(let img): img.resizable().scaledToFill().frame(height: 110)
-                case .failure: Color.secondary.opacity(0.15).frame(height: 110)
-                @unknown default: EmptyView()
-                }
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            // use CustomAsyncImage directly
+            CustomAsyncImage(url: url)
+                .frame(maxWidth: .infinity)
+                .frame(height: 110)
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         } else {
             Divider().hidden()
         }
@@ -216,16 +347,9 @@ public struct DetailMediaContent: View {
     @ViewBuilder private var headerSection: some View {
         HStack(alignment: .top, spacing: 8) {
             if let cover = mediaModel?.coverImage {
-                AsyncImage(url: URL(string: cover)) { phase in
-                    switch phase {
-                    case .empty: Rectangle().overlay(ProgressView())
-                    case .success(let img): img.resizable().scaledToFill()
-                    case .failure: Color.secondary.opacity(0.15)
-                    @unknown default: Color.secondary.opacity(0.15)
-                    }
-                }
-                .frame(width: 120, height: 180)
-                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                CustomAsyncImage(url: cover)
+                    .frame(width: 120, height: 180)
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             }
             
             VStack(alignment: .leading, spacing: 8) {
@@ -354,15 +478,10 @@ public struct DetailMediaContent: View {
             Button {
                 //                    if let siteUrl = trailer.siteUrl { onTrailerClick(siteUrl) }
             } label: {
-                AsyncImage(url: URL(string: trailer.thumbnail ?? "")) { phase in
-                    switch phase {
-                    case .empty: Rectangle().fill(.ultraThinMaterial).frame(height: 180)
-                    case .success(let img): img.resizable().scaledToFill().frame(height: 180)
-                    case .failure: Color.secondary.opacity(0.15).frame(height: 180)
-                    @unknown default: EmptyView()
-                    }
-                }
-                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                CustomAsyncImage(url: trailer.thumbnail)
+                    .aspectRatio(16/9, contentMode: .fit)
+                    .frame(maxWidth: .infinity)
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             }
             .buttonStyle(.plain)
         }
@@ -391,15 +510,10 @@ public struct DetailMediaContent: View {
                 ForEach(links, id: \.site) { link in
                     Button(action: { onExternalLinkClick(link) }) {
                         HStack(spacing: 6) {
-                            if let icon = link.icon, let url = URL(string: icon) {
-                                AsyncImage(url: url) { phase in
-                                    switch phase {
-                                    case .empty: Color.clear.frame(width: 20, height: 20)
-                                    case .success(let img): img.resizable().scaledToFit().frame(width: 20, height: 20).clipShape(RoundedRectangle(cornerRadius: 4))
-                                    case .failure: Color.clear.frame(width: 20, height: 20)
-                                    @unknown default: Color.clear.frame(width: 20, height: 20)
-                                    }
-                                }
+                            if let icon = link.icon {
+                                CustomAsyncImage(url: icon)
+                                    .frame(width: 20, height: 20)
+                                    .clipShape(RoundedRectangle(cornerRadius: 4))
                             }
                             Text(link.site)
                         }
@@ -409,36 +523,4 @@ public struct DetailMediaContent: View {
             }
         }
     }
-    
-    //    @ViewBuilder private var bottomBar: some View {
-    //        HStack(spacing: 12) {
-    //            if let user = authedUser { // logged in
-    //                if let current = mediaListItem { // show status menu
-    //                    Menu {
-    //                        let items = mediaModel?.status ?? MediaListStatus.allCases
-    //                        ForEach(items) { s in
-    //                            Button(s.rawValue) { onChangeStatus(s) }
-    //                        }
-    //                    } label: {
-    //                        Label(current.status.rawValue, systemImage: "list.bullet")
-    //                            .padding(.horizontal, 12)
-    //                    }
-    //                    .buttonStyle(.borderedProminent)
-    //                } else {
-    //                    Button { onAddToListClick() } label: { Label("Add to List", systemImage: "plus") }
-    //                        .buttonStyle(.bordered)
-    //                }
-    //            } else { // not logged in
-    //                Button { onLoginClick() } label: { Label("Login", systemImage: "person") }
-    //                    .buttonStyle(.bordered)
-    //            }
-    //
-    //            Spacer()
-    //        }
-    //        .padding(.horizontal, 16)
-    //        .padding(.top, 8)
-    //        .padding(.bottom, 12)
-    //        .background(.ultraThinMaterial)
-    //    }
-    //
 }

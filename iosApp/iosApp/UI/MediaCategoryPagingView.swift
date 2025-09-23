@@ -53,10 +53,11 @@ struct MediaCategoryPaging: View {
             contentPadding: .init(top: 0, leading: 16, bottom: 0, trailing: 16),
             key: { AnyHashable($0.id) },
             itemContent: { media in
-                MediaPreviewItemWrapper(
-                    media: media,
-                    userTitleLanguage: viewModel.userOptions.titleLanguage,
-                    onMediaClick: { media in
+                let title = media.title?.getUserTitleString(titleLanguage: viewModel.userOptions.titleLanguage) ?? ""
+                MediaPreviewItem(
+                    title: title,
+                    coverImage: media.coverImage,
+                    onClick: {
                         router.navigateTo(route: .detailMedia(mediaId: media.id))
                     }
                 )

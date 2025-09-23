@@ -26,14 +26,10 @@ struct MediaRowSimple: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 8) {
-            AsyncImage(url: imageURL) { img in
-                img.resizable().scaledToFill()
-            } placeholder: {
-                Color.secondary.opacity(0.2)
-            }
-            .frame(width: 85)
-            .frame(maxHeight: .infinity)
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            CustomAsyncImage(url: item.mediaModel.coverImage)
+                .frame(width: 85)
+                .frame(maxHeight: .infinity)
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
 
             VStack(alignment: .leading, spacing: 10) {
                 Text(title)

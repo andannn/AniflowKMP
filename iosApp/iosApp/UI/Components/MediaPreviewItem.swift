@@ -2,56 +2,44 @@ import SwiftUI
 
 struct MediaPreviewItem: View {
     let title: String
-    let isFollowing: Bool
     let coverImage: String?
     let onClick: () -> Void
 
     var body: some View {
-        Button(action: onClick) {
-            ZStack(alignment: .bottomLeading) {
-                AsyncImage(url: URL(string: coverImage ?? "")) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .aspectRatio(3/4, contentMode: .fit)
-                            .clipped()
-                    default:
-                        Color.gray
-                            .aspectRatio(3/4, contentMode: .fit)
-                    }
-                }
+        GeometryReader { geo in
+            let width = geo.size.width
+            let height = width * 4.0 / 3.0 // maintain 3:4 (width:height = 3:4)
 
+            ZStack(alignment: .bottomLeading) {
+                CustomAsyncImage(url: coverImage, contentMode: .fill)
+                    .frame(width: width, height: height)
+                    .clipped()
+
+                // subtle bottom gradient to improve text contrast
                 LinearGradient(
-                    colors: [Color.clear, Color.black.opacity(0.8)],
+                    colors: [Color.clear, Color.black.opacity(0.6)],
                     startPoint: .top,
                     endPoint: .bottom
                 )
-                .frame(height: 50)
-                .alignmentGuide(.bottom) { d in d[.bottom] }
+                .frame(height: min(64, height * 0.35))
+                .frame(maxWidth: .infinity, alignment: .bottom)
 
+                // Title
                 Text(title)
-                    .font(.body)
+                    .font(.subheadline).fontWeight(.semibold)
                     .foregroundColor(.white)
                     .lineLimit(1)
-                    .truncationMode(.tail)
-                    .padding(.leading, 8)
-                    .padding(.bottom, 12)
+                    .padding(.leading, 12)
+                    .padding(.bottom, 10)
             }
-            .clipShape(RoundedRectangle(cornerRadius: 24))
-            .contentShape(RoundedRectangle(cornerRadius: 24))
+            .background(Color(.systemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .shadow(color: Color.black.opacity(0.08), radius: 4, x: 0, y: 2)
+            .contentShape(Rectangle())
+            .onTapGesture(perform: onClick)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(Text(title))
         }
-        .buttonStyle(PlainButtonStyle())
+        .aspectRatio(3.0/4.0, contentMode: .fit) // ensure parent layout reserves proper space
     }
 }
-
-#Preview
-{
-    MediaPreviewItem(
-        title: "Title",
-        isFollowing: false,
-        coverImage: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx151799-igwbH3AffgHc.jpg",
-        onClick: {}
-    )
-}
-

@@ -79,14 +79,18 @@ struct DiscoverView: View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 20) {
                 if !viewModel.uiState.newReleasedMedia.isEmpty {
-                    if #available(iOS 17.0, *) {
-                        NewReleaseCard_iOS17(
-                            items: viewModel.uiState.newReleasedMedia,
-                            userTitleLanguage: viewModel.uiState.userOptions.titleLanguage
-                        )
-                        .padding(.bottom, 8)
-                        .transition(.opacity)
-                    }
+                    NewReleaseCardSimple(
+                        items: viewModel.uiState.newReleasedMedia,
+                        userTitleLanguage: viewModel.uiState.userOptions.titleLanguage,
+                        onItemClick: { item in
+                            router.navigateTo(route: .detailMedia(mediaId: item.mediaModel.id))
+                        }
+                    )
+                    .padding(.bottom, 8)
+                    .transition(.asymmetric(
+                        insertion: .move(edge: .trailing).combined(with: .opacity),
+                        removal: .move(edge: .leading).combined(with: .opacity)
+                    ))
                 }
                 ForEach(Array(viewModel.uiState.categoryDataMap.content), id: \ .category) { categoryWithContents in
                     VStack{
@@ -128,7 +132,6 @@ struct DiscoverView: View {
                 .accessibilityLabel("Refresh")
             }
         }
-        .animation(.default, value: viewModel.uiState)
     }
 }
 
@@ -139,37 +142,17 @@ struct MediaPreviewSector: View {
     
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 12) {
+            HStack(spacing: 6) {
                 ForEach(mediaList, id: \.id) { media in
-                    MediaPreviewItemWrapper(
-                        media: media,
-                        userTitleLanguage: userTitleLanguage,
-                        onMediaClick: { media in onMediaClick(media) }
+                    let title = media.title?.getUserTitleString(titleLanguage: userTitleLanguage) ?? ""
+                    MediaPreviewItem(
+                        title: title,
+                        coverImage: media.coverImage,
+                        onClick: { onMediaClick(media) }
                     )
                     .frame(width: 150)
                 }
             }
-            .padding(.vertical, 4)
         }
-    }
-}
-
-struct MediaPreviewItemWrapper: View {
-    let media: MediaModel
-    let userTitleLanguage: UserTitleLanguage
-    let onMediaClick: (MediaModel) -> Void
-    
-    var body: some View {
-        let title = media.title?.getUserTitleString(titleLanguage: userTitleLanguage) ?? ""
-        MediaPreviewItem(
-            title: title,
-            isFollowing: false,
-            coverImage: media.coverImage,
-            onClick: { onMediaClick(media) }
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-        .shadow(color: Color.black.opacity(0.08), radius: 4, x: 0, y: 2)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(title)
     }
 }

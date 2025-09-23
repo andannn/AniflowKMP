@@ -103,11 +103,19 @@ extension MediaRepository {
         try await asyncFunction(for: setContentMode(mode: mode))
     }
 
-    func updateMediaListProgress(mediaListId: String, progress: Int? = nil, score: Float? = nil, status: MediaListStatus? = nil) async throws -> AppError? {
+    func updateMediaListStatus(mediaListId: String, progress: Int? = nil, score: Float? = nil, status: MediaListStatus? = nil) async throws -> AppError? {
         let progress = progress.map { KotlinInt(integerLiteral: $0) }
         let kScore: KotlinFloat?   = score.map { KotlinFloat(floatLiteral: Double($0)) }
 
         return try await asyncFunction(for: updateMediaListStatus(mediaListId: mediaListId, status: status, progress: progress, score: kScore))
+    }
+    
+    func addNewMediaToList(mediaId: String) async throws -> AppError? {
+        return try await asyncFunction(for: addNewMediaToList(mediaId: mediaId))
+    }
+    
+    func toggleMediaItemLike(mediaId: String, mediaType: MediaType) async throws -> AppError? {
+        return try await asyncFunction(for: toggleMediaItemLike(mediaId: mediaId, mediaType: mediaType))
     }
 }
 
