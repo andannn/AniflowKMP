@@ -43,6 +43,6 @@ struct DetailMediaStaffPaging: View {
                 )
             }
         )
-        .navigationTitle("Characters")
+        .navigationTitle("Staff")
     }
 }
