@@ -1,3 +1,5 @@
+DROP TRIGGER IF EXISTS update_next_airing_episode_update_time_trigger_v2;
+
 CREATE TRIGGER update_next_airing_episode_update_time_trigger_v3
 AFTER UPDATE OF nextAiringEpisode ON mediaEntity
 WHEN (
@@ -10,7 +12,3 @@ BEGIN
   VALUES (old.id, strftime('%s','now'))
   ON CONFLICT(updatedMediaId) DO UPDATE SET updateTime = strftime('%s','now');
 END;
-
--- Manually insert data to test the new released feature
--- get time at: https://www.epochconverter.com/
--- INSERT INTO AiringUpdatedLogEntity(updatedMediaId, updateTime) VALUES (<media id>, <epoch time second>);
