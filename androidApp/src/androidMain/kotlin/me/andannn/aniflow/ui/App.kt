@@ -149,7 +149,7 @@ class RootNavigator constructor(
 
     fun popBackStack() {
         with(backStack) {
-            if (isNotEmpty()) {
+            if (backStack.size > 1) {
                 removeAt(lastIndex)
             }
         }

@@ -25,15 +25,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation3.runtime.rememberNavBackStack
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.BrowserAuthOperationHandler
+import me.andannn.aniflow.data.PlatformAnalytics
+import me.andannn.aniflow.data.logScreenEventEvent
 import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.Theme
 import me.andannn.aniflow.platform.BrowserAuthOperationHandlerImpl
@@ -42,6 +48,7 @@ import me.andannn.aniflow.ui.DeepLinkHelper
 import me.andannn.aniflow.ui.RootNavigator
 import me.andannn.aniflow.ui.Screen
 import me.andannn.aniflow.ui.theme.AniflowTheme
+import me.andannn.aniflow.ui.util.toFaEvent
 import me.andannn.aniflow.util.LocalResultStore
 import me.andannn.aniflow.util.ResultStore
 import me.andannn.aniflow.worker.SyncWorkHelper
@@ -140,6 +147,16 @@ class MainActivity : ComponentActivity() {
                         navigator.navigateTo(it)
                         paddingDeepLinkNavigationScreen.value = null
                     }
+                }
+
+                LaunchedEffect(backStack) {
+                    snapshotFlow { backStack.lastOrNull() }
+                        .filterNotNull()
+                        .filterIsInstance<Screen>()
+                        .distinctUntilChanged()
+                        .collect {
+                            it.toFaEvent().logScreenEventEvent()
+                        }
                 }
 
                 if (isPresentationMode()) {

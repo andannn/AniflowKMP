@@ -9,6 +9,7 @@ import android.content.Context
 import me.andannn.aniflow.data.KoinHelper
 import me.andannn.aniflow.data.KoinHelper.Modules
 import me.andannn.aniflow.data.Logger
+import me.andannn.aniflow.platform.AndroidAnalytics
 import me.andannn.aniflow.platform.BrowserAuthOperationHandlerImpl
 import me.andannn.aniflow.platform.NetworkConnectivityImpl
 import me.andannn.aniflow.platform.PresentationDummyHandler
@@ -28,6 +29,7 @@ import me.andannn.aniflow.ui.SettingOptionViewModel
 import me.andannn.aniflow.ui.SettingsViewModel
 import me.andannn.aniflow.ui.TrackProgressDialogViewModel
 import me.andannn.aniflow.ui.TrackViewModel
+import okhttp3.internal.platform.AndroidPlatform
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
@@ -54,6 +56,7 @@ class AniflowApplication : Application() {
                     BrowserAuthOperationHandlerImpl()
                 },
             networkConnectivity = NetworkConnectivityImpl(this@AniflowApplication),
+            platformAnalytics = AndroidAnalytics(),
         )
     }
 }
