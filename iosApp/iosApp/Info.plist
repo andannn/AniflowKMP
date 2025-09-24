@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
-    <array>
-        <string>me.aniflow.notifications</string>
-    </array>
+	<array>
+		<string>me.aniflow.notifications</string>
+	</array>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleURLTypes</key>

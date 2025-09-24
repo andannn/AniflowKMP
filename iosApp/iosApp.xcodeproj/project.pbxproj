@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A18BB87B2E84276500B419A5 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = A18BB87A2E84276500B419A5 /* FirebaseAnalytics */; };
+		A18BB87F2E8427CD00B419A5 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = A18BB87E2E8427CD00B419A5 /* FirebaseCrashlytics */; };
 		E1CE49602E52BC2F00738A58 /* KMPNativeCoroutinesAsync in Frameworks */ = {isa = PBXBuildFile; productRef = E1CE495F2E52BC2F00738A58 /* KMPNativeCoroutinesAsync */; };
 		E1CE49622E52BC2F00738A58 /* KMPNativeCoroutinesCombine in Frameworks */ = {isa = PBXBuildFile; productRef = E1CE49612E52BC2F00738A58 /* KMPNativeCoroutinesCombine */; };
 		E1CE49642E52BC2F00738A58 /* KMPNativeCoroutinesCore in Frameworks */ = {isa = PBXBuildFile; productRef = E1CE49632E52BC2F00738A58 /* KMPNativeCoroutinesCore */; };
@@ -51,6 +53,8 @@
 				E1CE49602E52BC2F00738A58 /* KMPNativeCoroutinesAsync in Frameworks */,
 				E1CE49622E52BC2F00738A58 /* KMPNativeCoroutinesCombine in Frameworks */,
 				E1CE49642E52BC2F00738A58 /* KMPNativeCoroutinesCore in Frameworks */,
+				A18BB87F2E8427CD00B419A5 /* FirebaseCrashlytics in Frameworks */,
+				A18BB87B2E84276500B419A5 /* FirebaseAnalytics in Frameworks */,
 				E1CE49662E52BC2F00738A58 /* KMPNativeCoroutinesRxSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -100,6 +104,8 @@
 				E1CE49612E52BC2F00738A58 /* KMPNativeCoroutinesCombine */,
 				E1CE49632E52BC2F00738A58 /* KMPNativeCoroutinesCore */,
 				E1CE49652E52BC2F00738A58 /* KMPNativeCoroutinesRxSwift */,
+				A18BB87A2E84276500B419A5 /* FirebaseAnalytics */,
+				A18BB87E2E8427CD00B419A5 /* FirebaseCrashlytics */,
 			);
 			productName = iosApp;
 			productReference = B9DA97B12DC1472C00A4DA20 /* AniFlowKMP.app */;
@@ -131,6 +137,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				E1CE495E2E52BC2F00738A58 /* XCRemoteSwiftPackageReference "KMP-NativeCoroutines" */,
+				A18BB8792E8426C500B419A5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B9DA97B22DC1472C00A4DA20 /* Products */;
@@ -322,6 +329,8 @@
 				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iosApp/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = AniFlow;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -333,6 +342,7 @@
 					"@executable_path/Frameworks",
 				);
 				"OTHER_LDFLAGS[arch=*]" = "-lsqlite3";
+				PRODUCT_BUNDLE_IDENTIFIER = me.andannn.aniflow;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -358,6 +368,8 @@
 				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iosApp/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = AniFlow;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -400,6 +412,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		A18BB8792E8426C500B419A5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.3.0;
+			};
+		};
 		E1CE495E2E52BC2F00738A58 /* XCRemoteSwiftPackageReference "KMP-NativeCoroutines" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/rickclephas/KMP-NativeCoroutines.git";
@@ -411,6 +431,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		A18BB87A2E84276500B419A5 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A18BB8792E8426C500B419A5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		A18BB87E2E8427CD00B419A5 /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A18BB8792E8426C500B419A5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
+		};
 		E1CE495F2E52BC2F00738A58 /* KMPNativeCoroutinesAsync */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = E1CE495E2E52BC2F00738A58 /* XCRemoteSwiftPackageReference "KMP-NativeCoroutines" */;

@@ -22,9 +22,17 @@ object KoinHelper {
         modules: List<Module>,
         browserAuthOperationHandler: BrowserAuthOperationHandler,
         networkConnectivity: NetworkConnectivity,
+        platformAnalytics: PlatformAnalytics,
     ) {
         startKoin {
-            modules(modules + platformModule(browserAuthOperationHandler, networkConnectivity))
+            modules(
+                modules +
+                    platformModule(
+                        browserAuthOperationHandler,
+                        networkConnectivity,
+                        platformAnalytics,
+                    ),
+            )
         }
     }
 
@@ -69,8 +77,10 @@ object KoinHelper {
     private fun platformModule(
         browserAuthOperationHandler: BrowserAuthOperationHandler,
         networkConnectivity: NetworkConnectivity,
+        platformAnalytics: PlatformAnalytics,
     ) = module {
         single<BrowserAuthOperationHandler> { browserAuthOperationHandler }
         single<NetworkConnectivity> { networkConnectivity }
+        single<PlatformAnalytics> { platformAnalytics }
     }
 }

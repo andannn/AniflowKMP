@@ -1,6 +1,7 @@
 import SwiftUI
 import Shared
 import BackgroundTasks
+import FirebaseCore
 
 @main
 struct iOSApp: App {
@@ -25,11 +26,13 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     let netWorkConnectivity: NetworkConnectivityImpl = NetworkConnectivityImpl()
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
-        
+
+        FirebaseApp.configure()
         KoinHelper.shared.startKoin(
             modules: KoinHelper.shared.Modules,
             browserAuthOperationHandler: authHandler,
-            networkConnectivity: netWorkConnectivity
+            networkConnectivity: netWorkConnectivity,
+            platformAnalytics: IOSAnalytics()
         )
         
         BGTaskScheduler.shared.register(forTaskWithIdentifier: "me.aniflow.notifications", using: nil) { task in
