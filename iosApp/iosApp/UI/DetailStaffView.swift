@@ -52,6 +52,7 @@ class DetailStaffViewModel: ObservableObject {
         cancellables.forEach { cancellable in
             cancellable.cancel()
         }
+        cancellables.removeAll()
     }
 }
 

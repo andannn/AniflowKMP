@@ -55,6 +55,7 @@ class DetailCharacterViewModel: ObservableObject {
         cancellables.forEach { cancellable in
             cancellable.cancel()
         }
+        cancellables.removeAll()
     }
 }
 

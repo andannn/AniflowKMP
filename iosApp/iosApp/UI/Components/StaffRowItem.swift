@@ -1,10 +1,3 @@
-//
-//  StaffRowItem.swift
-//  iosApp
-//
-//  Created by QIngnan Jianag on 2025/09/23.
-//
-
 import SwiftUI
 import Shared
 

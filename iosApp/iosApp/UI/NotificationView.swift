@@ -33,6 +33,7 @@ final class NotificationViewModel: ObservableObject {
         cancellables.forEach { cancellable in
             cancellable.cancel()
         }
+        cancellables.removeAll()
     }
 }
 
