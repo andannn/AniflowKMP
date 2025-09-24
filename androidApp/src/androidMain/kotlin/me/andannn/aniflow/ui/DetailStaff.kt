@@ -67,7 +67,7 @@ import me.andannn.aniflow.data.DetailStaffUiDataProvider
 import me.andannn.aniflow.data.ErrorChannel
 import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.PageComponent
-import me.andannn.aniflow.data.StaffCharactersPaging
+import me.andannn.aniflow.data.StaffCharactersPageComponent
 import me.andannn.aniflow.data.buildErrorChannel
 import me.andannn.aniflow.data.getNameString
 import me.andannn.aniflow.data.label
@@ -114,7 +114,7 @@ class DetailStaffViewModel(
 
     init {
         viewModelScope.launch {
-            dataProvider.detailUiSideEffect(false).collect {
+            dataProvider.uiSideEffect(false).collect {
                 Napier.d(tag = TAG) { "DetailStaffViewModel: sync status $it" }
                 _isLoading.value = it.isLoading()
             }
@@ -125,7 +125,7 @@ class DetailStaffViewModel(
                 Napier.d(tag = TAG) { "_mediaSort changed: $mediaSort" }
                 pagingController.dispose()
                 pagingController =
-                    StaffCharactersPaging(
+                    StaffCharactersPageComponent(
                         staffId,
                         mediaSort,
                         errorHandler = this@DetailStaffViewModel,
@@ -135,7 +135,7 @@ class DetailStaffViewModel(
     }
 
     val uiState =
-        dataProvider.detailUiDataFlow().stateIn(
+        dataProvider.uiDataFlow().stateIn(
             viewModelScope,
             initialValue = DetailStaffUiState.Empty,
             started = SharingStarted.WhileSubscribed(5000),

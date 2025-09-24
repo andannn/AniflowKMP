@@ -29,7 +29,7 @@ internal class SettingDataProviderImpl(
     private val authRepository: AuthRepository,
 ) : SettingUiDataProvider {
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun settingUiDataFlow(): Flow<SettingUiState> {
+    override fun uiDataFlow(): Flow<SettingUiState> {
         val settingGroupListFlow =
             authRepository
                 .getAuthedUserFlow()
@@ -47,7 +47,7 @@ internal class SettingDataProviderImpl(
         }
     }
 
-    override fun settingUiSideEffect(forceRefreshFirstTime: Boolean): Flow<SyncStatus> =
+    override fun uiSideEffect(forceRefreshFirstTime: Boolean): Flow<SyncStatus> =
         createSideEffectFlow(
             forceRefreshFirstTime,
             SyncUserConditionTask(),

@@ -51,7 +51,7 @@ class DiscoverViewModel: ObservableObject {
             do {
                 for try await status in stream {
                     guard let self = self else { continue }
-
+                    
                     AppErrorKt.submitErrorOfSyncStatus(self.errorChannel, status: status)
                     
                     print("Discover cancelLastAndRegisterUiSideEffect status: \(status)")
@@ -77,35 +77,40 @@ struct DiscoverView: View {
     
     var body: some View {
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: 16) {
+            LazyVStack(alignment: .leading, spacing: 20) {
                 if !viewModel.uiState.newReleasedMedia.isEmpty {
-                    if #available(iOS 17.0, *) {
-                        NewReleaseCard_iOS17(
-                            items: viewModel.uiState.newReleasedMedia,
-                            userTitleLanguage: viewModel.uiState.userOptions.titleLanguage
-                        )
-                    } else {
-                        // Fallback on earlier versions
-                    }
+                    NewReleaseCardSimple(
+                        items: viewModel.uiState.newReleasedMedia,
+                        userTitleLanguage: viewModel.uiState.userOptions.titleLanguage,
+                        onItemClick: { item in
+                            router.navigateTo(route: .detailMedia(mediaId: item.mediaModel.id))
+                        }
+                    )
+                    .padding(.bottom, 8)
+                    .transition(.asymmetric(
+                        insertion: .move(edge: .trailing).combined(with: .opacity),
+                        removal: .move(edge: .leading).combined(with: .opacity)
+                    ))
                 }
-                
-                ForEach(Array(viewModel.uiState.categoryDataMap.content), id: \.category) { categoryWithContents in
-                    TitleWithContent(title: categoryWithContents.category.title, onMoreClick: {
-                        let category = categoryWithContents.category
-                        router.navigateTo(route: AppRoute.mediaCategoryPaingList(category: category))
-                    }) {
+                ForEach(Array(viewModel.uiState.categoryDataMap.content), id: \ .category) { categoryWithContents in
+                    VStack{
+                        SectionHeader(title: categoryWithContents.category.title_, showMore: true, onMore: {
+                            let category = categoryWithContents.category
+                            router.navigateTo(route: AppRoute.mediaCategoryPaingList(category: category))
+                        })
                         MediaPreviewSector(
                             mediaList: categoryWithContents.medias,
-                            userTitleLanguage: viewModel.uiState.userOptions.titleLanguage) { item in
-                                router.navigateTo(route: .notification)
-                                // onMediaClick
-                                // component.onMediaClick(media: item)
-                            }
+                            userTitleLanguage: viewModel.uiState.userOptions.titleLanguage
+                        ) { item in
+                            router.navigateTo(route: .detailMedia(mediaId: item.id))
+                        }
                     }
                 }
             }
-            .padding()
+            .padding(.horizontal, 20)
+            .padding(.top, 16)
         }
+        .scrollContentBackground(.hidden)
         .refreshable {
             do {
                 try await viewModel.doRefreshAndAwait()
@@ -115,6 +120,18 @@ struct DiscoverView: View {
         }
         .snackbar(manager: snackbarManager)
         .errorHandling(source: viewModel.errorChannel, snackbarManager: snackbarManager)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: {
+                    Task {
+                        try? await viewModel.doRefreshAndAwait()
+                    }
+                }) {
+                    Image(systemName: "arrow.clockwise")
+                }
+                .accessibilityLabel("Refresh")
+            }
+        }
     }
 }
 
@@ -125,85 +142,17 @@ struct MediaPreviewSector: View {
     
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 0) {
+            HStack(spacing: 6) {
                 ForEach(mediaList, id: \.id) { media in
-                    MediaPreviewItemWrapper(
-                        media: media,
-                        userTitleLanguage: userTitleLanguage,
-                        onMediaClick: { media in onMediaClick(media) }
+                    let title = media.title?.getUserTitleString(titleLanguage: userTitleLanguage) ?? ""
+                    MediaPreviewItem(
+                        title: title,
+                        coverImage: media.coverImage,
+                        onClick: { onMediaClick(media) }
                     )
-                    .frame(width: 240)
+                    .frame(width: 150)
                 }
             }
-            .frame(maxWidth: .infinity)
-        }
-    }
-}
-
-struct MediaPreviewItemWrapper: View {
-    let media: MediaModel
-    let userTitleLanguage: UserTitleLanguage
-    let onMediaClick: (MediaModel) -> Void
-    
-    var body: some View {
-        let title = media.title?.getUserTitleString(titleLanguage: userTitleLanguage) ?? ""
-        MediaPreviewItem(
-            title: title,
-            isFollowing: false,
-            coverImage: media.coverImage,
-            onClick: { onMediaClick(media) }
-        )
-    }
-}
-
-struct TitleWithContent<Content: View>: View {
-    let title: String
-    let onMoreClick: () -> Void
-    let content: () -> Content
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text(title)
-                    .lineLimit(1)
-                    .font(.headline)
-                
-                Spacer()
-                
-                Button(action: onMoreClick) {
-                    Text("More")
-                }
-            }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 6)
-            
-            content()
-        }
-    }
-}
-
-extension MediaCategory {
-    var title: String {
-        switch self {
-        case .currentSeasonAnime:
-            return "Popular this season"
-        case .nextSeasonAnime:
-            return "Upcoming next season"
-        case .trendingAnime:
-            return "Trending now"
-        case .movieAnime:
-            return "Movie"
-        case .theNewAddedAnime:
-            return "New Added Anime"
-        case .trendingManga:
-            return "TODO"
-        case .allTimePopularManga:
-            return "TODO"
-        case .topManhwa:
-            return "TODO"
-        case .theNewAddedManga:
-            return "TODO"
-        default: fatalError("NEVER")
         }
     }
 }

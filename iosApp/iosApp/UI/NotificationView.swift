@@ -15,11 +15,11 @@ final class NotificationViewModel: ObservableObject {
         $selectedCategory
             .removeDuplicates()
             .sink { [weak self] category in
-                guard let self else { return }
+                guard let self = self else { return }
                 
                 print("NotificationViewModel selectedCategory changed: \(category)")
                 self.pagingComponent?.dispose()
-                self.pagingComponent = PageComponentFactory.shared.createNotificationPageComponent(category: category, errorHandler: errorChannel)
+                self.pagingComponent = PageComponentFactory.shared.createNotificationPageComponent(category: category, errorHandler: self.errorChannel)
             }
             .store(in: &cancellables)
     }
@@ -30,6 +30,9 @@ final class NotificationViewModel: ObservableObject {
     
     deinit {
         print("NotificationViewModel deinit")
+        cancellables.forEach { cancellable in
+            cancellable.cancel()
+        }
         cancellables.removeAll()
     }
 }
@@ -65,43 +68,16 @@ struct Notification: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                FilterMenu(
+                NotificationFilterMenu(
+                    selectedCategory: viewModel.selectedCategory,
                     onSelectCategory: { category in
                         viewModel.selectCategory(category)
-                    }, selectedCategory: viewModel.selectedCategory
+                    }
                 )
             }
         }
         .snackbar(manager: snackbarManager)
         .errorHandling(source: viewModel.errorChannel, snackbarManager: snackbarManager)
-    }
-}
-
-struct FilterMenu: View {
-    let onSelectCategory: (NotificationCategory) -> Void
-    let selectedCategory: NotificationCategory
-    
-    var body: some View {
-        Menu {
-            ForEach(NotificationCategory.entries, id: \.self) { cat in
-                Button {
-                    onSelectCategory(cat)
-                } label: {
-                    if cat == selectedCategory {
-                        Label(cat.label, systemImage: "checkmark")
-                    } else {
-                        Text(cat.label)
-                    }
-                }
-            }
-        } label: {
-            HStack(spacing: 8) {
-                Image(systemName: "line.3.horizontal.decrease.circle")
-                Text(selectedCategory.label)
-            }
-            .padding(16)
-            .contentShape(Rectangle())
-        }
     }
 }
 

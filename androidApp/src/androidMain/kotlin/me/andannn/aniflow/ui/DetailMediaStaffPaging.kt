@@ -31,7 +31,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.stateIn
 import me.andannn.aniflow.data.AuthRepository
-import me.andannn.aniflow.data.DetailMediaStaffPaging
+import me.andannn.aniflow.data.DetailMediaStaffPageComponent
 import me.andannn.aniflow.data.ErrorChannel
 import me.andannn.aniflow.data.PageComponent
 import me.andannn.aniflow.data.buildErrorChannel
@@ -55,7 +55,7 @@ class DetailMediaStaffPagingViewModel(
 ) : ViewModel(),
     ErrorChannel by buildErrorChannel() {
     val pageComponent: PageComponent<StaffWithRole> =
-        DetailMediaStaffPaging(mediaId, errorHandler = this)
+        DetailMediaStaffPageComponent(mediaId, errorHandler = this)
 
     val userOptionsFlow =
         authRepository.getUserOptionsFlow().stateIn(

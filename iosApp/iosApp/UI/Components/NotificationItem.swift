@@ -1,4 +1,3 @@
-
 import SwiftUI
 import Shared
 
@@ -33,17 +32,7 @@ struct NotificationItemView: View {
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
                         .fill(Color(.secondarySystemBackground))
                     let cover = getCoverImageUrl(model: model)
-                    AsyncImage(url: URL(string: cover)) { phase in
-                        switch phase {
-                        case .empty: Color.clear
-                        case .success(let image):
-                            image.resizable().scaledToFill()
-                        case .failure(_):
-                            Color.clear
-                        @unknown default:
-                            Color.clear
-                        }
-                    }
+                    CustomAsyncImage(url: cover)
                 }
                 .frame(width: 85, height: 85)
                 .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))

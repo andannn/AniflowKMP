@@ -5,8 +5,10 @@
 package me.andannn.aniflow.data
 
 import me.andannn.aniflow.data.di.dataModule
+import me.andannn.aniflow.data.internal.dataprovider.DetailStaffUiDataProviderImpl
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
+import org.koin.core.parameter.parametersOf
 import org.koin.dsl.module
 import org.koin.mp.KoinPlatform.getKoin
 
@@ -37,6 +39,23 @@ object KoinHelper {
 
     // interop with swift.
     fun homeAppBarUiDataProvider() = koinInstance().get<HomeAppBarUiDataProvider>()
+
+    fun settingUiDataProvider() = koinInstance().get<SettingUiDataProvider>()
+
+    fun detailCharacterUiDataProvider(characterId: String) =
+        koinInstance().get<DetailCharacterUiDataProvider>(
+            parameters = { parametersOf(characterId) },
+        )
+
+    fun detailStaffUiDataProvider(staffId: String) =
+        koinInstance().get<DetailStaffUiDataProvider>(
+            parameters = { parametersOf(staffId) },
+        )
+
+    fun detailMediaUiDataProvider(mediaId: String) =
+        koinInstance().get<DetailMediaUiDataProvider>(
+            parameters = { parametersOf(mediaId) },
+        )
 
     // interop with swift.
     fun mediaRepository() = koinInstance().get<MediaRepository>()

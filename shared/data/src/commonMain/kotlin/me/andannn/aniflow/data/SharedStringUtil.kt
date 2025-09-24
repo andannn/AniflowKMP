@@ -8,15 +8,19 @@ import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.SearchCategory
 import me.andannn.aniflow.data.model.StaffCharacterName
 import me.andannn.aniflow.data.model.Title
+import me.andannn.aniflow.data.model.define.CharacterRole
+import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.MediaFormat
+import me.andannn.aniflow.data.model.define.MediaListStatus
+import me.andannn.aniflow.data.model.define.MediaRelation
 import me.andannn.aniflow.data.model.define.MediaSeason
 import me.andannn.aniflow.data.model.define.MediaSort
 import me.andannn.aniflow.data.model.define.MediaSource
 import me.andannn.aniflow.data.model.define.MediaStatus
 import me.andannn.aniflow.data.model.define.MediaType
+import me.andannn.aniflow.data.model.define.StaffLanguage
 import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
-import me.andannn.aniflow.service.dto.StaffName
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -81,6 +85,23 @@ fun Duration.formattedString(): String {
         else -> "0m"
     }
 }
+
+fun MediaRelation.label() =
+    when (this) {
+        MediaRelation.ADAPTATION -> "Adaptation"
+        MediaRelation.PREQUEL -> "Prequel"
+        MediaRelation.SEQUEL -> "Sequel"
+        MediaRelation.PARENT -> "Parent Story"
+        MediaRelation.SIDE_STORY -> "Side Story"
+        MediaRelation.CHARACTER -> "Character"
+        MediaRelation.SUMMARY -> "Summary"
+        MediaRelation.ALTERNATIVE -> "Alternative Version"
+        MediaRelation.SPIN_OFF -> "Spin-off"
+        MediaRelation.OTHER -> "Other"
+        MediaRelation.SOURCE -> "Source"
+        MediaRelation.COMPILATION -> "Compilation"
+        MediaRelation.CONTAINS -> "Contains"
+    }
 
 private fun MediaSource.label() =
     when (this) {
@@ -188,4 +209,49 @@ fun MediaSort.label() =
         MediaSort.POPULARITY_DESC -> "Popularity"
         MediaSort.TRENDING_DESC -> "Average Score"
         MediaSort.FAVOURITES_DESC -> "Favorites"
+    }
+
+fun CharacterRole.label() =
+    when (this) {
+        CharacterRole.MAIN -> "Main"
+        CharacterRole.SUPPORTING -> "Supporting"
+        CharacterRole.BACKGROUND -> "Background"
+    }
+
+fun StaffLanguage.label() =
+    when (this) {
+        StaffLanguage.JAPANESE -> "Japanese"
+        StaffLanguage.ENGLISH -> "English"
+        StaffLanguage.KOREAN -> "Korean"
+        StaffLanguage.ITALIAN -> "Italian"
+        StaffLanguage.SPANISH -> "Spanish"
+        StaffLanguage.PORTUGUESE -> "Portuguese"
+        StaffLanguage.FRENCH -> "French"
+        StaffLanguage.GERMAN -> "German"
+        StaffLanguage.HEBREW -> "Hebrew"
+        StaffLanguage.HUNGARIAN -> "Hungarian"
+    }
+
+val MediaCategory.title
+    get() =
+        when (this) {
+            MediaCategory.CURRENT_SEASON_ANIME -> "Popular this season"
+            MediaCategory.NEXT_SEASON_ANIME -> "Upcoming next season"
+            MediaCategory.TRENDING_ANIME -> "Trending now"
+            MediaCategory.MOVIE_ANIME -> "Movie"
+            MediaCategory.TRENDING_MANGA -> "Trending manga"
+            MediaCategory.ALL_TIME_POPULAR_MANGA -> "All time popular manga"
+            MediaCategory.TOP_MANHWA -> "Top manhwa"
+            MediaCategory.NEW_ADDED_ANIME -> "New Added Anime"
+            MediaCategory.NEW_ADDED_MANGA -> "New added manga"
+        }
+
+fun MediaListStatus.label() =
+    when (this) {
+        MediaListStatus.CURRENT -> "Watching"
+        MediaListStatus.PLANNING -> "Planning"
+        MediaListStatus.COMPLETED -> "Completed"
+        MediaListStatus.DROPPED -> "Dropped"
+        MediaListStatus.PAUSED -> "Paused"
+        MediaListStatus.REPEATING -> "Repeating"
     }

@@ -65,7 +65,7 @@ class SettingsViewModel(
 ) : ViewModel(),
     ErrorChannel by buildErrorChannel() {
     val state =
-        settingUiDataProvider.settingUiDataFlow().stateIn(
+        settingUiDataProvider.uiDataFlow().stateIn(
             scope = viewModelScope,
             started =
                 kotlinx.coroutines.flow.SharingStarted
@@ -75,7 +75,7 @@ class SettingsViewModel(
 
     init {
         viewModelScope.launch {
-            settingUiDataProvider.settingUiSideEffect(forceRefreshFirstTime = true).collect {
+            settingUiDataProvider.uiSideEffect(forceRefreshFirstTime = true).collect {
                 // Handle side effects if needed
                 Napier.d(tag = TAG) { "Received side effect: $it" }
 
