@@ -11,10 +11,13 @@ class DetailStaffViewModel: ObservableObject {
     @Published public var mediaSort = MediaSort.startDateDesc
     
     private let dataProvider: DetailStaffUiDataProvider
+    private let mediaRepository: MediaRepository = KoinHelper.shared.mediaRepository()
     
     private var dataTask:  Task<(), any Error>? = nil
     private var sideEffectTask:  Task<(), any Error>? = nil
+    private var favoriteChangeTask:  Task<(), any Error>? = nil
     private var cancellables = Set<AnyCancellable>()
+    private var isFavoriteChanging = false
     
     init(staffId: String) {
         self.staffId = staffId
@@ -44,6 +47,27 @@ class DetailStaffViewModel: ObservableObject {
             .store(in: &cancellables)
     }
     
+    func onToggleFavoriteClick() {
+        Task {
+            if isFavoriteChanging  {
+                return
+            }
+
+            favoriteChangeTask = Task {
+                isFavoriteChanging = true
+                guard let staffId = uiState.staffModel?.id else {
+                    fatalError("mediaListId is nil")
+                }
+                
+                do {
+                    let error = try await mediaRepository.toggleStaffFavorite(staffId: staffId)
+                    isFavoriteChanging = false
+                } catch {
+                    isFavoriteChanging = false
+                }
+            }
+        }
+    }
     
     deinit {
         print("DetailStaffViewModel deinit")
@@ -84,6 +108,14 @@ struct DetailStaffView: View {
             }
         )
         .navigationTitle(uiState.title)
+        .toolbar {
+            ToggleLikeButton(
+                isLiked: uiState.staffModel?.isFavourite == true,
+                onToggle: {
+                    viewModel.onToggleFavoriteClick()
+                }
+            )
+        }
     }
 }
 

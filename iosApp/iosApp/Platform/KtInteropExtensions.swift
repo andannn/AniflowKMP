@@ -117,6 +117,14 @@ extension MediaRepository {
     func toggleMediaItemLike(mediaId: String, mediaType: MediaType) async throws -> AppError? {
         return try await asyncFunction(for: toggleMediaItemLike(mediaId: mediaId, mediaType: mediaType))
     }
+    
+    func toggleCharacterFavorite(characterId: String) async throws -> AppError? {
+        return try await asyncFunction(for: toggleCharacterItemLike(characterId: characterId))
+    }
+    
+    func toggleStaffFavorite(staffId: String) async throws -> AppError? {
+        return try await asyncFunction(for: toggleStaffItemLike(staffId: staffId))
+    }
 }
 
 extension FetchNotificationTask {
