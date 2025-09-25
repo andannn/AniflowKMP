@@ -1,11 +1,12 @@
 # AniFlow
 
+
 An unofficial client for [AniList](https://anilist.co/home).
 
 AniFlow is a Kotlin Multiplatform (KMP) app for browsing anime, viewing details (staff, characters, rankings), and managing your list with scoring.
 
-
 ## Screenshots
+
 
 ### Android
 
