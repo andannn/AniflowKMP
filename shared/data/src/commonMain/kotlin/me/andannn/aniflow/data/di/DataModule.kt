@@ -12,6 +12,7 @@ import me.andannn.aniflow.data.DiscoverUiDataProvider
 import me.andannn.aniflow.data.HomeAppBarUiDataProvider
 import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.SettingUiDataProvider
+import me.andannn.aniflow.data.TrackProgressDialogDataProvider
 import me.andannn.aniflow.data.TrackUiDataProvider
 import me.andannn.aniflow.data.internal.AuthRepositoryImpl
 import me.andannn.aniflow.data.internal.MediaRepositoryImpl
@@ -21,6 +22,7 @@ import me.andannn.aniflow.data.internal.dataprovider.DetailStaffUiDataProviderIm
 import me.andannn.aniflow.data.internal.dataprovider.DiscoverUiDataProviderImpl
 import me.andannn.aniflow.data.internal.dataprovider.HomeAppBarUiDataProviderImpl
 import me.andannn.aniflow.data.internal.dataprovider.SettingDataProviderImpl
+import me.andannn.aniflow.data.internal.dataprovider.TrackProgressDialogDataProviderImpl
 import me.andannn.aniflow.data.internal.dataprovider.TrackUiDataProviderImpl
 import me.andannn.aniflow.database.di.databaseModule
 import me.andannn.aniflow.datastore.di.userPreferencesModule
@@ -39,6 +41,9 @@ val dataModule =
         singleOf(::TrackUiDataProviderImpl).bind(TrackUiDataProvider::class)
         factory { (mediaId: String) -> DetailMediaUiDataProviderImpl(mediaId, get(), get()) }.bind(
             DetailMediaUiDataProvider::class,
+        )
+        factory { (mediaId: String) -> TrackProgressDialogDataProviderImpl(mediaId, get(), get()) }.bind(
+            TrackProgressDialogDataProvider::class,
         )
         factory { (staffId: String) -> DetailStaffUiDataProviderImpl(staffId, get(), get()) }.bind(
             DetailStaffUiDataProvider::class,

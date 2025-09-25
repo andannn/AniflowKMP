@@ -12,18 +12,24 @@ struct DialogModifier<DialogContent: View>: ViewModifier {
                     .ignoresSafeArea()
                     .onTapGesture { isPresented = false }
 
-                dialogContent()
-                    .padding(20)
-                    .background(
-                        .ultraThinMaterial,
-                        in: RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 24, style: .continuous)
-                            .stroke(Color.primary.opacity(0.08), lineWidth: 1)
-                    )
-                    .shadow(color: Color.black.opacity(0.15), radius: 16, x: 0, y: 8)
-                    .frame(maxWidth: 340)
+                VStack(spacing: 0) {
+                    Capsule()
+                        .fill(Color.secondary.opacity(0.3))
+                        .frame(width: 40, height: 5)
+                        .padding(.top, 8)
+                        .padding(.bottom, 12)
+                    dialogContent()
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 24)
+                }
+                .background(
+                    .regularMaterial,
+                    in: RoundedRectangle(cornerRadius: 24, style: .continuous)
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                .frame(maxWidth: 340)
+                .transition(.scale)
+                .animation(.easeOut, value: isPresented)
             }
         }
     }

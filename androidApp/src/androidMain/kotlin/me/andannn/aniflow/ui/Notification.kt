@@ -49,6 +49,11 @@ import me.andannn.aniflow.data.ErrorChannel
 import me.andannn.aniflow.data.NotificationPageComponent
 import me.andannn.aniflow.data.PageComponent
 import me.andannn.aniflow.data.buildErrorChannel
+import me.andannn.aniflow.data.model.ActivityNotification
+import me.andannn.aniflow.data.model.AiringNotification
+import me.andannn.aniflow.data.model.FollowNotification
+import me.andannn.aniflow.data.model.MediaDeletion
+import me.andannn.aniflow.data.model.MediaNotification
 import me.andannn.aniflow.data.model.NotificationModel
 import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.NotificationCategory
@@ -170,6 +175,22 @@ fun Notification(
             modifier = Modifier.fillMaxSize().padding(it).background(AppBackgroundColor),
             pagingComponent = viewModel.pagingController,
             userTitleLanguage = userOptions.titleLanguage,
+            onNotificationClick = { notification ->
+                when (notification) {
+                    is ActivityNotification -> {
+                    }
+                    is AiringNotification -> {
+                        navigator.navigateTo(Screen.DetailMedia(notification.media.id))
+                    }
+                    is FollowNotification -> {
+                    }
+                    is MediaDeletion -> {
+                    }
+                    is MediaNotification -> {
+                        navigator.navigateTo(Screen.DetailMedia(notification.media.id))
+                    }
+                }
+            },
         )
     }
 
@@ -181,6 +202,7 @@ fun NotificationPaging(
     pagingComponent: PageComponent<NotificationModel>?,
     modifier: Modifier = Modifier,
     userTitleLanguage: UserTitleLanguage,
+    onNotificationClick: (NotificationModel) -> Unit = {},
 ) {
     if (pagingComponent != null) {
         VerticalListPaging(
@@ -192,6 +214,9 @@ fun NotificationPaging(
             NotificationItem(
                 model = item,
                 userTitleLanguage = userTitleLanguage,
+                onNotificationClick = {
+                    onNotificationClick(item)
+                },
             )
         }
     }

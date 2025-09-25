@@ -12,10 +12,13 @@ class DetailCharacterViewModel: ObservableObject {
     @Published public var pagingComponent: CharacterDetailMediaPaging
     
     private let dataProvider: DetailCharacterUiDataProvider
+    private let mediaRepository: MediaRepository = KoinHelper.shared.mediaRepository()
     
     private var dataTask:  Task<(), any Error>? = nil
     private var sideEffectTask:  Task<(), any Error>? = nil
+    private var favoriteChangeTask:  Task<(), any Error>? = nil
     private var cancellables = Set<AnyCancellable>()
+    private var isFavoriteChanging = false
 
     init(characterId: String) {
         self.characterId = characterId
@@ -47,6 +50,27 @@ class DetailCharacterViewModel: ObservableObject {
             .store(in: &cancellables)
     }
     
+    func onToggleFavoriteClick() {
+        Task {
+            if isFavoriteChanging  {
+                return
+            }
+
+            favoriteChangeTask = Task {
+                isFavoriteChanging = true
+                guard let characterId = uiState.characterModel?.id else {
+                    fatalError("mediaListId is nil")
+                }
+                
+                do {
+                    let error = try await mediaRepository.toggleCharacterFavorite(characterId: characterId)
+                    isFavoriteChanging = false
+                } catch {
+                    isFavoriteChanging = false
+                }
+            }
+        }
+    }
     
     deinit {
         print("DetailCharacterViewModel deinit")
@@ -86,6 +110,14 @@ struct DetailCharacterView: View {
             }
         )
         .navigationTitle(uiState.title)
+        .toolbar {
+            ToggleLikeButton(
+                isLiked: uiState.characterModel?.isFavourite == true,
+                onToggle: {
+                    viewModel.onToggleFavoriteClick()
+                }
+            )
+        }
     }
 }
 
@@ -151,7 +183,7 @@ struct DetailCharacterContentView: View {
 
                 VerticalGridPaging<MediaModel, _>(
                     pageComponent: pagingComponent,
-                    columns: cols, 
+                    columns: cols,
                     contentPadding: .init(top: 0, leading: 16, bottom: 0, trailing: 16),
                     key: { AnyHashable($0.id) },
                     itemContent: { item in

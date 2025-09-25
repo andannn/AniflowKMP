@@ -98,6 +98,13 @@ extension SettingUiDataProvider {
     }
 }
 
+extension TrackProgressDialogDataProvider {
+    func uiDataAsyncSequence()
+    -> NativeFlowAsyncSequence<TrackProgressDialogState, Error, KotlinUnit> {
+        asyncSequence(for: uiDataFlow())
+    }
+}
+
 extension MediaRepository {
     func setContentMode(mode: MediaContentMode) async throws {
         try await asyncFunction(for: setContentMode(mode: mode))
@@ -116,6 +123,14 @@ extension MediaRepository {
     
     func toggleMediaItemLike(mediaId: String, mediaType: MediaType) async throws -> AppError? {
         return try await asyncFunction(for: toggleMediaItemLike(mediaId: mediaId, mediaType: mediaType))
+    }
+    
+    func toggleCharacterFavorite(characterId: String) async throws -> AppError? {
+        return try await asyncFunction(for: toggleCharacterItemLike(characterId: characterId))
+    }
+    
+    func toggleStaffFavorite(staffId: String) async throws -> AppError? {
+        return try await asyncFunction(for: toggleStaffItemLike(staffId: staffId))
     }
 }
 
@@ -138,6 +153,20 @@ extension AuthRepository {
     func getUserOptionsAsyncSequence()
     -> NativeFlowAsyncSequence<UserOptions, Error, KotlinUnit> {
         asyncSequence(for: getUserOptionsFlow())
+    }
+    
+    func updateUserSettings(
+         titleLanguage: UserTitleLanguage? = nil,
+         staffCharacterNameLanguage: UserStaffNameLanguage? = nil,
+         appTheme: Theme? = nil,
+         scoreFormat: ScoreFormat? = nil
+    ) async throws -> AppError? {
+        try await asyncFunction(
+            for: updateUserSettings(titleLanguage: titleLanguage, staffCharacterNameLanguage: staffCharacterNameLanguage, appTheme: appTheme, scoreFormat: scoreFormat))
+    }
+    
+    func logout() async throws {
+        try await asyncFunction(for: logout())
     }
     
 }

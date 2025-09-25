@@ -307,3 +307,12 @@ data class DetailCharacterUiState(
         val Empty = DetailCharacterUiState(UserOptions.Default, null)
     }
 }
+
+data class TrackProgressDialogState(
+    val maxEp: Int? = null,
+    val initialProgress: Int = 0,
+) {
+    companion object {
+        val Empty = TrackProgressDialogState()
+    }
+}

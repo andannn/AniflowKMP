@@ -71,6 +71,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
@@ -84,6 +87,7 @@ import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
@@ -422,10 +426,8 @@ private fun DetailMediaContent(
                     colors =
                         FloatingToolbarDefaults.standardFloatingToolbarColors(
                             toolbarContainerColor =
-                                MaterialTheme.colorScheme.primaryFixedDim.copy(
-                                    alpha = 0.95f,
-                                ),
-                            toolbarContentColor = MaterialTheme.colorScheme.onPrimaryFixed,
+                                MaterialTheme.colorScheme.surfaceContainerHighest.darken(0.05f),
+                            toolbarContentColor = MaterialTheme.colorScheme.onSurface,
                         ),
                     scrollBehavior = exitAlwaysScrollBehavior,
                     expanded = true,
@@ -442,11 +444,6 @@ private fun DetailMediaContent(
                         }
                         if (bottomBarStatus == BottomBarState.AUTHED_WITHOUT_LIST_ITEM) {
                             Button(
-                                colors =
-                                    ButtonDefaults.textButtonColors(
-                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    ),
                                 contentPadding = ButtonWithIconContentPadding,
                                 onClick = onAddToListClick,
                             ) {
@@ -460,11 +457,6 @@ private fun DetailMediaContent(
                         if (bottomBarStatus == BottomBarState.NEED_LOGIN) {
                             Button(
                                 modifier = Modifier.padding(horizontal = 4.dp),
-                                colors =
-                                    ButtonDefaults.textButtonColors(
-                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    ),
                                 onClick = onLoginClick,
                             ) {
                                 Icon(Icons.AutoMirrored.Filled.Login, contentDescription = null)
@@ -1064,4 +1056,11 @@ private fun String.toComposeColor(): Color {
     val g = argb.substring(4, 6).toInt(16) / 255f
     val b = argb.substring(6, 8).toInt(16) / 255f
     return Color(r, g, b, a)
+}
+
+fun Color.darken(factor: Float = 0.1f): Color {
+    val hsl = FloatArray(3)
+    ColorUtils.colorToHSL(this.toArgb(), hsl)
+    hsl[2] = (hsl[2] - factor).coerceIn(0f, 1f)
+    return Color(ColorUtils.HSLToColor(hsl))
 }

@@ -2,7 +2,35 @@ import UIKit
 import SwiftUI
 import Shared
 
+@MainActor
+class AppViewModel: ObservableObject {
+    
+    private let authRepository: AuthRepository = KoinHelper.shared.authRepository()
+    
+    private var loginTask : Task<(), any Error>? = nil
+    private var logoutTask : Task<(), any Error>? = nil
+    
+    func handleLogin() {
+        print("AppViewModel handleLogin ")
+        loginTask?.cancel()
+        loginTask = Task {
+            print("AppViewModel start ")
+            let appError = try await authRepository.startLoginProcessAndWaitResult()
+            print("AppViewModel end appError? \(String(describing: appError?.message)) ")
+        }
+    }
+    
+    func handleLogout() {
+        logoutTask?.cancel()
+        logoutTask = Task {
+            print("AppViewModel handleLogout")
+            try await authRepository.logout()
+        }
+    }
+}
+
 struct RootView: View {
+    @StateObject private var viewModel = AppViewModel()
     @StateObject private var router = Router()
     
     var body: some View {
@@ -16,7 +44,6 @@ struct RootView: View {
                         MediaCategoryPaging(category: category)
                     case .notification:
                         Notification()
-                        
                     case .stateObjOrObservableObj:
                         ContentView()
                     case .detailMedia(let mediaId):
@@ -36,7 +63,24 @@ struct RootView: View {
         }
         .environmentObject(router)
         .customDialog(isPresented: $router.isAuthDialogShowing, content: {
-            LoginDialogView()
+            LoginDialogView(
+                onLogout: {
+                    viewModel.handleLogout()
+                    router.closeAuthDialog()
+                },
+                onLogin: {
+                    viewModel.handleLogin()
+                    router.closeAuthDialog()
+                },
+                onSettingClick: {
+                    router.navigateTo(route: .settings)
+                    router.closeAuthDialog()
+                },
+                onNotificationClick: {
+                    router.navigateTo(route: .notification)
+                    router.closeAuthDialog()
+                }
+            )
         })
     }
 }
@@ -53,6 +97,10 @@ final class Router: ObservableObject {
     
     func showAuthDialog() {
         isAuthDialogShowing = true
+    }
+    
+    func closeAuthDialog() {
+        isAuthDialogShowing = false
     }
     
     func pop() {

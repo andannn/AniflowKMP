@@ -73,6 +73,7 @@ interface AuthRepository {
      *
      * @return returns an [AppError] if the update process fails, or null if it succeeds.
      */
+    @NativeCoroutines
     suspend fun updateUserSettings(
         titleLanguage: UserTitleLanguage? = null,
         staffCharacterNameLanguage: UserStaffNameLanguage? = null,

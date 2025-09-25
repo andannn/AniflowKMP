@@ -23,16 +23,6 @@ class LoginDialogViewModel : ObservableObject {
             }
         }
     }
-    
-    func startLoginProcess() {
-        print("LoginDialogViewModel startLoginProcess ")
-        loginTask?.cancel()
-        loginTask = Task {
-            print("LoginDialogViewModel start ")
-            let appError = try await authRepository.startLoginProcessAndWaitResult()
-            print("LoginDialogViewModel end appError? \(String(describing: appError?.message)) ")
-        }
-    }
 
     deinit {
         print("LoginDialogViewModel deinit")
@@ -46,8 +36,13 @@ struct LoginDialogView: View {
     @StateObject
     private var viewModel: LoginDialogViewModel = LoginDialogViewModel()
     
+    var onLogout: (() -> Void)? = nil
+    var onLogin: (() -> Void)? = nil
+    var onSettingClick : (() -> Void)? = nil
+    var onNotificationClick : (() -> Void)? = nil
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 12) {
                 Button(action: {}) {
                     avatarView
@@ -62,29 +57,62 @@ struct LoginDialogView: View {
                 Spacer()
             }
             .frame(minHeight: 44)
+            .padding(.bottom, 8)
             
             Divider()
             
+            VStack(spacing: 0) {
+                if viewModel.user != nil {
+                    Button(action: {
+                        onNotificationClick?()
+                    }) {
+                        HStack {
+                            Image(systemName: "bell")
+                                .foregroundColor(.accentColor)
+                            Text("Notification")
+                            Spacer()
+                        }
+                        .padding(.vertical, 12)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
+                Button(action: {
+                    onSettingClick?()
+                }) {
+                    HStack {
+                        Image(systemName: "gearshape")
+                            .foregroundColor(.accentColor)
+                        Text("Settings")
+                        Spacer()
+                    }
+                    .padding(.vertical, 12)
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
+            Divider()
             if viewModel.user != nil {
                 Button("Logout", role: .destructive, action: {
+                    onLogout?()
                 })
                 .buttonStyle(.borderedProminent)
                 .tint(.red)
                 .frame(maxWidth: .infinity)
+                .padding(.top, 12)
             } else {
                 Button("Login with AniList", action: {
-                    viewModel.startLoginProcess()
+                    onLogin?()
                 })
                 .buttonStyle(.borderedProminent)
                 .tint(.blue)
                 .frame(maxWidth: .infinity)
+                .padding(.top, 12)
             }
         }
-        .padding(20)
+        .padding(8)
         .frame(maxWidth: 340)
-        .padding(.horizontal, 24)
+        .padding(.horizontal, 12)
     }
-    
+
     @ViewBuilder
     private var avatarView: some View {
         if let urlStr = viewModel.user?.avatar, let url = URL(string: urlStr) {
