@@ -51,10 +51,7 @@ fun SplitDropDownMenuButton(
         menuItemList.getOrNull(selectIndex) ?: menuItemList.getOrNull(0)
             ?: error("No menu item found")
     val buttonColor =
-        ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        ButtonDefaults.buttonColors()
     SplitButtonLayout(
         modifier = modifier,
         leadingButton = {
