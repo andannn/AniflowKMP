@@ -12,6 +12,7 @@ import me.andannn.aniflow.data.model.DetailUiState
 import me.andannn.aniflow.data.model.DiscoverUiState
 import me.andannn.aniflow.data.model.HomeAppBarUiState
 import me.andannn.aniflow.data.model.SettingUiState
+import me.andannn.aniflow.data.model.TrackProgressDialogState
 import me.andannn.aniflow.data.model.TrackUiState
 
 /**
@@ -86,4 +87,11 @@ interface DetailCharacterUiDataProvider : DataProvider {
 
     @NativeCoroutines
     fun uiDataFlow(): Flow<DetailCharacterUiState>
+}
+
+interface TrackProgressDialogDataProvider : DataProvider {
+    val mediaId: String
+
+    @NativeCoroutines
+    fun uiDataFlow(): Flow<TrackProgressDialogState>
 }

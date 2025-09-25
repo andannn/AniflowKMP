@@ -91,7 +91,7 @@ private fun androidContextModule(application: AniflowApplication) =
             SettingOptionViewModel(it.get())
         }
         viewModel {
-            TrackProgressDialogViewModel(it.get(), get(), get())
+            TrackProgressDialogViewModel(it.get(), get(parameters = { it }))
         }
         viewModel {
             DetailStaffViewModel(it.get(), get(parameters = { it }), get())

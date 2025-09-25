@@ -42,6 +42,8 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.MediaRepository
+import me.andannn.aniflow.data.TrackProgressDialogDataProvider
+import me.andannn.aniflow.data.model.TrackProgressDialogState
 import me.andannn.aniflow.data.model.define.MediaStatus
 import me.andannn.aniflow.ui.widget.AlertDialogContainer
 import me.andannn.aniflow.util.LocalScreenResultEmitter
@@ -51,33 +53,13 @@ import org.koin.core.parameter.parametersOf
 
 class TrackProgressDialogViewModel(
     mediaId: String,
-    private val mediaRepository: MediaRepository,
-    private val authRepository: AuthRepository,
+    dataProvider: TrackProgressDialogDataProvider,
 ) : ViewModel() {
-    val mediaListModel =
-        flow {
-            val user =
-                authRepository.getAuthedUserFlow().firstOrNull() ?: error("no user logged in")
-            val item =
-                mediaRepository
-                    .getMediaListItemOfUserFlow(
-                        userId = user.id,
-                        mediaId = mediaId,
-                    ).first()
-            emit(item)
-        }.stateIn(
+    val uiData =
+        dataProvider.uiDataFlow().stateIn(
             viewModelScope,
-            started = SharingStarted.Eagerly,
-            initialValue = null,
-        )
-
-    val mediaModel =
-        flow {
-            emit(mediaRepository.getMediaFlow(mediaId).first())
-        }.stateIn(
-            viewModelScope,
-            started = SharingStarted.Eagerly,
-            initialValue = null,
+            SharingStarted.WhileSubscribed(5_000),
+            TrackProgressDialogState.Empty,
         )
 }
 
@@ -92,25 +74,14 @@ fun TrackProgressDialog(
     resultEmitter: ScreenResultEmitter = LocalScreenResultEmitter.current,
     navigator: RootNavigator = LocalRootNavigator.current,
 ) {
-    val mediaListModel by viewModel.mediaListModel.collectAsStateWithLifecycle()
-    val mediaModel by viewModel.mediaModel.collectAsStateWithLifecycle()
+    val uiData by viewModel.uiData.collectAsStateWithLifecycle()
 
-    val nextAiringEp = mediaModel?.nextAiringEpisode?.episode
-    val totalEp = mediaModel?.episodes
-    val max =
-        if (mediaModel?.status == MediaStatus.NOT_YET_RELEASED) {
-            0
-        } else if (nextAiringEp != null) {
-            if (totalEp == null) nextAiringEp - 1 else minOf(nextAiringEp - 1, totalEp)
-        } else {
-            totalEp
-        }
     AlertDialogContainer(
         title = "Track Progress",
     ) {
         TrackProgressDialogContent(
-            initialProgress = mediaListModel?.progress ?: 0,
-            maxEpisodes = max,
+            initialProgress = uiData.initialProgress,
+            maxEpisodes = uiData.maxEp,
         ) {
             resultEmitter.emitResult(it)
             navigator.popBackStack()

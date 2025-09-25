@@ -88,6 +88,7 @@ struct DetailMediaView: View {
     let mediaId: String
     @StateObject private var viewModel: DetailMediaViewModel
     @EnvironmentObject var router: Router
+    @State private var isTrackDialogShowing = false
     
     init(mediaId: String) {
         self.mediaId = mediaId
@@ -115,6 +116,9 @@ struct DetailMediaView: View {
             onToggleFavoriteClick: {
                 viewModel.onToggleFavoriteClick()
             },
+            onTrackProgressClick: {
+                isTrackDialogShowing = true
+            },
             onAddToListClick: {
                 viewModel.onAddToListClick()
             },
@@ -134,6 +138,12 @@ struct DetailMediaView: View {
                 router.navigateTo(route: .detailCharacter(characterId: character.id))
             }
         )
+        .customDialog(isPresented: $isTrackDialogShowing) {
+            TrackProgressDialogContainer(
+                mediaId: mediaId) { newProgress in
+                    
+                }
+        }
     }
 }
 

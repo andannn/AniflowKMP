@@ -98,6 +98,13 @@ extension SettingUiDataProvider {
     }
 }
 
+extension TrackProgressDialogDataProvider {
+    func uiDataAsyncSequence()
+    -> NativeFlowAsyncSequence<TrackProgressDialogState, Error, KotlinUnit> {
+        asyncSequence(for: uiDataFlow())
+    }
+}
+
 extension MediaRepository {
     func setContentMode(mode: MediaContentMode) async throws {
         try await asyncFunction(for: setContentMode(mode: mode))

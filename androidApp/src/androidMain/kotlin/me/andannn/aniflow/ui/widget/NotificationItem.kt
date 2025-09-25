@@ -59,7 +59,6 @@ fun NotificationItem(
     model: NotificationModel,
     userTitleLanguage: UserTitleLanguage,
     modifier: Modifier = Modifier,
-    onCoverImageClick: () -> Unit = {},
     onNotificationClick: () -> Unit = {},
 ) {
     val relative =
@@ -99,12 +98,7 @@ fun NotificationItem(
                         .width(85.dp)
                         .fillMaxHeight(),
             ) {
-                Card(
-                    modifier =
-                        Modifier
-                            .matchParentSize()
-                            .clickable { onCoverImageClick() },
-                ) {
+                Card {
                     val coverUrl = getCoverImageUrl(model)
                     AsyncImage(
                         modifier = Modifier.fillMaxSize(),

@@ -50,6 +50,11 @@ object KoinHelper {
 
     fun settingUiDataProvider() = koinInstance().get<SettingUiDataProvider>()
 
+    fun trackProgressDialogDataProvider(mediaId: String) =
+        koinInstance().get<TrackProgressDialogDataProvider>(
+            parameters = { parametersOf(mediaId) },
+        )
+
     fun detailCharacterUiDataProvider(characterId: String) =
         koinInstance().get<DetailCharacterUiDataProvider>(
             parameters = { parametersOf(characterId) },
