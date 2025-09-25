@@ -148,6 +148,20 @@ extension AuthRepository {
         asyncSequence(for: getUserOptionsFlow())
     }
     
+    func updateUserSettings(
+         titleLanguage: UserTitleLanguage? = nil,
+         staffCharacterNameLanguage: UserStaffNameLanguage? = nil,
+         appTheme: Theme? = nil,
+         scoreFormat: ScoreFormat? = nil
+    ) async throws -> AppError? {
+        try await asyncFunction(
+            for: updateUserSettings(titleLanguage: titleLanguage, staffCharacterNameLanguage: staffCharacterNameLanguage, appTheme: appTheme, scoreFormat: scoreFormat))
+    }
+    
+    func logout() async throws {
+        try await asyncFunction(for: logout())
+    }
+    
 }
 
 extension AppErrorSource {

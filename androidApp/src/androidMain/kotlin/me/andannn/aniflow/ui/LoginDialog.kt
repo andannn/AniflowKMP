@@ -152,18 +152,22 @@ fun LoginDialogContent(
                     Text("Notification")
                 },
             )
-            TransparentBackgroundListItem(
-                onClick = onSettingClick,
-                leadingContent = {
-                    Icon(
-                        imageVector = Icons.Outlined.Settings,
-                        contentDescription = null,
-                    )
-                },
-                headlineContent = {
-                    Text("Settings")
-                },
-            )
+        }
+
+        TransparentBackgroundListItem(
+            onClick = onSettingClick,
+            leadingContent = {
+                Icon(
+                    imageVector = Icons.Outlined.Settings,
+                    contentDescription = null,
+                )
+            },
+            headlineContent = {
+                Text("Settings")
+            },
+        )
+
+        if (authedUser != null) {
             OutlinedButton(
                 onClick = onLogoutClick,
             ) {
