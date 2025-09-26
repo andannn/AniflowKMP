@@ -25,37 +25,60 @@ struct MediaRowSimple: View {
     }
 
     var body: some View {
-        HStack(alignment: .top, spacing: 8) {
+        HStack(alignment: .top, spacing: 12) {
             CustomAsyncImage(url: item.mediaModel.coverImage)
                 .frame(width: 85)
-                .frame(maxHeight: .infinity)
                 .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
 
-            VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: 8) {
                 Text(title)
-                    .font(.headline)
-                    .foregroundStyle(.secondary)
+                    .font(.title3)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.primary)
+                    .lineLimit(2)
+                    .truncationMode(.tail)
+                    .padding(.top, 4)
+
+                Spacer(minLength: 0)
 
                 CenterTextView(item: item, nextProgress: nextProgress)
-                    .padding(.vertical, 8)
+                    .padding(.vertical, 4)
+
+                Spacer(minLength: 0)
 
                 Text(item.mediaModel.infoString())
-                    .font(.caption2)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+                    .padding(.bottom, 4)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
+        .contentShape(Rectangle())
         .onTapGesture(perform: onClick)
-        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+        .swipeActions(edge: .leading, allowsFullSwipe: false) {
             if canMarkWatched {
                 Button(action: onMarkWatched) {
-                    Label("Mark watched", systemImage: "bookmark")
+                    Label {
+                        Text("Mark watched")
+                            .fontWeight(.bold)
+                            .font(.body)
+                    } icon: {
+                        Image(systemName: "eye")
+                    }
                 }
                 .tint(.indigo)
             }
         }
-        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
             Button(action: onDelete) {
-                Label("Delete", systemImage: "trash")
+                Label {
+                    Text("Delete")
+                        .fontWeight(.bold)
+                        .font(.body)
+                } icon: {
+                    Image(systemName: "trash.fill")
+                }
             }
             .tint(.red)
         }
@@ -70,20 +93,20 @@ private struct CenterTextView: View {
         if item.haveNextEpisode {
             Text("Next up: Episode \(nextProgress)")
                 .font(.body)
-                .foregroundColor(.primary)
                 .fontWeight(.medium)
+                .foregroundColor(.primary)
         } else if item.hasReleaseInfo {
             let nextEpisode = item.mediaModel.nextAiringEpisode?.episode ?? 0
             let durationUntilAir = item.mediaModel.releasingTimeString() ?? ""
             Text("Episode \(nextEpisode) in \(durationUntilAir)")
                 .font(.body)
-                .foregroundColor(.primary)
                 .fontWeight(.medium)
+                .foregroundColor(.primary)
         } else {
             Text("No upcoming episode")
                 .font(.body)
-                .foregroundColor(.primary)
                 .fontWeight(.medium)
+                .foregroundColor(.secondary)
         }
     }
 }

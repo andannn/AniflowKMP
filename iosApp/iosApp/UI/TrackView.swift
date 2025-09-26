@@ -164,7 +164,7 @@ struct TrackRowView: View {
             onDelete: { onDelete(item.mediaListModel) },
             onMarkWatched: { onMarkWatched(item.mediaListModel) }
         )
-        .padding(.vertical, 8)
+        .padding(.vertical, 4)
         .padding(.horizontal, 4)
         .background(
             RoundedRectangle(cornerRadius: 14, style: .continuous)
@@ -173,7 +173,5 @@ struct TrackRowView: View {
         )
         .listRowSeparator(.hidden)
         .listRowBackground(Color.clear)
-        .accessibilityElement(children: .combine)
-//        .accessibilityLabel(item.mediaListModel.media?.title?.getUserTitleString(titleLanguage: .english) ?? "")
     }
 }
