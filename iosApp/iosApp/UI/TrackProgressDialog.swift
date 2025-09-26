@@ -38,11 +38,12 @@ struct TrackProgressDialogContainer: View {
     }
     
     var body: some View {
+        let initial = Int(viewModel.uiData.initialProgress)
         TrackProgressDialog(
-            initialProgress: Int(viewModel.uiData.initialProgress),
+            initialProgress: initial,
             maxEpisodes: viewModel.uiData.maxEp.intOrNil,
             onSave: onSave
-        )
+        ).id(initial)
     }
 }
 

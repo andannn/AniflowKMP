@@ -56,7 +56,7 @@ struct MediaRowSimple: View {
         }
         .contentShape(Rectangle())
         .onTapGesture(perform: onClick)
-        .swipeActions(edge: .leading, allowsFullSwipe: false) {
+        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
             if canMarkWatched {
                 Button(action: onMarkWatched) {
                     Label {
@@ -70,7 +70,7 @@ struct MediaRowSimple: View {
                 .tint(.indigo)
             }
         }
-        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+        .swipeActions(edge: .leading, allowsFullSwipe: false) {
             Button(action: onDelete) {
                 Label {
                     Text("Delete")
