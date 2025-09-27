@@ -5,6 +5,7 @@
 package me.andannn.aniflow.data.model
 
 import me.andannn.aniflow.data.model.define.MediaListStatus
+import me.andannn.aniflow.data.model.define.ScoreFormat
 
 data class MediaListModel(
     val id: String,
@@ -18,4 +19,21 @@ data class MediaListModel(
     val notes: String? = null,
     val repeat: Int? = null,
     val isPrivate: Boolean = false,
-)
+) {
+    fun scoreLabel(scoreFormat: ScoreFormat) =
+        score?.takeIf { it > 0f }?.let { score ->
+            when (scoreFormat) {
+                ScoreFormat.POINT_100 -> "$score/100"
+                ScoreFormat.POINT_10 -> "$score/10"
+                ScoreFormat.POINT_10_DECIMAL -> "$score/10.0"
+                ScoreFormat.POINT_5 -> "$score/5"
+                ScoreFormat.POINT_3 -> "$score/3"
+            }
+        }
+
+    fun progressLabel() =
+        progress
+            ?.takeIf {
+                it > 0
+            }?.let { "ep.$it" }
+}

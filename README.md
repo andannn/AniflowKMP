@@ -33,6 +33,7 @@ Compose Multiplatform components are kept minimal for cross-platform utilities, 
 
 This project uses [ktlint](https://github.com/pinterest/ktlint).`
 
+
 running `./gradlew ktLintFormat` to automatically fix lint errors.
 
 running `./gradlew spotlessApply` to add copyright.

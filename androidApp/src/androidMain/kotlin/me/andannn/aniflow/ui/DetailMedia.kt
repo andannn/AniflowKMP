@@ -71,8 +71,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.compositeOver
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
@@ -139,6 +137,7 @@ import me.andannn.aniflow.ui.widget.SplitDropDownMenuButton
 import me.andannn.aniflow.ui.widget.StaffRowItem
 import me.andannn.aniflow.ui.widget.TitleWithContent
 import me.andannn.aniflow.ui.widget.buildSpecialMessageText
+import me.andannn.aniflow.ui.widget.iconItemWithLabel
 import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.LocalResultStore
 import me.andannn.aniflow.util.LocalSnackbarHostStateHolder
@@ -508,19 +507,29 @@ private fun DetailMediaContent(
                                 )
                             }
                             if (bottomBarStatus == BottomBarState.AUTHED_WITH_LIST_ITEM) {
-                                clickableItem(
+                                iconItemWithLabel(
                                     onClick = onTrackProgressClick,
                                     icon = {
-                                        Icon(Icons.Filled.Bookmarks, contentDescription = null)
+                                        Icon(
+                                            Icons.Filled.Bookmarks,
+                                            contentDescription = null,
+                                        )
                                     },
-                                    label = "Track Progress",
+                                    listItemLabel = "Track Progress",
+                                    iconLabel =
+                                        mediaListItem?.progressLabel(),
                                 )
-                                clickableItem(
+
+                                iconItemWithLabel(
                                     onClick = onRatingClick,
                                     icon = {
-                                        Icon(Icons.Filled.StarRate, contentDescription = null)
+                                        Icon(
+                                            Icons.Filled.StarRate,
+                                            contentDescription = null,
+                                        )
                                     },
-                                    label = "Give rating",
+                                    listItemLabel = "Give rating",
+                                    iconLabel = mediaListItem?.scoreLabel(userOptions.scoreFormat),
                                 )
                             }
                         }
