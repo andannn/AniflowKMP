@@ -21,7 +21,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.SplitButtonDefaults.ExtraLargeContainerHeight
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -36,7 +35,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import io.github.aakira.napier.Napier
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,15 +42,13 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import me.andannn.aniflow.data.AppErrorHandler
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.ErrorChannel
 import me.andannn.aniflow.data.HomeAppBarUiDataProvider
+import me.andannn.aniflow.data.MarkProgressUseCase
 import me.andannn.aniflow.data.MediaRepository
-import me.andannn.aniflow.data.SnackBarMessage
 import me.andannn.aniflow.data.TrackUiDataProvider
 import me.andannn.aniflow.data.buildErrorChannel
-import me.andannn.aniflow.data.getUserTitleString
 import me.andannn.aniflow.data.model.HomeAppBarUiState
 import me.andannn.aniflow.data.model.MediaListModel
 import me.andannn.aniflow.data.model.MediaModel
@@ -63,10 +59,10 @@ import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.data.submitErrorOfSyncStatus
 import me.andannn.aniflow.ui.theme.AppBackgroundColor
 import me.andannn.aniflow.ui.theme.ShapeHelper
+import me.andannn.aniflow.ui.util.buildSnackBarMessageHandler
 import me.andannn.aniflow.ui.widget.CustomPullToRefresh
 import me.andannn.aniflow.ui.widget.DefaultAppBar
 import me.andannn.aniflow.ui.widget.MediaRowItem
-import me.andannn.aniflow.usecase.onMarkProgress
 import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.LocalResultStore
 import me.andannn.aniflow.util.LocalSnackbarHostStateHolder
@@ -147,14 +143,13 @@ class TrackViewModel(
     )
     fun onMarkClick(item: MediaWithMediaListItem) {
         viewModelScope.launch {
-            context(snackbarHost, mediaRepository, this) {
-                onMarkProgress(
-                    item.mediaListModel,
-                    item.mediaModel,
-                    (item.mediaListModel.progress ?: 0) + 1,
-                    state.value.userOptions.titleLanguage,
-                )
-            }
+            MarkProgressUseCase.markProgress(
+                item.mediaListModel,
+                item.mediaModel,
+                (item.mediaListModel.progress ?: 0) + 1,
+                buildSnackBarMessageHandler(scope = this@launch, snackbarHost),
+                this@TrackViewModel,
+            )
         }
     }
 

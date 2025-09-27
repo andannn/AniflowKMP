@@ -2,32 +2,49 @@
  * Copyright 2025, the AniflowKMP project contributors
  * SPDX-License-Identifier: Apache-2.0
  */
-package me.andannn.aniflow.usecase
+package me.andannn.aniflow.data
 
-import android.util.Log
-import androidx.compose.material3.SnackbarResult
+import com.rickclephas.kmp.nativecoroutines.NativeCoroutines
 import io.github.aakira.napier.Napier
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import me.andannn.aniflow.data.AppErrorHandler
-import me.andannn.aniflow.data.MediaRepository
-import me.andannn.aniflow.data.SnackBarMessage
-import me.andannn.aniflow.data.getUserTitleString
+import kotlinx.coroutines.flow.first
 import me.andannn.aniflow.data.model.MediaListModel
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
-import me.andannn.aniflow.util.SnackbarHostStateHolder
-import me.andannn.aniflow.util.showSnackBarMessage
+import org.koin.core.component.KoinComponent
 
-private const val TAG = "ProgressMarkedWatched"
+private const val TAG = "MarkProgressUseCase"
+
+object MarkProgressUseCase : KoinComponent {
+    private val mediaRepository: MediaRepository = getKoin().get()
+    private val authRepository: AuthRepository = getKoin().get()
+
+    @NativeCoroutines
+    suspend fun markProgress(
+        mediaListModel: MediaListModel,
+        mediaModel: MediaModel,
+        newProgress: Int,
+        snackBarMessageHandler: SnackBarMessageHandler,
+        errorHandler: AppErrorHandler,
+    ) {
+        val titleLanguage: UserTitleLanguage = authRepository.getUserOptionsFlow().first().titleLanguage
+        context(snackBarMessageHandler, mediaRepository, errorHandler) {
+            onMarkProgress(
+                mediaListModel,
+                mediaModel,
+                newProgress,
+                titleLanguage,
+            )
+        }
+    }
+}
 
 context(
-    snackbarHost: SnackbarHostStateHolder,
+    snackBarMessageHandler: SnackBarMessageHandler,
     mediaRepository: MediaRepository,
     errorHandler: AppErrorHandler,
 )
-suspend fun onMarkProgress(
+private suspend fun onMarkProgress(
     mediaListModel: MediaListModel,
     mediaModel: MediaModel,
     newProgress: Int,
@@ -55,14 +72,14 @@ suspend fun onMarkProgress(
         val title =
             mediaModel.title.getUserTitleString(titleLanguage)
         val result =
-            snackbarHost.showSnackBarMessage(
+            snackBarMessageHandler.showSnackBarMessageSuspend(
                 if (isCompleted) {
                     SnackBarMessage.MediaMarkCompleted(title, newProgress)
                 } else {
                     SnackBarMessage.MediaMarkWatched(title, newProgress)
                 },
             )
-        if (result == SnackbarResult.ActionPerformed) {
+        if (result == SharedSnackbarResult.ActionPerformed) {
             // Undo action performed.
             Napier.d(tag = TAG) { "onMarkProgress: Undo performed E" }
             val error =

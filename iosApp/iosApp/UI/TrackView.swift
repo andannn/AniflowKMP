@@ -13,7 +13,8 @@ class TrackViewModel : ObservableObject {
     private var sideEffectTask: Task<Void, Never>? = nil
     
     let errorChannel: ErrorChannel = AppErrorKt.buildErrorChannel()
-    
+    let snackbarManager = SnackbarManager()
+
     init() {
         print("TrackViewModel init")
         dataTask = Task { [weak self] in
@@ -62,15 +63,18 @@ class TrackViewModel : ObservableObject {
         }
     }
     
-    func onMarkWatched(item: MediaListModel) {
+    func onMarkWatched(item: MediaWithMediaListItem) {
         print("TrackViewModel onMarkWatched click E")
         Task {
-            let current = Int(truncating: item.progress ?? 0)
-            let error = try await mediaRepository.updateMediaListStatus(
-                mediaListId: item.id,
-                progress: current + 1
+            let newProgress = Int(truncating: item.mediaListModel.progress ?? 0) + 1
+ 
+            try await MarkProgressUseCase.shared.markProgress(
+                mediaListModel: item.mediaListModel,
+                mediaModel: item.mediaModel,
+                newProgress: Int32(newProgress),
+                snackBarMessageHandler: SnackbarMessageHandlerImpl(snackbarManager: snackbarManager),
+                errorHandler: errorChannel
             )
-            print("TrackViewModel onMarkWatched click X \(String(describing: error))")
         }
     }
     
@@ -91,7 +95,6 @@ class TrackViewModel : ObservableObject {
 struct TrackView: View {
     @StateObject
     private var viewModel: TrackViewModel = TrackViewModel()
-    @StateObject private var snackbarManager = SnackbarManager()
     @EnvironmentObject private var router: Router
     
     var body: some View {
@@ -119,15 +122,15 @@ struct TrackView: View {
                 print("Track error when refresh \(error)")
             }
         }
-        .snackbar(manager: snackbarManager)
-        .errorHandling(source: viewModel.errorChannel, snackbarManager: snackbarManager)
+        .snackbar(manager: viewModel.snackbarManager)
+        .errorHandling(source: viewModel.errorChannel, snackbarManager: viewModel.snackbarManager)
     }
 }
 
 struct TrackSectionView: View {
     let group: TrackUiState.CategoryWithItems
     let onDelete: (MediaListModel) -> Void
-    let onMarkWatched: (MediaListModel) -> Void
+    let onMarkWatched: (MediaWithMediaListItem) -> Void
     let onClick: (MediaWithMediaListItem) -> Void
     
     var body: some View {
@@ -153,7 +156,7 @@ struct TrackSectionView: View {
 struct TrackRowView: View {
     let item: MediaWithMediaListItem
     let onDelete: (MediaListModel) -> Void
-    let onMarkWatched: (MediaListModel) -> Void
+    let onMarkWatched: (MediaWithMediaListItem) -> Void
     let onClick: (MediaWithMediaListItem) -> Void
     
     var body: some View {
@@ -162,9 +165,9 @@ struct TrackRowView: View {
             userTitleLanguage: UserTitleLanguage.english,
             onClick: { onClick(item) },
             onDelete: { onDelete(item.mediaListModel) },
-            onMarkWatched: { onMarkWatched(item.mediaListModel) }
+            onMarkWatched: { onMarkWatched(item) }
         )
-        .padding(.vertical, 8)
+        .padding(.vertical, 4)
         .padding(.horizontal, 4)
         .background(
             RoundedRectangle(cornerRadius: 14, style: .continuous)
@@ -173,7 +176,5 @@ struct TrackRowView: View {
         )
         .listRowSeparator(.hidden)
         .listRowBackground(Color.clear)
-        .accessibilityElement(children: .combine)
-//        .accessibilityLabel(item.mediaListModel.media?.title?.getUserTitleString(titleLanguage: .english) ?? "")
     }
 }

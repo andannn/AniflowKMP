@@ -14,7 +14,10 @@ class DetailMediaViewModel: ObservableObject {
     private var favoriteChangeTask:  Task<(), any Error>? = nil
     
     private var isFavoriteChanging: Bool = false
-    
+
+    let errorChannel: ErrorChannel = AppErrorKt.buildErrorChannel()
+    let snackbarManager = SnackbarManager()
+
     init(mediaId: String) {
         self.mediaId = mediaId
         dataProvider = KoinHelper.shared.detailMediaUiDataProvider(mediaId: mediaId)
@@ -28,8 +31,9 @@ class DetailMediaViewModel: ObservableObject {
         }
         sideEffectTask = Task { [weak self] in
             guard let stream = self?.dataProvider.detailUiSideEffectAsyncSequence(true) else { return }
-            for try await _ in stream {
-                //                self?.uiState = state
+            for try await status in stream {
+                guard let self = self else { continue }
+                AppErrorKt.submitErrorOfSyncStatus(self.errorChannel, status: status)
             }
         }
         
@@ -41,6 +45,10 @@ class DetailMediaViewModel: ObservableObject {
                 fatalError("mediaListId is nil")
             }
             let error = try await mediaRepository.updateMediaListStatus(mediaListId: mediaListId, status: status)
+            
+            if let error = error {
+                errorChannel.submitError(error_: error)
+            }
         }
     }
     
@@ -50,6 +58,10 @@ class DetailMediaViewModel: ObservableObject {
                 fatalError("mediaListId is nil")
             }
             let error = try await mediaRepository.addNewMediaToList(mediaId: mediaId)
+            
+            if let error = error {
+                errorChannel.submitError(error_: error)
+            }
         }
     }
     
@@ -69,6 +81,9 @@ class DetailMediaViewModel: ObservableObject {
             
             do {
                 let error = try await mediaRepository.toggleMediaItemLike(mediaId: mediaId, mediaType: mediaType)
+                if let error = error {
+                    errorChannel.submitError(error_: error)
+                }
                 isFavoriteChanging = false
             } catch {
                 isFavoriteChanging = false
@@ -76,6 +91,22 @@ class DetailMediaViewModel: ObservableObject {
         }
     }
     
+    func onTrackProgress(newProgress: Int) {
+        Task {
+            guard let mediaListItem = uiState.mediaListItem, let mediaModel = uiState.mediaModel else {
+                print("DetailMediaViewModel onTrackProgress item or progress is nil")
+                return
+            }
+
+            try await MarkProgressUseCase.shared.markProgress(
+                mediaListModel: mediaListItem,
+                mediaModel: mediaModel,
+                newProgress: Int32(newProgress),
+                snackBarMessageHandler: SnackbarMessageHandlerImpl(snackbarManager: snackbarManager),
+                errorHandler: errorChannel
+            )
+        }
+    }
     
     deinit {
         print("DetailMediaViewModel deinit")
@@ -138,11 +169,16 @@ struct DetailMediaView: View {
                 router.navigateTo(route: .detailCharacter(characterId: character.id))
             }
         )
+        .snackbar(manager: viewModel.snackbarManager)
+        .errorHandling(source: viewModel.errorChannel, snackbarManager: viewModel.snackbarManager)
         .customDialog(isPresented: $isTrackDialogShowing) {
             TrackProgressDialogContainer(
-                mediaId: mediaId) { newProgress in
-                    
+                mediaId: mediaId,
+                onSave: { newProgress in
+                    isTrackDialogShowing = false
+                    viewModel.onTrackProgress(newProgress: newProgress)
                 }
+            )
         }
     }
 }

@@ -102,6 +102,7 @@ import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.DetailMediaUiDataProvider
 import me.andannn.aniflow.data.ErrorChannel
+import me.andannn.aniflow.data.MarkProgressUseCase
 import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.SnackBarMessage
 import me.andannn.aniflow.data.buildErrorChannel
@@ -116,7 +117,6 @@ import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.StaffModel
 import me.andannn.aniflow.data.model.StaffWithRole
 import me.andannn.aniflow.data.model.StudioModel
-import me.andannn.aniflow.data.model.UserModel
 import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.model.launchUri
@@ -129,6 +129,7 @@ import me.andannn.aniflow.ui.theme.PageHorizontalPadding
 import me.andannn.aniflow.ui.theme.ShapeHelper
 import me.andannn.aniflow.ui.theme.StyledReadingContentFontFamily
 import me.andannn.aniflow.ui.theme.TopAppBarColors
+import me.andannn.aniflow.ui.util.buildSnackBarMessageHandler
 import me.andannn.aniflow.ui.widget.CharacterRowItem
 import me.andannn.aniflow.ui.widget.CustomPullToRefresh
 import me.andannn.aniflow.ui.widget.InfoItemHorizon
@@ -138,7 +139,6 @@ import me.andannn.aniflow.ui.widget.SplitDropDownMenuButton
 import me.andannn.aniflow.ui.widget.StaffRowItem
 import me.andannn.aniflow.ui.widget.TitleWithContent
 import me.andannn.aniflow.ui.widget.buildSpecialMessageText
-import me.andannn.aniflow.usecase.onMarkProgress
 import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.LocalResultStore
 import me.andannn.aniflow.util.LocalSnackbarHostStateHolder
@@ -256,17 +256,16 @@ class DetailMediaViewModel(
     fun onTrackProgressClick() {
         viewModelScope.launch {
             val result: Int = resultStore.awaitResultOf(Screen.Dialog.TrackProgressDialog(mediaId))
-            context(snackbarHost, mediaRepository, this) {
-                val listItem = uiState.value.mediaListItem
-                val media = uiState.value.mediaModel
-                if (media != null && listItem != null) {
-                    onMarkProgress(
-                        listItem,
-                        media,
-                        result,
-                        uiState.value.userOptions.titleLanguage,
-                    )
-                }
+            val listItem = uiState.value.mediaListItem
+            val media = uiState.value.mediaModel
+            if (media != null && listItem != null) {
+                MarkProgressUseCase.markProgress(
+                    listItem,
+                    media,
+                    result,
+                    buildSnackBarMessageHandler(this@launch, snackbarHost),
+                    this@DetailMediaViewModel,
+                )
             }
         }
     }

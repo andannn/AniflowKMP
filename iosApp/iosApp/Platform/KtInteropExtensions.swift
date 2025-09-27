@@ -140,6 +140,18 @@ extension FetchNotificationTask {
     }
 }
 
+extension MarkProgressUseCase {
+    func markProgress(
+        mediaListModel: MediaListModel,
+        mediaModel: MediaModel,
+        newProgress: Int32,
+        snackBarMessageHandler: any SnackBarMessageHandler,
+        errorHandler: any AppErrorHandler
+    ) async throws  {
+        try await asyncFunction(for: markProgress(mediaListModel: mediaListModel, mediaModel: mediaModel, newProgress: newProgress, snackBarMessageHandler: snackBarMessageHandler, errorHandler: errorHandler))
+    }
+}
+
 extension AuthRepository {
     func getAuthedUserAsyncSequence()
     -> NativeFlowAsyncSequence<Optional<UserModel>, Error, KotlinUnit> {

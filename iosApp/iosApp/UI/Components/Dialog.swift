@@ -22,12 +22,14 @@ struct DialogModifier<DialogContent: View>: ViewModifier {
                         .padding(.horizontal, 20)
                         .padding(.bottom, 24)
                 }
+                .padding(.bottom, 12)
                 .background(
-                    .regularMaterial,
-                    in: RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .fill(Color(.systemBackground))
+                        .shadow(color: Color(.black).opacity(0.08), radius: 16, x: 0, y: 4)
                 )
-                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-                .frame(maxWidth: 340)
+                .padding(.horizontal, 24)
+                .frame(maxWidth: 360)
                 .transition(.scale)
                 .animation(.easeOut, value: isPresented)
             }

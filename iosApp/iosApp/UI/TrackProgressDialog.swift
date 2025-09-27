@@ -38,11 +38,12 @@ struct TrackProgressDialogContainer: View {
     }
     
     var body: some View {
+        let initial = Int(viewModel.uiData.initialProgress)
         TrackProgressDialog(
-            initialProgress: Int(viewModel.uiData.initialProgress),
+            initialProgress: initial,
             maxEpisodes: viewModel.uiData.maxEp.intOrNil,
             onSave: onSave
-        )
+        ).id(initial)
     }
 }
 
@@ -51,9 +52,8 @@ struct TrackProgressDialog: View {
     let initialProgress: Int
     let maxEpisodes: Int?
     let onSave: (Int) -> Void
-
     @FocusState private var isTextFieldFocused: Bool
-
+    
     init(initialProgress: Int, maxEpisodes: Int?, onSave: @escaping (Int) -> Void = { _ in }) {
         self.initialProgress = initialProgress
         self.maxEpisodes = maxEpisodes
@@ -81,67 +81,86 @@ struct TrackProgressDialog: View {
     }
 
     var body: some View {
-        VStack(spacing: 16) {
-            Text("Track Progress")
-                .font(.title2)
-                .fontWeight(.bold)
-                .multilineTextAlignment(.center)
-                .padding(.top, 8)
+        VStack(spacing: 24) {
+            // Title and close button
+            HStack {
+                Spacer()
+                Text("Track Progress")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .multilineTextAlignment(.center)
+                Spacer()
+            }
+            .padding(.top, 8)
+            .padding(.horizontal)
 
-            HStack(spacing: 8) {
+            // Progress controls
+            HStack(spacing: 16) {
                 Button(action: {
                     safeUpdateProgress(value - 1)
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 }) {
-                    Text("−1")
+                    Image(systemName: "minus.circle.fill")
+                        .font(.system(size: 32, weight: .bold))
+                        .foregroundColor(hasPrev ? .accentColor : .gray)
                 }
-                .frame(height: 56)
+                .buttonStyle(.plain)
                 .disabled(!hasPrev)
-                .padding(.trailing, 8)
+                .accessibilityLabel("Decrease progress")
 
                 ZStack(alignment: .trailing) {
-                    TextField(
-                        "",
-                        value: $value,
-                        formatter: NumberFormatter(),
-                        onEditingChanged: { _ in },
-                        onCommit: { onSave(value) }
-                    )
-                    .keyboardType(.numberPad)
-                    .focused($isTextFieldFocused)
-                    .font(.system(size: 22, weight: .semibold, design: .rounded))
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 10)
-                    .frame(width: 70)
-                    .background(Color(.systemGray6))
-                    .cornerRadius(12)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.accentColor, lineWidth: 2)
-                    )
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 24)
-                    .onAppear {
-                        isTextFieldFocused = true
-                    }
+                    TextField("0", value: $value, formatter: NumberFormatter(), onEditingChanged: { _ in }, onCommit: { onSave(value) })
+                        .keyboardType(.numberPad)
+                        .focused($isTextFieldFocused)
+                        .font(.system(size: 22, weight: .semibold, design: .rounded))
+                        .frame(width: 60, height: 44)
+                        .padding(.horizontal, 8)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(10)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.secondary, lineWidth: 1)
+                        )
+                        .multilineTextAlignment(.center)
+                        .onAppear {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                isTextFieldFocused = true
+                            }
+                        }
                     if let max = maxEpisodes {
                         Text("/\(max)")
                             .foregroundColor(.secondary)
                             .font(.system(size: 16, weight: .regular))
+                            .padding(.trailing, 4)
                     }
                 }
-                .frame(height: 56)
 
                 Button(action: {
                     safeUpdateProgress(value + 1)
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 }) {
-                    Text("+1")
+                    Image(systemName: "plus.circle.fill")
+                        .font(.system(size: 32, weight: .bold))
+                        .foregroundColor(hasNext ? .accentColor : .gray)
                 }
-                .frame(height: 56)
+                .buttonStyle(.plain)
                 .disabled(!hasNext)
-                .padding(.leading, 8)
-
+                .accessibilityLabel("Increase progress")
             }
             .padding(.horizontal)
+
+            // Save button
+            Button(action: {
+                onSave(value)
+            }) {
+                Text("Save")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.accentColor)
+            .padding(.horizontal)
+            .padding(.top, 8)
         }
     }
 }
