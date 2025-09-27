@@ -6,9 +6,9 @@ package me.andannn.aniflow.ui.util
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import me.andannn.aniflow.data.SharedSnackbarResult
 import me.andannn.aniflow.data.SnackBarMessage
 import me.andannn.aniflow.data.SnackBarMessageHandler
-import me.andannn.aniflow.data.SnackbarResult
 import me.andannn.aniflow.util.SnackbarHostStateHolder
 import me.andannn.aniflow.util.showSnackBarMessage
 
@@ -23,7 +23,7 @@ private class SnackBarMessageHandlerImpl(
 ) : SnackBarMessageHandler {
     override fun showSnackBarMessage(
         message: SnackBarMessage,
-        callBack: (SnackbarResult) -> Unit,
+        callBack: (SharedSnackbarResult) -> Unit,
     ) {
         scope.launch {
             val result = snackbarHostStateHolder.showSnackBarMessage(message).toResult()
@@ -32,8 +32,8 @@ private class SnackBarMessageHandlerImpl(
     }
 }
 
-private fun androidx.compose.material3.SnackbarResult.toResult(): SnackbarResult =
+private fun androidx.compose.material3.SnackbarResult.toResult(): SharedSnackbarResult =
     when (this) {
-        androidx.compose.material3.SnackbarResult.Dismissed -> SnackbarResult.Dismissed
-        androidx.compose.material3.SnackbarResult.ActionPerformed -> SnackbarResult.ActionPerformed
+        androidx.compose.material3.SnackbarResult.Dismissed -> SharedSnackbarResult.Dismissed
+        androidx.compose.material3.SnackbarResult.ActionPerformed -> SharedSnackbarResult.ActionPerformed
     }
