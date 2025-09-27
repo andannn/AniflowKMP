@@ -4,7 +4,7 @@
  */
 package me.andannn.aniflow.platform
 
-import androidx.core.bundle.Bundle
+import android.os.Bundle
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.analytics
 import com.google.firebase.crashlytics.crashlytics

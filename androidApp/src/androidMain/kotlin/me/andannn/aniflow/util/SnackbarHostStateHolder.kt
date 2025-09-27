@@ -81,9 +81,9 @@ private fun SnackbarShowDuration.toSnackbarDuration(): SnackbarDuration =
     }
 
 @Composable
-fun rememberErrorHandlerNavEntryDecorator(): NavEntryDecorator<Any> = remember { snackbarHostStateHolderNavEntryDecorator() }
+fun <T : Any> rememberErrorHandlerNavEntryDecorator(): NavEntryDecorator<T> = remember { snackbarHostStateHolderNavEntryDecorator() }
 
-private fun snackbarHostStateHolderNavEntryDecorator(): NavEntryDecorator<Any> {
+private fun <T : Any> snackbarHostStateHolderNavEntryDecorator(): NavEntryDecorator<T> {
     val onPop: (Any) -> Unit = { contentKey ->
     }
 

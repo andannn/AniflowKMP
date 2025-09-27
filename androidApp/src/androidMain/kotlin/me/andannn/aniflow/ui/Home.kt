@@ -28,13 +28,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
-import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
+import androidx.navigation3.scene.rememberSceneSetupNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.Serializable
 import me.andannn.aniflow.util.rememberSnackBarHostState
@@ -58,7 +58,6 @@ class HomeViewModel : ViewModel()
 fun Home(homeViewModel: HomeViewModel = koinViewModel()) {
     val backStack =
         rememberNavBackStack<HomeNestedScreen>(HomeNestedScreen.Discover)
-            as SnapshotStateList<HomeNestedScreen>
     HomeContent(
         navigator =
             remember {
@@ -171,11 +170,12 @@ private val TopLevelNavigation.unselectedIcon
         }
 
 private class NestedNavigator(
-    val backStack: SnapshotStateList<HomeNestedScreen>,
+    val backStack: NavBackStack<NavKey>,
 ) {
     val currentTopLevelNavigation: TopLevelNavigation
         get() =
             backStack
+                .filterIsInstance<HomeNestedScreen>()
                 .map {
                     it.toTopLevelNavigation()
                 }.lastOrNull()

@@ -108,10 +108,10 @@ class ScreenResultEmitter(
 }
 
 @Composable
-fun rememberResultStoreNavEntryDecorator(resultStore: ResultStore = LocalResultStore.current): NavEntryDecorator<Any> =
+fun <T : Any> rememberResultStoreNavEntryDecorator(resultStore: ResultStore = LocalResultStore.current): NavEntryDecorator<T> =
     remember { resultStoreNavEntryDecorator(resultStore) }
 
-fun resultStoreNavEntryDecorator(resultStore: ResultStore): NavEntryDecorator<Any> {
+fun <T : Any> resultStoreNavEntryDecorator(resultStore: ResultStore): NavEntryDecorator<T> {
     val onPop: (Any) -> Unit = { contentKey ->
         val screen = Screen.fromJson(contentKey as String)
         resultStore.cancel(screen)
