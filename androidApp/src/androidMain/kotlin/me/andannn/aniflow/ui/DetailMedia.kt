@@ -123,6 +123,7 @@ import me.andannn.aniflow.data.model.relation.MediaModelWithRelationType
 import me.andannn.aniflow.data.releasingTimeString
 import me.andannn.aniflow.data.submitErrorOfSyncStatus
 import me.andannn.aniflow.ui.theme.AppBackgroundColor
+import me.andannn.aniflow.ui.theme.BottomBarColor
 import me.andannn.aniflow.ui.theme.PageHorizontalPadding
 import me.andannn.aniflow.ui.theme.ShapeHelper
 import me.andannn.aniflow.ui.theme.StyledReadingContentFontFamily
@@ -423,8 +424,7 @@ private fun DetailMediaContent(
                             .padding(bottom = 32.dp),
                     colors =
                         FloatingToolbarDefaults.standardFloatingToolbarColors(
-                            toolbarContainerColor =
-                                MaterialTheme.colorScheme.surfaceContainerHighest.darken(0.05f),
+                            toolbarContainerColor = BottomBarColor,
                             toolbarContentColor = MaterialTheme.colorScheme.onSurface,
                         ),
                     scrollBehavior = exitAlwaysScrollBehavior,
