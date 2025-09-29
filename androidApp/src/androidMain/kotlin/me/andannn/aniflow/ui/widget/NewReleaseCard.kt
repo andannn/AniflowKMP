@@ -193,6 +193,7 @@ private fun NewReleaseCardPreview() {
                                 status = MediaListStatus.DROPPED,
                             ),
                         airingScheduleUpdateTime = null,
+                        firstAddedTime = null,
                     ),
                 ),
         )

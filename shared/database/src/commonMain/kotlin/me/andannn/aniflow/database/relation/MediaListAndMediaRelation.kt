@@ -125,22 +125,10 @@ data class MediaListAndMediaRelation(
 data class MediaListAndMediaRelationWithUpdateLog(
     val mediaListAndMediaRelation: MediaListAndMediaRelation,
     val updateTime: Long?,
+    val firstAddedTime: Long?,
 ) {
     companion object {
         fun mapTo(
-            mediaListId: String,
-            userId: String?,
-            mediaId: String?,
-            listStatus: String?,
-            notes: String?,
-            progress: Long?,
-            progressVolumes: Long?,
-            startedAt: String?,
-            completedAt: String?,
-            updatedAt: Long?,
-            repeat: Long?,
-            score: Double?,
-            isPrivate: Boolean?,
             id: String,
             mediaType: String?,
             englishTitle: String?,
@@ -176,8 +164,21 @@ data class MediaListAndMediaRelationWithUpdateLog(
             currentYearRanking: Long?,
             meanScore: Long?,
             currentYearPopularRanking: Long?,
-            updatedMediaId: String?,
+            mediaListId: String,
+            userId: String?,
+            mediaId: String?,
+            listStatus: String?,
+            notes: String?,
+            progress: Long?,
+            progressVolumes: Long?,
+            startedAt: String?,
+            completedAt: String?,
+            updatedAt: Long?,
+            repeat: Long?,
+            score: Double?,
+            isPrivate: Boolean?,
             updateTime: Long?,
+            firstAddedTime: Long?,
         ): MediaListAndMediaRelationWithUpdateLog =
             MediaListAndMediaRelationWithUpdateLog(
                 mediaListAndMediaRelation =
@@ -232,6 +233,7 @@ data class MediaListAndMediaRelationWithUpdateLog(
                         currentYearPopularRanking = currentYearPopularRanking,
                     ),
                 updateTime = updateTime,
+                firstAddedTime = firstAddedTime,
             )
     }
 }

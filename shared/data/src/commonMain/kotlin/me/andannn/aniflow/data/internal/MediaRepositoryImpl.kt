@@ -68,6 +68,7 @@ import me.andannn.aniflow.service.dto.Studio
 import me.andannn.aniflow.service.dto.enums.NotificationType
 import me.andannn.aniflow.service.dto.toMediaPage
 import me.andannn.aniflow.service.dto.toPage
+import kotlin.time.ExperimentalTime
 
 private const val TAG = "MediaRepository"
 
@@ -163,6 +164,7 @@ internal class MediaRepositoryImpl(
         )
     }
 
+    @OptIn(ExperimentalTime::class)
     override fun getMediaListFlowByUserId(
         userId: String,
         mediaType: MediaType,
@@ -176,7 +178,7 @@ internal class MediaRepositoryImpl(
             ).map {
                 it
                     .map(MediaListAndMediaRelationWithUpdateLog::toDomain)
-                    .sortedByDescending { it.mediaListModel.updatedAt }
+                    .sortedByDescending { it.firstAddedTime }
             }
 
     override fun getMediaListItemOfUserFlow(

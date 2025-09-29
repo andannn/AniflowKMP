@@ -684,6 +684,7 @@ internal fun MediaListAndMediaRelationWithUpdateLog.toDomain() =
         mediaModel = mediaListAndMediaRelation.mediaEntity.toDomain(),
         mediaListModel = mediaListAndMediaRelation.mediaListEntity.toDomain(),
         airingScheduleUpdateTime = updateTime?.let { Instant.fromEpochSeconds(it) },
+        firstAddedTime = firstAddedTime?.let { Instant.fromEpochSeconds(it) },
     )
 
 internal fun <T, R> Page<T>.toDomain(mapper: (T) -> R) =

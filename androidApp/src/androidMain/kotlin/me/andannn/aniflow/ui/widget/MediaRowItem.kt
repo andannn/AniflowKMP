@@ -299,6 +299,7 @@ private fun MediaListModelPreview() {
                             status = MediaListStatus.DROPPED,
                         ),
                     airingScheduleUpdateTime = null,
+                    firstAddedTime = null,
                 ),
             titleMaxLines = Int.MAX_VALUE,
             onClick = {},

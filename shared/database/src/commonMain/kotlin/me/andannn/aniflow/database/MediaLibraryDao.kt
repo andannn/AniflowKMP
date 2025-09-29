@@ -44,7 +44,9 @@ class MediaLibraryDao constructor(
 
     suspend fun getCharacterById(characterId: String): CharacterEntity? =
         withDatabase {
-            withContext(dispatcher) { characterQueries.getCharacterById(characterId).awaitAsOneOrNull() }
+            withContext(dispatcher) {
+                characterQueries.getCharacterById(characterId).awaitAsOneOrNull()
+            }
         }
 
     fun getMediaFlow(mediaId: String): Flow<MediaEntity> =
@@ -125,8 +127,17 @@ class MediaLibraryDao constructor(
             withContext(dispatcher) {
                 transaction(true) {
                     mediaListEntities.forEach { mediaListAndMediaRelation ->
-                        mediaListQueries.upsertMediaList(mediaListAndMediaRelation.mediaListEntity)
-                        mediaQueries.upsertMedia(mediaListAndMediaRelation.mediaEntity)
+                        with(mediaListAndMediaRelation) {
+                            mediaListQueries.upsertMediaList(mediaListEntity)
+                            mediaQueries.upsertMedia(mediaEntity)
+
+                            mediaListEntity.updatedAt?.let {
+                                localListItemFirstTimeUpdateTimeQueries.insertOrIgnoreListItemFirstTimeUpdateTime(
+                                    mediaListId = mediaListEntity.mediaListId,
+                                    firstAddedTime = mediaListEntity.updatedAt,
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -136,6 +147,13 @@ class MediaLibraryDao constructor(
         withDatabase {
             withContext(dispatcher) {
                 mediaListQueries.upsertMediaList(mediaListEntity)
+
+                mediaListEntity.updatedAt?.let {
+                    localListItemFirstTimeUpdateTimeQueries.insertOrIgnoreListItemFirstTimeUpdateTime(
+                        mediaListId = mediaListEntity.mediaListId,
+                        firstAddedTime = mediaListEntity.updatedAt,
+                    )
+                }
             }
         }
 
