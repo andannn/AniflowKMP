@@ -20,6 +20,7 @@ data class MediaWithMediaListItem
         val mediaModel: MediaModel,
         val mediaListModel: MediaListModel,
         val airingScheduleUpdateTime: Instant?,
+        val firstAddedTime: Instant?,
     ) {
         val haveNextEpisode: Boolean = haveNextEpisode(mediaModel, mediaListModel)
 

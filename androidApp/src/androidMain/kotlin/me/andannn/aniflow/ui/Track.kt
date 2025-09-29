@@ -298,6 +298,7 @@ fun TrackContent(
             CustomPullToRefresh(
                 modifier =
                     Modifier
+                        .fillMaxSize()
                         .padding(top = it.calculateTopPadding())
                         .background(color = AppBackgroundColor),
                 isRefreshing = isRefreshing,
@@ -329,7 +330,9 @@ fun TrackContent(
                             ) { index, item ->
                                 val isFirst = index == 0
                                 val isLast = index == items.lastIndex
-                                Column {
+                                Column(
+                                    modifier = Modifier.animateItem(),
+                                ) {
                                     MediaRowItem(
                                         item = item,
                                         shape = ShapeHelper.listItemShapeVertical(isFirst, isLast),

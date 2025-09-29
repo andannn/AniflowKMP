@@ -1,0 +1,14 @@
+CREATE TABLE localListItemFirstTimeUpdateTimeEntity (
+    mediaListId TEXT PRIMARY KEY NOT NULL,
+    firstAddedTime INTEGER NOT NULL
+);
+
+INSERT OR IGNORE INTO
+localListItemFirstTimeUpdateTimeEntity (
+    mediaListId,
+    firstAddedTime
+)
+SELECT
+    mediaListEntity.mediaListId,
+    mediaListEntity.updatedAt
+FROM mediaListEntity;

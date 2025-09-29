@@ -37,6 +37,7 @@ import androidx.navigation3.scene.rememberSceneSetupNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.Serializable
+import me.andannn.aniflow.ui.theme.BottomBarColor
 import me.andannn.aniflow.util.rememberSnackBarHostState
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -131,6 +132,7 @@ private fun NavigationArea(
 ) {
     FlexibleBottomAppBar(
         modifier = modifier.height(72.dp),
+        containerColor = BottomBarColor,
         horizontalArrangement = BottomAppBarDefaults.FlexibleFixedHorizontalArrangement,
         content = {
             TopLevelNavigation.entries.forEach { item ->

@@ -8,19 +8,21 @@ INSERT INTO AiringUpdatedLogEntity(updatedMediaId, updateTime)
 VALUES (?, ?);
 
 getMediaListRelationWithAiringUpdatedLog:
-SELECT *
+SELECT mediaEntity.*, mediaListEntity.*, AiringUpdatedLogEntity.updateTime, localListItemFirstTimeUpdateTimeEntity.firstAddedTime
 FROM mediaListEntity
 INNER JOIN mediaEntity ON mediaListEntity.mediaId = mediaEntity.id
 LEFT JOIN AiringUpdatedLogEntity ON mediaEntity.id = AiringUpdatedLogEntity.updatedMediaId
+LEFT JOIN localListItemFirstTimeUpdateTimeEntity ON mediaListEntity.mediaListId = localListItemFirstTimeUpdateTimeEntity.mediaListId
 WHERE mediaListEntity.userId = ?
     AND mediaEntity.mediaType = ?
     AND mediaListEntity.listStatus IN ?;
 
 getNewReleasedMediaListRelation:
-SELECT *
+SELECT mediaEntity.*, mediaListEntity.*, AiringUpdatedLogEntity.updateTime, localListItemFirstTimeUpdateTimeEntity.firstAddedTime
 FROM mediaListEntity
 INNER JOIN mediaEntity ON mediaListEntity.mediaId = mediaEntity.id
 INNER JOIN AiringUpdatedLogEntity ON mediaEntity.id = AiringUpdatedLogEntity.updatedMediaId
+LEFT JOIN localListItemFirstTimeUpdateTimeEntity ON mediaListEntity.mediaListId = localListItemFirstTimeUpdateTimeEntity.mediaListId
 WHERE mediaListEntity.userId = ?
     AND mediaEntity.mediaType = ?
     AND mediaListEntity.listStatus IN ?
