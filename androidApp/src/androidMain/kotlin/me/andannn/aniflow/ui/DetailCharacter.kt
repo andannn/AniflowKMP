@@ -77,6 +77,8 @@ import me.andannn.aniflow.ui.theme.AppBackgroundColor
 import me.andannn.aniflow.ui.theme.PageHorizontalPadding
 import me.andannn.aniflow.ui.theme.StyledReadingContentFontFamily
 import me.andannn.aniflow.ui.theme.TopAppBarColors
+import me.andannn.aniflow.ui.util.appendItem
+import me.andannn.aniflow.ui.util.format
 import me.andannn.aniflow.ui.widget.CommonItemFilledCard
 import me.andannn.aniflow.ui.widget.CustomPullToRefresh
 import me.andannn.aniflow.ui.widget.ToggleFavoriteButton

@@ -99,8 +99,7 @@ class DetailMediaViewModel: ObservableObject {
             }
 
             try await MarkProgressUseCase.shared.markProgress(
-                mediaListModel: mediaListItem,
-                mediaModel: mediaModel,
+                item: MediaWithMediaListItem(mediaModel: mediaModel, mediaListModel: mediaListItem),
                 newProgress: Int32(newProgress),
                 snackBarMessageHandler: SnackbarMessageHandlerImpl(snackbarManager: snackbarManager),
                 errorHandler: errorChannel

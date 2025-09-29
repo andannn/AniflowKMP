@@ -120,6 +120,7 @@ import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.model.launchUri
 import me.andannn.aniflow.data.model.relation.CharacterWithVoiceActor
 import me.andannn.aniflow.data.model.relation.MediaModelWithRelationType
+import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.data.releasingTimeString
 import me.andannn.aniflow.data.submitErrorOfSyncStatus
 import me.andannn.aniflow.ui.theme.AppBackgroundColor
@@ -260,8 +261,10 @@ class DetailMediaViewModel(
             val media = uiState.value.mediaModel
             if (media != null && listItem != null) {
                 MarkProgressUseCase.markProgress(
-                    listItem,
-                    media,
+                    MediaWithMediaListItem(
+                        media,
+                        listItem,
+                    ),
                     result,
                     buildSnackBarMessageHandler(this@launch, snackbarHost),
                     this@DetailMediaViewModel,

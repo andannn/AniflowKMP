@@ -22,6 +22,16 @@ data class MediaWithMediaListItem
         val airingScheduleUpdateTime: Instant?,
         val firstAddedTime: Instant?,
     ) {
+        constructor(
+            mediaModel: MediaModel,
+            mediaListModel: MediaListModel,
+        ) : this(
+            mediaModel = mediaModel,
+            mediaListModel = mediaListModel,
+            airingScheduleUpdateTime = null,
+            firstAddedTime = null,
+        )
+
         val haveNextEpisode: Boolean = haveNextEpisode(mediaModel, mediaListModel)
 
         /**

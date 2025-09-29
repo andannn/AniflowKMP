@@ -54,7 +54,6 @@ import me.andannn.aniflow.data.model.MediaListModel
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.TrackUiState
 import me.andannn.aniflow.data.model.define.MediaContentMode
-import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.data.submitErrorOfSyncStatus
 import me.andannn.aniflow.ui.theme.AppBackgroundColor
@@ -123,18 +122,16 @@ class TrackViewModel(
         cancelLastAndRegisterUiSideEffect(force = true)
     }
 
-    fun onDeleteItem(item: MediaListModel) {
+    context(
+        snackbarHost: SnackbarHostStateHolder,
+    )
+    fun onDeleteItem(item: MediaWithMediaListItem) {
         viewModelScope.launch {
-            val error =
-                mediaRepository.updateMediaListStatus(
-                    mediaListId = item.id,
-                    status = MediaListStatus.DROPPED,
-                )
-            if (error != null) {
-                Napier.e(tag = TAG) { "Failed to delete media list item ${item.id} $error" }
-
-                submitError(error)
-            }
+            MarkProgressUseCase.markDropped(
+                item,
+                buildSnackBarMessageHandler(scope = this@launch, snackbarHost),
+                this@TrackViewModel,
+            )
         }
     }
 
@@ -144,8 +141,7 @@ class TrackViewModel(
     fun onMarkClick(item: MediaWithMediaListItem) {
         viewModelScope.launch {
             MarkProgressUseCase.markProgress(
-                item.mediaListModel,
-                item.mediaModel,
+                item,
                 (item.mediaListModel.progress ?: 0) + 1,
                 buildSnackBarMessageHandler(scope = this@launch, snackbarHost),
                 this@TrackViewModel,
@@ -233,7 +229,9 @@ fun Track(
             onClickListItem = {
                 navigator.navigateTo(Screen.DetailMedia(it.id))
             },
-            onDeleteItem = viewModel::onDeleteItem,
+            onDeleteItem = {
+                viewModel.onDeleteItem(it)
+            },
             onMarkWatched = {
                 viewModel.onMarkClick(it)
             },
@@ -263,7 +261,7 @@ fun TrackContent(
     modifier: Modifier = Modifier,
     onPullRefresh: () -> Unit = {},
     onClickListItem: (MediaModel) -> Unit = {},
-    onDeleteItem: (MediaListModel) -> Unit = {},
+    onDeleteItem: (MediaWithMediaListItem) -> Unit = {},
     onMarkWatched: (MediaWithMediaListItem) -> Unit = {},
     onContentTypeChange: (MediaContentMode) -> Unit = {},
     onAuthIconClick: () -> Unit = {},
@@ -342,7 +340,7 @@ fun TrackContent(
                                             onClickListItem(item.mediaModel)
                                         },
                                         onDelete = {
-                                            onDeleteItem(item.mediaListModel)
+                                            onDeleteItem(item)
                                         },
                                         onMarkWatched = {
                                             onMarkWatched(item)

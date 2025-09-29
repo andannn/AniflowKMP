@@ -42,6 +42,13 @@ sealed class SnackBarMessage(
             actionLabel = "Undo",
         )
 
+    data class MediaMarkDropped(
+        val title: String,
+    ) : SnackBarMessage(
+            message = "$title marked as dropped",
+            actionLabel = "Undo",
+        )
+
     data object ScoreSaved : SnackBarMessage(
         message = "Score saved",
     )

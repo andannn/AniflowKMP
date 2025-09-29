@@ -13,9 +13,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.FilterAlt
@@ -83,9 +88,13 @@ import me.andannn.aniflow.ui.theme.AppBackgroundColor
 import me.andannn.aniflow.ui.theme.PageHorizontalPadding
 import me.andannn.aniflow.ui.theme.StyledReadingContentFontFamily
 import me.andannn.aniflow.ui.theme.TopAppBarColors
+import me.andannn.aniflow.ui.util.appendItem
+import me.andannn.aniflow.ui.util.format
 import me.andannn.aniflow.ui.widget.CharacterWithMediaItem
 import me.andannn.aniflow.ui.widget.CustomPullToRefresh
+import me.andannn.aniflow.ui.widget.GroupItems
 import me.andannn.aniflow.ui.widget.ToggleFavoriteButton
+import me.andannn.aniflow.ui.widget.pagingGroupedItems
 import me.andannn.aniflow.ui.widget.pagingItems
 import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.rememberSnackBarHostState
@@ -265,11 +274,11 @@ fun DetailStaffContent(
         ) {
             val pagingItems = pagingController.items.collectAsStateWithLifecycle()
             val pagingStatus = pagingController.status.collectAsStateWithLifecycle()
-            LazyVerticalStaggeredGrid(
+            LazyVerticalGrid(
                 contentPadding = PaddingValues(horizontal = PageHorizontalPadding),
-                columns = StaggeredGridCells.Adaptive(160.dp),
+                columns = GridCells.Adaptive(160.dp),
             ) {
-                item(span = StaggeredGridItemSpan.FullLine) {
+                item(span = { GridItemSpan(maxLineSpan) }) {
                     Row {
                         Spacer(Modifier.weight(1f))
                         Surface(
@@ -289,7 +298,7 @@ fun DetailStaffContent(
                     }
                 }
 
-                item(span = StaggeredGridItemSpan.FullLine) {
+                item(span = { GridItemSpan(maxLineSpan) }) {
                     val description =
                         remember(staff) {
                             staff?.description?.let {
@@ -333,7 +342,7 @@ fun DetailStaffContent(
                     )
                 }
 
-                item(span = StaggeredGridItemSpan.FullLine) {
+                item(span = { GridItemSpan(maxLineSpan) }) {
                     var expanded by remember { mutableStateOf(false) }
                     Box(contentAlignment = Alignment.CenterEnd) {
                         Box(
@@ -368,48 +377,76 @@ fun DetailStaffContent(
                     }
                 }
 
-                pagingItems(
-                    items = pagingItems.value,
-                    status = pagingStatus.value,
-                    key = { item -> item.hashCode() },
-                    onLoadNextPage = { pagingController.loadNextPage() },
-                ) { item ->
-                    CharacterWithMediaItem(
-                        modifier = Modifier.padding(4.dp),
-                        item = item,
-                        userTitleLanguage = options.titleLanguage,
-                        userStaffLanguage = options.staffNameLanguage,
-                        onCharacterClick = {
-                            onCharacterClick(item.character)
+                if (selectedMediaSort == MediaSort.START_DATE_DESC || selectedMediaSort == MediaSort.START_DATE) {
+                    val groups = pagingItems.value.grouped()
+                    pagingGroupedItems(
+                        groups = groups,
+                        status = pagingStatus.value,
+                        key = { item -> item.hashCode() },
+                        onLoadNextPage = { pagingController.loadNextPage() },
+                        titleContent = { title ->
+                            Box(modifier = Modifier.fillMaxWidth()) {
+                                Surface(
+                                    modifier = Modifier.wrapContentSize(),
+                                    color = AppBackgroundColor,
+                                    shape = RoundedCornerShape(bottomEnd = 12.dp),
+                                ) {
+                                    Text(
+                                        modifier = Modifier.padding(end = 12.dp, top = 24.dp),
+                                        text = title,
+                                        style = MaterialTheme.typography.headlineMediumEmphasized,
+                                    )
+                                }
+                            }
                         },
-                        onMediaClick = {
-                            onMediaClick(item.media)
+                        itemContent = { item ->
+                            CharacterWithMediaItem(
+                                modifier = Modifier.padding(4.dp),
+                                item = item,
+                                userTitleLanguage = options.titleLanguage,
+                                userStaffLanguage = options.staffNameLanguage,
+                                onCharacterClick = {
+                                    onCharacterClick(item.character)
+                                },
+                                onMediaClick = {
+                                    onMediaClick(item.media)
+                                },
+                            )
                         },
                     )
+                } else {
+                    pagingItems(
+                        items = pagingItems.value,
+                        status = pagingStatus.value,
+                        key = { item -> item.hashCode() },
+                        onLoadNextPage = { pagingController.loadNextPage() },
+                    ) { item ->
+                        CharacterWithMediaItem(
+                            modifier = Modifier.padding(4.dp),
+                            item = item,
+                            userTitleLanguage = options.titleLanguage,
+                            userStaffLanguage = options.staffNameLanguage,
+                            onCharacterClick = {
+                                onCharacterClick(item.character)
+                            },
+                            onMediaClick = {
+                                onMediaClick(item.media)
+                            },
+                        )
+                    }
                 }
             }
         }
     }
 }
 
-fun AnnotatedString.Builder.appendItem(
-    key: String,
-    value: String,
-) {
-    withStyle(
-        style =
-            SpanStyle(
-                fontWeight = FontWeight.W700,
-            ),
-    ) {
-        append("$key: ")
-    }
-    append(value)
-    append("\n")
-}
-
-private fun SimpleDate.toLocalDate(): LocalDate? = day?.let { LocalDate(year, month, it) }
-
-fun SimpleDate.format(): String =
-    toLocalDate()?.format(LocalDate.Formats.ISO)
-        ?: "%04d-%02d".format(year, month)
+private fun List<VoicedCharacterWithMedia>.grouped() =
+    this
+        .groupBy {
+            it.media.seasonYear
+        }.map { (yearOrNull, items) ->
+            GroupItems(
+                title = yearOrNull?.toString() ?: "TBA",
+                items = items,
+            )
+        }

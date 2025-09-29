@@ -69,8 +69,7 @@ class TrackViewModel : ObservableObject {
             let newProgress = Int(truncating: item.mediaListModel.progress ?? 0) + 1
  
             try await MarkProgressUseCase.shared.markProgress(
-                mediaListModel: item.mediaListModel,
-                mediaModel: item.mediaModel,
+                item: item,
                 newProgress: Int32(newProgress),
                 snackBarMessageHandler: SnackbarMessageHandlerImpl(snackbarManager: snackbarManager),
                 errorHandler: errorChannel
@@ -78,10 +77,15 @@ class TrackViewModel : ObservableObject {
         }
     }
     
-    func onDelete(item: MediaListModel) {
+    func onDelete(item: MediaWithMediaListItem) {
         print("TrackViewModel onDelete click")
         Task {
-            try await mediaRepository.updateMediaListStatus(mediaListId: item.id,status: .dropped)
+ 
+            try await MarkProgressUseCase.shared.markDropped(
+                item: item,
+                snackBarMessageHandler: SnackbarMessageHandlerImpl(snackbarManager: snackbarManager),
+                errorHandler: errorChannel
+            )
         }
     }
     
@@ -129,7 +133,7 @@ struct TrackView: View {
 
 struct TrackSectionView: View {
     let group: TrackUiState.CategoryWithItems
-    let onDelete: (MediaListModel) -> Void
+    let onDelete: (MediaWithMediaListItem) -> Void
     let onMarkWatched: (MediaWithMediaListItem) -> Void
     let onClick: (MediaWithMediaListItem) -> Void
     
@@ -155,7 +159,7 @@ struct TrackSectionView: View {
 
 struct TrackRowView: View {
     let item: MediaWithMediaListItem
-    let onDelete: (MediaListModel) -> Void
+    let onDelete: (MediaWithMediaListItem) -> Void
     let onMarkWatched: (MediaWithMediaListItem) -> Void
     let onClick: (MediaWithMediaListItem) -> Void
     
@@ -164,7 +168,7 @@ struct TrackRowView: View {
             item: item,
             userTitleLanguage: UserTitleLanguage.english,
             onClick: { onClick(item) },
-            onDelete: { onDelete(item.mediaListModel) },
+            onDelete: { onDelete(item) },
             onMarkWatched: { onMarkWatched(item) }
         )
         .padding(.vertical, 4)

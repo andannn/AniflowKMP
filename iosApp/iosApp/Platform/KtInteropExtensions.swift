@@ -142,13 +142,20 @@ extension FetchNotificationTask {
 
 extension MarkProgressUseCase {
     func markProgress(
-        mediaListModel: MediaListModel,
-        mediaModel: MediaModel,
+        item: MediaWithMediaListItem,
         newProgress: Int32,
         snackBarMessageHandler: any SnackBarMessageHandler,
         errorHandler: any AppErrorHandler
     ) async throws  {
-        try await asyncFunction(for: markProgress(mediaListModel: mediaListModel, mediaModel: mediaModel, newProgress: newProgress, snackBarMessageHandler: snackBarMessageHandler, errorHandler: errorHandler))
+        try await asyncFunction(for: markProgress(item: item, newProgress: newProgress, snackBarMessageHandler: snackBarMessageHandler, errorHandler: errorHandler))
+    }
+    
+    func markDropped(
+        item: MediaWithMediaListItem,
+        snackBarMessageHandler: any SnackBarMessageHandler,
+        errorHandler: any AppErrorHandler
+    ) async throws  {
+        try await asyncFunction(for: markDropped(item: item, snackBarMessageHandler: snackBarMessageHandler, errorHandler: errorHandler))
     }
 }
 

@@ -11,6 +11,7 @@ import me.andannn.aniflow.data.model.MediaListModel
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
+import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import org.koin.core.component.KoinComponent
 
 private const val TAG = "MarkProgressUseCase"
@@ -21,18 +22,35 @@ object MarkProgressUseCase : KoinComponent {
 
     @NativeCoroutines
     suspend fun markProgress(
-        mediaListModel: MediaListModel,
-        mediaModel: MediaModel,
+        item: MediaWithMediaListItem,
         newProgress: Int,
         snackBarMessageHandler: SnackBarMessageHandler,
         errorHandler: AppErrorHandler,
     ) {
-        val titleLanguage: UserTitleLanguage = authRepository.getUserOptionsFlow().first().titleLanguage
+        val titleLanguage: UserTitleLanguage =
+            authRepository.getUserOptionsFlow().first().titleLanguage
         context(snackBarMessageHandler, mediaRepository, errorHandler) {
             onMarkProgress(
-                mediaListModel,
-                mediaModel,
+                item.mediaListModel,
+                item.mediaModel,
                 newProgress,
+                titleLanguage,
+            )
+        }
+    }
+
+    @NativeCoroutines
+    suspend fun markDropped(
+        item: MediaWithMediaListItem,
+        snackBarMessageHandler: SnackBarMessageHandler,
+        errorHandler: AppErrorHandler,
+    ) {
+        val titleLanguage: UserTitleLanguage =
+            authRepository.getUserOptionsFlow().first().titleLanguage
+        context(snackBarMessageHandler, mediaRepository, errorHandler) {
+            onMarkDropped(
+                item.mediaListModel,
+                item.mediaModel,
                 titleLanguage,
             )
         }
@@ -87,6 +105,49 @@ private suspend fun onMarkProgress(
                     mediaListId = oldListItem.id,
                     status = oldListItem.status,
                     progress = oldListItem.progress,
+                )
+            Napier.d(tag = TAG) { "onMarkProgress: Undo performed X. error: $error" }
+            if (error != null) errorHandler.submitError(error)
+        }
+    } else {
+        errorHandler.submitError(error)
+    }
+}
+
+context(
+    snackBarMessageHandler: SnackBarMessageHandler,
+    mediaRepository: MediaRepository,
+    errorHandler: AppErrorHandler,
+)
+private suspend fun onMarkDropped(
+    mediaListModel: MediaListModel,
+    mediaModel: MediaModel,
+    titleLanguage: UserTitleLanguage,
+) {
+    val oldListItem = mediaListModel
+
+    val error =
+        mediaRepository.updateMediaListStatus(
+            mediaListId = mediaListModel.id,
+            status = MediaListStatus.DROPPED,
+        )
+
+    Napier.d(tag = TAG) { "onMarkProgress: completed error: $error" }
+
+    if (error == null) {
+        val title =
+            mediaModel.title.getUserTitleString(titleLanguage)
+        val result =
+            snackBarMessageHandler.showSnackBarMessageSuspend(
+                SnackBarMessage.MediaMarkDropped(title),
+            )
+        if (result == SharedSnackbarResult.ActionPerformed) {
+            // Undo action performed.
+            Napier.d(tag = TAG) { "onMarkProgress: Undo performed E" }
+            val error =
+                mediaRepository.updateMediaListStatus(
+                    mediaListId = oldListItem.id,
+                    status = oldListItem.status,
                 )
             Napier.d(tag = TAG) { "onMarkProgress: Undo performed X. error: $error" }
             if (error != null) errorHandler.submitError(error)
