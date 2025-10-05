@@ -32,12 +32,14 @@ import coil3.compose.AsyncImage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.model.UserModel
 import me.andannn.aniflow.ui.widget.AlertDialogContainer
 import me.andannn.aniflow.ui.widget.TransparentBackgroundListItem
-import me.andannn.aniflow.util.LocalScreenResultEmitter
-import me.andannn.aniflow.util.ScreenResultEmitter
+import me.andannn.aniflow.util.LocalNavResultOwner
+import me.andannn.aniflow.util.NavResultOwner
+import me.andannn.aniflow.util.setNavResult
 import org.koin.compose.viewmodel.koinViewModel
 
 class LoginDialogViewModel(
@@ -59,6 +61,9 @@ class LoginDialogViewModel(
     )
 }
 
+const val LOGIN_DIALOG_RESULT_KEY = "LoginDialogResultKey"
+
+@Serializable
 enum class LoginDialogResult {
     ClickLogin,
     ClickLogout,
@@ -68,17 +73,17 @@ enum class LoginDialogResult {
 fun LoginDialog(
     viewModel: LoginDialogViewModel = koinViewModel(),
     navigator: RootNavigator = LocalRootNavigator.current,
-    resultEmitter: ScreenResultEmitter = LocalScreenResultEmitter.current,
+    navResultOwner: NavResultOwner = LocalNavResultOwner.current,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     LoginDialogContent(
         state = state,
         onLoginClick = {
-            resultEmitter.emitResult(LoginDialogResult.ClickLogin)
+            navResultOwner.setNavResult(LOGIN_DIALOG_RESULT_KEY, LoginDialogResult.ClickLogin, LoginDialogResult.serializer())
             navigator.popBackStack()
         },
         onLogoutClick = {
-            resultEmitter.emitResult(LoginDialogResult.ClickLogout)
+            navResultOwner.setNavResult(LOGIN_DIALOG_RESULT_KEY, LoginDialogResult.ClickLogout, LoginDialogResult.serializer())
             navigator.popBackStack()
         },
         onNotificationClick = {

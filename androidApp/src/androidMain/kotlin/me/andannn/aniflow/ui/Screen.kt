@@ -5,8 +5,6 @@
 package me.andannn.aniflow.ui
 
 import androidx.navigation3.runtime.NavKey
-import io.github.aakira.napier.Napier
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import me.andannn.aniflow.data.model.SettingItem

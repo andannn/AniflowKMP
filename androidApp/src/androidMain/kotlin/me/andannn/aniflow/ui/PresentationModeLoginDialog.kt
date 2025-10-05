@@ -9,15 +9,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import kotlinx.serialization.Serializable
 import me.andannn.aniflow.ui.widget.AlertDialogContainer
-import me.andannn.aniflow.util.LocalScreenResultEmitter
-import me.andannn.aniflow.util.ScreenResultEmitter
+import me.andannn.aniflow.util.LocalNavResultOwner
+import me.andannn.aniflow.util.NavResultOwner
+import me.andannn.aniflow.util.setNavResult
 
+const val PRESENTATION_DIALOG_RESULT_KEY = "presentation_dialog_result_key"
+
+@Serializable
 object PresentationModeLoginAccepted
 
 @Composable
 fun PresentationModeLoginDialog(
-    resultEmitter: ScreenResultEmitter = LocalScreenResultEmitter.current,
+    navResultOwner: NavResultOwner = LocalNavResultOwner.current,
     navigator: RootNavigator = LocalRootNavigator.current,
 ) {
     AlertDialogContainer {
@@ -31,7 +36,11 @@ fun PresentationModeLoginDialog(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             onClick = {
                 navigator.popBackStack()
-                resultEmitter.emitResult(PresentationModeLoginAccepted)
+                navResultOwner.setNavResult(
+                    PRESENTATION_DIALOG_RESULT_KEY,
+                    PresentationModeLoginAccepted,
+                    PresentationModeLoginAccepted.serializer(),
+                )
             },
         ) {
             Text("Login")

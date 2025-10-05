@@ -19,7 +19,6 @@ import androidx.navigation3.scene.SinglePaneSceneStrategy
 import androidx.navigation3.scene.rememberSceneSetupNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import me.andannn.aniflow.util.rememberErrorHandlerNavEntryDecorator
-import me.andannn.aniflow.util.rememberResultStoreNavEntryDecorator
 
 @Composable
 fun App(navigator: RootNavigator) {
@@ -35,77 +34,72 @@ fun App(navigator: RootNavigator) {
                     rememberSceneSetupNavEntryDecorator(),
                     rememberSavedStateNavEntryDecorator(),
                     rememberViewModelStoreNavEntryDecorator(),
-                    rememberResultStoreNavEntryDecorator(),
                     rememberErrorHandlerNavEntryDecorator(),
                 ),
             entryProvider =
                 entryProvider {
-                    entry<Screen.Home>(clazzContentKey = { it.toJson() }) {
+                    entry<Screen.Home> {
                         Home()
                     }
 
-                    entry<Screen.MediaCategoryList>(clazzContentKey = { it.toJson() }) {
+                    entry<Screen.MediaCategoryList> {
                         MediaCategoryPaging(
                             category = it.category,
                         )
                     }
 
-                    entry<Screen.Notification>(clazzContentKey = { it.toJson() }) {
+                    entry<Screen.Notification> {
                         Notification()
                     }
 
-                    entry<Screen.Search>(clazzContentKey = { it.toJson() }) {
+                    entry<Screen.Search> {
                         Search()
                     }
 
-                    entry<Screen.Settings>(clazzContentKey = { it.toJson() }) {
+                    entry<Screen.Settings> {
                         Settings()
                     }
 
-                    entry<Screen.DetailMedia>(clazzContentKey = { it.toJson() }) {
+                    entry<Screen.DetailMedia> {
                         DetailMedia(it.mediaId)
                     }
 
-                    entry<Screen.DetailStaff>(clazzContentKey = { it.toJson() }) {
+                    entry<Screen.DetailStaff> {
                         DetailStaff(it.staffId)
                     }
 
-                    entry<Screen.DetailCharacter>(clazzContentKey = { it.toJson() }) {
+                    entry<Screen.DetailCharacter> {
                         DetailCharacter(it.characterId)
                     }
 
-                    entry<Screen.DetailStaffPaging>(clazzContentKey = { it.toJson() }) {
+                    entry<Screen.DetailStaffPaging> {
                         DetailMediaStaffPaging(it.mediaId)
                     }
 
-                    entry<Screen.DetailCharacterPaging>(clazzContentKey = { it.toJson() }) {
+                    entry<Screen.DetailCharacterPaging> {
                         DetailMediaCharacterPaging(it.mediaId)
                     }
 
                     entry<Screen.Dialog.ScoringDialog>(
                         metadata = dialog(),
-                        clazzContentKey = { it.toJson() },
                     ) {
                         ScoringDialog(it.mediaId)
                     }
 
                     entry<Screen.Dialog.Login>(
                         metadata = dialog(),
-                        clazzContentKey = { it.toJson() },
                     ) {
                         LoginDialog()
                     }
 
                     entry<Screen.Dialog.SettingOption>(
                         metadata = dialog(),
-                        clazzContentKey = { it.toJson() },
                     ) {
                         SettingOptionDialog(it.settingItem)
                     }
 
                     entry<Screen.Dialog.TrackProgressDialog>(
                         metadata = dialog(),
-                        clazzContentKey = { it.toJson() },
                     ) {
                         TrackProgressDialog(
                             mediaId = it.mediaId,
@@ -121,7 +115,6 @@ fun App(navigator: RootNavigator) {
                                         dismissOnClickOutside = false,
                                     ),
                             ),
-                        clazzContentKey = { it.toJson() },
                     ) {
                         PresentationModeLoginDialog()
                     }

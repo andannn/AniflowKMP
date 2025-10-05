@@ -97,6 +97,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.serialization.builtins.serializer
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.DetailMediaUiDataProvider
 import me.andannn.aniflow.data.ErrorChannel
@@ -141,9 +142,10 @@ import me.andannn.aniflow.ui.widget.TitleWithContent
 import me.andannn.aniflow.ui.widget.buildSpecialMessageText
 import me.andannn.aniflow.ui.widget.iconItemWithLabel
 import me.andannn.aniflow.util.ErrorHandleSideEffect
-import me.andannn.aniflow.util.LocalResultStore
+import me.andannn.aniflow.util.LaunchNavResultHandler
+import me.andannn.aniflow.util.LocalNavResultOwner
 import me.andannn.aniflow.util.LocalSnackbarHostStateHolder
-import me.andannn.aniflow.util.ResultStore
+import me.andannn.aniflow.util.NavResultOwner
 import me.andannn.aniflow.util.SnackbarHostStateHolder
 import me.andannn.aniflow.util.rememberSnackBarHostState
 import me.andannn.aniflow.util.showSnackBarMessage
@@ -253,10 +255,9 @@ class DetailMediaViewModel(
             }
     }
 
-    context(resultStore: ResultStore, snackbarHost: SnackbarHostStateHolder)
-    fun onTrackProgressClick() {
+    context(snackbarHost: SnackbarHostStateHolder)
+    fun onTrackProgressChange(result: Int) {
         viewModelScope.launch {
-            val result: Int = resultStore.awaitResultOf(Screen.Dialog.TrackProgressDialog(mediaId))
             val listItem = uiState.value.mediaListItem
             val media = uiState.value.mediaModel
             if (media != null && listItem != null) {
@@ -286,10 +287,9 @@ class DetailMediaViewModel(
             }
     }
 
-    context(resultStore: ResultStore, snackbarHost: SnackbarHostStateHolder)
-    fun onRatingClick() {
+    context(snackbarHost: SnackbarHostStateHolder)
+    fun onRatingChange(result: Float) {
         viewModelScope.launch {
-            val result: Float = resultStore.awaitResultOf(Screen.Dialog.ScoringDialog(mediaId))
             val listItem = uiState.value.mediaListItem
             if (listItem != null && result.toDouble() != listItem.score) {
                 val appError =
@@ -317,13 +317,20 @@ fun DetailMedia(
         ),
     navigator: RootNavigator = LocalRootNavigator.current,
     uriHandler: UriHandler = LocalUriHandler.current,
-    resultStore: ResultStore = LocalResultStore.current,
+    navResultOwner: NavResultOwner = LocalNavResultOwner.current,
     snackbarHostState: SnackbarHostStateHolder = LocalSnackbarHostStateHolder.current,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isRefreshing by viewModel.isLoading.collectAsStateWithLifecycle()
 
-    context(resultStore, snackbarHostState) {
+    context(navResultOwner, snackbarHostState) {
+        LaunchNavResultHandler(TRACK_PROGRESS_DIALOG_RESULT, resultSerializer = Int.serializer()) {
+            viewModel.onTrackProgressChange(it)
+        }
+        LaunchNavResultHandler(SCORE_DIALOG_RESULT, resultSerializer = Float.serializer()) {
+            viewModel.onRatingChange(it)
+        }
+
         DetailMediaContent(
             title = uiState.title,
             staffList = uiState.staffList,
@@ -349,11 +356,9 @@ fun DetailMedia(
             onLoginClick = viewModel::onLoginClick,
             onTrackProgressClick = {
                 navigator.navigateTo(Screen.Dialog.TrackProgressDialog(mediaId))
-                viewModel.onTrackProgressClick()
             },
             onRatingClick = {
                 navigator.navigateTo(Screen.Dialog.ScoringDialog(mediaId))
-                viewModel.onRatingClick()
             },
             onExternalLinkClick = { link ->
                 link.url?.let {

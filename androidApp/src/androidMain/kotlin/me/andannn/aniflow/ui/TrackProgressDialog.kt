@@ -36,20 +36,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
-import me.andannn.aniflow.data.AuthRepository
-import me.andannn.aniflow.data.MediaRepository
+import kotlinx.serialization.builtins.serializer
 import me.andannn.aniflow.data.TrackProgressDialogDataProvider
 import me.andannn.aniflow.data.model.TrackProgressDialogState
-import me.andannn.aniflow.data.model.define.MediaStatus
 import me.andannn.aniflow.ui.widget.AlertDialogContainer
-import me.andannn.aniflow.util.LocalScreenResultEmitter
-import me.andannn.aniflow.util.ScreenResultEmitter
+import me.andannn.aniflow.util.LocalNavResultOwner
+import me.andannn.aniflow.util.NavResultOwner
+import me.andannn.aniflow.util.setNavResult
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+
+const val TRACK_PROGRESS_DIALOG_RESULT = "TRACK_PROGRESS_DIALOG_RESULT"
 
 class TrackProgressDialogViewModel(
     mediaId: String,
@@ -71,7 +69,7 @@ fun TrackProgressDialog(
         koinViewModel(
             parameters = { parametersOf(mediaId) },
         ),
-    resultEmitter: ScreenResultEmitter = LocalScreenResultEmitter.current,
+    navResultOwner: NavResultOwner = LocalNavResultOwner.current,
     navigator: RootNavigator = LocalRootNavigator.current,
 ) {
     val uiData by viewModel.uiData.collectAsStateWithLifecycle()
@@ -83,7 +81,7 @@ fun TrackProgressDialog(
             initialProgress = uiData.initialProgress,
             maxEpisodes = uiData.maxEp,
         ) {
-            resultEmitter.emitResult(it)
+            navResultOwner.setNavResult(TRACK_PROGRESS_DIALOG_RESULT, it, Int.serializer())
             navigator.popBackStack()
         }
     }

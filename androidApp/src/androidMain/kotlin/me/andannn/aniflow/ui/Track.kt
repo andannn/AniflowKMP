@@ -50,7 +50,6 @@ import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.TrackUiDataProvider
 import me.andannn.aniflow.data.buildErrorChannel
 import me.andannn.aniflow.data.model.HomeAppBarUiState
-import me.andannn.aniflow.data.model.MediaListModel
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.TrackUiState
 import me.andannn.aniflow.data.model.define.MediaContentMode
@@ -63,9 +62,10 @@ import me.andannn.aniflow.ui.widget.CustomPullToRefresh
 import me.andannn.aniflow.ui.widget.DefaultAppBar
 import me.andannn.aniflow.ui.widget.MediaRowItem
 import me.andannn.aniflow.util.ErrorHandleSideEffect
-import me.andannn.aniflow.util.LocalResultStore
+import me.andannn.aniflow.util.LaunchNavResultHandler
+import me.andannn.aniflow.util.LocalNavResultOwner
 import me.andannn.aniflow.util.LocalSnackbarHostStateHolder
-import me.andannn.aniflow.util.ResultStore
+import me.andannn.aniflow.util.NavResultOwner
 import me.andannn.aniflow.util.SnackbarHostStateHolder
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -172,11 +172,9 @@ class TrackViewModel(
             }
     }
 
-    context(resultStore: ResultStore)
-    fun onAuthIconClick() {
+    fun onAuthLoginResult(result: LoginDialogResult) {
         viewModelScope
             .launch {
-                val result: LoginDialogResult = resultStore.awaitResultOf(Screen.Dialog.Login)
                 when (result) {
                     LoginDialogResult.ClickLogin -> {
                         isLoginProcessing.value = true
@@ -211,7 +209,7 @@ class TrackViewModel(
 fun Track(
     modifier: Modifier = Modifier,
     navigator: RootNavigator = LocalRootNavigator.current,
-    resultStore: ResultStore = LocalResultStore.current,
+    navResultOwner: NavResultOwner = LocalNavResultOwner.current,
     snackbarHostState: SnackbarHostStateHolder = LocalSnackbarHostStateHolder.current,
     viewModel: TrackViewModel = koinViewModel(),
 ) {
@@ -219,7 +217,11 @@ fun Track(
     val isRefreshing by viewModel.isLoading.collectAsStateWithLifecycle()
     val appBarState by viewModel.appBarState.collectAsStateWithLifecycle()
 
-    context(resultStore, snackbarHostState) {
+    LaunchNavResultHandler(LOGIN_DIALOG_RESULT_KEY, LoginDialogResult.serializer()) {
+        viewModel.onAuthLoginResult(it)
+    }
+
+    context(navResultOwner, snackbarHostState) {
         TrackContent(
             modifier = modifier,
             state = state,
@@ -237,7 +239,6 @@ fun Track(
             },
             onContentTypeChange = viewModel::changeContentMode,
             onAuthIconClick = {
-                viewModel.onAuthIconClick()
                 navigator.navigateTo(Screen.Dialog.Login)
             },
             onSearchClick = {

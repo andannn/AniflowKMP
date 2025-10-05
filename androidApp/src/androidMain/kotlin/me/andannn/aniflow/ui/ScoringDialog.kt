@@ -53,6 +53,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.serialization.builtins.serializer
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.model.UserOptions
@@ -60,13 +61,16 @@ import me.andannn.aniflow.data.model.define.ScoreFormat
 import me.andannn.aniflow.ui.theme.AniflowTheme
 import me.andannn.aniflow.ui.theme.EspecialMessageFontFamily
 import me.andannn.aniflow.ui.widget.AlertDialogContainer
-import me.andannn.aniflow.util.LocalScreenResultEmitter
-import me.andannn.aniflow.util.ScreenResultEmitter
+import me.andannn.aniflow.util.LocalNavResultOwner
+import me.andannn.aniflow.util.NavResultOwner
+import me.andannn.aniflow.util.setNavResult
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import kotlin.math.roundToInt
 
 private const val TAG = "ScoringDialog"
+
+const val SCORE_DIALOG_RESULT = "SCORE_DIALOG_RESULT"
 
 class ScoringDialogViewModel(
     private val mediaId: String,
@@ -106,7 +110,7 @@ fun ScoringDialog(
             parameters = { parametersOf(mediaId) },
         ),
     navigator: RootNavigator = LocalRootNavigator.current,
-    resultEmitter: ScreenResultEmitter = LocalScreenResultEmitter.current,
+    navResultOwner: NavResultOwner = LocalNavResultOwner.current,
 ) {
     val scoreFormat by viewModel.scoreFormat.collectAsStateWithLifecycle()
     val mediaListItem by viewModel.mediaListItem.collectAsStateWithLifecycle()
@@ -175,7 +179,7 @@ fun ScoringDialog(
                 onClick = {
                     val scoreResult = score
                     if (scoreResult != null) {
-                        resultEmitter.emitResult(scoreResult)
+                        navResultOwner.setNavResult(SCORE_DIALOG_RESULT, scoreResult, Float.serializer())
                     }
 
                     navigator.popBackStack()

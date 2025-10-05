@@ -52,8 +52,9 @@ import me.andannn.aniflow.ui.theme.PageHorizontalPadding
 import me.andannn.aniflow.ui.theme.ShapeHelper
 import me.andannn.aniflow.ui.theme.TopAppBarColors
 import me.andannn.aniflow.util.ErrorHandleSideEffect
-import me.andannn.aniflow.util.LocalResultStore
-import me.andannn.aniflow.util.ResultStore
+import me.andannn.aniflow.util.LaunchNavResultHandler
+import me.andannn.aniflow.util.LocalNavResultOwner
+import me.andannn.aniflow.util.NavResultOwner
 import me.andannn.aniflow.util.rememberSnackBarHostState
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -84,11 +85,8 @@ class SettingsViewModel(
         }
     }
 
-    context(resultStore: ResultStore)
-    fun onSettingItemClick(settingItem: SettingItem) {
+    fun onSettingOptionSelected(option: SettingOption) {
         viewModelScope.launch {
-            val option: SettingOption =
-                resultStore.awaitResultOf(Screen.Dialog.SettingOption(settingItem))
             Napier.d(tag = TAG) { "On Option Click : $option" }
             handleChangeSetting(option)
         }
@@ -122,16 +120,19 @@ class SettingsViewModel(
 fun Settings(
     settingsViewModel: SettingsViewModel = koinViewModel(),
     router: RootNavigator = LocalRootNavigator.current,
-    resultStore: ResultStore = LocalResultStore.current,
+    navResultOwner: NavResultOwner = LocalNavResultOwner.current,
 ) {
     val state = settingsViewModel.state.collectAsStateWithLifecycle()
 
-    with(resultStore) {
+    LaunchNavResultHandler(SETTING_OPTION_DIALOG_RESULT, SettingOption.serializer()) {
+        settingsViewModel.onSettingOptionSelected(it)
+    }
+
+    with(navResultOwner) {
         SettingsContent(
             state = state.value,
             onPop = { router.popBackStack() },
             onSettingItemClick = { settingItem ->
-                settingsViewModel.onSettingItemClick(settingItem)
                 router.navigateTo(Screen.Dialog.SettingOption(settingItem))
             },
         )

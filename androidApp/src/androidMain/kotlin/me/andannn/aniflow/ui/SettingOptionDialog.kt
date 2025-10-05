@@ -4,35 +4,29 @@
  */
 package me.andannn.aniflow.ui
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import io.github.aakira.napier.Napier
 import me.andannn.aniflow.data.model.SettingItem
 import me.andannn.aniflow.data.model.SettingOption
 import me.andannn.aniflow.ui.widget.AlertDialogContainer
 import me.andannn.aniflow.ui.widget.TransparentBackgroundListItem
-import me.andannn.aniflow.util.LocalScreenResultEmitter
-import me.andannn.aniflow.util.ScreenResultEmitter
+import me.andannn.aniflow.util.LocalNavResultOwner
+import me.andannn.aniflow.util.NavResultOwner
+import me.andannn.aniflow.util.setNavResult
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 private const val TAG = "SettingOptionDialog"
+
+const val SETTING_OPTION_DIALOG_RESULT = "SETTING_OPTION_DIALOG_RESULT"
 
 class SettingOptionViewModel(
     settingItem: SettingItem,
@@ -64,7 +58,7 @@ fun SettingOptionDialog(
             parameters = { parametersOf(settingItem) },
         ),
     navigator: RootNavigator = LocalRootNavigator.current,
-    resultEmitter: ScreenResultEmitter = LocalScreenResultEmitter.current,
+    navResultOwner: NavResultOwner = LocalNavResultOwner.current,
 ) {
     AlertDialogContainer(
         title = settingItem.title,
@@ -75,7 +69,7 @@ fun SettingOptionDialog(
                     selected = viewModel.selectedOptions.firstOrNull(),
                     options = viewModel.options,
                     onOptionClick = {
-                        resultEmitter.emitResult(it)
+                        navResultOwner.setNavResult(SETTING_OPTION_DIALOG_RESULT, it, SettingOption.serializer())
                         navigator.popBackStack()
                     },
                 )

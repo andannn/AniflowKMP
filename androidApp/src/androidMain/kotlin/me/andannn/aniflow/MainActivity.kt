@@ -30,7 +30,6 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation3.runtime.rememberNavBackStack
 import io.github.aakira.napier.Napier
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.filterNotNull
@@ -38,7 +37,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.BrowserAuthOperationHandler
-import me.andannn.aniflow.data.PlatformAnalytics
 import me.andannn.aniflow.data.logScreenEventEvent
 import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.Theme
@@ -49,8 +47,9 @@ import me.andannn.aniflow.ui.RootNavigator
 import me.andannn.aniflow.ui.Screen
 import me.andannn.aniflow.ui.theme.AniflowTheme
 import me.andannn.aniflow.ui.util.toFaEvent
-import me.andannn.aniflow.util.LocalResultStore
-import me.andannn.aniflow.util.ResultStore
+import me.andannn.aniflow.util.LocalNavResultOwner
+import me.andannn.aniflow.util.NavResultOwner
+import me.andannn.aniflow.util.rememberNavResultOwner
 import me.andannn.aniflow.worker.SyncWorkHelper
 import org.koin.android.ext.android.getKoin
 import org.koin.compose.getKoin
@@ -168,9 +167,9 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                val resultStore = remember { ResultStore() }
+                val navResultOwner = rememberNavResultOwner()
                 CompositionLocalProvider(
-                    LocalResultStore provides resultStore,
+                    LocalNavResultOwner provides navResultOwner,
                 ) {
                     App(navigator)
                 }

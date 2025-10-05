@@ -4,7 +4,6 @@
  */
 package me.andannn.aniflow.ui
 
-import android.util.Log
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
@@ -34,6 +33,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -50,6 +50,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.serialization.builtins.serializer
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.DiscoverUiDataProvider
 import me.andannn.aniflow.data.ErrorChannel
@@ -76,8 +77,9 @@ import me.andannn.aniflow.ui.widget.MediaPreviewItem
 import me.andannn.aniflow.ui.widget.NewReleaseCard
 import me.andannn.aniflow.ui.widget.TitleWithContent
 import me.andannn.aniflow.util.ErrorHandleSideEffect
-import me.andannn.aniflow.util.LocalResultStore
-import me.andannn.aniflow.util.ResultStore
+import me.andannn.aniflow.util.LaunchNavResultHandler
+import me.andannn.aniflow.util.LocalNavResultOwner
+import me.andannn.aniflow.util.NavResultOwner
 import org.koin.compose.viewmodel.koinViewModel
 
 private const val TAG = "Discover"
@@ -149,11 +151,9 @@ class DiscoverViewModel(
             }
     }
 
-    context(resultStore: ResultStore)
-    fun onAuthIconClick() {
+    fun onAuthIconResult(result: LoginDialogResult) {
         viewModelScope
             .launch {
-                val result: LoginDialogResult = resultStore.awaitResultOf(Screen.Dialog.Login)
                 when (result) {
                     LoginDialogResult.ClickLogin -> {
                         startLoginProcess()
@@ -183,20 +183,29 @@ fun Discover(
     modifier: Modifier = Modifier,
     viewModel: DiscoverViewModel = koinViewModel(),
     navigator: RootNavigator = LocalRootNavigator.current,
-    resultStore: ResultStore = LocalResultStore.current,
+    navResultOwner: NavResultOwner = LocalNavResultOwner.current,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val isRefreshing by viewModel.isLoading.collectAsStateWithLifecycle()
     val appBarState by viewModel.appBarState.collectAsStateWithLifecycle()
 
     if (isPresentationMode()) {
-        LaunchedEffect(Unit) {
-            val result: PresentationModeLoginAccepted = resultStore.awaitResultOf(Screen.Dialog.PresentationDialog)
-            viewModel.startLoginProcess()
+        val scope = rememberCoroutineScope()
+        LaunchNavResultHandler(
+            PRESENTATION_DIALOG_RESULT_KEY,
+            PresentationModeLoginAccepted.serializer(),
+        ) {
+            scope.launch {
+                viewModel.startLoginProcess()
+            }
         }
     }
 
-    with(resultStore) {
+    LaunchNavResultHandler(LOGIN_DIALOG_RESULT_KEY, resultSerializer = LoginDialogResult.serializer()) {
+        viewModel.onAuthIconResult(it)
+    }
+
+    with(navResultOwner) {
         DiscoverContent(
             isRefreshing = isRefreshing,
             appbarState = appBarState,
@@ -205,7 +214,6 @@ fun Discover(
             userTitleLanguage = state.userOptions.titleLanguage,
             onContentTypeChange = viewModel::changeContentMode,
             onAuthIconClick = {
-                viewModel.onAuthIconClick()
                 navigator.navigateTo(Screen.Dialog.Login)
             },
             onMediaClick = {
