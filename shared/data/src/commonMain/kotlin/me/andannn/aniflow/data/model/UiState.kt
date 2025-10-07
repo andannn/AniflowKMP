@@ -71,8 +71,8 @@ data class TrackUiState(
         categoryWithItems =
             listOf(
                 CategoryWithItems(TrackCategory.NEW_RELEASED, newItems),
-                CategoryWithItems(TrackCategory.UPCOMING, upcomingItems),
                 CategoryWithItems(TrackCategory.NEXT_UP, nextItems),
+                CategoryWithItems(TrackCategory.UPCOMING, upcomingItems),
                 CategoryWithItems(TrackCategory.OTHER, otherItems),
             )
     }
