@@ -41,6 +41,7 @@ nav3Core = "1.0.0-alpha10"
 nativecoroutines = "1.0.0-ALPHA-47"
 compose-bom = "2025.09.01"
 material3 = "1.5.0-alpha02"
+navresult = "1.0.0"
 
 [libraries]
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
@@ -109,6 +110,7 @@ androidx-test-monitor = { group = "androidx.test", name = "monitor", version.ref
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtx" }
 androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodelNav3" }
 androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3Core" }
+navresult = { group = "io.github.andannn", name = "navresult", version.ref = "navresult" }
 
 # dependecy in build-logic
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }

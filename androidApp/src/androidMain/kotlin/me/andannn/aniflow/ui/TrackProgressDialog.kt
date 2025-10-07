@@ -35,15 +35,15 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
+import io.github.andannn.LocalNavResultOwner
+import io.github.andannn.NavResultOwner
+import io.github.andannn.setNavResult
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.serialization.builtins.serializer
 import me.andannn.aniflow.data.TrackProgressDialogDataProvider
 import me.andannn.aniflow.data.model.TrackProgressDialogState
 import me.andannn.aniflow.ui.widget.AlertDialogContainer
-import me.andannn.aniflow.util.LocalNavResultOwner
-import me.andannn.aniflow.util.NavResultOwner
-import me.andannn.aniflow.util.setNavResult
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 

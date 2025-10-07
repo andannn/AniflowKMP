@@ -43,6 +43,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import io.github.aakira.napier.Napier
+import io.github.andannn.LaunchNavResultHandler
+import io.github.andannn.LocalNavResultOwner
+import io.github.andannn.NavResultOwner
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -77,9 +80,6 @@ import me.andannn.aniflow.ui.widget.MediaPreviewItem
 import me.andannn.aniflow.ui.widget.NewReleaseCard
 import me.andannn.aniflow.ui.widget.TitleWithContent
 import me.andannn.aniflow.util.ErrorHandleSideEffect
-import me.andannn.aniflow.util.LaunchNavResultHandler
-import me.andannn.aniflow.util.LocalNavResultOwner
-import me.andannn.aniflow.util.NavResultOwner
 import org.koin.compose.viewmodel.koinViewModel
 
 private const val TAG = "Discover"

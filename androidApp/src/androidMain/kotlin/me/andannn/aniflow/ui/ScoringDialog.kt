@@ -47,6 +47,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
+import io.github.andannn.LocalNavResultOwner
+import io.github.andannn.NavResultOwner
+import io.github.andannn.setNavResult
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
@@ -61,9 +64,6 @@ import me.andannn.aniflow.data.model.define.ScoreFormat
 import me.andannn.aniflow.ui.theme.AniflowTheme
 import me.andannn.aniflow.ui.theme.EspecialMessageFontFamily
 import me.andannn.aniflow.ui.widget.AlertDialogContainer
-import me.andannn.aniflow.util.LocalNavResultOwner
-import me.andannn.aniflow.util.NavResultOwner
-import me.andannn.aniflow.util.setNavResult
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import kotlin.math.roundToInt

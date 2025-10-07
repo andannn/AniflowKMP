@@ -9,11 +9,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import io.github.andannn.LocalNavResultOwner
+import io.github.andannn.NavResultOwner
+import io.github.andannn.setNavResult
 import kotlinx.serialization.Serializable
 import me.andannn.aniflow.ui.widget.AlertDialogContainer
-import me.andannn.aniflow.util.LocalNavResultOwner
-import me.andannn.aniflow.util.NavResultOwner
-import me.andannn.aniflow.util.setNavResult
 
 const val PRESENTATION_DIALOG_RESULT_KEY = "presentation_dialog_result_key"
 

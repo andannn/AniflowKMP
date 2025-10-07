@@ -30,6 +30,8 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation3.runtime.rememberNavBackStack
 import io.github.aakira.napier.Napier
+import io.github.andannn.LocalNavResultOwner
+import io.github.andannn.rememberNavResultOwner
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.filterNotNull
@@ -47,9 +49,6 @@ import me.andannn.aniflow.ui.RootNavigator
 import me.andannn.aniflow.ui.Screen
 import me.andannn.aniflow.ui.theme.AniflowTheme
 import me.andannn.aniflow.ui.util.toFaEvent
-import me.andannn.aniflow.util.LocalNavResultOwner
-import me.andannn.aniflow.util.NavResultOwner
-import me.andannn.aniflow.util.rememberNavResultOwner
 import me.andannn.aniflow.worker.SyncWorkHelper
 import org.koin.android.ext.android.getKoin
 import org.koin.compose.getKoin
