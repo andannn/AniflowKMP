@@ -22,6 +22,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -95,7 +96,7 @@ private fun TrackProgressDialogContent(
     maxEpisodes: Int?,
     onSave: (Int) -> Unit = {},
 ) {
-    var value by remember(initialProgress) {
+    var value by rememberSaveable(initialProgress) {
         mutableIntStateOf(initialProgress)
     }
     val hasNext = maxEpisodes != null && value < maxEpisodes

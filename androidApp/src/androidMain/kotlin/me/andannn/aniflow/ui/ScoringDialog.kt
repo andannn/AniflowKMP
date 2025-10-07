@@ -35,12 +35,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -115,13 +115,13 @@ fun ScoringDialog(
     val scoreFormat by viewModel.scoreFormat.collectAsStateWithLifecycle()
     val mediaListItem by viewModel.mediaListItem.collectAsStateWithLifecycle()
 
+    var score by rememberSaveable(mediaListItem?.score) {
+        mutableStateOf(mediaListItem?.score?.toFloat())
+    }
+
     AlertDialogContainer(
         title = "Scoring",
     ) {
-        var score by remember(mediaListItem?.score) {
-            mutableStateOf(mediaListItem?.score?.toFloat())
-        }
-
         Box(
             modifier = Modifier.fillMaxWidth(),
         ) {
