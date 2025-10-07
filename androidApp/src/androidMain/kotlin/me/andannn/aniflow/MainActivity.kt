@@ -49,6 +49,8 @@ import me.andannn.aniflow.ui.RootNavigator
 import me.andannn.aniflow.ui.Screen
 import me.andannn.aniflow.ui.theme.AniflowTheme
 import me.andannn.aniflow.ui.util.toFaEvent
+import me.andannn.aniflow.worker.MockNotificationTest
+import me.andannn.aniflow.worker.MockNotificationTest.MockAiringNotification
 import me.andannn.aniflow.worker.SyncWorkHelper
 import org.koin.android.ext.android.getKoin
 import org.koin.compose.getKoin
@@ -95,8 +97,13 @@ class MainActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
 
+        MockNotificationTest.sendNotification(
+            context = this,
+            MockAiringNotification,
+        )
+
         // handle deep link navigation
-        paddingDeepLinkNavigationScreen.value = DeepLinkHelper.parseUri(intent.data.toString())
+        paddingDeepLinkNavigationScreen.value = DeepLinkHelper.parseUri(intent.data)
 
         setContent {
             var permissionGranted by remember {
@@ -194,7 +201,7 @@ class MainActivity : ComponentActivity() {
 
         browserAuthOperationHandler?.onReceiveNewIntent(intent)
 
-        paddingDeepLinkNavigationScreen.value = DeepLinkHelper.parseUri(intent.data.toString())
+        paddingDeepLinkNavigationScreen.value = DeepLinkHelper.parseUri(intent.data)
     }
 
     private fun isPermissionGranted(): Boolean {

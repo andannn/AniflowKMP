@@ -67,6 +67,7 @@ class NotificationHelper(
                 .setSmallIcon(android.R.drawable.ic_dialog_info)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
+                .setAutoCancel(true)
                 .build()
         notificationManager.notify(notificationModel.id, notification)
     }

@@ -4,6 +4,8 @@
  */
 package me.andannn.aniflow.ui
 
+import android.net.Uri
+import android.util.Log
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -88,20 +90,36 @@ sealed interface Screen : NavKey {
 object DeepLinkHelper {
     const val NOTIFICATION_DOMAIN = "aniflow"
 
-    fun parseUri(url: String): Screen? {
-//        val u = runCatching { Url(url) }.getOrNull() ?: return null
-//
-//        val host = u.host.lowercase()
-//        val scheme = u.protocol.name.lowercase()
-//        val segments =
-//            u.encodedPath
-//                .trim('/')
-//                .split('/')
-//                .filter { it.isNotEmpty() }
-//
-//        if (scheme != NOTIFICATION_DOMAIN || host != "anilist.co") return null
-//
-        // TODO: Handle deep links
-        return null
+    fun parseUri(url: Uri?): Screen? {
+        if (url == null) return null
+
+        val host = url.host ?: return null
+        val scheme = url.scheme ?: return null
+        val path =
+            url.path ?: return null
+
+        if (scheme != NOTIFICATION_DOMAIN || host != "anilist.co") return null
+
+        val segments = path.trim('/').split('/')
+        if (segments.isEmpty()) return null
+
+        return when (segments[0]) {
+            "anime", "manga" -> {
+                val mediaId = segments.getOrNull(1) ?: return null
+                return Screen.DetailMedia(mediaId)
+            }
+
+            "character" -> {
+                val characterId = segments.getOrNull(1) ?: return null
+                return Screen.DetailCharacter(characterId)
+            }
+
+            "staff" -> {
+                val staffId = segments.getOrNull(1) ?: return null
+                return Screen.DetailStaff(staffId)
+            }
+
+            else -> null
+        }
     }
 }
