@@ -8,11 +8,18 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
+import coil3.imageLoader
+import coil3.request.ImageRequest
+import coil3.request.SuccessResult
+import coil3.request.allowHardware
+import coil3.toBitmap
 import me.andannn.aniflow.MainActivity
+import me.andannn.aniflow.R
 
 data class Notification(
     val id: Int,
@@ -20,6 +27,7 @@ data class Notification(
     val body: String,
     val notificationChannel: NotificationChannel,
     val pendingIntentUri: String,
+    val coverUrl: String? = null,
 )
 
 class NotificationHelper(
@@ -27,7 +35,7 @@ class NotificationHelper(
 ) {
     fun areNotificationsEnabled(): Boolean = NotificationManagerCompat.from(context).areNotificationsEnabled()
 
-    fun sendNotification(notificationModel: Notification) {
+    suspend fun sendNotification(notificationModel: Notification) {
         // create notification channel.
         val notificationManager = NotificationManagerCompat.from(context)
         val notificationChannel = notificationModel.notificationChannel
@@ -56,6 +64,11 @@ class NotificationHelper(
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
 
+        val bitmap =
+            notificationModel
+                .coverUrl
+                ?.let { url -> getBitmapOfImage(context, url) }
+
         // send notification.
         val notification =
             NotificationCompat
@@ -64,12 +77,43 @@ class NotificationHelper(
                     notificationChannel.id,
                 ).setContentTitle(notificationModel.title)
                 .setContentText(notificationModel.body)
-                .setSmallIcon(android.R.drawable.ic_dialog_info)
+                .setSmallIcon(R.drawable.ic_notification)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
-                .setAutoCancel(true)
+                .apply {
+                    val bitmap =
+                        notificationModel
+                            .coverUrl
+                            ?.let { url -> getBitmapOfImage(context, url) }
+
+                    if (bitmap != null) {
+                        setStyle(
+                            NotificationCompat
+                                .BigPictureStyle()
+                                .bigPicture(bitmap),
+                        )
+                    }
+                }.setAutoCancel(true)
                 .build()
         notificationManager.notify(notificationModel.id, notification)
+    }
+
+    private suspend fun getBitmapOfImage(
+        context: Context,
+        imageUrl: String,
+    ): Bitmap? {
+        val request =
+            ImageRequest
+                .Builder(context)
+                .data(imageUrl)
+                .allowHardware(false)
+                .memoryCacheKey("$imageUrl.palette")
+                .build()
+
+        return when (val result = context.imageLoader.execute(request)) {
+            is SuccessResult -> result.image.toBitmap()
+            else -> null
+        }
     }
 
     fun isNotificationChannelEnabled(channel: NotificationChannel): Boolean {

@@ -97,11 +97,6 @@ class MainActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
 
-        MockNotificationTest.sendNotification(
-            context = this,
-            MockAiringNotification,
-        )
-
         // handle deep link navigation
         paddingDeepLinkNavigationScreen.value = DeepLinkHelper.parseUri(intent.data)
 

@@ -117,6 +117,7 @@ private fun NotificationModel.toPlatformNotification(titleLanguage: UserTitleLan
                 body = createBodyText(titleLanguage),
                 pendingIntentUri = SchemeUtil.createDeepLinkFromSiteUrl(media.siteUrl ?: ""),
                 notificationChannel = NotificationChannel.Aired,
+                coverUrl = media.coverImage,
             )
         }
 
@@ -127,6 +128,7 @@ private fun NotificationModel.toPlatformNotification(titleLanguage: UserTitleLan
                 body = createBodyText(titleLanguage),
                 pendingIntentUri = SchemeUtil.createDeepLinkFromSiteUrl(user.siteUrl ?: ""),
                 notificationChannel = NotificationChannel.NewFollower,
+                coverUrl = user.avatar,
             )
         }
 
@@ -150,6 +152,7 @@ private fun NotificationModel.toPlatformNotification(titleLanguage: UserTitleLan
                 body = createBodyText(titleLanguage),
                 pendingIntentUri = SchemeUtil.createDeepLinkFromSiteUrl(this.media.siteUrl ?: ""),
                 notificationChannel = NotificationChannel.Media,
+                coverUrl = media.coverImage,
             )
         }
 
@@ -224,12 +227,13 @@ object MockNotificationTest {
                             english = "Attack on Titan",
                             native = "進撃の巨人",
                         ),
+                    coverImage = "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx184322-rRkaMQ7J1zOI.jpg",
                     siteUrl = "https://anilist.co/anime/1",
                     isFavourite = false,
                 ),
         )
 
-    fun sendNotification(
+    suspend fun sendNotification(
         context: Context,
         notification: NotificationModel,
     ) {
