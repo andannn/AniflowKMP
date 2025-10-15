@@ -4,6 +4,9 @@
  */
 package me.andannn.aniflow.ui
 
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
@@ -36,6 +39,16 @@ fun App(navigator: RootNavigator) {
                     rememberViewModelStoreNavEntryDecorator(),
                     rememberErrorHandlerNavEntryDecorator(),
                 ),
+            transitionSpec = {
+                // Slide in from right when navigating forward
+                slideInHorizontally(initialOffsetX = { it }) togetherWith
+                    slideOutHorizontally(targetOffsetX = { -it })
+            },
+            popTransitionSpec = {
+                // Slide in from left when navigating back
+                slideInHorizontally(initialOffsetX = { -it }) togetherWith
+                    slideOutHorizontally(targetOffsetX = { it })
+            },
             entryProvider =
                 entryProvider {
                     entry<Screen.Home> {
