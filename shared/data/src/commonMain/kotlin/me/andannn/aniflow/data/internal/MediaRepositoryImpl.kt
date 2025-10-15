@@ -19,6 +19,7 @@ import me.andannn.aniflow.data.internal.util.MediaListModificationSyncer
 import me.andannn.aniflow.data.internal.util.ToggleCharacterLikeSyncer
 import me.andannn.aniflow.data.internal.util.ToggleMediaLikeSyncer
 import me.andannn.aniflow.data.internal.util.ToggleStaffLikeSyncer
+import me.andannn.aniflow.data.internal.util.ToggleStudioLikeSyncer
 import me.andannn.aniflow.data.internal.util.postMutationAndRevertWhenException
 import me.andannn.aniflow.data.model.CharacterModel
 import me.andannn.aniflow.data.model.MediaListModel
@@ -384,6 +385,13 @@ internal class MediaRepositoryImpl(
             )
         }
 
+    override suspend fun toggleStudioItemLike(studioId: String): AppError? =
+        ToggleStudioLikeSyncer(studioId).postMutationAndRevertWhenException { old ->
+            old.copy(
+                isFavorite = !(old.isFavorite ?: false),
+            )
+        }
+
     override suspend fun toggleCharacterItemLike(characterId: String): AppError? =
         ToggleCharacterLikeSyncer(characterId).postMutationAndRevertWhenException { old ->
             old.copy(
@@ -435,6 +443,8 @@ internal class MediaRepositoryImpl(
 
     override fun getDetailStaff(staffId: String): Flow<StaffModel> = mediaLibraryDao.getStaffFlow(staffId).map(StaffEntity::toDomain)
 
+    override fun getDetailStudio(studioId: String): Flow<StudioModel> = mediaLibraryDao.getStudioFlow(studioId).map(StudioEntity::toDomain)
+
     override fun getDetailCharacter(characterId: String): Flow<CharacterModel> =
         mediaLibraryDao.getCharacterFlow(characterId).map(CharacterEntity::toDomain)
 
@@ -446,6 +456,17 @@ internal class MediaRepositoryImpl(
             // sync data from service
             syncDetailCharacterToLocal(
                 characterId = characterId,
+                scope = scope,
+            )
+        }
+
+    override fun syncDetailStudio(
+        scope: CoroutineScope,
+        studioId: String,
+    ): Deferred<Throwable?> =
+        context(mediaService, mediaLibraryDao) {
+            syncDetailStudioToLocal(
+                studioId = studioId,
                 scope = scope,
             )
         }
@@ -497,6 +518,30 @@ internal class MediaRepositoryImpl(
             Napier.e { "Error when loading Character page: $exception" }
             Page.empty<MediaModel>() to exception.toError()
         }
+
+    override suspend fun getMediaPageOfStudio(
+        studioId: String,
+        page: Int,
+        perPage: Int,
+        mediaSort: MediaSort,
+    ): Pair<Page<MediaModel>, AppError?> =
+        try {
+            val page =
+                mediaService
+                    .getStudioDetail(
+                        studioId = studioId.toInt(),
+                        mediaConnectionPage = page,
+                        mediaConnectionPerPage = perPage,
+                        mediaSort = listOf(mediaSort.toServiceType()),
+                    )?.media
+                    ?.toMediaPage()
+                    ?.toDomain(Media::toDomain)
+                    ?: Page.empty()
+            page to null
+        } catch (exception: ServerException) {
+            Napier.e { "Error when loading Character page: $exception" }
+            Page.empty<MediaModel>() to exception.toError()
+        }
 }
 
 private const val DEFAULT_CACHED_SIZE = 20
@@ -521,6 +566,27 @@ private fun syncMediaListInfoToLocal(
                 )
             database.upsertMediaListEntities(mediaList.map(MediaList::toRelation))
             Napier.d(tag = TAG) { "syncMediaListInfoToLocal finished" }
+            null
+        } catch (exception: ServerException) {
+            Napier.e { "Error when syncing local with remote: $exception" }
+            exception
+        }
+    }
+
+context(service: AniListService, database: MediaLibraryDao)
+private fun syncDetailStudioToLocal(
+    studioId: String,
+    scope: CoroutineScope,
+): Deferred<Throwable?> =
+    scope.async {
+        Napier.d(tag = TAG) { "syncDetailStudioToLocal start: studioId=$studioId" }
+        try {
+            val studio = service.getStudioDetail(studioId = studioId.toInt())?.toEntity()
+            if (studio != null) {
+                database.upsertStudio(studio)
+            }
+
+            Napier.d(tag = TAG) { "syncDetailCharacterToLocal finished" }
             null
         } catch (exception: ServerException) {
             Napier.e { "Error when syncing local with remote: $exception" }

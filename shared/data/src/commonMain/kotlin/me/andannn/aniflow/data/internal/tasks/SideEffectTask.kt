@@ -6,7 +6,6 @@ package me.andannn.aniflow.data.internal.tasks
 
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.channels.ProducerScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flow
@@ -80,6 +79,11 @@ internal sealed class TaskRefreshKey {
     @Serializable
     data class SyncDetailStaff(
         val staffId: String,
+    ) : TaskRefreshKey()
+
+    @Serializable
+    data class SyncDetailStudio(
+        val studioId: String,
     ) : TaskRefreshKey()
 
     @Serializable
@@ -215,13 +219,13 @@ internal fun TaskRefreshKey.refreshIntervalMs(): Long {
     fun hoursToMillis(hours: Long): Long = hours * 60 * 60 * 1000
 
     return when (this) {
+        is TaskRefreshKey.SyncMediaListItem -> 0 // Always refresh
         is TaskRefreshKey.AllCategories -> hoursToMillis(12)
         is TaskRefreshKey.SyncUserMediaList -> hoursToMillis(12)
         is TaskRefreshKey.SyncUserCondition -> hoursToMillis(1)
         is TaskRefreshKey.SyncDetailMediaItem -> hoursToMillis(1)
-// Always refresh the media list item of the authed user
-        is TaskRefreshKey.SyncMediaListItem -> 0
         is TaskRefreshKey.SyncDetailStaff -> hoursToMillis(1)
         is TaskRefreshKey.SyncDetailCharacter -> hoursToMillis(1)
+        is TaskRefreshKey.SyncDetailStudio -> hoursToMillis(1)
     }
 }

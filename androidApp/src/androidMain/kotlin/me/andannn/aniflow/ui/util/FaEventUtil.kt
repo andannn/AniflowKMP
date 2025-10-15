@@ -16,6 +16,7 @@ fun Screen.toFaEvent() =
         is Screen.DetailMedia -> ScreenEvent.DetailMedia(mediaId)
         is Screen.DetailStaff -> ScreenEvent.DetailStaff(staffId)
         is Screen.DetailStaffPaging -> ScreenEvent.DetailStaffPaging(mediaId)
+        is Screen.DetailStudio -> ScreenEvent.DetailStudioPaging(studioId)
         Screen.Home -> ScreenEvent.Home
         is Screen.MediaCategoryList -> ScreenEvent.MediaCategoryList(category)
         Screen.Notification -> ScreenEvent.Notification

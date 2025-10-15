@@ -18,6 +18,7 @@ import me.andannn.aniflow.ui.DetailMediaCharacterPagingViewModel
 import me.andannn.aniflow.ui.DetailMediaStaffPagingViewModel
 import me.andannn.aniflow.ui.DetailMediaViewModel
 import me.andannn.aniflow.ui.DetailStaffViewModel
+import me.andannn.aniflow.ui.DetailStudioViewModel
 import me.andannn.aniflow.ui.DiscoverViewModel
 import me.andannn.aniflow.ui.HomeViewModel
 import me.andannn.aniflow.ui.LoginDialogViewModel
@@ -95,6 +96,9 @@ private fun androidContextModule(application: AniflowApplication) =
         }
         viewModel {
             DetailStaffViewModel(it.get(), get(parameters = { it }), get())
+        }
+        viewModel {
+            DetailStudioViewModel(it.get(), get(parameters = { it }), get())
         }
         viewModel {
             DetailCharacterViewModel(it.get(), get(parameters = { it }), get())

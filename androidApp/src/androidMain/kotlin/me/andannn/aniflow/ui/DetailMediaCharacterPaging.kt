@@ -5,18 +5,11 @@
 package me.andannn.aniflow.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.FilterAlt
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -26,14 +19,11 @@ import androidx.compose.material3.MediumFlexibleTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
@@ -58,6 +48,7 @@ import me.andannn.aniflow.ui.theme.AppBackgroundColor
 import me.andannn.aniflow.ui.theme.PageHorizontalPadding
 import me.andannn.aniflow.ui.theme.TopAppBarColors
 import me.andannn.aniflow.ui.widget.CharacterRowItem
+import me.andannn.aniflow.ui.widget.FilterDropDownMenuButton
 import me.andannn.aniflow.ui.widget.VerticalListPaging
 import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.rememberSnackBarHostState
@@ -136,36 +127,15 @@ fun DetailMediaCharacterPaging(
                     Text("Character")
                 },
                 actions = {
-                    var expanded by remember { mutableStateOf(false) }
-                    Box(
-                        modifier =
-                            Modifier
-                                .padding(16.dp),
-                    ) {
-                        TextButton(onClick = { expanded = !expanded }) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Icon(Icons.Default.FilterAlt, contentDescription = "Filter")
-                                Spacer(Modifier.width(8.dp))
-                                Text(selectedLanguage.label())
-                            }
-                        }
-                        DropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false },
-                        ) {
-                            StaffLanguage.entries.forEach {
-                                DropdownMenuItem(
-                                    text = { Text(it.label()) },
-                                    onClick = {
-                                        viewModel.setSelectLanguage(it)
-                                        expanded = false
-                                    },
-                                )
-                            }
-                        }
-                    }
+                    FilterDropDownMenuButton(
+                        modifier = Modifier.padding(16.dp),
+                        options = StaffLanguage.entries.map { it.label() },
+                        selectedIndex = StaffLanguage.entries.indexOf(selectedLanguage),
+                        onSelectIndex = { index ->
+                            val language = StaffLanguage.entries.getOrNull(index)
+                            if (language != null) viewModel.setSelectLanguage(language)
+                        },
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = {

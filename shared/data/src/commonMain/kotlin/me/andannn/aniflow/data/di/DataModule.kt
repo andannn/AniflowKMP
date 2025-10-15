@@ -8,6 +8,7 @@ import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.DetailCharacterUiDataProvider
 import me.andannn.aniflow.data.DetailMediaUiDataProvider
 import me.andannn.aniflow.data.DetailStaffUiDataProvider
+import me.andannn.aniflow.data.DetailStudioUiDataProvider
 import me.andannn.aniflow.data.DiscoverUiDataProvider
 import me.andannn.aniflow.data.HomeAppBarUiDataProvider
 import me.andannn.aniflow.data.MediaRepository
@@ -19,6 +20,7 @@ import me.andannn.aniflow.data.internal.MediaRepositoryImpl
 import me.andannn.aniflow.data.internal.dataprovider.DetailCharacterUiDataProviderImpl
 import me.andannn.aniflow.data.internal.dataprovider.DetailMediaUiDataProviderImpl
 import me.andannn.aniflow.data.internal.dataprovider.DetailStaffUiDataProviderImpl
+import me.andannn.aniflow.data.internal.dataprovider.DetailStudioUiDataProviderImpl
 import me.andannn.aniflow.data.internal.dataprovider.DiscoverUiDataProviderImpl
 import me.andannn.aniflow.data.internal.dataprovider.HomeAppBarUiDataProviderImpl
 import me.andannn.aniflow.data.internal.dataprovider.SettingDataProviderImpl
@@ -48,6 +50,10 @@ val dataModule =
         factory { (staffId: String) -> DetailStaffUiDataProviderImpl(staffId, get(), get()) }.bind(
             DetailStaffUiDataProvider::class,
         )
+        factory { (studioId: String) -> DetailStudioUiDataProviderImpl(studioId, get(), get()) }.bind(
+            DetailStudioUiDataProvider::class,
+        )
+
         factory { (characterId: String) -> DetailCharacterUiDataProviderImpl(characterId, get(), get()) }.bind(
             DetailCharacterUiDataProvider::class,
         )

@@ -4,11 +4,10 @@
  */
 package me.andannn.aniflow.ui
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -29,54 +28,46 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
-import coil3.compose.AsyncImage
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import me.andannn.aniflow.data.DetailStaffUiDataProvider
+import me.andannn.aniflow.data.DetailStudioUiDataProvider
 import me.andannn.aniflow.data.ErrorChannel
 import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.PageComponent
-import me.andannn.aniflow.data.StaffCharactersPageComponent
+import me.andannn.aniflow.data.StudioMediaConnectionPageComponent
 import me.andannn.aniflow.data.buildErrorChannel
-import me.andannn.aniflow.data.getNameString
+import me.andannn.aniflow.data.getUserTitleString
 import me.andannn.aniflow.data.label
-import me.andannn.aniflow.data.model.CharacterModel
-import me.andannn.aniflow.data.model.DetailStaffUiState
+import me.andannn.aniflow.data.model.DetailStudioState
 import me.andannn.aniflow.data.model.MediaModel
-import me.andannn.aniflow.data.model.StaffModel
+import me.andannn.aniflow.data.model.StudioModel
 import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.MediaSort
 import me.andannn.aniflow.data.model.relation.VoicedCharacterWithMedia
 import me.andannn.aniflow.ui.theme.AppBackgroundColor
 import me.andannn.aniflow.ui.theme.PageHorizontalPadding
-import me.andannn.aniflow.ui.theme.StyledReadingContentFontFamily
 import me.andannn.aniflow.ui.theme.TopAppBarColors
-import me.andannn.aniflow.ui.util.appendItem
-import me.andannn.aniflow.ui.util.format
 import me.andannn.aniflow.ui.widget.CharacterWithMediaItem
+import me.andannn.aniflow.ui.widget.CommonItemFilledCard
 import me.andannn.aniflow.ui.widget.CustomPullToRefresh
 import me.andannn.aniflow.ui.widget.FilterDropDownMenuButton
 import me.andannn.aniflow.ui.widget.GroupItems
@@ -87,26 +78,33 @@ import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.rememberSnackBarHostState
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import kotlin.collections.component1
+import kotlin.collections.component2
 
-private const val TAG = "DetailStaff"
+private const val TAG = "DetailStudio"
 
-class DetailStaffViewModel(
-    private val staffId: String,
-    private val dataProvider: DetailStaffUiDataProvider,
+class DetailStudioViewModel(
+    val studioId: String,
+    val dataProvider: DetailStudioUiDataProvider,
     private val mediaRepository: MediaRepository,
 ) : ViewModel(),
     ErrorChannel by buildErrorChannel() {
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
-
     private val _mediaSort = MutableStateFlow(MediaSort.START_DATE_DESC)
     val mediaSort = _mediaSort.asStateFlow()
 
-    var pagingController by mutableStateOf<PageComponent<VoicedCharacterWithMedia>>(
-        PageComponent.empty(),
-    )
+    val uiState =
+        dataProvider.uiDataFlow().stateIn(
+            viewModelScope,
+            initialValue = DetailStudioState.Empty,
+            started = SharingStarted.WhileSubscribed(5000),
+        )
 
     private var toggleFavoriteJob: Job? = null
+    var pagingController by mutableStateOf<PageComponent<MediaModel>>(
+        PageComponent.empty(),
+    )
 
     init {
         viewModelScope.launch {
@@ -121,24 +119,13 @@ class DetailStaffViewModel(
                 Napier.d(tag = TAG) { "_mediaSort changed: $mediaSort" }
                 pagingController.dispose()
                 pagingController =
-                    StaffCharactersPageComponent(
-                        staffId,
+                    StudioMediaConnectionPageComponent(
+                        studioId,
                         mediaSort,
-                        errorHandler = this@DetailStaffViewModel,
+                        errorHandler = this@DetailStudioViewModel,
                     )
             }
         }
-    }
-
-    val uiState =
-        dataProvider.uiDataFlow().stateIn(
-            viewModelScope,
-            initialValue = DetailStaffUiState.Empty,
-            started = SharingStarted.WhileSubscribed(5000),
-        )
-
-    fun setMediaSort(sort: MediaSort) {
-        _mediaSort.value = sort
     }
 
     fun onToggleFavoriteClick() {
@@ -150,91 +137,86 @@ class DetailStaffViewModel(
         toggleFavoriteJob =
             viewModelScope.launch {
                 val error =
-                    mediaRepository.toggleStaffItemLike(
-                        uiState.value.staffModel?.id ?: error("toggle Favorite failed"),
+                    mediaRepository.toggleStudioItemLike(
+                        uiState.value.studioModel?.id ?: error("toggle Favorite failed"),
                     )
                 if (error != null) submitError(error)
             }
     }
+
+    fun setMediaSort(sort: MediaSort) {
+        _mediaSort.value = sort
+    }
+
+    override fun onCleared() {
+        pagingController.dispose()
+    }
 }
 
 @Composable
-fun DetailStaff(
-    staffId: String,
-    viewModel: DetailStaffViewModel =
-        koinViewModel(
-            parameters = { parametersOf(staffId) },
-        ),
+fun DetailStudio(
+    studioId: String,
+    viewModel: DetailStudioViewModel = koinViewModel(parameters = { parametersOf(studioId) }),
     navigator: RootNavigator = LocalRootNavigator.current,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     val selectedMediaSort by viewModel.mediaSort.collectAsStateWithLifecycle()
-    DetailStaffContent(
+
+    DetailStudioContent(
         isLoading = isLoading,
-        staff = uiState.staffModel,
-        options = uiState.userOption,
+        studio = uiState.studioModel,
+        userOption = uiState.userOption,
         selectedMediaSort = selectedMediaSort,
-        onSelectMediaSort = viewModel::setMediaSort,
         pagingController = viewModel.pagingController,
-        onCharacterClick = {
-            navigator.navigateTo(
-                Screen.DetailCharacter(it.id),
-            )
+        onToggleFavoriteClick = {
+            viewModel.onToggleFavoriteClick()
         },
-        onMediaClick = {
-            navigator.navigateTo(
-                Screen.DetailMedia(it.id),
-            )
+        onSelectMediaSort = {
+            viewModel.setMediaSort(it)
         },
-        onToggleFavoriteClick = viewModel::onToggleFavoriteClick,
-        onBack = { navigator.popBackStack() },
+        onMediaClick = { media ->
+            navigator.navigateTo(Screen.DetailMedia(mediaId = media.id))
+        },
+        onBack = {
+            navigator.popBackStack()
+        },
     )
 
     ErrorHandleSideEffect(viewModel)
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun DetailStaffContent(
-    isLoading: Boolean,
-    staff: StaffModel?,
-    options: UserOptions,
-    selectedMediaSort: MediaSort,
-    pagingController: PageComponent<VoicedCharacterWithMedia>,
+private fun DetailStudioContent(
     modifier: Modifier = Modifier,
-    onSelectMediaSort: (MediaSort) -> Unit = {},
-    onCharacterClick: (CharacterModel) -> Unit = {},
-    onMediaClick: (MediaModel) -> Unit = {},
-    onToggleFavoriteClick: () -> Unit = {},
+    userOption: UserOptions,
+    selectedMediaSort: MediaSort,
+    pagingController: PageComponent<MediaModel>,
+    studio: StudioModel?,
+    isLoading: Boolean,
     onBack: () -> Unit = {},
+    onToggleFavoriteClick: () -> Unit = {},
+    onMediaClick: (MediaModel) -> Unit = {},
+    onSelectMediaSort: (MediaSort) -> Unit = {},
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val pagingItems = pagingController.items.collectAsStateWithLifecycle()
+    val pagingStatus = pagingController.status.collectAsStateWithLifecycle()
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         snackbarHost = { SnackbarHost(rememberSnackBarHostState()) },
         topBar = {
-            MediumFlexibleTopAppBar(
+            TopAppBar(
                 colors = TopAppBarColors,
                 scrollBehavior = scrollBehavior,
                 title = {
-                    val title =
-                        remember(options, staff) {
-                            staff?.name.getNameString(options.staffNameLanguage)
-                        }
-                    Text(title)
-                },
-                subtitle = {
-                    staff?.name?.alternative?.let { names ->
-                        Text(
-                            text = names.joinToString(", "),
-                        )
-                    }
+                    Text(studio?.name ?: "")
                 },
                 actions = {
-                    if (staff != null) {
+                    if (studio != null) {
                         ToggleFavoriteButton(
-                            isFavorite = staff.isFavourite == true,
+                            isFavorite = studio.isFavourite,
                             onClick = onToggleFavoriteClick,
                         )
                     }
@@ -259,76 +241,10 @@ fun DetailStaffContent(
             isRefreshing = isLoading,
             enable = false,
         ) {
-            val pagingItems = pagingController.items.collectAsStateWithLifecycle()
-            val pagingStatus = pagingController.status.collectAsStateWithLifecycle()
             LazyVerticalGrid(
                 contentPadding = PaddingValues(horizontal = PageHorizontalPadding),
                 columns = GridCells.Adaptive(160.dp),
             ) {
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    Row {
-                        Spacer(Modifier.weight(1f))
-                        Surface(
-                            modifier =
-                                Modifier
-                                    .weight(2f)
-                                    .fillMaxWidth(),
-                            shape = MaterialTheme.shapes.largeIncreased,
-                        ) {
-                            AsyncImage(
-                                model = staff?.image,
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                            )
-                        }
-                        Spacer(Modifier.weight(1f))
-                    }
-                }
-
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    val description =
-                        remember(staff) {
-                            staff?.description?.let {
-                                AnnotatedString.fromHtml(it)
-                            }
-                        }
-                    val text =
-                        buildAnnotatedString {
-                            staff?.dateOfBirth?.let {
-                                appendItem(
-                                    "Birth",
-                                    it.format(),
-                                )
-                            }
-                            staff?.dateOfDeath?.let {
-                                appendItem("Death", it.format())
-                            }
-                            staff?.age?.let {
-                                appendItem("Age", it.toString())
-                            }
-                            staff?.gender?.let {
-                                appendItem("Gender", it)
-                            }
-                            staff?.yearsActive?.let { activeYear ->
-                                val start = activeYear.getOrNull(0)
-                                val end = activeYear.getOrNull(1) ?: "Present"
-                                appendItem("Years active", "$start-$end")
-                            }
-                            staff?.homeTown?.let {
-                                appendItem("Hometown", it)
-                            }
-                            description?.let {
-                                append(it)
-                            }
-                        }
-                    Text(
-                        text = text,
-                        fontFamily = StyledReadingContentFontFamily,
-                        fontSize = 14.sp,
-                        lineHeight = 17.sp,
-                    )
-                }
-
                 item(span = { GridItemSpan(maxLineSpan) }) {
                     Box(contentAlignment = Alignment.CenterEnd) {
                         FilterDropDownMenuButton(
@@ -366,16 +282,13 @@ fun DetailStaffContent(
                             }
                         },
                         itemContent = { item ->
-                            CharacterWithMediaItem(
+                            val title = item.title.getUserTitleString(titleLanguage = userOption.titleLanguage)
+                            CommonItemFilledCard(
                                 modifier = Modifier.padding(4.dp),
-                                item = item,
-                                userTitleLanguage = options.titleLanguage,
-                                userStaffLanguage = options.staffNameLanguage,
-                                onCharacterClick = {
-                                    onCharacterClick(item.character)
-                                },
-                                onMediaClick = {
-                                    onMediaClick(item.media)
+                                title = title,
+                                coverImage = item.coverImage,
+                                onClick = {
+                                    onMediaClick(item)
                                 },
                             )
                         },
@@ -387,16 +300,13 @@ fun DetailStaffContent(
                         key = { item -> item.hashCode() },
                         onLoadNextPage = { pagingController.loadNextPage() },
                     ) { item ->
-                        CharacterWithMediaItem(
+                        val title = item.title.getUserTitleString(titleLanguage = userOption.titleLanguage)
+                        CommonItemFilledCard(
                             modifier = Modifier.padding(4.dp),
-                            item = item,
-                            userTitleLanguage = options.titleLanguage,
-                            userStaffLanguage = options.staffNameLanguage,
-                            onCharacterClick = {
-                                onCharacterClick(item.character)
-                            },
-                            onMediaClick = {
-                                onMediaClick(item.media)
+                            title = title,
+                            coverImage = item.coverImage,
+                            onClick = {
+                                onMediaClick(item)
                             },
                         )
                     }
@@ -406,10 +316,11 @@ fun DetailStaffContent(
     }
 }
 
-private fun List<VoicedCharacterWithMedia>.grouped() =
+private fun List<MediaModel>.grouped() =
     this
+        .toSet()
         .groupBy {
-            it.media.seasonYear
+            it.seasonYear
         }.map { (yearOrNull, items) ->
             GroupItems(
                 title = yearOrNull?.toString() ?: "TBA",

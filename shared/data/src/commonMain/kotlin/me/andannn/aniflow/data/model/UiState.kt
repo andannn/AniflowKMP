@@ -316,3 +316,12 @@ data class TrackProgressDialogState(
         val Empty = TrackProgressDialogState()
     }
 }
+
+data class DetailStudioState(
+    val userOption: UserOptions,
+    val studioModel: StudioModel?,
+) {
+    companion object {
+        val Empty = DetailStudioState(UserOptions.Default, null)
+    }
+}

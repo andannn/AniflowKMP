@@ -289,3 +289,22 @@ class CharacterDetailMediaPaging(
             )
         },
     )
+
+class StudioMediaConnectionPageComponent(
+    private val studioId: String,
+    private val sort: MediaSort,
+    config: PageConfig = DEFAULT_CONFIG,
+    private val errorHandler: AppErrorHandler? = null,
+    private val mediaRepository: MediaRepository = getKoin().get(),
+) : PageComponent<MediaModel> by DefaultPageComponent(
+        config = config,
+        errorHandler = errorHandler,
+        onLoadPage = { page, perPage ->
+            mediaRepository.getMediaPageOfStudio(
+                studioId = studioId,
+                page = page,
+                perPage = perPage,
+                mediaSort = sort,
+            )
+        },
+    )

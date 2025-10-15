@@ -81,6 +81,16 @@ sealed class ScreenEvent(
                 ),
         )
 
+    data class DetailStudioPaging(
+        val studioId: String,
+    ) : ScreenEvent(
+            params =
+                mapOf(
+                    SCREEN_DIMENSION to "detail_studio_paging",
+                    "studio_id" to studioId,
+                ),
+        )
+
     data class DetailCharacterPaging(
         val mediaId: String,
     ) : ScreenEvent(

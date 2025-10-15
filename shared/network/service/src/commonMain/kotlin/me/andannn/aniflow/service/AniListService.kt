@@ -594,6 +594,7 @@ class AniListService constructor(
         studioId: Int,
         mediaConnectionPage: Int? = null,
         mediaConnectionPerPage: Int? = null,
+        mediaSort: List<MediaSort> = emptyList(),
     ): Studio? =
         doGraphQlQuery(
             query =
@@ -601,6 +602,7 @@ class AniListService constructor(
                     studioId = studioId,
                     mediaConnectionPage = mediaConnectionPage,
                     mediaConnectionPerPage = mediaConnectionPerPage,
+                    mediaSort = mediaSort,
                 ),
         ).studio
 

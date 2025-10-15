@@ -28,4 +28,5 @@ public data class Studio(
      * If the studio is marked as favourite by the currently authenticated user
      */
     public val isFavourite: Boolean,
+    public val media: MediaConnection? = null,
 )

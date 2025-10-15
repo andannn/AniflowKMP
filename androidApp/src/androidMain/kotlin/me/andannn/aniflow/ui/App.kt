@@ -72,6 +72,10 @@ fun App(navigator: RootNavigator) {
                         DetailCharacter(it.characterId)
                     }
 
+                    entry<Screen.DetailStudio> {
+                        DetailStudio(it.studioId)
+                    }
+
                     entry<Screen.DetailStaffPaging> {
                         DetailMediaStaffPaging(it.mediaId)
                     }

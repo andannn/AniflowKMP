@@ -23,6 +23,7 @@ import me.andannn.aniflow.database.schema.CharacterEntity
 import me.andannn.aniflow.database.schema.MediaEntity
 import me.andannn.aniflow.database.schema.MediaListEntity
 import me.andannn.aniflow.database.schema.StaffEntity
+import me.andannn.aniflow.database.schema.StudioEntity
 import me.andannn.aniflow.datastore.UserSettingPreferences
 import me.andannn.aniflow.service.AniListService
 import me.andannn.aniflow.service.dto.MediaList
@@ -285,6 +286,31 @@ internal class ToggleStaffLikeSyncer(
         )
         return service.getStaffDetail(staffId.toInt())?.toEntity()
             ?: error("No staff found with id $staffId")
+    }
+}
+
+internal class ToggleStudioLikeSyncer(
+    private val studioId: String,
+) : DataSyncer<StudioEntity>,
+    KoinComponent {
+    private val mediaLibraryDao: MediaLibraryDao by inject()
+    private val service: AniListService by inject()
+
+    override suspend fun getLocal(): StudioEntity = mediaLibraryDao.getStudioById(studioId) ?: error("No staff found with id $studioId")
+
+    override suspend fun saveLocal(data: StudioEntity) {
+        mediaLibraryDao.upsertStudio(data)
+    }
+
+    override suspend fun syncWithRemote(
+        old: StudioEntity,
+        new: StudioEntity,
+    ): StudioEntity {
+        service.toggleFavorite(
+            studioId = studioId.toInt(),
+        )
+        return service.getStudioDetail(studioId.toInt())?.toEntity()
+            ?: error("No staff found with id $studioId")
     }
 }
 

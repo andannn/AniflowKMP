@@ -377,6 +377,9 @@ fun DetailMedia(
             onCharacterClick = {
                 navigator.navigateTo(Screen.DetailCharacter(it.id))
             },
+            onStudioClick = {
+                navigator.navigateTo(Screen.DetailStudio(it.id))
+            },
         )
     }
 
@@ -416,6 +419,7 @@ private fun DetailMediaContent(
     onCharacterMoreClick: () -> Unit = {},
     onStaffClick: (StaffModel) -> Unit = {},
     onCharacterClick: (CharacterModel) -> Unit = {},
+    onStudioClick: (StudioModel) -> Unit = {},
     onPop: () -> Unit = {},
 ) {
     val exitAlwaysScrollBehavior =
@@ -869,7 +873,9 @@ private fun DetailMediaContent(
                                 ) {
                                     studios.forEach { studio ->
                                         OutlinedButton(
-                                            onClick = {},
+                                            onClick = {
+                                                onStudioClick(studio)
+                                            },
                                         ) {
                                             Text(studio.name)
                                         }

@@ -5,14 +5,14 @@
 package me.andannn.network.common.schemas
 
 const val STUDIO_DETAIL_QUERY_SCHEMA = $$"""
-query ($id: Int, $page: Int, $perPage: Int) {
+query ($id: Int, $page: Int, $perPage: Int, $sort: [MediaSort]) {
   Studio(id: $id) {
     id
     name
     isAnimationStudio
     siteUrl
     isFavourite
-    media(page: $page, perPage: $perPage, sort: [START_DATE_DESC]) {
+    media(page: $page, perPage: $perPage, sort: $sort) {
       pageInfo {
         total
         perPage

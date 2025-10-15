@@ -5,7 +5,6 @@
 package me.andannn.aniflow.data
 
 import me.andannn.aniflow.data.di.dataModule
-import me.andannn.aniflow.data.internal.dataprovider.DetailStaffUiDataProviderImpl
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
 import org.koin.core.parameter.parametersOf

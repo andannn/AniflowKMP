@@ -167,6 +167,9 @@ interface MediaRepository {
     suspend fun toggleStaffItemLike(staffId: String): AppError?
 
     @NativeCoroutines
+    suspend fun toggleStudioItemLike(studioId: String): AppError?
+
+    @NativeCoroutines
     suspend fun toggleCharacterItemLike(characterId: String): AppError?
 
     suspend fun getStaffPageOfMedia(
@@ -184,11 +187,18 @@ interface MediaRepository {
 
     fun getDetailStaff(staffId: String): Flow<StaffModel>
 
+    fun getDetailStudio(studioId: String): Flow<StudioModel>
+
     fun getDetailCharacter(characterId: String): Flow<CharacterModel>
 
     fun syncDetailCharacter(
         scope: CoroutineScope,
         characterId: String,
+    ): Deferred<Throwable?>
+
+    fun syncDetailStudio(
+        scope: CoroutineScope,
+        studioId: String,
     ): Deferred<Throwable?>
 
     suspend fun getMediaPageOfStaff(
@@ -200,6 +210,13 @@ interface MediaRepository {
 
     suspend fun getMediaPageOfCharacter(
         character: String,
+        page: Int,
+        perPage: Int,
+        mediaSort: MediaSort,
+    ): Pair<Page<MediaModel>, AppError?>
+
+    suspend fun getMediaPageOfStudio(
+        studioId: String,
         page: Int,
         perPage: Int,
         mediaSort: MediaSort,

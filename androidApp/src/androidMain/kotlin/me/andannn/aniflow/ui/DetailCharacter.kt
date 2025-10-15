@@ -13,15 +13,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.FilterAlt
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -32,7 +28,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -81,6 +76,7 @@ import me.andannn.aniflow.ui.util.appendItem
 import me.andannn.aniflow.ui.util.format
 import me.andannn.aniflow.ui.widget.CommonItemFilledCard
 import me.andannn.aniflow.ui.widget.CustomPullToRefresh
+import me.andannn.aniflow.ui.widget.FilterDropDownMenuButton
 import me.andannn.aniflow.ui.widget.ToggleFavoriteButton
 import me.andannn.aniflow.ui.widget.pagingItems
 import me.andannn.aniflow.util.ErrorHandleSideEffect
@@ -320,37 +316,16 @@ private fun DetailCharacterContent(
                 }
 
                 item(span = StaggeredGridItemSpan.FullLine) {
-                    var expanded by remember { mutableStateOf(false) }
                     Box(contentAlignment = Alignment.CenterEnd) {
-                        Box(
+                        FilterDropDownMenuButton(
                             modifier =
-                                Modifier
-                                    .padding(16.dp),
-                        ) {
-                            TextButton(onClick = { expanded = !expanded }) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Icon(Icons.Default.FilterAlt, contentDescription = "Filter")
-                                    Spacer(Modifier.width(8.dp))
-                                    Text(selectedMediaSort.label())
-                                }
-                            }
-                            DropdownMenu(
-                                expanded = expanded,
-                                onDismissRequest = { expanded = false },
-                            ) {
-                                MediaSort.entries.forEach {
-                                    DropdownMenuItem(
-                                        text = { Text(it.label()) },
-                                        onClick = {
-                                            onSelectMediaSort(it)
-                                            expanded = false
-                                        },
-                                    )
-                                }
-                            }
-                        }
+                                Modifier.padding(16.dp),
+                            options = MediaSort.entries.map { it.label() },
+                            selectedIndex = MediaSort.entries.indexOf(selectedMediaSort),
+                            onSelectIndex = { index ->
+                                onSelectMediaSort(MediaSort.entries[index])
+                            },
+                        )
                     }
                 }
 

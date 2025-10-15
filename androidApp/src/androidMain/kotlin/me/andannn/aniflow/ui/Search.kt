@@ -751,6 +751,9 @@ private fun SearchContent(
                         onLoadNextPage = {
                             searchResultPagingController.loadNextPage()
                         },
+                        onItemClick = {
+                            onNavigateToScreen(Screen.DetailStudio(it.id))
+                        },
                     )
                 }
             }
@@ -840,6 +843,7 @@ fun LazyStaggeredGridScope.studioSearchResultPaging(
     items: List<StudioModel>,
     status: LoadingStatus,
     onLoadNextPage: () -> Unit,
+    onItemClick: (StudioModel) -> Unit,
 ) {
     fullLinePagingItems(
         items = items,
@@ -857,7 +861,9 @@ fun LazyStaggeredGridScope.studioSearchResultPaging(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant,
                     ),
                 shape = MaterialTheme.shapes.large,
-                onClick = {},
+                onClick = {
+                    onItemClick(item)
+                },
             ) {
                 Text(
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 16.dp),

@@ -8,6 +8,7 @@ import com.rickclephas.kmp.nativecoroutines.NativeCoroutines
 import kotlinx.coroutines.flow.Flow
 import me.andannn.aniflow.data.model.DetailCharacterUiState
 import me.andannn.aniflow.data.model.DetailStaffUiState
+import me.andannn.aniflow.data.model.DetailStudioState
 import me.andannn.aniflow.data.model.DetailUiState
 import me.andannn.aniflow.data.model.DiscoverUiState
 import me.andannn.aniflow.data.model.HomeAppBarUiState
@@ -94,4 +95,11 @@ interface TrackProgressDialogDataProvider : DataProvider {
 
     @NativeCoroutines
     fun uiDataFlow(): Flow<TrackProgressDialogState>
+}
+
+interface DetailStudioUiDataProvider : DataProvider {
+    val studioId: String
+
+    @NativeCoroutines
+    fun uiDataFlow(): Flow<DetailStudioState>
 }

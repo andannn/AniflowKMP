@@ -42,6 +42,11 @@ class MediaLibraryDao constructor(
             withContext(dispatcher) { staffQueries.getStaffById(staffId).awaitAsOneOrNull() }
         }
 
+    suspend fun getStudioById(studioId: String): StudioEntity? =
+        withDatabase {
+            withContext(dispatcher) { studioQueries.getStudioById(studioId).awaitAsOneOrNull() }
+        }
+
     suspend fun getCharacterById(characterId: String): CharacterEntity? =
         withDatabase {
             withContext(dispatcher) {
@@ -408,10 +413,28 @@ class MediaLibraryDao constructor(
             }
         }
 
+    suspend fun upsertStudio(studio: StudioEntity) =
+        withDatabase {
+            withContext(dispatcher) {
+                transaction(true) {
+                    studioQueries.upsertStudio(studio)
+                }
+            }
+        }
+
     fun getStaffFlow(staffId: String): Flow<StaffEntity> =
         withDatabase {
             staffQueries
                 .getStaffById(staffId)
+                .asFlow()
+                .mapToOneOrNull(dispatcher)
+                .filterNotNull()
+        }
+
+    fun getStudioFlow(studioId: String): Flow<StudioEntity> =
+        withDatabase {
+            studioQueries
+                .getStudioById(studioId)
                 .asFlow()
                 .mapToOneOrNull(dispatcher)
                 .filterNotNull()

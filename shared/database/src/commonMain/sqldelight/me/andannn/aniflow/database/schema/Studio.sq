@@ -37,3 +37,6 @@ WHERE studioMediaCrossRefEntity.mediaId = ?;
 
 deleteStudioOfMedia:
 DELETE FROM studioMediaCrossRefEntity WHERE mediaId = ?;
+
+getStudioById:
+SELECT * FROM studioEntity WHERE id = ?;
