@@ -339,9 +339,13 @@ internal class MediaRepositoryImpl(
     override fun getMediaFlow(mediaId: String): Flow<MediaModel> = mediaLibraryDao.getMediaFlow(mediaId).map(MediaEntity::toDomain)
 
     override fun getStudioOfMediaFlow(mediaId: String): Flow<List<StudioModel>> =
-        mediaLibraryDao.getStudiosOfMediaFlow(mediaId).map {
-            it.map(StudioEntity::toDomain)
-        }
+        mediaLibraryDao
+            .getStudiosOfMediaFlow(mediaId)
+            .map { entities ->
+                entities
+                    .filter { it.isAnimationStudio == true }
+                    .map(StudioEntity::toDomain)
+            }
 
     override fun getStaffOfMediaFlow(mediaId: String): Flow<List<StaffWithRole>> =
         mediaLibraryDao.getStaffOfMediaFlow(mediaId).map {
