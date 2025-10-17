@@ -8,6 +8,7 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -751,34 +752,56 @@ private fun syncMediaListOfUserToLocal(
         }
     }
 
+private const val MAX_FETCH_PAGES = 5
+
 context(service: AniListService)
 private suspend fun fetchAllMediaList(
     userId: String,
     status: List<MediaListStatus>,
     mediaType: MediaType,
     scoreFormat: ScoreFormat,
-): List<MediaList> {
-    val acc = mutableListOf<MediaList>()
-    var page = 1
+): List<MediaList> =
+    coroutineScope {
+        val acc = mutableListOf<MediaList>()
 
-    var pageCount = 0
-
-    do {
-        val res =
+        val firstPage =
             service.getMediaListPage(
                 userId = userId.toInt(),
-                page = page++,
+                page = 1,
                 perPage = 50,
                 statusIn = status.map(MediaListStatus::toServiceType),
                 type = mediaType.toServiceType(),
                 format = scoreFormat.toServiceType(),
             )
-        acc += res.items
-        pageCount++
-    } while (res.pageInfo?.hasNextPage == true && pageCount <= 5)
+        val totalPages = firstPage.pageInfo?.total ?: 1
 
-    return acc
-}
+        acc += firstPage.items
+
+        val pageCount = minOf(totalPages, MAX_FETCH_PAGES)
+
+        if (pageCount <= 1) return@coroutineScope acc
+
+        val deferredList =
+            (2..pageCount).map { pageIndex ->
+                async {
+                    service.getMediaListPage(
+                        userId = userId.toInt(),
+                        page = pageIndex,
+                        perPage = 50,
+                        statusIn = status.map(MediaListStatus::toServiceType),
+                        type = mediaType.toServiceType(),
+                        format = scoreFormat.toServiceType(),
+                    )
+                }
+            }
+
+        deferredList.forEach { deferred ->
+            val res = deferred.await()
+            acc += res.items
+        }
+
+        acc
+    }
 
 context(service: AniListService, database: MediaLibraryDao)
 private fun MediaCategory.syncLocalWithService(scope: CoroutineScope): Deferred<Throwable?> =
