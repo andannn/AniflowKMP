@@ -4,7 +4,6 @@
  */
 package me.andannn.aniflow.ui
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -23,7 +22,6 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MediumFlexibleTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Surface
@@ -46,7 +44,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.DetailStudioUiDataProvider
@@ -62,11 +59,9 @@ import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.StudioModel
 import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.MediaSort
-import me.andannn.aniflow.data.model.relation.VoicedCharacterWithMedia
 import me.andannn.aniflow.ui.theme.AppBackgroundColor
 import me.andannn.aniflow.ui.theme.PageHorizontalPadding
 import me.andannn.aniflow.ui.theme.TopAppBarColors
-import me.andannn.aniflow.ui.widget.CharacterWithMediaItem
 import me.andannn.aniflow.ui.widget.CommonItemFilledCard
 import me.andannn.aniflow.ui.widget.CustomPullToRefresh
 import me.andannn.aniflow.ui.widget.FilterDropDownMenuButton
@@ -78,8 +73,6 @@ import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.rememberSnackBarHostState
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import kotlin.collections.component1
-import kotlin.collections.component2
 
 private const val TAG = "DetailStudio"
 
@@ -266,21 +259,6 @@ private fun DetailStudioContent(
                         status = pagingStatus.value,
                         key = { item -> item.hashCode() },
                         onLoadNextPage = { pagingController.loadNextPage() },
-                        titleContent = { title ->
-                            Box(modifier = Modifier.fillMaxWidth()) {
-                                Surface(
-                                    modifier = Modifier.wrapContentSize(),
-                                    color = AppBackgroundColor,
-                                    shape = RoundedCornerShape(bottomEnd = 12.dp),
-                                ) {
-                                    Text(
-                                        modifier = Modifier.padding(end = 12.dp, top = 24.dp),
-                                        text = title,
-                                        style = MaterialTheme.typography.headlineMediumEmphasized,
-                                    )
-                                }
-                            }
-                        },
                         itemContent = { item ->
                             val title = item.title.getUserTitleString(titleLanguage = userOption.titleLanguage)
                             CommonItemFilledCard(

@@ -19,6 +19,7 @@ import me.andannn.aniflow.data.model.StaffWithRole
 import me.andannn.aniflow.data.model.StudioModel
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.MediaContentMode
+import me.andannn.aniflow.data.model.define.MediaListSort
 import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.model.define.MediaSort
 import me.andannn.aniflow.data.model.define.MediaType
@@ -221,4 +222,12 @@ interface MediaRepository {
         perPage: Int,
         mediaSort: MediaSort,
     ): Pair<Page<MediaModel>, AppError?>
+
+    suspend fun getAllMediaListItems(
+        userId: String,
+        mediaType: MediaType,
+        scoreFormat: ScoreFormat,
+        status: List<MediaListStatus>,
+        sort: MediaListSort,
+    ): Pair<List<MediaWithMediaListItem>, AppError?>
 }

@@ -8,20 +8,28 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -32,6 +40,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.aakira.napier.Napier
 import me.andannn.aniflow.data.LoadingStatus
 import me.andannn.aniflow.data.PageComponent
+import me.andannn.aniflow.ui.theme.AppBackgroundColor
 
 private const val TAG = "PagingView"
 
@@ -233,7 +242,9 @@ fun <T> LazyGridScope.pagingGroupedItems(
     status: LoadingStatus,
     key: (T) -> Any,
     onLoadNextPage: () -> Unit,
-    titleContent: @Composable (String) -> Unit,
+    titleContent: @Composable (String) -> Unit = {
+        LabelTitleContent(title = it)
+    },
     itemContent: @Composable (T) -> Unit,
 ) {
     groups.forEach { (title, items) ->
@@ -251,5 +262,54 @@ fun <T> LazyGridScope.pagingGroupedItems(
 
     item(span = { GridItemSpan(maxLineSpan) }) {
         BottomAnchor(status = status, onLoadNextPage = onLoadNextPage)
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+fun <T> LazyListScope.pagingGroupedItems(
+    groups: List<GroupItems<T>>,
+    key: (Int, T) -> Any,
+    itemContent: @Composable (Boolean, Boolean, T) -> Unit,
+    onLoadNextPage: () -> Unit = {},
+    status: LoadingStatus = LoadingStatus.Idle,
+    titleContent: @Composable (String) -> Unit = {
+        LabelTitleContent(title = it)
+    },
+) {
+    groups.forEach { (title, items) ->
+        stickyHeader(key = title) {
+            titleContent(title)
+        }
+
+        itemsIndexed(
+            items = items,
+            key = key,
+        ) { index, item ->
+            val isFirst = index == 0
+            val isLast = index == items.lastIndex
+            itemContent(isFirst, isLast, item)
+        }
+    }
+
+    item(key = "bottomAnchor") {
+        BottomAnchor(status = status, onLoadNextPage = onLoadNextPage)
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun LabelTitleContent(title: String) {
+    Box(modifier = Modifier.fillMaxWidth()) {
+        Surface(
+            modifier = Modifier.wrapContentSize(),
+            color = AppBackgroundColor,
+            shape = RoundedCornerShape(bottomEnd = 12.dp),
+        ) {
+            Text(
+                modifier = Modifier.padding(end = 12.dp, top = 24.dp),
+                text = title,
+                style = MaterialTheme.typography.headlineMediumEmphasized,
+            )
+        }
     }
 }

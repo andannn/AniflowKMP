@@ -97,6 +97,10 @@ fun App(navigator: RootNavigator) {
                         DetailMediaCharacterPaging(it.mediaId)
                     }
 
+                    entry<Screen.MyList> {
+                        MyList()
+                    }
+
                     entry<Screen.Dialog.ScoringDialog>(
                         metadata = dialog(),
                     ) {

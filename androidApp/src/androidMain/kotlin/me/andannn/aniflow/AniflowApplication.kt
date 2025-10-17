@@ -23,6 +23,7 @@ import me.andannn.aniflow.ui.DiscoverViewModel
 import me.andannn.aniflow.ui.HomeViewModel
 import me.andannn.aniflow.ui.LoginDialogViewModel
 import me.andannn.aniflow.ui.MediaCategoryPagingViewModel
+import me.andannn.aniflow.ui.MyListViewMoel
 import me.andannn.aniflow.ui.NotificationViewModel
 import me.andannn.aniflow.ui.ScoringDialogViewModel
 import me.andannn.aniflow.ui.SearchViewModel
@@ -102,6 +103,9 @@ private fun androidContextModule(application: AniflowApplication) =
         }
         viewModel {
             DetailCharacterViewModel(it.get(), get(parameters = { it }), get())
+        }
+        viewModel {
+            MyListViewMoel(get(), get())
         }
         viewModelOf(::SearchViewModel)
     }

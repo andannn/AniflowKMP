@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Animation
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Settings
@@ -94,6 +95,10 @@ fun LoginDialog(
             navigator.popBackStack()
             navigator.navigateTo(Screen.Settings)
         },
+        onMyListClick = {
+            navigator.popBackStack()
+            navigator.navigateTo(Screen.MyList)
+        },
     )
 }
 
@@ -103,6 +108,7 @@ fun LoginDialogContent(
     onLoginClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onNotificationClick: () -> Unit,
+    onMyListClick: () -> Unit,
     onSettingClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -157,6 +163,18 @@ fun LoginDialogContent(
                     Text("Notification")
                 },
             )
+            TransparentBackgroundListItem(
+                onClick = onMyListClick,
+                leadingContent = {
+                    Icon(
+                        imageVector = Icons.Outlined.Animation,
+                        contentDescription = null,
+                    )
+                },
+                headlineContent = {
+                    Text("My list")
+                },
+            )
         }
 
         TransparentBackgroundListItem(
@@ -186,15 +204,4 @@ fun LoginDialogContent(
             }
         }
     }
-//    Surface(
-//        modifier =
-//            modifier
-//                .wrapContentSize(),
-//        shape = AlertDialogDefaults.shape,
-//        tonalElevation = AlertDialogDefaults.TonalElevation,
-//    ) {
-//        Column(
-//            modifier = Modifier.padding(16.dp),
-//        )
-//    }
 }

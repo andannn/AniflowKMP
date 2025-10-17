@@ -14,7 +14,14 @@ import kotlin.time.ExperimentalTime
 internal data class AnimeSeasonParam(
     val seasonYear: Int,
     val season: MediaSeason,
-)
+) : Comparable<AnimeSeasonParam> {
+    override fun compareTo(other: AnimeSeasonParam): Int =
+        when {
+            this.seasonYear != other.seasonYear -> this.seasonYear - other.seasonYear
+            this.season != other.season -> this.season.ordinal - other.season.ordinal
+            else -> 0
+        }
+}
 
 internal fun AnimeSeasonParam.nextSeasonParam(): AnimeSeasonParam {
     val (nextSeasonYear, nextSeason) =

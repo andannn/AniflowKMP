@@ -165,6 +165,13 @@ sealed class ScreenEvent(
                 ),
         )
 
+    data object MyList : ScreenEvent(
+        params =
+            mapOf(
+                SCREEN_DIMENSION to "my_list",
+            ),
+    )
+
     data class SettingOption(
         val setting: String,
         val selected: String,

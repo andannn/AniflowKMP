@@ -5,7 +5,7 @@
 package me.andannn.network.common.schemas
 
 const val MEDIA_LIST_PAGE_QUERY_SCHEMA = $$"""
-query ($page: Int, $perPage: Int, $userId: Int, $status_in: [MediaListStatus], $type: MediaType, $format: ScoreFormat) {
+query ($page: Int, $perPage: Int, $userId: Int, $status_in: [MediaListStatus], $type: MediaType, $format: ScoreFormat, $mediaListSort: [MediaListSort]) {
   Page(page: $page, perPage: $perPage) {
     pageInfo {
       total
@@ -14,7 +14,7 @@ query ($page: Int, $perPage: Int, $userId: Int, $status_in: [MediaListStatus], $
       lastPage
       hasNextPage
     }
-    mediaList(userId: $userId, type: $type, status_in: $status_in) {
+    mediaList(userId: $userId, type: $type, status_in: $status_in, sort: $mediaListSort) {
       id
       status
       progress

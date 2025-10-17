@@ -33,7 +33,9 @@ import me.andannn.aniflow.data.model.StudioModel
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.MediaContentMode
 import me.andannn.aniflow.data.model.define.MediaFormat
+import me.andannn.aniflow.data.model.define.MediaListSort
 import me.andannn.aniflow.data.model.define.MediaListStatus
+import me.andannn.aniflow.data.model.define.MediaSeason
 import me.andannn.aniflow.data.model.define.MediaSort
 import me.andannn.aniflow.data.model.define.MediaStatus
 import me.andannn.aniflow.data.model.define.MediaType
@@ -41,6 +43,7 @@ import me.andannn.aniflow.data.model.define.NotificationCategory
 import me.andannn.aniflow.data.model.define.ScoreFormat
 import me.andannn.aniflow.data.model.define.StaffLanguage
 import me.andannn.aniflow.data.model.define.deserialize
+import me.andannn.aniflow.data.model.define.sorted
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.data.model.relation.CharacterWithVoiceActor
 import me.andannn.aniflow.data.model.relation.MediaModelWithRelationType
@@ -541,6 +544,27 @@ internal class MediaRepositoryImpl(
         } catch (exception: ServerException) {
             Napier.e { "Error when loading Character page: $exception" }
             Page.empty<MediaModel>() to exception.toError()
+        }
+
+    override suspend fun getAllMediaListItems(
+        userId: String,
+        mediaType: MediaType,
+        scoreFormat: ScoreFormat,
+        status: List<MediaListStatus>,
+        sort: MediaListSort,
+    ): Pair<List<MediaWithMediaListItem>, AppError?> =
+        with(mediaService) {
+            try {
+                fetchAllMediaList(
+                    userId = userId,
+                    status = status,
+                    mediaType = mediaType,
+                    scoreFormat = scoreFormat,
+                ).map(MediaList::toRelationDomain).sorted(sort) to null
+            } catch (exception: ServerException) {
+                Napier.e { "Error when loading Character page: $exception" }
+                emptyList<MediaWithMediaListItem>() to exception.toError()
+            }
         }
 }
 

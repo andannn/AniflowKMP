@@ -1,0 +1,51 @@
+/*
+ * Copyright 2025, the AniflowKMP project contributors
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package me.andannn.aniflow.service.dto.enums
+
+import kotlinx.serialization.Serializable
+
+/**
+ * Media list sort enums
+ */
+@Serializable
+enum class MediaListSort(
+    public val rawValue: String,
+) {
+    MEDIA_ID("MEDIA_ID"),
+    MEDIA_ID_DESC("MEDIA_ID_DESC"),
+    SCORE("SCORE"),
+    SCORE_DESC("SCORE_DESC"),
+    STATUS("STATUS"),
+    STATUS_DESC("STATUS_DESC"),
+    PROGRESS("PROGRESS"),
+    PROGRESS_DESC("PROGRESS_DESC"),
+    PROGRESS_VOLUMES("PROGRESS_VOLUMES"),
+    PROGRESS_VOLUMES_DESC("PROGRESS_VOLUMES_DESC"),
+    REPEAT("REPEAT"),
+    REPEAT_DESC("REPEAT_DESC"),
+    PRIORITY("PRIORITY"),
+    PRIORITY_DESC("PRIORITY_DESC"),
+    STARTED_ON("STARTED_ON"),
+    STARTED_ON_DESC("STARTED_ON_DESC"),
+    FINISHED_ON("FINISHED_ON"),
+    FINISHED_ON_DESC("FINISHED_ON_DESC"),
+    ADDED_TIME("ADDED_TIME"),
+    ADDED_TIME_DESC("ADDED_TIME_DESC"),
+    UPDATED_TIME("UPDATED_TIME"),
+    UPDATED_TIME_DESC("UPDATED_TIME_DESC"),
+    MEDIA_TITLE_ROMAJI("MEDIA_TITLE_ROMAJI"),
+    MEDIA_TITLE_ROMAJI_DESC("MEDIA_TITLE_ROMAJI_DESC"),
+    MEDIA_TITLE_ENGLISH("MEDIA_TITLE_ENGLISH"),
+    MEDIA_TITLE_ENGLISH_DESC("MEDIA_TITLE_ENGLISH_DESC"),
+    MEDIA_TITLE_NATIVE("MEDIA_TITLE_NATIVE"),
+    MEDIA_TITLE_NATIVE_DESC("MEDIA_TITLE_NATIVE_DESC"),
+    MEDIA_POPULARITY("MEDIA_POPULARITY"),
+    MEDIA_POPULARITY_DESC("MEDIA_POPULARITY_DESC"),
+
+    /**
+     * Auto generated constant for unknown enum values
+     */
+    UNKNOWN__("UNKNOWN__"),
+}

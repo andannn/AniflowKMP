@@ -350,21 +350,6 @@ fun DetailStaffContent(
                         status = pagingStatus.value,
                         key = { item -> item.hashCode() },
                         onLoadNextPage = { pagingController.loadNextPage() },
-                        titleContent = { title ->
-                            Box(modifier = Modifier.fillMaxWidth()) {
-                                Surface(
-                                    modifier = Modifier.wrapContentSize(),
-                                    color = AppBackgroundColor,
-                                    shape = RoundedCornerShape(bottomEnd = 12.dp),
-                                ) {
-                                    Text(
-                                        modifier = Modifier.padding(end = 12.dp, top = 24.dp),
-                                        text = title,
-                                        style = MaterialTheme.typography.headlineMediumEmphasized,
-                                    )
-                                }
-                            }
-                        },
                         itemContent = { item ->
                             CharacterWithMediaItem(
                                 modifier = Modifier.padding(4.dp),

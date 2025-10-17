@@ -579,13 +579,7 @@ internal fun User.toEntity() =
         siteUrl = siteUrl,
     )
 
-internal fun Character.toDomain() =
-    CharacterModel(
-        id = id.toString(),
-        name = name?.toDomain(),
-        image = image?.large ?: image?.medium,
-        siteUrl = siteUrl,
-    )
+internal fun Character.toDomain() = toEntity().toDomain()
 
 internal fun CharacterName.toDomain() =
     StaffCharacterName(
@@ -637,6 +631,14 @@ internal fun MediaList.toRelation() =
                 ?: error("Media cannot be null when converting to relation"),
         mediaListEntity = toEntity(media!!.id.toString()),
     )
+
+internal fun MediaList.toRelationDomain(): MediaWithMediaListItem =
+    toRelation().let {
+        MediaWithMediaListItem(
+            mediaModel = it.mediaEntity.toDomain(),
+            mediaListModel = it.mediaListEntity.toDomain(),
+        )
+    }
 
 internal fun MediaList.toEntity(mediaId: String) =
     MediaListEntity(

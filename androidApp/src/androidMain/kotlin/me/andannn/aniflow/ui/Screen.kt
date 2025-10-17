@@ -5,7 +5,6 @@
 package me.andannn.aniflow.ui
 
 import android.net.Uri
-import android.util.Log
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -60,6 +59,9 @@ sealed interface Screen : NavKey {
     data class DetailStudio(
         val studioId: String,
     ) : Screen
+
+    @Serializable
+    data object MyList : Screen
 
     @Serializable
     sealed interface Dialog : Screen {

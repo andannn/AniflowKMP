@@ -33,4 +33,5 @@ fun Screen.toFaEvent() =
             }
 
         is Screen.Dialog.TrackProgressDialog -> ScreenEvent.TrackProgressDialog(mediaId = mediaId)
+        Screen.MyList -> ScreenEvent.MyList
     }
