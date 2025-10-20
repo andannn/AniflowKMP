@@ -51,6 +51,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.AppError
 import me.andannn.aniflow.data.AuthRepository
@@ -58,10 +59,10 @@ import me.andannn.aniflow.data.ErrorChannel
 import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.buildErrorChannel
 import me.andannn.aniflow.data.label
+import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.MediaListSort
 import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.model.define.MediaSeason
-import me.andannn.aniflow.data.model.define.UserTitleLanguage
 import me.andannn.aniflow.data.model.define.toMediaType
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.ui.theme.AppBackgroundColor
@@ -70,7 +71,6 @@ import me.andannn.aniflow.ui.theme.ShapeHelper
 import me.andannn.aniflow.ui.theme.TopAppBarColors
 import me.andannn.aniflow.ui.widget.GroupItems
 import me.andannn.aniflow.ui.widget.MediaListRowItem
-import me.andannn.aniflow.ui.widget.MediaRowItem
 import me.andannn.aniflow.ui.widget.pagingGroupedItems
 import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.rememberSnackBarHostState
@@ -93,6 +93,15 @@ class MyListViewMoel(
 
     val categoryWithMediaListItems =
         mutableStateMapOf<MediaListStatusCategory, ContentState>()
+
+    val userOptions =
+        authRepository
+            .getUserOptionsFlow()
+            .stateIn(
+                viewModelScope,
+                started = kotlinx.coroutines.flow.SharingStarted.Lazily,
+                initialValue = UserOptions(),
+            )
 
     init {
         viewModelScope.launch {
@@ -160,8 +169,10 @@ fun MyList(
                     ?: MyListViewMoel.ContentState.Loading
             }
         }
+    val userOptions by viewModel.userOptions.collectAsStateWithLifecycle()
     MyListContent(
         modifier = modifier,
+        userOptions = userOptions,
         selectedMediaListStatusCategory = selectedMediaListStatusCategory,
         itemContentState = itemContentState,
         onCategorySelected = { category ->
@@ -186,6 +197,7 @@ fun MyList(
 @Composable
 private fun MyListContent(
     modifier: Modifier = Modifier,
+    userOptions: UserOptions,
     selectedMediaListStatusCategory: MediaListStatusCategory,
     itemContentState: MyListViewMoel.ContentState,
     onCategorySelected: (MediaListStatusCategory) -> Unit = {},
@@ -279,7 +291,7 @@ private fun MyListContent(
                                     item = item,
                                     shape = ShapeHelper.listItemShapeVertical(isFirst, isLast),
                                     titleMaxLines = Int.MAX_VALUE,
-                                    userTitleLanguage = UserTitleLanguage.ENGLISH,
+                                    userTitleLanguage = userOptions.titleLanguage,
                                     onClick = {
                                         onMediaListItemClick(item)
                                     },
