@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -303,7 +304,9 @@ fun TrackContent(
                 isRefreshing = isRefreshing,
                 onPullRefresh = onPullRefresh,
             ) {
+                val listState = rememberLazyListState()
                 LazyColumn(
+                    state = listState,
                     contentPadding = PaddingValues(horizontal = 8.dp),
                 ) {
                     state.categoryWithItems.forEach { (category, items) ->
@@ -334,6 +337,7 @@ fun TrackContent(
                                 ) {
                                     MediaRowItem(
                                         item = item,
+                                        isScrollInProgress = listState.isScrollInProgress,
                                         shape = ShapeHelper.listItemShapeVertical(isFirst, isLast),
                                         titleMaxLines = Int.MAX_VALUE,
                                         userTitleLanguage = state.userOptions.titleLanguage,

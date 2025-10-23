@@ -54,6 +54,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.getUserTitleString
 import me.andannn.aniflow.data.infoString
@@ -80,6 +81,7 @@ private enum class SwipeOptionStatus {
 @Composable
 fun MediaRowItem(
     item: MediaWithMediaListItem,
+    isScrollInProgress: Boolean,
     userTitleLanguage: UserTitleLanguage,
     shape: Shape,
     modifier: Modifier = Modifier,
@@ -89,6 +91,7 @@ fun MediaRowItem(
     titleMaxLines: Int = 2,
     hapticFeedback: HapticFeedback = LocalHapticFeedback.current,
 ) {
+    val isScrollInProgressState by rememberUpdatedState(isScrollInProgress)
     val optionIconSizePx =
         with(LocalDensity.current) {
             OptionIconWidth.toPx()
@@ -119,8 +122,8 @@ fun MediaRowItem(
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(anchors) {
-        val centerOffset = anchors.positionOf(SwipeOptionStatus.NONE)
         snapshotFlow {
+            val centerOffset = anchors.positionOf(SwipeOptionStatus.NONE)
             val buttonVisibility =
                 when (state.offset) {
                     centerOffset -> SwipeOptionStatus.NONE
@@ -136,6 +139,16 @@ fun MediaRowItem(
                 hapticFeedback.performHapticFeedback(GestureThresholdActivate)
             }
         }
+    }
+
+    LaunchedEffect(anchors) {
+        snapshotFlow { isScrollInProgressState }
+            .filter { it }
+            .collect {
+                if (state.offset != anchors.positionOf(SwipeOptionStatus.NONE)) {
+                    state.animateTo(SwipeOptionStatus.NONE)
+                }
+            }
     }
 
     Box(
@@ -311,6 +324,7 @@ private fun MediaListModelPreview() {
         MediaRowItem(
             shape = MaterialTheme.shapes.small,
             userTitleLanguage = UserTitleLanguage.ENGLISH,
+            isScrollInProgress = false,
             item =
                 MediaWithMediaListItem(
                     mediaModel =
