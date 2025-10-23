@@ -33,20 +33,27 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType.Companion.GestureEnd
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType.Companion.GestureThresholdActivate
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.getUserTitleString
 import me.andannn.aniflow.data.infoString
@@ -80,6 +87,7 @@ fun MediaRowItem(
     onDelete: () -> Unit = {},
     onMarkWatched: () -> Unit = {},
     titleMaxLines: Int = 2,
+    hapticFeedback: HapticFeedback = LocalHapticFeedback.current,
 ) {
     val optionIconSizePx =
         with(LocalDensity.current) {
@@ -90,22 +98,45 @@ fun MediaRowItem(
     val textStyle = MaterialTheme.typography
 
     val canMarkWatched by rememberUpdatedState(item.haveNextEpisode)
+    val anchors =
+        remember(optionIconSizePx) {
+            DraggableAnchors {
+                SwipeOptionStatus.NONE at 0f
+                SwipeOptionStatus.LEFT_OPTION at optionIconSizePx
+                if (canMarkWatched) {
+                    SwipeOptionStatus.RIGHT_OPTION at -1 * optionIconSizePx
+                }
+            }
+        }
     val state =
         remember(canMarkWatched) {
             AnchoredDraggableState(
                 initialValue = SwipeOptionStatus.NONE,
-                anchors =
-                    DraggableAnchors {
-                        SwipeOptionStatus.NONE at 0f
-                        SwipeOptionStatus.LEFT_OPTION at optionIconSizePx
-                        if (canMarkWatched) {
-                            SwipeOptionStatus.RIGHT_OPTION at -1 * optionIconSizePx
-                        }
-                    },
+                anchors = anchors,
             )
         }
 
     val scope = rememberCoroutineScope()
+
+    LaunchedEffect(anchors) {
+        val centerOffset = anchors.positionOf(SwipeOptionStatus.NONE)
+        snapshotFlow {
+            val buttonVisibility =
+                when (state.offset) {
+                    centerOffset -> SwipeOptionStatus.NONE
+                    in (centerOffset + 1f)..Float.MAX_VALUE -> SwipeOptionStatus.LEFT_OPTION
+                    in (-1 * Float.MAX_VALUE)..(centerOffset - 1f) -> SwipeOptionStatus.RIGHT_OPTION
+                    else -> SwipeOptionStatus.NONE
+                }
+            buttonVisibility
+        }.drop(1).collect {
+            if (it == SwipeOptionStatus.NONE) {
+                hapticFeedback.performHapticFeedback(GestureEnd)
+            } else {
+                hapticFeedback.performHapticFeedback(GestureThresholdActivate)
+            }
+        }
+    }
 
     Box(
         modifier =
