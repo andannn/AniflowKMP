@@ -422,7 +422,7 @@ internal fun Media.toEntity() =
         timeUntilAiring = nextAiringEpisode?.timeUntilAiring?.toLong(),
         nextAiringEpisode = nextAiringEpisode?.episode?.toLong(),
         genres = Json.encodeToString(genres),
-        siteUrl = null,
+        siteUrl = siteUrl,
         popularRanking = rankings?.firstOrNull { it?.type == MediaRankType.POPULAR && it.allTime == true }?.rank?.toLong(),
         currentYearPopularRanking = rankings?.firstOrNull { it?.type == MediaRankType.POPULAR && it.allTime == false }?.rank?.toLong(),
         ratedRanking = rankings?.firstOrNull { it?.type == MediaRankType.RATED && it.allTime == true }?.rank?.toLong(),

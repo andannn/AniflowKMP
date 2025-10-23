@@ -105,6 +105,10 @@ public data class Media(
      */
     public val trending: Int? = null,
     /**
+     * The url for the media page on the AniList website
+     */
+    public val siteUrl: String? = null,
+    /**
      * The media's next episode airing schedule
      */
     public val nextAiringEpisode: NextAiringEpisode? = null,
