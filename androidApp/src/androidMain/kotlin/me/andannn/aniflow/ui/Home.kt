@@ -23,7 +23,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -32,8 +31,7 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
-import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
-import androidx.navigation3.scene.rememberSceneSetupNavEntryDecorator
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.Serializable
@@ -58,7 +56,7 @@ class HomeViewModel : ViewModel()
 @Composable
 fun Home(homeViewModel: HomeViewModel = koinViewModel()) {
     val backStack =
-        rememberNavBackStack<HomeNestedScreen>(HomeNestedScreen.Discover)
+        rememberNavBackStack(HomeNestedScreen.Discover)
     HomeContent(
         navigator =
             remember {
@@ -107,8 +105,8 @@ private fun NestNavigation(
         backStack = navigator.backStack,
         entryDecorators =
             listOf(
-                rememberSceneSetupNavEntryDecorator(),
-                rememberSavedStateNavEntryDecorator(),
+                rememberSaveableStateHolderNavEntryDecorator(),
+//                rememberSavedStateNavEntryDecorator(),
                 rememberViewModelStoreNavEntryDecorator(),
             ),
         entryProvider =

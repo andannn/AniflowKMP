@@ -15,11 +15,10 @@ import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDe
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
-import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.scene.DialogSceneStrategy
 import androidx.navigation3.scene.DialogSceneStrategy.Companion.dialog
 import androidx.navigation3.scene.SinglePaneSceneStrategy
-import androidx.navigation3.scene.rememberSceneSetupNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import me.andannn.aniflow.util.rememberErrorHandlerNavEntryDecorator
 
@@ -34,8 +33,8 @@ fun App(navigator: RootNavigator) {
             sceneStrategy = DialogSceneStrategy<NavKey>() then SinglePaneSceneStrategy(),
             entryDecorators =
                 listOf(
-                    rememberSceneSetupNavEntryDecorator(),
-                    rememberSavedStateNavEntryDecorator(),
+                    rememberSaveableStateHolderNavEntryDecorator(),
+//                    rememberSavedStateNavEntryDecorator(),
                     rememberViewModelStoreNavEntryDecorator(),
                     rememberErrorHandlerNavEntryDecorator(),
                 ),

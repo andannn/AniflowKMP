@@ -13,7 +13,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.navigation3.runtime.NavEntryDecorator
-import androidx.navigation3.runtime.navEntryDecorator
 import me.andannn.aniflow.data.SnackBarMessage
 import me.andannn.aniflow.data.SnackbarShowDuration
 
@@ -87,7 +86,7 @@ private fun <T : Any> snackbarHostStateHolderNavEntryDecorator(): NavEntryDecora
     val onPop: (Any) -> Unit = { contentKey ->
     }
 
-    return navEntryDecorator(onPop = onPop) { entry ->
+    return NavEntryDecorator(onPop = onPop) { entry ->
         val holder = remember { SnackbarHostStateHolder() }
         CompositionLocalProvider(
             LocalSnackbarHostStateHolder provides holder,
