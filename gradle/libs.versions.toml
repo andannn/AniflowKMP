@@ -39,7 +39,7 @@ sqldelight = "2.2.1"
 lifecycleViewmodelNav3 = "1.0.0-alpha04"
 nav3Core = "1.0.0"
 nativecoroutines = "1.0.0-ALPHA-47"
-compose-bom = "2025.09.01"
+compose-bom = "2025.11.01"
 material3 = "1.5.0-alpha02"
 navresult = "1.0.0"
 
