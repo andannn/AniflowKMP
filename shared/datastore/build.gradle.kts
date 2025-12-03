@@ -1,6 +1,5 @@
 plugins {
     id("kmp.library")
-    alias(libs.plugins.ksp)
 }
 
 kotlin {
