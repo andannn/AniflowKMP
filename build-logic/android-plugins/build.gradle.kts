@@ -5,8 +5,6 @@ plugins {
 dependencies {
     compileOnly(libs.android.gradlePlugin)
     compileOnly(libs.kotlin.gradlePlugin)
-    compileOnly(libs.ksp.gradlePlugin)
-    compileOnly(libs.jetbrainsCompose.gradlePlugin)
     compileOnly(libs.composeCompiler.gradlePlugin)
     compileOnly(libs.ktlint.gradlePlugin)
     compileOnly(libs.spotless.gradlePlugin)
@@ -22,14 +20,6 @@ gradlePlugin {
         register("kotlinMultiplatformApplication") {
             id = "kmp.application"
             implementationClass = "KMPApplicationConventionPlugin"
-        }
-        register("composeMultiplatformLibraryConventionPlugin") {
-            id = "compose.multiplatform.library"
-            implementationClass = "ComposeMultiplatformLibraryConventionPlugin"
-        }
-        register("composeMultiplatformApplicationConventionPlugin") {
-            id = "compose.multiplatform.application"
-            implementationClass = "ComposeMultiplatformApplicationConventionPlugin"
         }
     }
 }

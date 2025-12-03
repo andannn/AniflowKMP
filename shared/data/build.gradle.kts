@@ -5,7 +5,6 @@ plugins {
     id("kmp.library")
     alias(libs.plugins.serialization)
     alias(libs.plugins.nativecoroutines)
-    alias(libs.plugins.ksp)
 }
 
 android {
