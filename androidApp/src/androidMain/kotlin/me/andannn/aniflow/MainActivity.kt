@@ -139,7 +139,7 @@ class MainActivity : ComponentActivity() {
                     Theme.DARK -> true
                 }
             AniflowTheme(isDarkTheme = isDarkMode) {
-                val backStack = rememberNavBackStack<Screen>(Screen.Home)
+                val backStack = rememberNavBackStack(Screen.Home)
                 val navigator = remember(backStack) { RootNavigator(backStack) }
 
                 LaunchedEffect(paddingDeepLinkNavigationScreen.value) {
