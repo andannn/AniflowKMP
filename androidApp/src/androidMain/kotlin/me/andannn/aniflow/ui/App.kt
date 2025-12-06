@@ -4,9 +4,8 @@
  */
 package me.andannn.aniflow.ui
 
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
@@ -21,130 +20,129 @@ import androidx.navigation3.scene.DialogSceneStrategy.Companion.dialog
 import androidx.navigation3.scene.SinglePaneSceneStrategy
 import androidx.navigation3.ui.NavDisplay
 import me.andannn.aniflow.util.rememberErrorHandlerNavEntryDecorator
+import me.andannn.aniflow.util.rememberTopNavAnimatedContentScopeNavEntryDecorator
 
 @Composable
 fun App(navigator: RootNavigator) {
-    CompositionLocalProvider(
-        LocalRootNavigator provides navigator,
-    ) {
-        NavDisplay(
-            modifier = Modifier,
-            backStack = navigator.backStackList,
-            sceneStrategy = DialogSceneStrategy<NavKey>() then SinglePaneSceneStrategy(),
-            entryDecorators =
-                listOf(
-                    rememberSaveableStateHolderNavEntryDecorator(),
-//                    rememberSavedStateNavEntryDecorator(),
-                    rememberViewModelStoreNavEntryDecorator(),
-                    rememberErrorHandlerNavEntryDecorator(),
-                ),
-            transitionSpec = {
-                // Slide in from right when navigating forward
-                slideInHorizontally(initialOffsetX = { it }) togetherWith
-                    slideOutHorizontally(targetOffsetX = { -it })
-            },
-            popTransitionSpec = {
-                // Slide in from left when navigating back
-                slideInHorizontally(initialOffsetX = { -it }) togetherWith
-                    slideOutHorizontally(targetOffsetX = { it })
-            },
-            entryProvider =
-                entryProvider {
-                    entry<Screen.Home> {
-                        Home()
-                    }
+    SharedTransitionLayout {
+        CompositionLocalProvider(
+            LocalRootNavigator provides navigator,
+            LocalSharedTransitionScope provides this,
+        ) {
+            NavDisplay(
+                modifier = Modifier,
+                backStack = navigator.backStackList,
+                sceneStrategy = DialogSceneStrategy<NavKey>() then SinglePaneSceneStrategy(),
+                entryDecorators =
+                    listOf(
+                        rememberSaveableStateHolderNavEntryDecorator(),
+                        rememberViewModelStoreNavEntryDecorator(),
+                        rememberErrorHandlerNavEntryDecorator(),
+                        rememberTopNavAnimatedContentScopeNavEntryDecorator(),
+                    ),
+                entryProvider =
+                    entryProvider {
+                        entry<Screen.Home> {
+                            Home()
+                        }
 
-                    entry<Screen.MediaCategoryList> {
-                        MediaCategoryPaging(
-                            category = it.category,
-                        )
-                    }
+                        entry<Screen.MediaCategoryList> {
+                            MediaCategoryPaging(
+                                category = it.category,
+                            )
+                        }
 
-                    entry<Screen.Notification> {
-                        Notification()
-                    }
+                        entry<Screen.Notification> {
+                            Notification()
+                        }
 
-                    entry<Screen.Search> {
-                        Search()
-                    }
+                        entry<Screen.Search> {
+                            Search()
+                        }
 
-                    entry<Screen.Settings> {
-                        Settings()
-                    }
+                        entry<Screen.Settings> {
+                            Settings()
+                        }
 
-                    entry<Screen.DetailMedia> {
-                        DetailMedia(it.mediaId)
-                    }
+                        entry<Screen.DetailMedia> {
+                            DetailMedia(it.mediaId)
+                        }
 
-                    entry<Screen.DetailStaff> {
-                        DetailStaff(it.staffId)
-                    }
+                        entry<Screen.DetailStaff> {
+                            DetailStaff(it.staffId)
+                        }
 
-                    entry<Screen.DetailCharacter> {
-                        DetailCharacter(it.characterId)
-                    }
+                        entry<Screen.DetailCharacter> {
+                            DetailCharacter(it.characterId)
+                        }
 
-                    entry<Screen.DetailStudio> {
-                        DetailStudio(it.studioId)
-                    }
+                        entry<Screen.DetailStudio> {
+                            DetailStudio(it.studioId)
+                        }
 
-                    entry<Screen.DetailStaffPaging> {
-                        DetailMediaStaffPaging(it.mediaId)
-                    }
+                        entry<Screen.DetailStaffPaging> {
+                            DetailMediaStaffPaging(it.mediaId)
+                        }
 
-                    entry<Screen.DetailCharacterPaging> {
-                        DetailMediaCharacterPaging(it.mediaId)
-                    }
+                        entry<Screen.DetailCharacterPaging> {
+                            DetailMediaCharacterPaging(it.mediaId)
+                        }
 
-                    entry<Screen.MyList> {
-                        MyList()
-                    }
+                        entry<Screen.MyList> {
+                            MyList()
+                        }
 
-                    entry<Screen.Dialog.ScoringDialog>(
-                        metadata = dialog(),
-                    ) {
-                        ScoringDialog(it.mediaId)
-                    }
+                        entry<Screen.Dialog.ScoringDialog>(
+                            metadata = dialog(),
+                        ) {
+                            ScoringDialog(it.mediaId)
+                        }
 
-                    entry<Screen.Dialog.Login>(
-                        metadata = dialog(),
-                    ) {
-                        LoginDialog()
-                    }
+                        entry<Screen.Dialog.Login>(
+                            metadata = dialog(),
+                        ) {
+                            LoginDialog()
+                        }
 
-                    entry<Screen.Dialog.SettingOption>(
-                        metadata = dialog(),
-                    ) {
-                        SettingOptionDialog(it.settingItem)
-                    }
+                        entry<Screen.Dialog.SettingOption>(
+                            metadata = dialog(),
+                        ) {
+                            SettingOptionDialog(it.settingItem)
+                        }
 
-                    entry<Screen.Dialog.TrackProgressDialog>(
-                        metadata = dialog(),
-                    ) {
-                        TrackProgressDialog(
-                            mediaId = it.mediaId,
-                        )
-                    }
+                        entry<Screen.Dialog.TrackProgressDialog>(
+                            metadata = dialog(),
+                        ) {
+                            TrackProgressDialog(
+                                mediaId = it.mediaId,
+                            )
+                        }
 
-                    entry<Screen.Dialog.PresentationDialog>(
-                        metadata =
-                            dialog(
-                                dialogProperties =
-                                    DialogProperties(
-                                        dismissOnBackPress = false,
-                                        dismissOnClickOutside = false,
-                                    ),
-                            ),
-                    ) {
-                        PresentationModeLoginDialog()
-                    }
-                },
-        )
+                        entry<Screen.Dialog.PresentationDialog>(
+                            metadata =
+                                dialog(
+                                    dialogProperties =
+                                        DialogProperties(
+                                            dismissOnBackPress = false,
+                                            dismissOnClickOutside = false,
+                                        ),
+                                ),
+                        ) {
+                            PresentationModeLoginDialog()
+                        }
+                    },
+            )
+        }
     }
 }
 
 val LocalRootNavigator =
     androidx.compose.runtime.staticCompositionLocalOf<RootNavigator> {
+        error("No RootNavigator provided")
+    }
+
+val LocalSharedTransitionScope =
+    androidx.compose.runtime.staticCompositionLocalOf<SharedTransitionScope> {
         error("No RootNavigator provided")
     }
 

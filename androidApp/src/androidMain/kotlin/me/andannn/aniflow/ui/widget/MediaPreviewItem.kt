@@ -41,12 +41,12 @@ fun MediaPreviewItem(
     modifier: Modifier = Modifier,
     isFollowing: Boolean = false,
     coverImage: String? = null,
-    ooClick: () -> Unit = {},
+    onClick: () -> Unit = {},
 ) {
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(24.dp),
-        onClick = ooClick,
+        onClick = onClick,
     ) {
         Box {
             AsyncImage(

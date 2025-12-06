@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
+import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import io.github.aakira.napier.Napier
 import io.github.andannn.LaunchNavResultHandler
 import io.github.andannn.LocalNavResultOwner
@@ -52,7 +53,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.serialization.builtins.serializer
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.DiscoverUiDataProvider
 import me.andannn.aniflow.data.ErrorChannel
@@ -73,12 +73,14 @@ import me.andannn.aniflow.data.title
 import me.andannn.aniflow.isPresentationMode
 import me.andannn.aniflow.ui.theme.AppBackgroundColor
 import me.andannn.aniflow.ui.theme.PageHorizontalPadding
+import me.andannn.aniflow.ui.util.SharedElementKey
 import me.andannn.aniflow.ui.widget.CustomPullToRefresh
 import me.andannn.aniflow.ui.widget.DefaultAppBar
 import me.andannn.aniflow.ui.widget.MediaPreviewItem
 import me.andannn.aniflow.ui.widget.NewReleaseCard
 import me.andannn.aniflow.ui.widget.TitleWithContent
 import me.andannn.aniflow.util.ErrorHandleSideEffect
+import me.andannn.aniflow.util.LocalTopNavAnimatedContentScope
 import org.koin.compose.viewmodel.koinViewModel
 
 private const val TAG = "Discover"
@@ -200,7 +202,10 @@ fun Discover(
         }
     }
 
-    LaunchNavResultHandler(LOGIN_DIALOG_RESULT_KEY, resultSerializer = LoginDialogResult.serializer()) {
+    LaunchNavResultHandler(
+        LOGIN_DIALOG_RESULT_KEY,
+        resultSerializer = LoginDialogResult.serializer(),
+    ) {
         viewModel.onAuthIconResult(it)
     }
 
@@ -372,13 +377,21 @@ private fun MediaPreviewSector(
             ) {
                 val title by rememberUpdatedState(it.title.getUserTitleString(userTitleLanguage))
                 Row {
-                    MediaPreviewItem(
-                        modifier = Modifier.width(150.dp),
-                        title = title,
-                        isFollowing = false,
-                        coverImage = it.coverImage,
-                        ooClick = { onMediaClick(it) },
-                    )
+                    with(LocalSharedTransitionScope.current) {
+                        MediaPreviewItem(
+                            modifier =
+                                Modifier
+                                    .width(150.dp)
+                                    .sharedBounds(
+                                        rememberSharedContentState(SharedElementKey.keyOfMediaItem(it)),
+                                        LocalTopNavAnimatedContentScope.current,
+                                    ),
+                            title = title,
+                            isFollowing = false,
+                            coverImage = it.coverImage,
+                            onClick = { onMediaClick(it) },
+                        )
+                    }
                     Spacer(Modifier.width(4.dp))
                 }
             }
