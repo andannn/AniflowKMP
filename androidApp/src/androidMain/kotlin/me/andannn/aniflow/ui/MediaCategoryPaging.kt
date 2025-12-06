@@ -44,9 +44,11 @@ import me.andannn.aniflow.data.title
 import me.andannn.aniflow.ui.theme.AppBackgroundColor
 import me.andannn.aniflow.ui.theme.PageHorizontalPadding
 import me.andannn.aniflow.ui.theme.TopAppBarColors
+import me.andannn.aniflow.ui.util.SharedElementKey
 import me.andannn.aniflow.ui.widget.CommonItemFilledCard
 import me.andannn.aniflow.ui.widget.StaggeredGridPaging
 import me.andannn.aniflow.util.ErrorHandleSideEffect
+import me.andannn.aniflow.util.LocalTopNavAnimatedContentScope
 import me.andannn.aniflow.util.rememberSnackBarHostState
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -94,7 +96,9 @@ fun MediaCategoryPaging(
     val userOptions by viewModel.userOptionsFlow.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
-        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier =
+            modifier
+                .nestedScroll(scrollBehavior.nestedScrollConnection),
         snackbarHost = { SnackbarHost(rememberSnackBarHostState()) },
         topBar = {
             MediumFlexibleTopAppBar(
@@ -128,14 +132,20 @@ fun MediaCategoryPaging(
             key = { it.id },
         ) { item ->
             val title = item.title.getUserTitleString(titleLanguage = userOptions.titleLanguage)
-            CommonItemFilledCard(
-                modifier = Modifier.padding(4.dp),
-                title = title,
-                coverImage = item.coverImage,
-                onClick = {
-                    navigator.navigateTo(Screen.DetailMedia(item.id))
-                },
-            )
+            with(LocalSharedTransitionScope.current) {
+                CommonItemFilledCard(
+                    modifier =
+                        Modifier.padding(4.dp).sharedBounds(
+                            rememberSharedContentState(SharedElementKey.keyOfMediaItem(item)),
+                            LocalTopNavAnimatedContentScope.current,
+                        ),
+                    title = title,
+                    coverImage = item.coverImage,
+                    onClick = {
+                        navigator.navigateTo(Screen.DetailMedia(item.id))
+                    },
+                )
+            }
         }
     }
 

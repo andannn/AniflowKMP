@@ -133,6 +133,7 @@ import me.andannn.aniflow.ui.theme.PageHorizontalPadding
 import me.andannn.aniflow.ui.theme.ShapeHelper
 import me.andannn.aniflow.ui.theme.StyledReadingContentFontFamily
 import me.andannn.aniflow.ui.theme.TopAppBarColors
+import me.andannn.aniflow.ui.util.SharedElementKey
 import me.andannn.aniflow.ui.util.buildSnackBarMessageHandler
 import me.andannn.aniflow.ui.widget.CharacterRowItem
 import me.andannn.aniflow.ui.widget.CustomPullToRefresh
@@ -146,6 +147,7 @@ import me.andannn.aniflow.ui.widget.buildSpecialMessageText
 import me.andannn.aniflow.ui.widget.iconItemWithLabel
 import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.LocalSnackbarHostStateHolder
+import me.andannn.aniflow.util.LocalTopNavAnimatedContentScope
 import me.andannn.aniflow.util.SnackbarHostStateHolder
 import me.andannn.aniflow.util.rememberSnackBarHostState
 import me.andannn.aniflow.util.showSnackBarMessage
@@ -323,6 +325,10 @@ fun DetailMedia(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isRefreshing by viewModel.isLoading.collectAsStateWithLifecycle()
 
+    if (uiState.mediaModel == null) {
+        return
+    }
+
     context(navResultOwner, snackbarHostState) {
         LaunchNavResultHandler(TRACK_PROGRESS_DIALOG_RESULT, resultSerializer = Int.serializer()) {
             viewModel.onTrackProgressChange(it)
@@ -331,56 +337,62 @@ fun DetailMedia(
             viewModel.onRatingChange(it)
         }
 
-        DetailMediaContent(
-            title = uiState.title,
-            staffList = uiState.staffList,
-            mediaModel = uiState.mediaModel,
-            relations = uiState.relations,
-            studioList = uiState.studioList,
-            userOptions = uiState.userOptions,
-            mediaListItem = uiState.mediaListItem,
-            characterList = uiState.characters,
-            isRefreshing = isRefreshing,
-            bottomBarStatus = uiState.bottomBarStatus,
-            mediaListOption = uiState.mediaListOptions,
-            modifier = Modifier,
-            onPullRefresh = { viewModel.onPullRefresh() },
-            onPop = { navigator.popBackStack() },
-            onChangeStatus = viewModel::onChangeListItemStatus,
-            onAddToListClick = viewModel::onAddToListClick,
-            onToggleFavoriteClick = viewModel::onToggleFavoriteClick,
-            onTrailerClick = {
-                uriHandler.openUri(it)
-            },
-            onRelationItemClick = { navigator.navigateTo(Screen.DetailMedia(it.media.id)) },
-            onLoginClick = viewModel::onLoginClick,
-            onTrackProgressClick = {
-                navigator.navigateTo(Screen.Dialog.TrackProgressDialog(mediaId))
-            },
-            onRatingClick = {
-                navigator.navigateTo(Screen.Dialog.ScoringDialog(mediaId))
-            },
-            onExternalLinkClick = { link ->
-                link.url?.let {
+        with(LocalSharedTransitionScope.current) {
+            DetailMediaContent(
+                modifier =
+                    Modifier.fillMaxSize().sharedBounds(
+                        rememberSharedContentState(SharedElementKey.keyOfMediaItem(uiState.mediaModel!!)),
+                        LocalTopNavAnimatedContentScope.current,
+                    ),
+                title = uiState.title,
+                staffList = uiState.staffList,
+                mediaModel = uiState.mediaModel,
+                relations = uiState.relations,
+                studioList = uiState.studioList,
+                userOptions = uiState.userOptions,
+                mediaListItem = uiState.mediaListItem,
+                characterList = uiState.characters,
+                isRefreshing = isRefreshing,
+                bottomBarStatus = uiState.bottomBarStatus,
+                mediaListOption = uiState.mediaListOptions,
+                onPullRefresh = { viewModel.onPullRefresh() },
+                onPop = { navigator.popBackStack() },
+                onChangeStatus = viewModel::onChangeListItemStatus,
+                onAddToListClick = viewModel::onAddToListClick,
+                onToggleFavoriteClick = viewModel::onToggleFavoriteClick,
+                onTrailerClick = {
                     uriHandler.openUri(it)
-                }
-            },
-            onStaffMoreClick = {
-                navigator.navigateTo(Screen.DetailStaffPaging(mediaId))
-            },
-            onCharacterMoreClick = {
-                navigator.navigateTo(Screen.DetailCharacterPaging(mediaId))
-            },
-            onStaffClick = {
-                navigator.navigateTo(Screen.DetailStaff(it.id))
-            },
-            onCharacterClick = {
-                navigator.navigateTo(Screen.DetailCharacter(it.id))
-            },
-            onStudioClick = {
-                navigator.navigateTo(Screen.DetailStudio(it.id))
-            },
-        )
+                },
+                onRelationItemClick = { navigator.navigateTo(Screen.DetailMedia(it.media.id)) },
+                onLoginClick = viewModel::onLoginClick,
+                onTrackProgressClick = {
+                    navigator.navigateTo(Screen.Dialog.TrackProgressDialog(mediaId))
+                },
+                onRatingClick = {
+                    navigator.navigateTo(Screen.Dialog.ScoringDialog(mediaId))
+                },
+                onExternalLinkClick = { link ->
+                    link.url?.let {
+                        uriHandler.openUri(it)
+                    }
+                },
+                onStaffMoreClick = {
+                    navigator.navigateTo(Screen.DetailStaffPaging(mediaId))
+                },
+                onCharacterMoreClick = {
+                    navigator.navigateTo(Screen.DetailCharacterPaging(mediaId))
+                },
+                onStaffClick = {
+                    navigator.navigateTo(Screen.DetailStaff(it.id))
+                },
+                onCharacterClick = {
+                    navigator.navigateTo(Screen.DetailCharacter(it.id))
+                },
+                onStudioClick = {
+                    navigator.navigateTo(Screen.DetailStudio(it.id))
+                },
+            )
+        }
     }
 
     ErrorHandleSideEffect(viewModel)
@@ -938,41 +950,47 @@ private fun DetailMediaContent(
 
 private fun MediaListStatus.toMenuItem() =
     when (this) {
-        MediaListStatus.CURRENT ->
+        MediaListStatus.CURRENT -> {
             MenuItem(
                 label = label(),
                 icon = Icons.Filled.PlayArrow, // 正在看 → 播放图标
             )
+        }
 
-        MediaListStatus.PLANNING ->
+        MediaListStatus.PLANNING -> {
             MenuItem(
                 label = label(),
                 icon = Icons.Filled.Schedule, // 计划中 → 时钟/日程图标
             )
+        }
 
-        MediaListStatus.COMPLETED ->
+        MediaListStatus.COMPLETED -> {
             MenuItem(
                 label = label(),
                 icon = Icons.Filled.CheckCircle, // 完成 → 绿色对勾
             )
+        }
 
-        MediaListStatus.DROPPED ->
+        MediaListStatus.DROPPED -> {
             MenuItem(
                 label = label(),
                 icon = Icons.Filled.Cancel, // 放弃 → 叉/禁用
             )
+        }
 
-        MediaListStatus.PAUSED ->
+        MediaListStatus.PAUSED -> {
             MenuItem(
                 label = label(),
                 icon = Icons.Filled.PauseCircle, // 暂停 → 暂停按钮
             )
+        }
 
-        MediaListStatus.REPEATING ->
+        MediaListStatus.REPEATING -> {
             MenuItem(
                 label = label(),
                 icon = Icons.Filled.Repeat, // 重看 → 循环箭头
             )
+        }
     }
 
 @OptIn(ExperimentalTime::class)
@@ -1067,10 +1085,18 @@ private fun String.toComposeColor(): Color {
     val h = removePrefix("#")
     val argb =
         when (h.length) {
-            3 -> "FF" + h.flatMap { listOf(it, it) }.joinToString("") // #RGB
-            4 -> h.flatMap { listOf(it, it) }.joinToString("") // #ARGB
-            6 -> "FF$h" // #RRGGBB
-            8 -> h // #AARRGGBB
+            3 -> "FF" + h.flatMap { listOf(it, it) }.joinToString("")
+
+            // #RGB
+            4 -> h.flatMap { listOf(it, it) }.joinToString("")
+
+            // #ARGB
+            6 -> "FF$h"
+
+            // #RRGGBB
+            8 -> h
+
+            // #AARRGGBB
             else -> error("Bad color: $this")
         }
     val a = argb.substring(0, 2).toInt(16) / 255f
