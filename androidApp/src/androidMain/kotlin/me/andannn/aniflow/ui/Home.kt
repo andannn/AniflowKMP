@@ -106,7 +106,6 @@ private fun NestNavigation(
         entryDecorators =
             listOf(
                 rememberSaveableStateHolderNavEntryDecorator(),
-//                rememberSavedStateNavEntryDecorator(),
                 rememberViewModelStoreNavEntryDecorator(),
             ),
         entryProvider =
