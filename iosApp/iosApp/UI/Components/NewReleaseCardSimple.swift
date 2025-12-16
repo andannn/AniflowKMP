@@ -31,15 +31,15 @@ struct NewReleaseCardSimple: View {
 
             // Carousel (TabView pager)
             if !items.isEmpty {
-                // Keep pages simple: center a bounded-width banner in each page to avoid overlapping
+                // Use full-width pages to avoid overlapping previews between banners
                 TabView(selection: $selection) {
                     ForEach(items.indices, id: \.self) { i in
                         let item = items[i]
 
                         Button(action: { onItemClick(item) }) {
                             CustomAsyncImage(url: item.mediaModel.bannerImage ?? item.mediaModel.coverImage, contentMode: .fill)
+                                .frame(maxWidth: .infinity)
                                 .frame(height: bannerHeight)
-                                .frame(maxWidth: 360)
                                 .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
                                 .overlay {
                                     RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
@@ -49,12 +49,14 @@ struct NewReleaseCardSimple: View {
                                 .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
                         }
                         .buttonStyle(.plain)
+                        .frame(maxWidth: .infinity)
                         .tag(i)
-                        .padding(.horizontal, horizontalPadding / 2)
+                        .padding(.horizontal, horizontalPadding)
                     }
                 }
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-                .frame(height: bannerHeight)
+                .frame(maxWidth: .infinity)
+                .frame(height: bannerHeight + 16)
                 .padding(.bottom, 8)
                 .animation(.easeInOut(duration: 0.2), value: selection)
             }
