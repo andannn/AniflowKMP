@@ -11,17 +11,14 @@ struct CustomAsyncImage: View {
             if loadFailed {
                 failureView
             } else {
-                WebImage(url: URL(string: url ?? "")) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: contentMode)
-                } placeholder: {
-                    placeholderView
-                }
-                .onFailure { _ in
-                    loadFailed = true
-                }
-                .indicator(.activity)
+                WebImage(url: URL(string: url ?? ""))
+                    .resizable()
+                    .aspectRatio(contentMode: contentMode)
+                    .placeholder { placeholderView }
+                    .onFailure { _ in
+                        loadFailed = true
+                    }
+                    .indicator(.activity)
             }
         }
     }

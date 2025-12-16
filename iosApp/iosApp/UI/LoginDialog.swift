@@ -120,18 +120,17 @@ struct LoginDialogView: View {
         if let urlStr = viewModel.user?.avatar,
            let url = URL(string: urlStr),
            !avatarLoadFailed {
-            WebImage(url: url) { image in
-                image.resizable().aspectRatio(contentMode: .fill)
-            } placeholder: {
-                ProgressView()
-            }
-            .onFailure { _ in
-                avatarLoadFailed = true
-            }
-            .frame(width: 44, height: 44)
-            .clipShape(Circle())
-            .overlay(Circle().stroke(Color.accentColor, lineWidth: 2))
-            .shadow(radius: 2)
+           WebImage(url: url)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .placeholder { ProgressView() }
+                .onFailure { _ in
+                    avatarLoadFailed = true
+                }
+                .frame(width: 44, height: 44)
+                .clipShape(Circle())
+                .overlay(Circle().stroke(Color.accentColor, lineWidth: 2))
+                .shadow(radius: 2)
         } else {
             Image(systemName: "person.crop.circle")
                 .resizable().scaledToFit()
