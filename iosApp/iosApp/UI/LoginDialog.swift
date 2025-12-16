@@ -120,7 +120,11 @@ struct LoginDialogView: View {
         if let urlStr = viewModel.user?.avatar,
            let url = URL(string: urlStr),
            !avatarLoadFailed {
-           WebImage(url: url)
+           WebImage(
+                url: url,
+                options: [],
+                context: nil
+           )
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .placeholder { ProgressView() }

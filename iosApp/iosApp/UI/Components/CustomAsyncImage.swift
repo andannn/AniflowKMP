@@ -11,7 +11,11 @@ struct CustomAsyncImage: View {
             if loadFailed {
                 failureView
             } else {
-                WebImage(url: URL(string: url ?? ""))
+                WebImage(
+                    url: URL(string: url ?? ""),
+                    options: [],
+                    context: nil
+                )
                     .resizable()
                     .aspectRatio(contentMode: contentMode)
                     .placeholder { placeholderView }
