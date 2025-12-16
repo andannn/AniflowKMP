@@ -1,3 +1,4 @@
+import SDWebImageSwiftUI
 import Shared
 import SwiftUI
 
@@ -35,7 +36,8 @@ class LoginDialogViewModel : ObservableObject {
 struct LoginDialogView: View {
     @StateObject
     private var viewModel: LoginDialogViewModel = LoginDialogViewModel()
-    
+    @State private var avatarLoadFailed = false
+
     var onLogout: (() -> Void)? = nil
     var onLogin: (() -> Void)? = nil
     var onSettingClick : (() -> Void)? = nil
@@ -115,17 +117,16 @@ struct LoginDialogView: View {
 
     @ViewBuilder
     private var avatarView: some View {
-        if let urlStr = viewModel.user?.avatar, let url = URL(string: urlStr) {
-            AsyncImage(url: url) { phase in
-                switch phase {
-                case .success(let image):
-                    image.resizable().aspectRatio(contentMode: .fill)
-                case .failure(_):
-                    Image(systemName: "person.crop.circle")
-                        .resizable().scaledToFit().padding(4)
-                default:
-                    ProgressView()
-                }
+        if let urlStr = viewModel.user?.avatar,
+           let url = URL(string: urlStr),
+           !avatarLoadFailed {
+            WebImage(url: url) { image in
+                image.resizable().aspectRatio(contentMode: .fill)
+            } placeholder: {
+                ProgressView()
+            }
+            .onFailure { _ in
+                avatarLoadFailed = true
             }
             .frame(width: 44, height: 44)
             .clipShape(Circle())

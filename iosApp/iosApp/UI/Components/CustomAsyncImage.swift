@@ -1,30 +1,43 @@
+import SDWebImageSwiftUI
 import SwiftUI
 
 struct CustomAsyncImage: View {
     let url: String?
     var contentMode: ContentMode = .fill
-    
+    @State private var loadFailed = false
+
     var body: some View {
-        AsyncImage(url: URL(string: url ?? "")) { phase in
-            switch phase {
-            case .empty:
-                ZStack {
-                    Color(.systemGray6)
-                    ProgressView()
+        Group {
+            if loadFailed {
+                failureView
+            } else {
+                WebImage(url: URL(string: url ?? "")) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: contentMode)
+                } placeholder: {
+                    placeholderView
                 }
-            case .success(let image):
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: contentMode)
-            case .failure(_):
-                ZStack {
-                    Color(.systemGray6)
-                    Image(systemName: "photo")
-                        .foregroundColor(.gray)
+                .onFailure { _ in
+                    loadFailed = true
                 }
-            @unknown default:
-                Color(.systemGray6)
+                .indicator(.activity)
             }
+        }
+    }
+
+    private var placeholderView: some View {
+        ZStack {
+            Color(.systemGray6)
+            ProgressView()
+        }
+    }
+
+    private var failureView: some View {
+        ZStack {
+            Color(.systemGray6)
+            Image(systemName: "photo")
+                .foregroundColor(.gray)
         }
     }
 }

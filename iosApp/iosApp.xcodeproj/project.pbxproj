@@ -7,11 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A18BB87B2E84276500B419A5 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = A18BB87A2E84276500B419A5 /* FirebaseAnalytics */; };
-		A18BB87F2E8427CD00B419A5 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = A18BB87E2E8427CD00B419A5 /* FirebaseCrashlytics */; };
-		E1CE49602E52BC2F00738A58 /* KMPNativeCoroutinesAsync in Frameworks */ = {isa = PBXBuildFile; productRef = E1CE495F2E52BC2F00738A58 /* KMPNativeCoroutinesAsync */; };
-		E1CE49622E52BC2F00738A58 /* KMPNativeCoroutinesCombine in Frameworks */ = {isa = PBXBuildFile; productRef = E1CE49612E52BC2F00738A58 /* KMPNativeCoroutinesCombine */; };
-		E1CE49642E52BC2F00738A58 /* KMPNativeCoroutinesCore in Frameworks */ = {isa = PBXBuildFile; productRef = E1CE49632E52BC2F00738A58 /* KMPNativeCoroutinesCore */; };
+                A18BB87B2E84276500B419A5 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = A18BB87A2E84276500B419A5 /* FirebaseAnalytics */; };
+                A18BB87F2E8427CD00B419A5 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = A18BB87E2E8427CD00B419A5 /* FirebaseCrashlytics */; };
+                B95A150E2F2549930095D211 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = B95A150D2F2549930095D211 /* SDWebImageSwiftUI */; };
+                E1CE49602E52BC2F00738A58 /* KMPNativeCoroutinesAsync in Frameworks */ = {isa = PBXBuildFile; productRef = E1CE495F2E52BC2F00738A58 /* KMPNativeCoroutinesAsync */; };
+                E1CE49622E52BC2F00738A58 /* KMPNativeCoroutinesCombine in Frameworks */ = {isa = PBXBuildFile; productRef = E1CE49612E52BC2F00738A58 /* KMPNativeCoroutinesCombine */; };
+                E1CE49642E52BC2F00738A58 /* KMPNativeCoroutinesCore in Frameworks */ = {isa = PBXBuildFile; productRef = E1CE49632E52BC2F00738A58 /* KMPNativeCoroutinesCore */; };
 		E1CE49662E52BC2F00738A58 /* KMPNativeCoroutinesRxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = E1CE49652E52BC2F00738A58 /* KMPNativeCoroutinesRxSwift */; };
 /* End PBXBuildFile section */
 
@@ -48,11 +49,12 @@
 /* Begin PBXFrameworksBuildPhase section */
 		B9DA97AE2DC1472C00A4DA20 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				E1CE49602E52BC2F00738A58 /* KMPNativeCoroutinesAsync in Frameworks */,
-				E1CE49622E52BC2F00738A58 /* KMPNativeCoroutinesCombine in Frameworks */,
-				E1CE49642E52BC2F00738A58 /* KMPNativeCoroutinesCore in Frameworks */,
+                        buildActionMask = 2147483647;
+                        files = (
+                                B95A150E2F2549930095D211 /* SDWebImageSwiftUI in Frameworks */,
+                                E1CE49602E52BC2F00738A58 /* KMPNativeCoroutinesAsync in Frameworks */,
+                                E1CE49622E52BC2F00738A58 /* KMPNativeCoroutinesCombine in Frameworks */,
+                                E1CE49642E52BC2F00738A58 /* KMPNativeCoroutinesCore in Frameworks */,
 				A18BB87F2E8427CD00B419A5 /* FirebaseCrashlytics in Frameworks */,
 				A18BB87B2E84276500B419A5 /* FirebaseAnalytics in Frameworks */,
 				E1CE49662E52BC2F00738A58 /* KMPNativeCoroutinesRxSwift in Frameworks */,
@@ -95,16 +97,17 @@
 			);
 			dependencies = (
 			);
-			fileSystemSynchronizedGroups = (
-				B9DA97B32DC1472C00A4DA20 /* iosApp */,
-			);
-			name = iosApp;
-			packageProductDependencies = (
-				E1CE495F2E52BC2F00738A58 /* KMPNativeCoroutinesAsync */,
-				E1CE49612E52BC2F00738A58 /* KMPNativeCoroutinesCombine */,
-				E1CE49632E52BC2F00738A58 /* KMPNativeCoroutinesCore */,
-				E1CE49652E52BC2F00738A58 /* KMPNativeCoroutinesRxSwift */,
-				A18BB87A2E84276500B419A5 /* FirebaseAnalytics */,
+                        fileSystemSynchronizedGroups = (
+                                B9DA97B32DC1472C00A4DA20 /* iosApp */,
+                        );
+                        name = iosApp;
+                        packageProductDependencies = (
+                                B95A150D2F2549930095D211 /* SDWebImageSwiftUI */,
+                                E1CE495F2E52BC2F00738A58 /* KMPNativeCoroutinesAsync */,
+                                E1CE49612E52BC2F00738A58 /* KMPNativeCoroutinesCombine */,
+                                E1CE49632E52BC2F00738A58 /* KMPNativeCoroutinesCore */,
+                                E1CE49652E52BC2F00738A58 /* KMPNativeCoroutinesRxSwift */,
+                                A18BB87A2E84276500B419A5 /* FirebaseAnalytics */,
 				A18BB87E2E8427CD00B419A5 /* FirebaseCrashlytics */,
 			);
 			productName = iosApp;
@@ -134,11 +137,12 @@
 				Base,
 			);
 			mainGroup = B9DA97A82DC1472C00A4DA20;
-			minimizedProjectReferenceProxies = 1;
-			packageReferences = (
-				E1CE495E2E52BC2F00738A58 /* XCRemoteSwiftPackageReference "KMP-NativeCoroutines" */,
-				A18BB8792E8426C500B419A5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
-			);
+                        minimizedProjectReferenceProxies = 1;
+                        packageReferences = (
+                                B95A150C2F2549930095D211 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
+                                E1CE495E2E52BC2F00738A58 /* XCRemoteSwiftPackageReference "KMP-NativeCoroutines" */,
+                                A18BB8792E8426C500B419A5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+                        );
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B9DA97B22DC1472C00A4DA20 /* Products */;
 			projectDirPath = "";
@@ -412,17 +416,25 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		A18BB8792E8426C500B419A5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 12.3.0;
-			};
-		};
-		E1CE495E2E52BC2F00738A58 /* XCRemoteSwiftPackageReference "KMP-NativeCoroutines" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/rickclephas/KMP-NativeCoroutines.git";
+                A18BB8792E8426C500B419A5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+                        isa = XCRemoteSwiftPackageReference;
+                        repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+                        requirement = {
+                                kind = upToNextMajorVersion;
+                                minimumVersion = 12.3.0;
+                        };
+                };
+                B95A150C2F2549930095D211 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */ = {
+                        isa = XCRemoteSwiftPackageReference;
+                        repositoryURL = "https://github.com/SDWebImage/SDWebImageSwiftUI.git";
+                        requirement = {
+                                kind = upToNextMajorVersion;
+                                minimumVersion = 2.0.0;
+                        };
+                };
+                E1CE495E2E52BC2F00738A58 /* XCRemoteSwiftPackageReference "KMP-NativeCoroutines" */ = {
+                        isa = XCRemoteSwiftPackageReference;
+                        repositoryURL = "https://github.com/rickclephas/KMP-NativeCoroutines.git";
 			requirement = {
 				branch = master;
 				kind = branch;
@@ -436,14 +448,19 @@
 			package = A18BB8792E8426C500B419A5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAnalytics;
 		};
-		A18BB87E2E8427CD00B419A5 /* FirebaseCrashlytics */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = A18BB8792E8426C500B419A5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseCrashlytics;
-		};
-		E1CE495F2E52BC2F00738A58 /* KMPNativeCoroutinesAsync */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E1CE495E2E52BC2F00738A58 /* XCRemoteSwiftPackageReference "KMP-NativeCoroutines" */;
+                A18BB87E2E8427CD00B419A5 /* FirebaseCrashlytics */ = {
+                        isa = XCSwiftPackageProductDependency;
+                        package = A18BB8792E8426C500B419A5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+                        productName = FirebaseCrashlytics;
+                };
+                B95A150D2F2549930095D211 /* SDWebImageSwiftUI */ = {
+                        isa = XCSwiftPackageProductDependency;
+                        package = B95A150C2F2549930095D211 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
+                        productName = SDWebImageSwiftUI;
+                };
+                E1CE495F2E52BC2F00738A58 /* KMPNativeCoroutinesAsync */ = {
+                        isa = XCSwiftPackageProductDependency;
+                        package = E1CE495E2E52BC2F00738A58 /* XCRemoteSwiftPackageReference "KMP-NativeCoroutines" */;
 			productName = KMPNativeCoroutinesAsync;
 		};
 		E1CE49612E52BC2F00738A58 /* KMPNativeCoroutinesCombine */ = {
