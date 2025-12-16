@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		A18BB87B2E84276500B419A5 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = A18BB87A2E84276500B419A5 /* FirebaseAnalytics */; };
 		A18BB87F2E8427CD00B419A5 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = A18BB87E2E8427CD00B419A5 /* FirebaseCrashlytics */; };
+		F0B5E3CB2F6B6B5B00F3AABB /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = F0B5E3CA2F6B6B5B00F3AABB /* SDWebImageSwiftUI */; };
 		E1CE49602E52BC2F00738A58 /* KMPNativeCoroutinesAsync in Frameworks */ = {isa = PBXBuildFile; productRef = E1CE495F2E52BC2F00738A58 /* KMPNativeCoroutinesAsync */; };
 		E1CE49622E52BC2F00738A58 /* KMPNativeCoroutinesCombine in Frameworks */ = {isa = PBXBuildFile; productRef = E1CE49612E52BC2F00738A58 /* KMPNativeCoroutinesCombine */; };
 		E1CE49642E52BC2F00738A58 /* KMPNativeCoroutinesCore in Frameworks */ = {isa = PBXBuildFile; productRef = E1CE49632E52BC2F00738A58 /* KMPNativeCoroutinesCore */; };
@@ -55,6 +56,7 @@
 				E1CE49642E52BC2F00738A58 /* KMPNativeCoroutinesCore in Frameworks */,
 				A18BB87F2E8427CD00B419A5 /* FirebaseCrashlytics in Frameworks */,
 				A18BB87B2E84276500B419A5 /* FirebaseAnalytics in Frameworks */,
+				F0B5E3CB2F6B6B5B00F3AABB /* SDWebImageSwiftUI in Frameworks */,
 				E1CE49662E52BC2F00738A58 /* KMPNativeCoroutinesRxSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -106,6 +108,7 @@
 				E1CE49652E52BC2F00738A58 /* KMPNativeCoroutinesRxSwift */,
 				A18BB87A2E84276500B419A5 /* FirebaseAnalytics */,
 				A18BB87E2E8427CD00B419A5 /* FirebaseCrashlytics */,
+				F0B5E3CA2F6B6B5B00F3AABB /* SDWebImageSwiftUI */,
 			);
 			productName = iosApp;
 			productReference = B9DA97B12DC1472C00A4DA20 /* AniFlowKMP.app */;
@@ -138,6 +141,7 @@
 			packageReferences = (
 				E1CE495E2E52BC2F00738A58 /* XCRemoteSwiftPackageReference "KMP-NativeCoroutines" */,
 				A18BB8792E8426C500B419A5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				F0B5E3C92F6B6B5B00F3AABB /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B9DA97B22DC1472C00A4DA20 /* Products */;
@@ -420,6 +424,14 @@
 				minimumVersion = 12.3.0;
 			};
 		};
+		F0B5E3C92F6B6B5B00F3AABB /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SDWebImage/SDWebImageSwiftUI.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
 		E1CE495E2E52BC2F00738A58 /* XCRemoteSwiftPackageReference "KMP-NativeCoroutines" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/rickclephas/KMP-NativeCoroutines.git";
@@ -440,6 +452,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = A18BB8792E8426C500B419A5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseCrashlytics;
+		};
+		F0B5E3CA2F6B6B5B00F3AABB /* SDWebImageSwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F0B5E3C92F6B6B5B00F3AABB /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
+			productName = SDWebImageSwiftUI;
 		};
 		E1CE495F2E52BC2F00738A58 /* KMPNativeCoroutinesAsync */ = {
 			isa = XCSwiftPackageProductDependency;
