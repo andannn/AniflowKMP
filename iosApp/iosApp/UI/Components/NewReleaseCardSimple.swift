@@ -38,7 +38,6 @@ struct NewReleaseCardSimple: View {
 
                         Button(action: { onItemClick(item) }) {
                             CustomAsyncImage(url: item.mediaModel.bannerImage ?? item.mediaModel.coverImage, contentMode: .fill)
-                                .frame(maxWidth: .infinity)
                                 .frame(height: bannerHeight)
                                 .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
                                 .overlay {
@@ -46,10 +45,8 @@ struct NewReleaseCardSimple: View {
                                         .strokeBorder(.secondary.opacity(0.2))
                                 }
                                 .contentShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
-                                .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
                         }
                         .buttonStyle(.plain)
-                        .frame(maxWidth: .infinity)
                         .tag(i)
                         .padding(.horizontal, horizontalPadding)
                     }
@@ -66,7 +63,7 @@ struct NewReleaseCardSimple: View {
                 ForEach(items.indices, id: \.self) { i in
                     Circle()
                         .frame(width: selection == i ? 10 : 8, height: selection == i ? 10 : 8)
-                        .foregroundStyle(selection == i ? .primary : .secondary.opacity(0.4))
+                        .foregroundStyle(selection == i ? .primary : .secondary)
                         .onTapGesture { withAnimation { selection = i } }
                 }
             }
