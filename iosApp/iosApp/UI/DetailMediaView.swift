@@ -448,20 +448,21 @@ public struct DetailMediaContent: View {
         if !relations.isEmpty {
             SectionHeader(title: "Relations")
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    ForEach(Array(relations.enumerated()), id: \.offset) { i, r in
+                HStack(spacing: 10) {
+                    ForEach(relations, id: \.media.id) { relation in
                         MediaRelationItem(
                             userTitleLanguage: userOptions.titleLanguage,
-                            mediaRelation: relations[i],
+                            mediaRelation: relation,
                             onClick: {
-                                onRelationItemClick(relations[i])
+                                onRelationItemClick(relation)
                             }
                         )
                     }
                 }
-                .padding(.vertical, 4)
+                .padding(.vertical, 6)
+                .padding(.trailing, 4)
             }
-            .frame(height: 128)
+            .frame(height: 132)
         }
     }
     

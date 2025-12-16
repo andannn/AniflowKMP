@@ -8,8 +8,10 @@ struct CustomAsyncImage: View {
     @State private var loadFailed = false
     
     var body: some View {
+        let resolvedURL = URL(string: url ?? "")
+        
         WebImage(
-            url: URL(string: url ?? ""),
+            url: resolvedURL,
             options: [.retryFailed, .scaleDownLargeImages]
         )
         .placeholder { placeholder }

@@ -11,8 +11,6 @@ class LoginDialogViewModel : ObservableObject {
     private var dataTask : Task<(), any Error>? = nil
     
     init() {
-        print("LoginDialogViewModel init")
-        
         authRepository = KoinHelper.shared.authRepository()
         
         dataTask = Task { [weak self] in
@@ -25,7 +23,6 @@ class LoginDialogViewModel : ObservableObject {
     }
 
     deinit {
-        print("LoginDialogViewModel deinit")
         dataTask?.cancel()
         loginTask?.cancel()
     }

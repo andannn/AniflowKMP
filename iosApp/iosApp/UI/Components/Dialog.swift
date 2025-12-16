@@ -10,6 +10,7 @@ struct DialogModifier<DialogContent: View>: ViewModifier {
             if isPresented {
                 Color.black.opacity(0.35)
                     .ignoresSafeArea()
+                    .contentShape(Rectangle())
                     .onTapGesture { isPresented = false }
 
                 VStack(spacing: 0) {
@@ -36,6 +37,7 @@ struct DialogModifier<DialogContent: View>: ViewModifier {
                 .frame(maxWidth: 360)
                 .transition(.scale)
                 .animation(.spring(response: 0.32, dampingFraction: 0.82), value: isPresented)
+                .allowsHitTesting(true)
             }
         }
     }
