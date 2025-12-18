@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.ktlint)
     alias(libs.plugins.google.service)
     alias(libs.plugins.firebase.crashlytics)
+    id("aniflow.android.lint")
 }
 
 android {

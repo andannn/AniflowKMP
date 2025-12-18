@@ -16,5 +16,9 @@ gradlePlugin {
             id = "kmp.ext"
             implementationClass = "KmpBaseConventionPlugin"
         }
+        register("AndroidLintConventionPlugin") {
+            id = "aniflow.android.lint"
+            implementationClass = "AndroidLintConventionPlugin"
+        }
     }
 }
