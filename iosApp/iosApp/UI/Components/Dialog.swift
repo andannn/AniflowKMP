@@ -8,8 +8,9 @@ struct DialogModifier<DialogContent: View>: ViewModifier {
         ZStack {
             content
             if isPresented {
-                Color.black.opacity(0.4)
+                Color.black.opacity(0.35)
                     .ignoresSafeArea()
+                    .contentShape(Rectangle())
                     .onTapGesture { isPresented = false }
 
                 VStack(spacing: 0) {
@@ -22,16 +23,21 @@ struct DialogModifier<DialogContent: View>: ViewModifier {
                         .padding(.horizontal, 20)
                         .padding(.bottom, 24)
                 }
-                .padding(.bottom, 12)
-                .background(
+                .padding(.bottom, 16)
+                .background {
                     RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .fill(Color(.systemBackground))
-                        .shadow(color: Color(.black).opacity(0.08), radius: 16, x: 0, y: 4)
-                )
+                        .fill(.regularMaterial)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                .stroke(Color.white.opacity(0.08))
+                        )
+                        .shadow(color: Color.black.opacity(0.12), radius: 18, x: 0, y: 6)
+                }
                 .padding(.horizontal, 24)
                 .frame(maxWidth: 360)
                 .transition(.scale)
-                .animation(.easeOut, value: isPresented)
+                .animation(.spring(response: 0.32, dampingFraction: 0.82), value: isPresented)
+                .allowsHitTesting(true)
             }
         }
     }

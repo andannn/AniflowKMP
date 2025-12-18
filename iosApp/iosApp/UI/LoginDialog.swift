@@ -11,8 +11,6 @@ class LoginDialogViewModel : ObservableObject {
     private var dataTask : Task<(), any Error>? = nil
     
     init() {
-        print("LoginDialogViewModel init")
-        
         authRepository = KoinHelper.shared.authRepository()
         
         dataTask = Task { [weak self] in
@@ -25,7 +23,6 @@ class LoginDialogViewModel : ObservableObject {
     }
 
     deinit {
-        print("LoginDialogViewModel deinit")
         dataTask?.cancel()
         loginTask?.cancel()
     }
@@ -42,54 +39,29 @@ struct LoginDialogView: View {
     var onNotificationClick : (() -> Void)? = nil
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 12) {
-                Button(action: {}) {
-                    avatarView
-                }
-                .buttonStyle(PlainButtonStyle())
-                
-                Text(viewModel.user?.name ?? "")
-                    .font(.title3).fontWeight(.semibold)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-                
-                Spacer()
-            }
-            .frame(minHeight: 44)
-            .padding(.bottom, 8)
-            
-            Divider()
+        VStack(alignment: .leading, spacing: 12) {
+            header
             
             VStack(spacing: 0) {
                 if viewModel.user != nil {
-                    Button(action: {
+                    actionRow(title: "Notification", systemImage: "bell") {
                         onNotificationClick?()
-                    }) {
-                        HStack {
-                            Image(systemName: "bell")
-                                .foregroundColor(.accentColor)
-                            Text("Notification")
-                            Spacer()
-                        }
-                        .padding(.vertical, 12)
                     }
-                    .buttonStyle(PlainButtonStyle())
+                    Divider()
                 }
-                Button(action: {
+                
+                actionRow(title: "Settings", systemImage: "gearshape") {
                     onSettingClick?()
-                }) {
-                    HStack {
-                        Image(systemName: "gearshape")
-                            .foregroundColor(.accentColor)
-                        Text("Settings")
-                        Spacer()
-                    }
-                    .padding(.vertical, 12)
                 }
-                .buttonStyle(PlainButtonStyle())
             }
-            Divider()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(.thinMaterial)
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .strokeBorder(Color.white.opacity(0.08))
+            )
+            
             if viewModel.user != nil {
                 Button("Logout", role: .destructive, action: {
                     onLogout?()
@@ -97,44 +69,80 @@ struct LoginDialogView: View {
                 .buttonStyle(.borderedProminent)
                 .tint(.red)
                 .frame(maxWidth: .infinity)
-                .padding(.top, 12)
             } else {
                 Button("Login with AniList", action: {
                     onLogin?()
                 })
                 .buttonStyle(.borderedProminent)
-                .tint(.blue)
+                .tint(.accentColor)
                 .frame(maxWidth: .infinity)
-                .padding(.top, 12)
             }
         }
-        .padding(8)
-        .frame(maxWidth: 340)
-        .padding(.horizontal, 12)
+        .padding(16)
+        .frame(maxWidth: 380, alignment: .leading)
+        .padding(.horizontal, 16)
+    }
+
+    @ViewBuilder
+    private var header: some View {
+        HStack(spacing: 12) {
+            Button(action: {}) {
+                avatarView
+            }
+            .buttonStyle(.plain)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(viewModel.user?.name ?? "Guest")
+                    .font(.headline)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                
+                Text(viewModel.user != nil ? "Signed in with AniList" : "Sign in to sync your list")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+            
+            Spacer()
+        }
+        .frame(minHeight: 52)
+    }
+
+    private func actionRow(title: String, systemImage: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 10) {
+                Image(systemName: systemImage)
+                    .foregroundColor(.accentColor)
+                    .frame(width: 18, height: 18)
+                
+                Text(title)
+                    .foregroundColor(.primary)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.secondary)
+                    .font(.footnote.weight(.semibold))
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     @ViewBuilder
     private var avatarView: some View {
         if let urlStr = viewModel.user?.avatar, let url = URL(string: urlStr) {
-            AsyncImage(url: url) { phase in
-                switch phase {
-                case .success(let image):
-                    image.resizable().aspectRatio(contentMode: .fill)
-                case .failure(_):
-                    Image(systemName: "person.crop.circle")
-                        .resizable().scaledToFit().padding(4)
-                default:
-                    ProgressView()
-                }
-            }
-            .frame(width: 44, height: 44)
-            .clipShape(Circle())
-            .overlay(Circle().stroke(Color.accentColor, lineWidth: 2))
-            .shadow(radius: 2)
+            CustomAsyncImage(url: url.absoluteString, contentMode: .fill)
+                .frame(width: 48, height: 48)
+                .clipShape(Circle())
+                .overlay(Circle().stroke(Color.accentColor.opacity(0.6), lineWidth: 2))
+                .shadow(color: .black.opacity(0.08), radius: 4, x: 0, y: 2)
         } else {
             Image(systemName: "person.crop.circle")
-                .resizable().scaledToFit()
-                .frame(width: 44, height: 44)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 48, height: 48)
+                .foregroundColor(.secondary)
                 .overlay(Circle().stroke(Color.secondary, lineWidth: 1))
         }
     }
