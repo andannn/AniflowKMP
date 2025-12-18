@@ -1,13 +1,18 @@
 plugins {
-    id("kmp.library")
+    alias(libs.plugins.android.kotlin.multiplatform.library)
+    id("kmp.ext")
     alias(libs.plugins.serialization)
 }
 
-android {
-    namespace = "me.andannn.network.common"
+kmpExt {
+    withAndroid()
+    withIOS()
 }
 
 kotlin {
+    androidLibrary {
+        namespace = "me.andannn.network.common"
+    }
     sourceSets {
         commonMain {
             dependencies {

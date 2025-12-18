@@ -1,10 +1,12 @@
 plugins {
-    id("kmp.library")
+    alias(libs.plugins.android.kotlin.multiplatform.library)
+    id("kmp.ext")
     alias(libs.plugins.sqldelight)
 }
 
-android {
-    namespace = "me.andannn.aniflow.database"
+kmpExt {
+    withAndroid()
+    withIOS()
 }
 
 sqldelight {
@@ -20,6 +22,10 @@ sqldelight {
 }
 
 kotlin {
+    androidLibrary {
+        namespace = "me.andannn.aniflow.database"
+    }
+
     sourceSets {
         commonMain.dependencies {
             implementation(libs.sqldelight.coroutines.extensions)
@@ -29,7 +35,7 @@ kotlin {
             implementation(libs.sqldelight.android.driver)
         }
 
-        androidUnitTest.dependencies {
+        getByName("androidHostTest").dependencies {
             implementation(libs.sqldelight.sqlite.driver)
             implementation(libs.sqldelight.jdbc.driver)
         }
