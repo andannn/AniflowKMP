@@ -1,8 +1,17 @@
 plugins {
-    id("kmp.library")
+    alias(libs.plugins.android.kotlin.multiplatform.library)
+    id("kmp.ext")
+}
+
+kmpExt {
+    withAndroid()
+    withIOS()
 }
 
 kotlin {
+    androidLibrary {
+        namespace = "me.andannn.aniflow.core.datastore"
+    }
     sourceSets {
         commonMain.dependencies {
             implementation(libs.datastore)
@@ -10,8 +19,4 @@ kotlin {
             implementation(libs.kotlinx.io.core)
         }
     }
-}
-
-android {
-    namespace = "me.andannn.aniflow.core.datastore"
 }

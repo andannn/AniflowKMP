@@ -1,10 +1,20 @@
 plugins {
-    id("kmp.library")
+    alias(libs.plugins.android.kotlin.multiplatform.library)
+    id("kmp.ext")
     alias(libs.plugins.serialization)
 //    alias(libs.plugins.apollo)
 }
 
+kmpExt {
+    withAndroid()
+    withIOS()
+}
+
 kotlin {
+    androidLibrary {
+        namespace = "me.andannn.aniflow.service"
+    }
+
     sourceSets {
         commonMain.dependencies {
             implementation(project(":shared:datastore"))
@@ -46,7 +56,3 @@ kotlin {
 //        }
 //    }
 // }
-
-android {
-    namespace = "me.andannn.aniflow.service"
-}

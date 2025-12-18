@@ -1,14 +1,14 @@
 [versions]
 agp = "8.13.2"
 coil = "3.3.0"
-kotlin = "2.2.20"
+kotlin = "2.3.0"
 coreKtx = "1.17.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 kotlinxIoCore = "0.8.2"
 ktor = "3.3.3"
 lifecycleRuntimeKtx = "2.10.0"
-activityCompose = "1.12.1"
+activityCompose = "1.12.2"
 napierVersion = "2.7.1"
 kotlinxCollectionsImmutable = "0.4.0"
 kotlinxCoroutines = "1.10.2"
@@ -26,13 +26,12 @@ spotless = "8.1.0"
 androidxTestRunner = "1.7.0"
 testCoreKtx = "1.7.0"
 testMonitor = "1.8.0"
-licensee = "1.14.1"
 workRuntimeKtx = "2.11.0"
 apollo = "4.3.3"
 sqldelight = "2.2.1"
 nav3Core = "1.0.0"
-nativecoroutines = "1.0.0-ALPHA-47"
-compose-bom = "2025.12.00"
+nativecoroutines = "1.0.0-ALPHA-48-kotlin-2.3.0-RC3"
+compose-bom = "2025.12.01"
 material3 = "1.5.0-alpha10"
 navresult = "1.0.1"
 
@@ -107,10 +106,8 @@ kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-pl
 composeCompiler-gradlePlugin = { group = "org.jetbrains.kotlin", name = "compose-compiler-gradle-plugin", version.ref = "kotlin" }
 ktlint-gradlePlugin = { group = "org.jlleitschuh.gradle", name = "ktlint-gradle", version.ref = "ktlint" }
 spotless-gradlePlugin = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
-licensee-gradlePlugin = { group = "app.cash.licensee", name = "licensee-gradle-plugin", version.ref = "licensee" }
 
 [plugins]
-android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
@@ -120,7 +117,7 @@ ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
 google-service = { id = "com.google.gms.google-services", version.ref = "googleService" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlytics" }
-licensee = { id = "app.cash.licensee", version.ref = "licensee" }
 apollo = { id = "com.apollographql.apollo", version.ref = "apollo" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
 nativecoroutines = { id = "com.rickclephas.kmp.nativecoroutines", version.ref = "nativecoroutines" }
+android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "androidGradlePlugin" }

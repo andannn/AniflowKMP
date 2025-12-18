@@ -8,18 +8,17 @@ dependencies {
     compileOnly(libs.composeCompiler.gradlePlugin)
     compileOnly(libs.ktlint.gradlePlugin)
     compileOnly(libs.spotless.gradlePlugin)
-    compileOnly(libs.licensee.gradlePlugin)
 }
 
 gradlePlugin {
     plugins {
-        register("kotlinMultiplatformLibrary") {
-            id = "kmp.library"
-            implementationClass = "KMPLibraryConventionPlugin"
+        register("KmpBaseConventionPlugin") {
+            id = "kmp.ext"
+            implementationClass = "KmpBaseConventionPlugin"
         }
-        register("kotlinMultiplatformApplication") {
-            id = "kmp.application"
-            implementationClass = "KMPApplicationConventionPlugin"
+        register("AndroidLintConventionPlugin") {
+            id = "aniflow.android.lint"
+            implementationClass = "AndroidLintConventionPlugin"
         }
     }
 }

@@ -1,9 +1,18 @@
 plugins {
-    id("kmp.library")
+    alias(libs.plugins.android.kotlin.multiplatform.library)
+    id("kmp.ext")
     alias(libs.plugins.serialization)
 }
 
+kmpExt {
+    withAndroid()
+    withIOS()
+}
+
 kotlin {
+    androidLibrary {
+        namespace = "me.andannn.network.engine"
+    }
     sourceSets {
         commonMain.dependencies {
             implementation(project(":shared:network:common"))
@@ -12,8 +21,4 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
         }
     }
-}
-
-android {
-    namespace = "me.andannn.network.engine"
 }

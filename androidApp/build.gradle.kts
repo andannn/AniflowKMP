@@ -1,20 +1,37 @@
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    id("kmp.application")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.serialization)
+    alias(libs.plugins.spotless)
+    alias(libs.plugins.ktlint)
     alias(libs.plugins.google.service)
     alias(libs.plugins.firebase.crashlytics)
+    id("aniflow.android.lint")
 }
 
 android {
     namespace = "me.andannn.aniflow"
 
     defaultConfig {
+        minSdk = 26
+        targetSdk = 36
+        compileSdk = 36
+
         applicationId = "me.andannn.aniflow"
-        versionCode = (project.findProperty("VERSION_CODE") as? String?)?.toIntOrNull() ?: error("No version code found")
-        versionName = project.findProperty("VERSION_NAME") as String? ?: error("No version name found")
+        versionCode = (project.findProperty("VERSION_CODE") as? String?)?.toIntOrNull()
+            ?: error("No version code found")
+        versionName =
+            project.findProperty("VERSION_NAME") as String? ?: error("No version name found")
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     buildFeatures {
@@ -71,49 +88,47 @@ android {
 
 kotlin {
     compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
+
         // https://kotlinlang.org/docs/whatsnew22.html#preview-of-context-parameters
         freeCompilerArgs.add("-Xcontext-parameters")
     }
+}
 
-    sourceSets {
-        androidMain.dependencies {
-            implementation(project(":shared:data"))
+dependencies {
+    implementation(project(":shared:data"))
 
-            implementation(project.dependencies.platform(libs.compose.bom))
-            implementation(libs.compose.foundation)
-            implementation(libs.compose.material3)
-            implementation(libs.compose.animation)
-            implementation(libs.compose.ui)
-            implementation(libs.compose.ui.tooling.preview)
-            implementation(libs.compose.material.icons.extended)
-            implementation(libs.androidx.ui.tooling)
+    implementation(project.dependencies.platform(libs.koin.bom))
+    implementation(libs.koin.android)
+    implementation(libs.koin.compose.viewmodel)
+    implementation(libs.kotlinx.datetime)
 
-            implementation(libs.napier)
-            implementation(libs.coil3.compose)
-            implementation(libs.coil.network.okhttp)
+    implementation(project.dependencies.platform(libs.compose.bom))
+    implementation(libs.compose.foundation)
+    implementation(libs.compose.material3)
+    implementation(libs.compose.animation)
+    implementation(libs.compose.ui)
+    implementation(libs.compose.ui.tooling.preview)
+    implementation(libs.compose.material.icons.extended)
+    implementation(libs.androidx.ui.tooling)
 
-            implementation(libs.androidx.lifecycle.viewmodel.navigation3)
-            implementation(libs.androidx.navigation3.ui)
+    implementation(libs.napier)
+    implementation(libs.coil3.compose)
+    implementation(libs.coil.network.okhttp)
 
-            implementation(libs.androidx.core.ktx)
-            implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
+    implementation(libs.androidx.navigation3.ui)
 
-            implementation(project.dependencies.platform(libs.firebase.bom))
-            implementation(libs.firebase.analytics)
-            implementation(libs.firebase.crashlytics)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.activity.compose)
 
-            implementation(libs.kotlinx.serialization.json)
-            implementation(libs.androidx.work.runtime.ktx)
-            implementation(libs.navresult)
-        }
-    }
+    implementation(project.dependencies.platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
 
-    targets.withType<KotlinNativeTarget>().all {
-        binaries.framework {
-            baseName = "ComposeApp"
-            isStatic = true // or false, depending on your use case
-        }
-    }
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.navresult)
 }
 
 tasks.register("updateIosVersion") {
@@ -121,8 +136,11 @@ tasks.register("updateIosVersion") {
     description = "Update iOS Info.plist with versionName and versionCode"
 
     val plistPath = project.rootDir.resolve("iosApp/iosApp/Info.plist")
-    val versionCode = (project.findProperty("VERSION_CODE") as? String?)?.toIntOrNull() ?: error("No version code found")
-    val versionName = project.findProperty("VERSION_NAME") as String? ?: error("No version name found")
+    val versionCode =
+        (project.findProperty("VERSION_CODE") as? String?)?.toIntOrNull()
+            ?: error("No version code found")
+    val versionName =
+        project.findProperty("VERSION_NAME") as String? ?: error("No version name found")
 
     doLast {
         val plistFile = plistPath.readText()
