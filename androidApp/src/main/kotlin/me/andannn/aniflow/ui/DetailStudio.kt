@@ -43,6 +43,7 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -82,10 +83,11 @@ class DetailStudioViewModel(
     private val mediaRepository: MediaRepository,
 ) : ViewModel(),
     ErrorChannel by buildErrorChannel() {
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading = _isLoading.asStateFlow()
-    private val _mediaSort = MutableStateFlow(MediaSort.START_DATE_DESC)
-    val mediaSort = _mediaSort.asStateFlow()
+    val isLoading: StateFlow<Boolean>
+        field = MutableStateFlow(false)
+
+    val mediaSort: StateFlow<MediaSort>
+        field = MutableStateFlow(MediaSort.START_DATE_DESC)
 
     val uiState =
         dataProvider.uiDataFlow().stateIn(
@@ -103,12 +105,12 @@ class DetailStudioViewModel(
         viewModelScope.launch {
             dataProvider.uiSideEffect(false).collect {
                 Napier.d(tag = TAG) { "DetailStaffViewModel: sync status $it" }
-                _isLoading.value = it.isLoading()
+                isLoading.value = it.isLoading()
             }
         }
 
         viewModelScope.launch {
-            _mediaSort.collect { mediaSort ->
+            mediaSort.collect { mediaSort ->
                 Napier.d(tag = TAG) { "_mediaSort changed: $mediaSort" }
                 pagingController.dispose()
                 pagingController =
@@ -138,7 +140,7 @@ class DetailStudioViewModel(
     }
 
     fun setMediaSort(sort: MediaSort) {
-        _mediaSort.value = sort
+        mediaSort.value = sort
     }
 
     override fun onCleared() {

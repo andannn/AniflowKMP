@@ -34,6 +34,7 @@ import io.github.andannn.LocalNavResultOwner
 import io.github.andannn.NavResultOwner
 import io.github.andannn.setNavResult
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -46,13 +47,13 @@ import org.koin.compose.viewmodel.koinViewModel
 class LoginDialogViewModel(
     private val authRepository: AuthRepository,
 ) : ViewModel() {
-    private val _state = MutableStateFlow(UiState())
-    val state = _state.asStateFlow()
+    val state: StateFlow<UiState>
+        field = MutableStateFlow(UiState())
 
     init {
         viewModelScope.launch {
             authRepository.getAuthedUserFlow().collect { user ->
-                _state.value = UiState(authedUser = user)
+                state.value = UiState(authedUser = user)
             }
         }
     }
@@ -80,11 +81,19 @@ fun LoginDialog(
     LoginDialogContent(
         state = state,
         onLoginClick = {
-            navResultOwner.setNavResult(LOGIN_DIALOG_RESULT_KEY, LoginDialogResult.ClickLogin, LoginDialogResult.serializer())
+            navResultOwner.setNavResult(
+                LOGIN_DIALOG_RESULT_KEY,
+                LoginDialogResult.ClickLogin,
+                LoginDialogResult.serializer(),
+            )
             navigator.popBackStack()
         },
         onLogoutClick = {
-            navResultOwner.setNavResult(LOGIN_DIALOG_RESULT_KEY, LoginDialogResult.ClickLogout, LoginDialogResult.serializer())
+            navResultOwner.setNavResult(
+                LOGIN_DIALOG_RESULT_KEY,
+                LoginDialogResult.ClickLogout,
+                LoginDialogResult.serializer(),
+            )
             navigator.popBackStack()
         },
         onNotificationClick = {

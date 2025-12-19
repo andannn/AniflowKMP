@@ -12,11 +12,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -52,7 +50,7 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.DetailStaffUiDataProvider
@@ -96,11 +94,11 @@ class DetailStaffViewModel(
     private val mediaRepository: MediaRepository,
 ) : ViewModel(),
     ErrorChannel by buildErrorChannel() {
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading = _isLoading.asStateFlow()
+    val isLoading: StateFlow<Boolean>
+        field = MutableStateFlow(false)
 
-    private val _mediaSort = MutableStateFlow(MediaSort.START_DATE_DESC)
-    val mediaSort = _mediaSort.asStateFlow()
+    val mediaSort: StateFlow<MediaSort>
+        field = MutableStateFlow(MediaSort.START_DATE_DESC)
 
     var pagingController by mutableStateOf<PageComponent<VoicedCharacterWithMedia>>(
         PageComponent.empty(),
@@ -112,12 +110,12 @@ class DetailStaffViewModel(
         viewModelScope.launch {
             dataProvider.uiSideEffect(false).collect {
                 Napier.d(tag = TAG) { "DetailStaffViewModel: sync status $it" }
-                _isLoading.value = it.isLoading()
+                isLoading.value = it.isLoading()
             }
         }
 
         viewModelScope.launch {
-            _mediaSort.collect { mediaSort ->
+            mediaSort.collect { mediaSort ->
                 Napier.d(tag = TAG) { "_mediaSort changed: $mediaSort" }
                 pagingController.dispose()
                 pagingController =
@@ -138,7 +136,7 @@ class DetailStaffViewModel(
         )
 
     fun setMediaSort(sort: MediaSort) {
-        _mediaSort.value = sort
+        mediaSort.value = sort
     }
 
     fun onToggleFavoriteClick() {

@@ -49,6 +49,7 @@ import io.github.andannn.NavResultOwner
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
@@ -92,8 +93,8 @@ class DiscoverViewModel(
     private val mediaRepository: MediaRepository,
 ) : ViewModel(),
     ErrorChannel by buildErrorChannel() {
-    private val _state = MutableStateFlow(DiscoverUiState.Empty)
-    val state = _state.asStateFlow()
+    val state: StateFlow<DiscoverUiState>
+        field = MutableStateFlow(DiscoverUiState.Empty)
     private val isSideEffectRefreshing = MutableStateFlow(false)
     private var isLoginProcessing = MutableStateFlow(false)
     val isLoading =
@@ -121,7 +122,7 @@ class DiscoverViewModel(
         cancelLastAndRegisterUiSideEffect()
         viewModelScope.launch {
             discoverDataProvider.uiDataFlow().collect {
-                _state.value = it
+                state.value = it
             }
         }
     }
@@ -383,7 +384,11 @@ private fun MediaPreviewSector(
                                 Modifier
                                     .width(150.dp)
                                     .sharedBounds(
-                                        rememberSharedContentState(SharedElementKey.keyOfMediaItem(it)),
+                                        rememberSharedContentState(
+                                            SharedElementKey.keyOfMediaItem(
+                                                it,
+                                            ),
+                                        ),
                                         LocalTopNavAnimatedContentScope.current,
                                     ),
                             title = title,

@@ -92,6 +92,10 @@ kotlin {
 
         // https://kotlinlang.org/docs/whatsnew22.html#preview-of-context-parameters
         freeCompilerArgs.add("-Xcontext-parameters")
+
+        // https://kotlinlang.org/docs/whatsnew23.html#explicit-backing-fields
+        freeCompilerArgs.add("-XXLanguage:+ExplicitBackingFields")
+        freeCompilerArgs.add("-Xexplicit-backing-fields")
     }
 }
 
