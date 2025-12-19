@@ -102,17 +102,14 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.serialization.builtins.serializer
 import me.andannn.aniflow.data.AuthRepository
-import me.andannn.aniflow.data.DetailMediaUiDataProvider
 import me.andannn.aniflow.data.ErrorChannel
 import me.andannn.aniflow.data.MarkProgressUseCase
 import me.andannn.aniflow.data.MediaRepository
-import me.andannn.aniflow.data.SnackBarMessage
+import me.andannn.aniflow.data.SnackBarMessageDetail
 import me.andannn.aniflow.data.buildErrorChannel
 import me.andannn.aniflow.data.infoString
 import me.andannn.aniflow.data.label
-import me.andannn.aniflow.data.model.BottomBarState
 import me.andannn.aniflow.data.model.CharacterModel
-import me.andannn.aniflow.data.model.DetailUiState
 import me.andannn.aniflow.data.model.ExternalLink
 import me.andannn.aniflow.data.model.MediaListModel
 import me.andannn.aniflow.data.model.MediaModel
@@ -126,7 +123,7 @@ import me.andannn.aniflow.data.model.relation.CharacterWithVoiceActor
 import me.andannn.aniflow.data.model.relation.MediaModelWithRelationType
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.data.releasingTimeString
-import me.andannn.aniflow.data.submitErrorOfSyncStatus
+import me.andannn.aniflow.platform.SnackBarMessage
 import me.andannn.aniflow.ui.theme.AppBackgroundColor
 import me.andannn.aniflow.ui.theme.BottomBarColor
 import me.andannn.aniflow.ui.theme.PageHorizontalPadding
@@ -145,6 +142,10 @@ import me.andannn.aniflow.ui.widget.StaffRowItem
 import me.andannn.aniflow.ui.widget.TitleWithContent
 import me.andannn.aniflow.ui.widget.buildSpecialMessageText
 import me.andannn.aniflow.ui.widget.iconItemWithLabel
+import me.andannn.aniflow.usecase.data.provider.BottomBarState
+import me.andannn.aniflow.usecase.data.provider.DetailMediaUiDataProvider
+import me.andannn.aniflow.usecase.data.provider.DetailUiState
+import me.andannn.aniflow.usecase.data.provider.submitErrorOfSyncStatus
 import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.LocalSnackbarHostStateHolder
 import me.andannn.aniflow.util.LocalTopNavAnimatedContentScope
@@ -303,7 +304,7 @@ class DetailMediaViewModel(
                 if (appError != null) {
                     submitError(appError)
                 } else {
-                    snackbarHost.showSnackBarMessage(SnackBarMessage.ScoreSaved)
+                    snackbarHost.showSnackBarMessage(SnackBarMessageDetail.ScoreSaved)
                 }
             }
         }

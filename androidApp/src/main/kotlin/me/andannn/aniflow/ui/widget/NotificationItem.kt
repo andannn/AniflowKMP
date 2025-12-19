@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import kotlinx.serialization.json.Json
 import me.andannn.aniflow.data.formattedString
-import me.andannn.aniflow.data.getUserTitleString
 import me.andannn.aniflow.data.model.ActivityNotification
 import me.andannn.aniflow.data.model.AiringNotification
 import me.andannn.aniflow.data.model.FollowNotification
@@ -48,6 +47,7 @@ import me.andannn.aniflow.data.model.MediaNotification
 import me.andannn.aniflow.data.model.NotificationModel
 import me.andannn.aniflow.data.model.UserModel
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
+import me.andannn.aniflow.data.model.getUserTitleString
 import me.andannn.aniflow.ui.theme.AniflowTheme
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
@@ -125,29 +125,33 @@ fun NotificationItem(
                             .padding(vertical = 24.dp),
                 ) {
                     when (model) {
-                        is AiringNotification ->
+                        is AiringNotification -> {
                             Text(
                                 text = buildAiringText(notification = model, userTitleLanguage),
                                 style = MaterialTheme.typography.labelLarge,
                             )
+                        }
 
-                        is FollowNotification ->
+                        is FollowNotification -> {
                             Text(
                                 text = buildFollowText(model),
                                 style = MaterialTheme.typography.labelLarge,
                             )
+                        }
 
-                        is ActivityNotification ->
+                        is ActivityNotification -> {
                             Text(
                                 text = buildActivityText(model),
                                 style = MaterialTheme.typography.labelLarge,
                             )
+                        }
 
-                        is MediaNotification ->
+                        is MediaNotification -> {
                             Text(
                                 text = buildMediaText(model, userTitleLanguage),
                                 style = MaterialTheme.typography.labelLarge,
                             )
+                        }
 
                         is MediaDeletion -> {
                             Text(

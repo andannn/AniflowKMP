@@ -4,18 +4,15 @@
  */
 package me.andannn.aniflow.util
 
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarResult
-import androidx.compose.material3.SnackbarVisuals
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import io.github.aakira.napier.Napier
 import me.andannn.aniflow.data.AppError
 import me.andannn.aniflow.data.AppErrorSource
-import me.andannn.aniflow.data.SnackBarMessage
-import me.andannn.aniflow.data.SnackbarShowDuration
 import me.andannn.aniflow.data.toAlert
+import me.andannn.aniflow.platform.SnackBarMessage
 
 private const val TAG = "ErrorHandler"
 

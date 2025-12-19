@@ -53,16 +53,11 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import me.andannn.aniflow.data.DetailStaffUiDataProvider
 import me.andannn.aniflow.data.ErrorChannel
 import me.andannn.aniflow.data.MediaRepository
-import me.andannn.aniflow.data.PageComponent
-import me.andannn.aniflow.data.StaffCharactersPageComponent
 import me.andannn.aniflow.data.buildErrorChannel
-import me.andannn.aniflow.data.getNameString
 import me.andannn.aniflow.data.label
 import me.andannn.aniflow.data.model.CharacterModel
-import me.andannn.aniflow.data.model.DetailStaffUiState
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.StaffModel
 import me.andannn.aniflow.data.model.UserOptions
@@ -81,6 +76,10 @@ import me.andannn.aniflow.ui.widget.GroupItems
 import me.andannn.aniflow.ui.widget.ToggleFavoriteButton
 import me.andannn.aniflow.ui.widget.pagingGroupedItems
 import me.andannn.aniflow.ui.widget.pagingItems
+import me.andannn.aniflow.usecase.data.paging.PageComponent
+import me.andannn.aniflow.usecase.data.paging.StaffCharactersPageComponent
+import me.andannn.aniflow.usecase.data.provider.DetailStaffUiDataProvider
+import me.andannn.aniflow.usecase.data.provider.DetailStaffUiState
 import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.rememberSnackBarHostState
 import org.koin.compose.viewmodel.koinViewModel
@@ -170,6 +169,7 @@ fun DetailStaff(
     val selectedMediaSort by viewModel.mediaSort.collectAsStateWithLifecycle()
     DetailStaffContent(
         isLoading = isLoading,
+        title = uiState.title,
         staff = uiState.staffModel,
         options = uiState.userOption,
         selectedMediaSort = selectedMediaSort,
@@ -195,6 +195,7 @@ fun DetailStaff(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun DetailStaffContent(
+    title: String,
     isLoading: Boolean,
     staff: StaffModel?,
     options: UserOptions,
@@ -216,10 +217,6 @@ fun DetailStaffContent(
                 colors = TopAppBarColors,
                 scrollBehavior = scrollBehavior,
                 title = {
-                    val title =
-                        remember(options, staff) {
-                            staff?.name.getNameString(options.staffNameLanguage)
-                        }
                     Text(title)
                 },
                 subtitle = {

@@ -12,7 +12,7 @@ class DetailCharacterViewModel: ObservableObject {
     @Published public var pagingComponent: CharacterDetailMediaPaging
     
     private let dataProvider: DetailCharacterUiDataProvider
-    private let mediaRepository: MediaRepository = KoinHelper.shared.mediaRepository()
+    private let mediaRepository: MediaRepository = KoinExtension.shared.mediaRepository()
     
     private var dataTask:  Task<(), any Error>? = nil
     private var sideEffectTask:  Task<(), any Error>? = nil
@@ -22,8 +22,8 @@ class DetailCharacterViewModel: ObservableObject {
 
     init(characterId: String) {
         self.characterId = characterId
-        dataProvider = KoinHelper.shared.detailCharacterUiDataProvider(characterId: characterId)
-        pagingComponent = PageComponentFactory.shared.characterDetailMediaPaging(characterId: characterId, sort: MediaSort.startDateDesc)
+        dataProvider = KoinExtension.shared.detailCharacterUiDataProvider(characterId: characterId)
+        pagingComponent = PagingExtension.shared.characterDetailMediaPaging(characterId: characterId, sort: MediaSort.startDateDesc)
 
         dataTask = Task { [weak self] in
             guard let stream = self?.dataProvider.uiDataFlowAsyncSequence() else { return }
@@ -45,7 +45,7 @@ class DetailCharacterViewModel: ObservableObject {
                 guard let self else { return }
                 
                 self.pagingComponent.dispose()
-                self.pagingComponent = PageComponentFactory.shared.characterDetailMediaPaging(characterId: characterId, sort: sort)
+                self.pagingComponent = PagingExtension.shared.characterDetailMediaPaging(characterId: characterId, sort: sort)
             }
             .store(in: &cancellables)
     }

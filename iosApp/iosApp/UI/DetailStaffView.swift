@@ -11,7 +11,7 @@ class DetailStaffViewModel: ObservableObject {
     @Published public var mediaSort = MediaSort.startDateDesc
     
     private let dataProvider: DetailStaffUiDataProvider
-    private let mediaRepository: MediaRepository = KoinHelper.shared.mediaRepository()
+    private let mediaRepository: MediaRepository = KoinExtension.shared.mediaRepository()
     
     private var dataTask:  Task<(), any Error>? = nil
     private var sideEffectTask:  Task<(), any Error>? = nil
@@ -21,8 +21,8 @@ class DetailStaffViewModel: ObservableObject {
     
     init(staffId: String) {
         self.staffId = staffId
-        dataProvider = KoinHelper.shared.detailStaffUiDataProvider(staffId: staffId)
-        pageComponent = PageComponentFactory.shared.createStaffCharactersPaging(staffId: staffId, sort: MediaSort.startDateDesc)
+        dataProvider = KoinExtension.shared.detailStaffUiDataProvider(staffId: staffId)
+        pageComponent = PagingExtension.shared.createStaffCharactersPaging(staffId: staffId, sort: MediaSort.startDateDesc)
         
         dataTask = Task { [weak self] in
             guard let stream = self?.dataProvider.uiStateAsyncSequence() else { return }
@@ -42,7 +42,7 @@ class DetailStaffViewModel: ObservableObject {
             .sink { [weak self] sort in
                 guard let self else { return }
                 self.pageComponent.dispose()
-                self.pageComponent = PageComponentFactory.shared.createStaffCharactersPaging(staffId: staffId, sort: sort)
+                self.pageComponent = PagingExtension.shared.createStaffCharactersPaging(staffId: staffId, sort: sort)
             }
             .store(in: &cancellables)
     }

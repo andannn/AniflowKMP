@@ -7,13 +7,13 @@ class SettingViewModel: ObservableObject {
     @Published public var uiState: SettingUiState = SettingUiState.companion.Empty
     
     private let dataProvider: SettingUiDataProvider
-    private let authRep: AuthRepository = KoinHelper.shared.authRepository()
+    private let authRep: AuthRepository = KoinExtension.shared.authRepository()
 
     private var dataTask:  Task<(), any Error>? = nil
     private var sideEffectTask:  Task<(), any Error>? = nil
     
     init() {
-        dataProvider = KoinHelper.shared.settingUiDataProvider()
+        dataProvider = KoinExtension.shared.settingUiDataProvider()
         dataTask = Task { [weak self] in
             guard let stream = self?.dataProvider.settingUiDataFlowAsyncSequence() else { return }
             

@@ -5,7 +5,7 @@ import Shared
 @MainActor
 class AppViewModel: ObservableObject {
     
-    private let authRepository: AuthRepository = KoinHelper.shared.authRepository()
+    private let authRepository: AuthRepository = KoinExtension.shared.authRepository()
     
     private var loginTask : Task<(), any Error>? = nil
     private var logoutTask : Task<(), any Error>? = nil

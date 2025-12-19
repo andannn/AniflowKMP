@@ -56,13 +56,13 @@ import coil3.compose.AsyncImage
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
-import me.andannn.aniflow.data.getUserTitleString
 import me.andannn.aniflow.data.infoString
 import me.andannn.aniflow.data.model.MediaListModel
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.Title
 import me.andannn.aniflow.data.model.define.MediaListStatus
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
+import me.andannn.aniflow.data.model.getUserTitleString
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.data.releasingTimeString
 import me.andannn.aniflow.ui.theme.AniflowTheme

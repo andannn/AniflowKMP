@@ -14,9 +14,6 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.Json
 import me.andannn.aniflow.data.AuthRepository
-import me.andannn.aniflow.data.FetchNotificationTask
-import me.andannn.aniflow.data.SyncResult
-import me.andannn.aniflow.data.getUserTitleString
 import me.andannn.aniflow.data.model.ActivityNotification
 import me.andannn.aniflow.data.model.AiringNotification
 import me.andannn.aniflow.data.model.FollowNotification
@@ -26,7 +23,10 @@ import me.andannn.aniflow.data.model.MediaNotification
 import me.andannn.aniflow.data.model.NotificationModel
 import me.andannn.aniflow.data.model.Title
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
+import me.andannn.aniflow.data.model.getUserTitleString
 import me.andannn.aniflow.ui.DeepLinkHelper.NOTIFICATION_DOMAIN
+import me.andannn.aniflow.usecase.data.sync.FetchNotificationTask
+import me.andannn.aniflow.usecase.data.sync.SyncResult
 import me.andannn.aniflow.util.Notification
 import me.andannn.aniflow.util.NotificationChannel
 import me.andannn.aniflow.util.NotificationHelper
@@ -156,7 +156,9 @@ private fun NotificationModel.toPlatformNotification(titleLanguage: UserTitleLan
             )
         }
 
-        is MediaDeletion -> null
+        is MediaDeletion -> {
+            null
+        }
     }
 
 private object SchemeUtil {
@@ -187,24 +189,27 @@ private fun NotificationModel.createBodyText(userTitleLanguage: UserTitleLanguag
             }
         }
 
-        is FollowNotification ->
+        is FollowNotification -> {
             buildString {
                 append(user.name)
                 append(context)
             }
+        }
 
-        is ActivityNotification ->
+        is ActivityNotification -> {
             buildString {
                 append(user.name)
                 append(context)
             }
+        }
 
-        is MediaNotification ->
+        is MediaNotification -> {
             buildString {
                 val title = media.title.getUserTitleString(userTitleLanguage)
                 append(title)
                 append(context)
             }
+        }
 
         is MediaDeletion -> {
             TODO()

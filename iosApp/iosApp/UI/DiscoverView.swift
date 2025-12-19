@@ -16,8 +16,8 @@ class DiscoverViewModel: ObservableObject {
     
     init() {
         print("DiscoverViewModel init")
-        dataProvider = KoinHelper.shared.discoverDataProvider()
-        mediaRepository = KoinHelper.shared.mediaRepository()
+        dataProvider = KoinExtension.shared.discoverDataProvider()
+        mediaRepository = KoinExtension.shared.mediaRepository()
         statusTask = Task { [weak self] in
             guard let stream = self?.dataProvider.getdiscoverUiStateAsyncSequence() else { return }
             
@@ -52,7 +52,7 @@ class DiscoverViewModel: ObservableObject {
                 for try await status in stream {
                     guard let self = self else { continue }
                     
-                    AppErrorKt.submitErrorOfSyncStatus(self.errorChannel, status: status)
+                    SyncStatusKt.submitErrorOfSyncStatus(self.errorChannel, status: status)
                     
                     print("Discover cancelLastAndRegisterUiSideEffect status: \(status)")
                     if completer != nil && !status.isLoading() && !isCompleted {

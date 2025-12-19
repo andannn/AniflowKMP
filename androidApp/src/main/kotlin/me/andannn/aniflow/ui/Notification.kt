@@ -37,8 +37,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.ErrorChannel
-import me.andannn.aniflow.data.NotificationPageComponent
-import me.andannn.aniflow.data.PageComponent
 import me.andannn.aniflow.data.buildErrorChannel
 import me.andannn.aniflow.data.model.ActivityNotification
 import me.andannn.aniflow.data.model.AiringNotification
@@ -55,6 +53,8 @@ import me.andannn.aniflow.ui.theme.TopAppBarColors
 import me.andannn.aniflow.ui.widget.FilterDropDownMenuButton
 import me.andannn.aniflow.ui.widget.NotificationItem
 import me.andannn.aniflow.ui.widget.VerticalListPaging
+import me.andannn.aniflow.usecase.data.paging.NotificationPageComponent
+import me.andannn.aniflow.usecase.data.paging.PageComponent
 import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.rememberSnackBarHostState
 import org.koin.compose.viewmodel.koinViewModel
@@ -144,10 +144,11 @@ fun Notification(
         },
     ) {
         NotificationPaging(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(it)
-                .background(AppBackgroundColor),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(it)
+                    .background(AppBackgroundColor),
             pagingComponent = viewModel.pagingController,
             userTitleLanguage = userOptions.titleLanguage,
             onNotificationClick = { notification ->

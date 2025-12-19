@@ -17,7 +17,6 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -38,9 +37,9 @@ import androidx.compose.ui.layout.onVisibilityChanged
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.aakira.napier.Napier
-import me.andannn.aniflow.data.LoadingStatus
-import me.andannn.aniflow.data.PageComponent
 import me.andannn.aniflow.ui.theme.AppBackgroundColor
+import me.andannn.aniflow.usecase.data.paging.LoadingStatus
+import me.andannn.aniflow.usecase.data.paging.PageComponent
 
 private const val TAG = "PagingView"
 

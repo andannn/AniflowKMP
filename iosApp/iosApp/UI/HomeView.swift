@@ -9,8 +9,8 @@ final class HomeViewModel: ObservableObject {
     private var dataTask: Task<(), any Error>?
     
     init() {
-        dataProvider = KoinHelper.shared.homeAppBarUiDataProvider()
-        mediaRepository = KoinHelper.shared.mediaRepository()
+        dataProvider = KoinExtension.shared.homeAppBarUiDataProvider()
+        mediaRepository = KoinExtension.shared.mediaRepository()
         
         setupDataStream()
     }

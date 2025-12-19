@@ -33,13 +33,11 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.stateIn
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.ErrorChannel
-import me.andannn.aniflow.data.MediaCategoryPageComponent
-import me.andannn.aniflow.data.PageComponent
 import me.andannn.aniflow.data.buildErrorChannel
-import me.andannn.aniflow.data.getUserTitleString
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.MediaCategory
+import me.andannn.aniflow.data.model.getUserTitleString
 import me.andannn.aniflow.data.title
 import me.andannn.aniflow.ui.theme.AppBackgroundColor
 import me.andannn.aniflow.ui.theme.PageHorizontalPadding
@@ -47,6 +45,8 @@ import me.andannn.aniflow.ui.theme.TopAppBarColors
 import me.andannn.aniflow.ui.util.SharedElementKey
 import me.andannn.aniflow.ui.widget.CommonItemFilledCard
 import me.andannn.aniflow.ui.widget.StaggeredGridPaging
+import me.andannn.aniflow.usecase.data.paging.MediaCategoryPageComponent
+import me.andannn.aniflow.usecase.data.paging.PageComponent
 import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.LocalTopNavAnimatedContentScope
 import me.andannn.aniflow.util.rememberSnackBarHostState

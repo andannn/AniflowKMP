@@ -8,7 +8,7 @@ class DetailMediaStaffPagingViewModel: ObservableObject {
     
     init(mediaId: String) {
         self.mediaId = mediaId
-        pageComponent = PageComponentFactory.shared.createDetailMediaStaffPaging(mediaId: mediaId)
+        pageComponent = PagingExtension.shared.createDetailMediaStaffPaging(mediaId: mediaId)
     }
     
     deinit {

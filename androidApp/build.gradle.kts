@@ -100,7 +100,13 @@ kotlin {
 }
 
 dependencies {
-    implementation(project(":shared:data"))
+    implementation(project(":shared:domain:api"))
+    implementation(project(":shared:usecase:data-provider:api"))
+    implementation(project(":shared:usecase:paging"))
+    implementation(project(":shared:usecase:operation"))
+    implementation(project(":shared:usecase:sync"))
+    implementation(project(":shared:platform"))
+    implementation(project(":shared:usecase:util"))
 
     implementation(project.dependencies.platform(libs.koin.bom))
     implementation(libs.koin.android)

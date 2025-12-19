@@ -6,7 +6,6 @@ package me.andannn.aniflow.platform
 
 import android.content.Context
 import android.net.NetworkCapabilities
-import me.andannn.aniflow.data.NetworkConnectivity
 import kotlin.getValue
 
 class NetworkConnectivityImpl(

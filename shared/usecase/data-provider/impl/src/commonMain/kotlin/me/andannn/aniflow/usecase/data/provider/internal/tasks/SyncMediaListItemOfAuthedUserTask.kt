@@ -1,0 +1,77 @@
+/*
+ * Copyright 2025, the AniflowKMP project contributors
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package me.andannn.aniflow.usecase.data.provider.internal.tasks
+
+import io.github.aakira.napier.Napier
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import me.andannn.aniflow.data.AuthRepository
+import me.andannn.aniflow.data.MediaRepository
+import me.andannn.aniflow.database.MediaLibraryDao
+import me.andannn.aniflow.usecase.data.provider.SyncStatus
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import kotlin.getValue
+
+internal class SyncMediaListItemOfAuthedUserTask(
+    private val mediaItemId: String,
+) : SideEffectTask<SyncStatus>,
+    KoinComponent {
+    private val mediaRepo: MediaRepository by inject()
+    private val authRepo: AuthRepository by inject()
+    private val mediaLibraryDao: MediaLibraryDao by inject()
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override suspend fun WrappedProducerScope<SyncStatus>.register(forceRefresh: Boolean) =
+        with(mediaLibraryDao) {
+            Napier.d(tag = TAG) { "SyncMediaListItemOfAuthedUserTask run $mediaItemId" }
+            val authedUserFlow = authRepo.getAuthedUserFlow()
+            val mediaListItemFlow =
+                authedUserFlow.flatMapLatest { authedUser ->
+                    if (authedUser == null) {
+                        flowOf(null)
+                    } else {
+                        getMediaListItemFlow(authedUser.id, mediaItemId)
+                    }
+                }
+            combine(
+                authedUserFlow,
+                mediaListItemFlow.map { it != null },
+                authRepo.getUserOptionsFlow().map { it.scoreFormat },
+            ) { authedUser, isMediaItemExist, scoreFormat ->
+                Triple(authedUser, isMediaItemExist, scoreFormat)
+            }.distinctUntilChanged().collectLatest { (authedUser, isMediaItemExist, scoreFormat) ->
+                if (authedUser != null && isMediaItemExist) {
+                    Napier.d(tag = TAG) { "SyncMediaListItemOfAuthedUserTask sync $mediaItemId, authedUser $authedUser" }
+                    val key =
+                        TaskRefreshKey.SyncMediaListItem(
+                            userId = authedUser.id,
+                            mediaItemId,
+                            scoreFormat,
+                        )
+                    doRefreshIfNeeded2(
+                        key,
+                        forceRefresh,
+                    ) {
+                        coroutineScope {
+                            mediaRepo
+                                .syncMediaListItemOfUser(
+                                    this,
+                                    authedUser.id,
+                                    mediaItemId,
+                                    scoreFormat,
+                                ).await()
+                        }
+                    }
+                }
+            }
+        }
+}

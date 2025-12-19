@@ -24,14 +24,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import me.andannn.aniflow.data.getNameString
 import me.andannn.aniflow.data.label
 import me.andannn.aniflow.data.model.CharacterModel
 import me.andannn.aniflow.data.model.StaffModel
 import me.andannn.aniflow.data.model.StaffWithRole
-import me.andannn.aniflow.data.model.define.CharacterRole
-import me.andannn.aniflow.data.model.define.StaffLanguage
 import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
+import me.andannn.aniflow.data.model.getNameString
 import me.andannn.aniflow.data.model.relation.CharacterWithVoiceActor
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)

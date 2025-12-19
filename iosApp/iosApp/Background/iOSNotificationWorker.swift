@@ -8,7 +8,7 @@ struct iOSNotificationWorker {
 
         let result: SyncResult
         do {
-            result = try await KoinHelper.shared.notificationFetchTask().sync()
+            result = try await KoinExtension.shared.notificationFetchTask().sync()
         } catch {
             print("[iOSNotificationWorker] Fetch threw error: \(error)")
             return false

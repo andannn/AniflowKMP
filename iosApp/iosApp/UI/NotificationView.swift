@@ -19,7 +19,7 @@ final class NotificationViewModel: ObservableObject {
                 
                 print("NotificationViewModel selectedCategory changed: \(category)")
                 self.pagingComponent?.dispose()
-                self.pagingComponent = PageComponentFactory.shared.createNotificationPageComponent(category: category, errorHandler: self.errorChannel)
+                self.pagingComponent = PagingExtension.shared.createNotificationPageComponent(category: category, errorHandler: self.errorChannel)
             }
             .store(in: &cancellables)
     }

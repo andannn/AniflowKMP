@@ -52,23 +52,17 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import me.andannn.aniflow.data.CharacterDetailMediaPaging
-import me.andannn.aniflow.data.DetailCharacterUiDataProvider
 import me.andannn.aniflow.data.ErrorChannel
 import me.andannn.aniflow.data.MediaRepository
-import me.andannn.aniflow.data.PageComponent
 import me.andannn.aniflow.data.buildErrorChannel
-import me.andannn.aniflow.data.getNameString
-import me.andannn.aniflow.data.getUserTitleString
 import me.andannn.aniflow.data.label
 import me.andannn.aniflow.data.model.CharacterModel
-import me.andannn.aniflow.data.model.DetailCharacterUiState
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.MediaSort
+import me.andannn.aniflow.data.model.getUserTitleString
 import me.andannn.aniflow.ui.theme.AppBackgroundColor
 import me.andannn.aniflow.ui.theme.PageHorizontalPadding
 import me.andannn.aniflow.ui.theme.StyledReadingContentFontFamily
@@ -80,6 +74,10 @@ import me.andannn.aniflow.ui.widget.CustomPullToRefresh
 import me.andannn.aniflow.ui.widget.FilterDropDownMenuButton
 import me.andannn.aniflow.ui.widget.ToggleFavoriteButton
 import me.andannn.aniflow.ui.widget.pagingItems
+import me.andannn.aniflow.usecase.data.paging.CharacterDetailMediaPaging
+import me.andannn.aniflow.usecase.data.paging.PageComponent
+import me.andannn.aniflow.usecase.data.provider.DetailCharacterUiDataProvider
+import me.andannn.aniflow.usecase.data.provider.DetailCharacterUiState
 import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.rememberSnackBarHostState
 import org.koin.compose.viewmodel.koinViewModel
@@ -168,6 +166,7 @@ fun DetailCharacter(
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     val selectedMediaSort by viewModel.mediaSort.collectAsStateWithLifecycle()
     DetailCharacterContent(
+        title = uiState.title,
         isLoading = isLoading,
         character = uiState.characterModel,
         selectedMediaSort = selectedMediaSort,
@@ -185,6 +184,7 @@ fun DetailCharacter(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun DetailCharacterContent(
+    title: String,
     modifier: Modifier = Modifier,
     selectedMediaSort: MediaSort,
     isLoading: Boolean,
@@ -205,10 +205,6 @@ private fun DetailCharacterContent(
                 colors = TopAppBarColors,
                 scrollBehavior = scrollBehavior,
                 title = {
-                    val title =
-                        remember(options, character) {
-                            character?.name.getNameString(options.staffNameLanguage)
-                        }
                     Text(title)
                 },
                 subtitle = {
