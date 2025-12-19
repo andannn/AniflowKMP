@@ -8,8 +8,8 @@ import android.net.Uri
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import me.andannn.aniflow.data.model.SettingItem
 import me.andannn.aniflow.data.model.define.MediaCategory
+import me.andannn.aniflow.usecase.data.provider.SettingItem
 
 @Serializable
 sealed interface Screen : NavKey {
@@ -126,7 +126,9 @@ object DeepLinkHelper {
                 return Screen.DetailStaff(staffId)
             }
 
-            else -> null
+            else -> {
+                null
+            }
         }
     }
 }

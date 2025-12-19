@@ -49,26 +49,21 @@ import io.github.andannn.NavResultOwner
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.AuthRepository
-import me.andannn.aniflow.data.DiscoverUiDataProvider
 import me.andannn.aniflow.data.ErrorChannel
-import me.andannn.aniflow.data.HomeAppBarUiDataProvider
 import me.andannn.aniflow.data.MediaRepository
 import me.andannn.aniflow.data.buildErrorChannel
-import me.andannn.aniflow.data.getUserTitleString
-import me.andannn.aniflow.data.model.DiscoverUiState
-import me.andannn.aniflow.data.model.HomeAppBarUiState
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.define.MediaCategory
 import me.andannn.aniflow.data.model.define.MediaContentMode
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
+import me.andannn.aniflow.data.model.getUserTitleString
 import me.andannn.aniflow.data.model.relation.CategoryWithContents
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
-import me.andannn.aniflow.data.submitErrorOfSyncStatus
 import me.andannn.aniflow.data.title
 import me.andannn.aniflow.isPresentationMode
 import me.andannn.aniflow.ui.theme.AppBackgroundColor
@@ -79,6 +74,11 @@ import me.andannn.aniflow.ui.widget.DefaultAppBar
 import me.andannn.aniflow.ui.widget.MediaPreviewItem
 import me.andannn.aniflow.ui.widget.NewReleaseCard
 import me.andannn.aniflow.ui.widget.TitleWithContent
+import me.andannn.aniflow.usecase.data.provider.DiscoverUiDataProvider
+import me.andannn.aniflow.usecase.data.provider.DiscoverUiState
+import me.andannn.aniflow.usecase.data.provider.HomeAppBarUiDataProvider
+import me.andannn.aniflow.usecase.data.provider.HomeAppBarUiState
+import me.andannn.aniflow.usecase.data.provider.submitErrorOfSyncStatus
 import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.LocalTopNavAnimatedContentScope
 import org.koin.compose.viewmodel.koinViewModel
@@ -92,8 +92,8 @@ class DiscoverViewModel(
     private val mediaRepository: MediaRepository,
 ) : ViewModel(),
     ErrorChannel by buildErrorChannel() {
-    private val _state = MutableStateFlow(DiscoverUiState.Empty)
-    val state = _state.asStateFlow()
+    val state: StateFlow<DiscoverUiState>
+        field = MutableStateFlow(DiscoverUiState.Empty)
     private val isSideEffectRefreshing = MutableStateFlow(false)
     private var isLoginProcessing = MutableStateFlow(false)
     val isLoading =
@@ -121,7 +121,7 @@ class DiscoverViewModel(
         cancelLastAndRegisterUiSideEffect()
         viewModelScope.launch {
             discoverDataProvider.uiDataFlow().collect {
-                _state.value = it
+                state.value = it
             }
         }
     }
@@ -383,7 +383,11 @@ private fun MediaPreviewSector(
                                 Modifier
                                     .width(150.dp)
                                     .sharedBounds(
-                                        rememberSharedContentState(SharedElementKey.keyOfMediaItem(it)),
+                                        rememberSharedContentState(
+                                            SharedElementKey.keyOfMediaItem(
+                                                it,
+                                            ),
+                                        ),
                                         LocalTopNavAnimatedContentScope.current,
                                     ),
                             title = title,

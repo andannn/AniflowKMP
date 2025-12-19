@@ -23,10 +23,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import me.andannn.aniflow.data.getUserTitleString
 import me.andannn.aniflow.data.infoString
 import me.andannn.aniflow.data.label
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
+import me.andannn.aniflow.data.model.getUserTitleString
 import me.andannn.aniflow.data.model.relation.MediaModelWithRelationType
 
 @Composable

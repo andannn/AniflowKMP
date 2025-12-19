@@ -3,8 +3,8 @@ import SwiftUI
 
 @MainActor
 class TrackViewModel : ObservableObject {
-    private let dataProvider: TrackUiDataProvider = KoinHelper.shared.trackDataProvider()
-    private let mediaRepository = KoinHelper.shared.mediaRepository()
+    private let dataProvider: TrackUiDataProvider = KoinExtension.shared.trackDataProvider()
+    private let mediaRepository = KoinExtension.shared.mediaRepository()
     
     @Published var uiState: TrackUiState = TrackUiState.companion.Empty
     
@@ -45,7 +45,7 @@ class TrackViewModel : ObservableObject {
                 for try await status in stream {
                     guard let self = self else { continue }
                     
-                    AppErrorKt.submitErrorOfSyncStatus(self.errorChannel, status: status)
+                    SyncStatusKt.submitErrorOfSyncStatus(self.errorChannel, status: status)
                     
                     // handle side effect status.
                     print("TrackViewModel cancelLastAndRegisterUiSideEffect status: \(status)")

@@ -31,13 +31,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.ErrorChannel
-import me.andannn.aniflow.data.NotificationPageComponent
-import me.andannn.aniflow.data.PageComponent
 import me.andannn.aniflow.data.buildErrorChannel
 import me.andannn.aniflow.data.model.ActivityNotification
 import me.andannn.aniflow.data.model.AiringNotification
@@ -54,6 +53,8 @@ import me.andannn.aniflow.ui.theme.TopAppBarColors
 import me.andannn.aniflow.ui.widget.FilterDropDownMenuButton
 import me.andannn.aniflow.ui.widget.NotificationItem
 import me.andannn.aniflow.ui.widget.VerticalListPaging
+import me.andannn.aniflow.usecase.data.paging.NotificationPageComponent
+import me.andannn.aniflow.usecase.data.paging.PageComponent
 import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.rememberSnackBarHostState
 import org.koin.compose.viewmodel.koinViewModel
@@ -64,9 +65,8 @@ class NotificationViewModel(
     authRepository: AuthRepository,
 ) : ViewModel(),
     ErrorChannel by buildErrorChannel() {
-    private val _selectedCategory = MutableStateFlow(NotificationCategory.ALL)
-
-    val selectedCategory = _selectedCategory.asStateFlow()
+    val selectedCategory: StateFlow<NotificationCategory>
+        field = MutableStateFlow(NotificationCategory.ALL)
     var pagingController by mutableStateOf<PageComponent<NotificationModel>?>(null)
     val userOptions =
         authRepository.getUserOptionsFlow().stateIn(
@@ -79,7 +79,7 @@ class NotificationViewModel(
 
     init {
         viewModelScope.launch {
-            _selectedCategory.collect {
+            selectedCategory.collect {
                 Napier.d(tag = TAG) { "selectedCategory changed: $it" }
                 pagingController?.dispose()
                 pagingController =
@@ -89,7 +89,7 @@ class NotificationViewModel(
     }
 
     fun selectCategory(category: NotificationCategory) {
-        _selectedCategory.value = category
+        selectedCategory.value = category
     }
 
     override fun onCleared() {
@@ -144,20 +144,28 @@ fun Notification(
         },
     ) {
         NotificationPaging(
-            modifier = Modifier.fillMaxSize().padding(it).background(AppBackgroundColor),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(it)
+                    .background(AppBackgroundColor),
             pagingComponent = viewModel.pagingController,
             userTitleLanguage = userOptions.titleLanguage,
             onNotificationClick = { notification ->
                 when (notification) {
                     is ActivityNotification -> {
                     }
+
                     is AiringNotification -> {
                         navigator.navigateTo(Screen.DetailMedia(notification.media.id))
                     }
+
                     is FollowNotification -> {
                     }
+
                     is MediaDeletion -> {
                     }
+
                     is MediaNotification -> {
                         navigator.navigateTo(Screen.DetailMedia(notification.media.id))
                     }

@@ -5,7 +5,7 @@ import SwiftUI
 class MediaCategoryPagingViewModel: ObservableObject {
     let category: MediaCategory
     let pagingComponent: MediaCategoryPageComponent
-    let authRepository: AuthRepository = KoinHelper.shared.authRepository()
+    let authRepository: AuthRepository = KoinExtension.shared.authRepository()
     @Published var userOptions: UserOptions = UserOptions.companion.Default
     private var userOptionTask:  Task<(), any Error>? = nil
 
@@ -13,7 +13,7 @@ class MediaCategoryPagingViewModel: ObservableObject {
 
     init(category: MediaCategory) {
         self.category = category
-        pagingComponent = PageComponentFactory.shared.createMediaCategoryPageComponent(category: category, errorHandler: errorChannel)
+        pagingComponent = PagingExtension.shared.createMediaCategoryPageComponent(category: category, errorHandler: errorChannel)
         
         userOptionTask = Task { [weak self] in
             guard let stream = self?.authRepository.getUserOptionsAsyncSequence() else { return }

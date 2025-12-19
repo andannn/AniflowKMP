@@ -6,9 +6,9 @@ package me.andannn.aniflow.ui.util
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import me.andannn.aniflow.data.SharedSnackbarResult
-import me.andannn.aniflow.data.SnackBarMessage
-import me.andannn.aniflow.data.SnackBarMessageHandler
+import me.andannn.aniflow.platform.SharedSnackbarResult
+import me.andannn.aniflow.platform.SnackBarMessage
+import me.andannn.aniflow.platform.SnackBarMessageHandler
 import me.andannn.aniflow.util.SnackbarHostStateHolder
 import me.andannn.aniflow.util.showSnackBarMessage
 

@@ -97,17 +97,8 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import me.andannn.aniflow.data.AuthRepository
-import me.andannn.aniflow.data.CharacterSearchResultPageComponent
-import me.andannn.aniflow.data.EmptyPageComponent
 import me.andannn.aniflow.data.ErrorChannel
-import me.andannn.aniflow.data.LoadingStatus
-import me.andannn.aniflow.data.MediaSearchResultPageComponent
-import me.andannn.aniflow.data.PageComponent
-import me.andannn.aniflow.data.StaffSearchResultPageComponent
-import me.andannn.aniflow.data.StudioSearchResultPageComponent
 import me.andannn.aniflow.data.buildErrorChannel
-import me.andannn.aniflow.data.getNameString
-import me.andannn.aniflow.data.getUserTitleString
 import me.andannn.aniflow.data.label
 import me.andannn.aniflow.data.model.CharacterModel
 import me.andannn.aniflow.data.model.MediaModel
@@ -120,6 +111,8 @@ import me.andannn.aniflow.data.model.define.MediaFormat
 import me.andannn.aniflow.data.model.define.MediaSeason
 import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
+import me.andannn.aniflow.data.model.getNameString
+import me.andannn.aniflow.data.model.getUserTitleString
 import me.andannn.aniflow.ui.theme.PageHorizontalPadding
 import me.andannn.aniflow.ui.widget.CommonItemFilledCard
 import me.andannn.aniflow.ui.widget.OptionChips
@@ -127,6 +120,13 @@ import me.andannn.aniflow.ui.widget.SelectOptionBottomSheet
 import me.andannn.aniflow.ui.widget.TitleWithContent
 import me.andannn.aniflow.ui.widget.fullLinePagingItems
 import me.andannn.aniflow.ui.widget.pagingItems
+import me.andannn.aniflow.usecase.data.paging.CharacterSearchResultPageComponent
+import me.andannn.aniflow.usecase.data.paging.EmptyPageComponent
+import me.andannn.aniflow.usecase.data.paging.LoadingStatus
+import me.andannn.aniflow.usecase.data.paging.MediaSearchResultPageComponent
+import me.andannn.aniflow.usecase.data.paging.PageComponent
+import me.andannn.aniflow.usecase.data.paging.StaffSearchResultPageComponent
+import me.andannn.aniflow.usecase.data.paging.StudioSearchResultPageComponent
 import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.rememberSnackBarHostState
 import org.koin.compose.viewmodel.koinViewModel
@@ -395,31 +395,37 @@ class SearchViewModel(
 
                     searchResultPagingController =
                         when (source) {
-                            is SearchSource.Media ->
+                            is SearchSource.Media -> {
                                 MediaSearchResultPageComponent(
                                     source = source,
                                     errorHandler = this@SearchViewModel,
                                 )
+                            }
 
-                            is SearchSource.Character ->
+                            is SearchSource.Character -> {
                                 CharacterSearchResultPageComponent(
                                     source = source,
                                     errorHandler = this@SearchViewModel,
                                 )
+                            }
 
-                            is SearchSource.Staff ->
+                            is SearchSource.Staff -> {
                                 StaffSearchResultPageComponent(
                                     source = source,
                                     errorHandler = this@SearchViewModel,
                                 )
+                            }
 
-                            is SearchSource.Studio ->
+                            is SearchSource.Studio -> {
                                 StudioSearchResultPageComponent(
                                     source = source,
                                     errorHandler = this@SearchViewModel,
                                 )
+                            }
 
-                            null -> PageComponent.empty<Any>()
+                            null -> {
+                                PageComponent.empty<Any>()
+                            }
                         }
                 }
         }
@@ -451,7 +457,10 @@ class SearchViewModel(
 
     fun removeOption(option: Option<*>) {
         when (selectedCategory) {
-            SearchCategory.ANIME -> animeSearchOptions.removeOption(option)
+            SearchCategory.ANIME -> {
+                animeSearchOptions.removeOption(option)
+            }
+
             else -> {}
         }
     }
@@ -519,7 +528,7 @@ fun Search(
 
     if (viewModel.visibleOptionSheet != null) {
         when (viewModel.visibleOptionSheet) {
-            OptionSheetType.MEDIA_FORMAT ->
+            OptionSheetType.MEDIA_FORMAT -> {
                 SelectOptionBottomSheet(
                     title = "Format",
                     isSingleSelect = false,
@@ -534,6 +543,7 @@ fun Search(
                         viewModel.visibleOptionSheet = null
                     },
                 )
+            }
 
             OptionSheetType.SEASON_YEAR -> {
                 val options =
@@ -1023,7 +1033,7 @@ private fun SearchOptions(
 ) {
     Box(modifier = modifier.fillMaxWidth()) {
         when (currentOptions) {
-            is AnimeSearchOptions ->
+            is AnimeSearchOptions -> {
                 TitleWithContent(
                     modifier = Modifier,
                     title = "Anime Options",
@@ -1034,6 +1044,7 @@ private fun SearchOptions(
                         onOptionChipClick = onOptionChipClick,
                     )
                 }
+            }
 
             else -> {
                 Spacer(modifier = Modifier.height(1.dp))

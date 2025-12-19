@@ -24,16 +24,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import me.andannn.aniflow.data.getNameString
-import me.andannn.aniflow.data.getUserTitleString
 import me.andannn.aniflow.data.model.define.UserStaffNameLanguage
 import me.andannn.aniflow.data.model.define.UserTitleLanguage
+import me.andannn.aniflow.data.model.getNameString
+import me.andannn.aniflow.data.model.getUserTitleString
 import me.andannn.aniflow.data.model.relation.VoicedCharacterWithMedia
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)

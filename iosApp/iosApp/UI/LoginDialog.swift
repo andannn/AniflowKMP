@@ -11,7 +11,7 @@ class LoginDialogViewModel : ObservableObject {
     private var dataTask : Task<(), any Error>? = nil
     
     init() {
-        authRepository = KoinHelper.shared.authRepository()
+        authRepository = KoinExtension.shared.authRepository()
         
         dataTask = Task { [weak self] in
             guard let stream = self?.authRepository.getAuthedUserAsyncSequence() else { return }

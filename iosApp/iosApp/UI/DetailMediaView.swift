@@ -7,7 +7,7 @@ class DetailMediaViewModel: ObservableObject {
     @Published public var uiState: DetailUiState = DetailUiState.companion.Empty
     
     private let dataProvider: DetailMediaUiDataProvider
-    private let mediaRepository: MediaRepository = KoinHelper.shared.mediaRepository()
+    private let mediaRepository: MediaRepository = KoinExtension.shared.mediaRepository()
     
     private var dataTask:  Task<(), any Error>? = nil
     private var sideEffectTask:  Task<(), any Error>? = nil
@@ -20,7 +20,7 @@ class DetailMediaViewModel: ObservableObject {
 
     init(mediaId: String) {
         self.mediaId = mediaId
-        dataProvider = KoinHelper.shared.detailMediaUiDataProvider(mediaId: mediaId)
+        dataProvider = KoinExtension.shared.detailMediaUiDataProvider(mediaId: mediaId)
         
         dataTask = Task { [weak self] in
             guard let stream = self?.dataProvider.detailUiDataFlowAsyncSequence() else { return }
@@ -33,7 +33,7 @@ class DetailMediaViewModel: ObservableObject {
             guard let stream = self?.dataProvider.detailUiSideEffectAsyncSequence(true) else { return }
             for try await status in stream {
                 guard let self = self else { continue }
-                AppErrorKt.submitErrorOfSyncStatus(self.errorChannel, status: status)
+                SyncStatusKt.submitErrorOfSyncStatus(self.errorChannel, status: status)
             }
         }
         

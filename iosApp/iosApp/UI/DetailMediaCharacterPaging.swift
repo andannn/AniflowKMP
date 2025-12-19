@@ -8,7 +8,7 @@ class DetailMediaCharacterPagingViewModel: ObservableObject {
     
     init(mediaId: String) {
         self.mediaId = mediaId
-        pageComponent = PageComponentFactory.shared.createDetailMediaCharacterPaging(mediaId: mediaId)
+        pageComponent = PagingExtension.shared.createDetailMediaCharacterPaging(mediaId: mediaId)
     }
     
     deinit {

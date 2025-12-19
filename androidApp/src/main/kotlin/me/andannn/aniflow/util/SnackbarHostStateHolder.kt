@@ -13,8 +13,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.navigation3.runtime.NavEntryDecorator
-import me.andannn.aniflow.data.SnackBarMessage
-import me.andannn.aniflow.data.SnackbarShowDuration
+import me.andannn.aniflow.platform.SnackBarMessage
+import me.andannn.aniflow.platform.SnackbarShowDuration
 
 /**
  * A CompositionLocal to provide access to the SnackbarHostStateHolder.

@@ -17,10 +17,10 @@ import io.github.aakira.napier.Napier
 import io.github.andannn.LocalNavResultOwner
 import io.github.andannn.NavResultOwner
 import io.github.andannn.setNavResult
-import me.andannn.aniflow.data.model.SettingItem
-import me.andannn.aniflow.data.model.SettingOption
 import me.andannn.aniflow.ui.widget.AlertDialogContainer
 import me.andannn.aniflow.ui.widget.TransparentBackgroundListItem
+import me.andannn.aniflow.usecase.data.provider.SettingItem
+import me.andannn.aniflow.usecase.data.provider.SettingOption
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 

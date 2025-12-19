@@ -31,9 +31,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.stateIn
 import me.andannn.aniflow.data.AuthRepository
-import me.andannn.aniflow.data.DetailMediaStaffPageComponent
 import me.andannn.aniflow.data.ErrorChannel
-import me.andannn.aniflow.data.PageComponent
 import me.andannn.aniflow.data.buildErrorChannel
 import me.andannn.aniflow.data.model.StaffWithRole
 import me.andannn.aniflow.data.model.UserOptions
@@ -42,6 +40,8 @@ import me.andannn.aniflow.ui.theme.PageHorizontalPadding
 import me.andannn.aniflow.ui.theme.TopAppBarColors
 import me.andannn.aniflow.ui.widget.StaffRowItem
 import me.andannn.aniflow.ui.widget.VerticalListPaging
+import me.andannn.aniflow.usecase.data.paging.DetailMediaStaffPageComponent
+import me.andannn.aniflow.usecase.data.paging.PageComponent
 import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.rememberSnackBarHostState
 import org.koin.compose.viewmodel.koinViewModel

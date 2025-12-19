@@ -51,23 +51,18 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import me.andannn.aniflow.data.CharacterDetailMediaPaging
-import me.andannn.aniflow.data.DetailCharacterUiDataProvider
 import me.andannn.aniflow.data.ErrorChannel
 import me.andannn.aniflow.data.MediaRepository
-import me.andannn.aniflow.data.PageComponent
 import me.andannn.aniflow.data.buildErrorChannel
-import me.andannn.aniflow.data.getNameString
-import me.andannn.aniflow.data.getUserTitleString
 import me.andannn.aniflow.data.label
 import me.andannn.aniflow.data.model.CharacterModel
-import me.andannn.aniflow.data.model.DetailCharacterUiState
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.MediaSort
+import me.andannn.aniflow.data.model.getUserTitleString
 import me.andannn.aniflow.ui.theme.AppBackgroundColor
 import me.andannn.aniflow.ui.theme.PageHorizontalPadding
 import me.andannn.aniflow.ui.theme.StyledReadingContentFontFamily
@@ -79,6 +74,10 @@ import me.andannn.aniflow.ui.widget.CustomPullToRefresh
 import me.andannn.aniflow.ui.widget.FilterDropDownMenuButton
 import me.andannn.aniflow.ui.widget.ToggleFavoriteButton
 import me.andannn.aniflow.ui.widget.pagingItems
+import me.andannn.aniflow.usecase.data.paging.CharacterDetailMediaPaging
+import me.andannn.aniflow.usecase.data.paging.PageComponent
+import me.andannn.aniflow.usecase.data.provider.DetailCharacterUiDataProvider
+import me.andannn.aniflow.usecase.data.provider.DetailCharacterUiState
 import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.rememberSnackBarHostState
 import org.koin.compose.viewmodel.koinViewModel
@@ -92,11 +91,11 @@ class DetailCharacterViewModel(
     private val mediaRepository: MediaRepository,
 ) : ViewModel(),
     ErrorChannel by buildErrorChannel() {
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading = _isLoading.asStateFlow()
+    val isLoading: StateFlow<Boolean>
+        field = MutableStateFlow(false)
 
-    private val _mediaSort = MutableStateFlow(MediaSort.START_DATE_DESC)
-    val mediaSort = _mediaSort.asStateFlow()
+    val mediaSort: StateFlow<MediaSort>
+        field = MutableStateFlow(MediaSort.START_DATE_DESC)
 
     var pagingController by mutableStateOf<PageComponent<MediaModel>>(
         PageComponent.empty(),
@@ -108,12 +107,12 @@ class DetailCharacterViewModel(
         viewModelScope.launch {
             dataProvider.uiSideEffect(false).collect {
                 Napier.d(tag = TAG) { "DetailStaffViewModel: sync status $it" }
-                _isLoading.value = it.isLoading()
+                isLoading.value = it.isLoading()
             }
         }
 
         viewModelScope.launch {
-            _mediaSort.collect { mediaSort ->
+            mediaSort.collect { mediaSort ->
                 Napier.d(tag = TAG) { "_mediaSort changed: $mediaSort" }
                 pagingController.dispose()
                 pagingController =
@@ -134,7 +133,7 @@ class DetailCharacterViewModel(
         )
 
     fun setMediaSort(sort: MediaSort) {
-        _mediaSort.value = sort
+        mediaSort.value = sort
     }
 
     fun onToggleFavoriteClick() {
@@ -167,6 +166,7 @@ fun DetailCharacter(
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     val selectedMediaSort by viewModel.mediaSort.collectAsStateWithLifecycle()
     DetailCharacterContent(
+        title = uiState.title,
         isLoading = isLoading,
         character = uiState.characterModel,
         selectedMediaSort = selectedMediaSort,
@@ -184,6 +184,7 @@ fun DetailCharacter(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun DetailCharacterContent(
+    title: String,
     modifier: Modifier = Modifier,
     selectedMediaSort: MediaSort,
     isLoading: Boolean,
@@ -204,10 +205,6 @@ private fun DetailCharacterContent(
                 colors = TopAppBarColors,
                 scrollBehavior = scrollBehavior,
                 title = {
-                    val title =
-                        remember(options, character) {
-                            character?.name.getNameString(options.staffNameLanguage)
-                        }
                     Text(title)
                 },
                 subtitle = {

@@ -9,7 +9,6 @@ import com.google.firebase.Firebase
 import com.google.firebase.analytics.analytics
 import com.google.firebase.crashlytics.crashlytics
 import io.github.aakira.napier.Napier
-import me.andannn.aniflow.data.PlatformAnalytics
 
 private const val TAG = "PlatformAnalyticsImpl"
 

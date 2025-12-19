@@ -42,9 +42,9 @@ import io.github.andannn.setNavResult
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.serialization.builtins.serializer
-import me.andannn.aniflow.data.TrackProgressDialogDataProvider
-import me.andannn.aniflow.data.model.TrackProgressDialogState
 import me.andannn.aniflow.ui.widget.AlertDialogContainer
+import me.andannn.aniflow.usecase.data.provider.TrackProgressDialogDataProvider
+import me.andannn.aniflow.usecase.data.provider.TrackProgressDialogState
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 

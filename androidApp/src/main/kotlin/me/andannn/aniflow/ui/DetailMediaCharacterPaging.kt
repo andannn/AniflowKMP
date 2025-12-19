@@ -33,13 +33,11 @@ import androidx.lifecycle.viewModelScope
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.AuthRepository
-import me.andannn.aniflow.data.DetailMediaCharacterPageComponent
 import me.andannn.aniflow.data.ErrorChannel
-import me.andannn.aniflow.data.PageComponent
 import me.andannn.aniflow.data.buildErrorChannel
 import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.StaffLanguage
@@ -50,6 +48,8 @@ import me.andannn.aniflow.ui.theme.TopAppBarColors
 import me.andannn.aniflow.ui.widget.CharacterRowItem
 import me.andannn.aniflow.ui.widget.FilterDropDownMenuButton
 import me.andannn.aniflow.ui.widget.VerticalListPaging
+import me.andannn.aniflow.usecase.data.paging.DetailMediaCharacterPageComponent
+import me.andannn.aniflow.usecase.data.paging.PageComponent
 import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.rememberSnackBarHostState
 import org.koin.compose.viewmodel.koinViewModel
@@ -62,9 +62,9 @@ class DetailMediaCharacterPagingViewModel(
     authRepository: AuthRepository,
 ) : ViewModel(),
     ErrorChannel by buildErrorChannel() {
-    private val _selectedLanguage = MutableStateFlow(StaffLanguage.JAPANESE)
+    val selectedLanguage: StateFlow<StaffLanguage>
+        field = MutableStateFlow(StaffLanguage.JAPANESE)
 
-    val selectedLanguage = _selectedLanguage.asStateFlow()
     var pagingController by
         mutableStateOf<PageComponent<CharacterWithVoiceActor>?>(null)
 
@@ -79,7 +79,7 @@ class DetailMediaCharacterPagingViewModel(
 
     init {
         viewModelScope.launch {
-            _selectedLanguage.collect { language ->
+            selectedLanguage.collect { language ->
                 Napier.d(tag = TAG) { "_selectedLanguage changed: $language" }
                 pagingController?.dispose()
                 pagingController =
@@ -93,7 +93,7 @@ class DetailMediaCharacterPagingViewModel(
     }
 
     fun setSelectLanguage(language: StaffLanguage) {
-        _selectedLanguage.value = language
+        selectedLanguage.value = language
     }
 
     override fun onCleared() {

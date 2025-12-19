@@ -1,0 +1,38 @@
+/*
+ * Copyright 2025, the AniflowKMP project contributors
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package me.andannn.aniflow.usecase.data.provider.internal
+
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import me.andannn.aniflow.data.AuthRepository
+import me.andannn.aniflow.data.MediaRepository
+import me.andannn.aniflow.usecase.data.provider.DetailStaffUiDataProvider
+import me.andannn.aniflow.usecase.data.provider.DetailStaffUiState
+import me.andannn.aniflow.usecase.data.provider.internal.tasks.SyncDetailStaffTask
+import me.andannn.aniflow.usecase.data.provider.internal.tasks.createSideEffectFlow
+
+class DetailStaffUiDataProviderImpl(
+    override val staffId: String,
+    private val authRepository: AuthRepository,
+    private val mediaRepository: MediaRepository,
+) : DetailStaffUiDataProvider {
+    override fun uiDataFlow(): Flow<DetailStaffUiState> =
+        combine(
+            mediaRepository.getDetailStaff(staffId),
+            authRepository.getUserOptionsFlow(),
+        ) { staff, userOptions ->
+            DetailStaffUiState(
+                staffModel = staff,
+                userOption = userOptions,
+            )
+        }.distinctUntilChanged()
+
+    override fun uiSideEffect(forceRefreshFirstTime: Boolean) =
+        createSideEffectFlow(
+            forceRefreshFirstTime,
+            SyncDetailStaffTask(staffId),
+        )
+}

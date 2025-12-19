@@ -48,6 +48,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
@@ -87,9 +88,8 @@ class MyListViewMoel(
     private val authRepository: AuthRepository,
 ) : ViewModel(),
     ErrorChannel by buildErrorChannel() {
-    private val _selectedMediaListStatusCategory =
-        MutableStateFlow(MediaListStatusCategory.WATCHING)
-    val selectedMediaListStatusCategory = _selectedMediaListStatusCategory.asStateFlow()
+    val selectedMediaListStatusCategory: StateFlow<MediaListStatusCategory>
+        field = MutableStateFlow(MediaListStatusCategory.WATCHING)
 
     val categoryWithMediaListItems =
         mutableStateMapOf<MediaListStatusCategory, ContentState>()
@@ -109,7 +109,7 @@ class MyListViewMoel(
                 authRepository.getAuthedUserFlow().first() ?: error("User not logged in")
             val mediaType = mediaRepository.getContentModeFlow().first().toMediaType()
             val userOptions = authRepository.getUserOptionsFlow().first()
-            _selectedMediaListStatusCategory
+            selectedMediaListStatusCategory
                 .collectLatest { category ->
                     val statusOrNull = categoryWithMediaListItems[category]
                     if (statusOrNull != null && statusOrNull is ContentState.Success) {
@@ -138,7 +138,7 @@ class MyListViewMoel(
     }
 
     fun setSelectedMediaListStatusCategory(category: MediaListStatusCategory) {
-        _selectedMediaListStatusCategory.value = category
+        selectedMediaListStatusCategory.value = category
     }
 
     sealed class ContentState {
@@ -268,6 +268,7 @@ private fun MyListContent(
                 is MyListViewMoel.ContentState.Error -> {
                     // Noop
                 }
+
                 MyListViewMoel.ContentState.Loading -> {
                     item(key = "loading") {
                         Box(
@@ -281,7 +282,8 @@ private fun MyListContent(
                         }
                     }
                 }
-                is MyListViewMoel.ContentState.Success ->
+
+                is MyListViewMoel.ContentState.Success -> {
                     pagingGroupedItems(
                         groups = itemContentState.items.grouped(),
                         key = { _, item -> item.hashCode() },
@@ -300,6 +302,7 @@ private fun MyListContent(
                             }
                         },
                     )
+                }
             }
         }
     }
@@ -307,23 +310,26 @@ private fun MyListContent(
 
 private fun MediaListStatusCategory.toStatus() =
     when (this) {
-        MediaListStatusCategory.WATCHING ->
+        MediaListStatusCategory.WATCHING -> {
             listOf(
                 MediaListStatus.PLANNING,
                 MediaListStatus.CURRENT,
             )
+        }
 
-        MediaListStatusCategory.COMPLETED ->
+        MediaListStatusCategory.COMPLETED -> {
             listOf(
                 MediaListStatus.COMPLETED,
                 MediaListStatus.REPEATING,
             )
+        }
 
-        MediaListStatusCategory.DROPPED ->
+        MediaListStatusCategory.DROPPED -> {
             listOf(
                 MediaListStatus.DROPPED,
                 MediaListStatus.PAUSED,
             )
+        }
     }
 
 private fun MediaListStatusCategory.label() =

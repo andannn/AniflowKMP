@@ -12,7 +12,7 @@ class TrackProgressDialogViewModel: ObservableObject {
     init(mediaId: String) {
         self.mediaId = mediaId
         
-        dataProvider = KoinHelper.shared.trackProgressDialogDataProvider(mediaId: mediaId)
+        dataProvider = KoinExtension.shared.trackProgressDialogDataProvider(mediaId: mediaId)
         
         dataTask = Task { [weak self] in
             guard let stream = self?.dataProvider.uiDataAsyncSequence() else { return }

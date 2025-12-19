@@ -8,23 +8,18 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -43,22 +38,18 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import me.andannn.aniflow.data.DetailStudioUiDataProvider
 import me.andannn.aniflow.data.ErrorChannel
 import me.andannn.aniflow.data.MediaRepository
-import me.andannn.aniflow.data.PageComponent
-import me.andannn.aniflow.data.StudioMediaConnectionPageComponent
 import me.andannn.aniflow.data.buildErrorChannel
-import me.andannn.aniflow.data.getUserTitleString
 import me.andannn.aniflow.data.label
-import me.andannn.aniflow.data.model.DetailStudioState
 import me.andannn.aniflow.data.model.MediaModel
 import me.andannn.aniflow.data.model.StudioModel
 import me.andannn.aniflow.data.model.UserOptions
 import me.andannn.aniflow.data.model.define.MediaSort
+import me.andannn.aniflow.data.model.getUserTitleString
 import me.andannn.aniflow.ui.theme.AppBackgroundColor
 import me.andannn.aniflow.ui.theme.PageHorizontalPadding
 import me.andannn.aniflow.ui.theme.TopAppBarColors
@@ -69,6 +60,10 @@ import me.andannn.aniflow.ui.widget.GroupItems
 import me.andannn.aniflow.ui.widget.ToggleFavoriteButton
 import me.andannn.aniflow.ui.widget.pagingGroupedItems
 import me.andannn.aniflow.ui.widget.pagingItems
+import me.andannn.aniflow.usecase.data.paging.PageComponent
+import me.andannn.aniflow.usecase.data.paging.StudioMediaConnectionPageComponent
+import me.andannn.aniflow.usecase.data.provider.DetailStudioState
+import me.andannn.aniflow.usecase.data.provider.DetailStudioUiDataProvider
 import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.rememberSnackBarHostState
 import org.koin.compose.viewmodel.koinViewModel
@@ -82,10 +77,11 @@ class DetailStudioViewModel(
     private val mediaRepository: MediaRepository,
 ) : ViewModel(),
     ErrorChannel by buildErrorChannel() {
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading = _isLoading.asStateFlow()
-    private val _mediaSort = MutableStateFlow(MediaSort.START_DATE_DESC)
-    val mediaSort = _mediaSort.asStateFlow()
+    val isLoading: StateFlow<Boolean>
+        field = MutableStateFlow(false)
+
+    val mediaSort: StateFlow<MediaSort>
+        field = MutableStateFlow(MediaSort.START_DATE_DESC)
 
     val uiState =
         dataProvider.uiDataFlow().stateIn(
@@ -103,12 +99,12 @@ class DetailStudioViewModel(
         viewModelScope.launch {
             dataProvider.uiSideEffect(false).collect {
                 Napier.d(tag = TAG) { "DetailStaffViewModel: sync status $it" }
-                _isLoading.value = it.isLoading()
+                isLoading.value = it.isLoading()
             }
         }
 
         viewModelScope.launch {
-            _mediaSort.collect { mediaSort ->
+            mediaSort.collect { mediaSort ->
                 Napier.d(tag = TAG) { "_mediaSort changed: $mediaSort" }
                 pagingController.dispose()
                 pagingController =
@@ -138,7 +134,7 @@ class DetailStudioViewModel(
     }
 
     fun setMediaSort(sort: MediaSort) {
-        _mediaSort.value = sort
+        mediaSort.value = sort
     }
 
     override fun onCleared() {

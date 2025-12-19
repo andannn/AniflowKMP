@@ -44,16 +44,16 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import me.andannn.aniflow.data.AuthRepository
 import me.andannn.aniflow.data.ErrorChannel
-import me.andannn.aniflow.data.SettingUiDataProvider
 import me.andannn.aniflow.data.buildErrorChannel
-import me.andannn.aniflow.data.model.SettingItem
-import me.andannn.aniflow.data.model.SettingOption
-import me.andannn.aniflow.data.model.SettingUiState
-import me.andannn.aniflow.data.submitErrorOfSyncStatus
 import me.andannn.aniflow.ui.theme.AppBackgroundColor
 import me.andannn.aniflow.ui.theme.PageHorizontalPadding
 import me.andannn.aniflow.ui.theme.ShapeHelper
 import me.andannn.aniflow.ui.theme.TopAppBarColors
+import me.andannn.aniflow.usecase.data.provider.SettingItem
+import me.andannn.aniflow.usecase.data.provider.SettingOption
+import me.andannn.aniflow.usecase.data.provider.SettingUiDataProvider
+import me.andannn.aniflow.usecase.data.provider.SettingUiState
+import me.andannn.aniflow.usecase.data.provider.submitErrorOfSyncStatus
 import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.rememberSnackBarHostState
 import org.koin.compose.viewmodel.koinViewModel
@@ -96,17 +96,21 @@ class SettingsViewModel(
         Napier.d(tag = TAG) { "handleChangeSetting: $option" }
         val error =
             when (option) {
-                is SettingOption.StaffCharacterNameOption ->
+                is SettingOption.StaffCharacterNameOption -> {
                     authRepository.updateUserSettings(staffCharacterNameLanguage = option.value)
+                }
 
-                is SettingOption.UserTitleLanguageOption ->
+                is SettingOption.UserTitleLanguageOption -> {
                     authRepository.updateUserSettings(titleLanguage = option.value)
+                }
 
-                is SettingOption.ThemeModeOption ->
+                is SettingOption.ThemeModeOption -> {
                     authRepository.updateUserSettings(appTheme = option.value)
+                }
 
-                is SettingOption.ScoreFormatOption ->
+                is SettingOption.ScoreFormatOption -> {
                     authRepository.updateUserSettings(scoreFormat = option.value)
+                }
             }
         if (error != null) {
             Napier.e(tag = TAG) { "Failed to update setting: $error. option $option" }
