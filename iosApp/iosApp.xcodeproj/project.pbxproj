@@ -18,6 +18,7 @@
 
 /* Begin PBXFileReference section */
 		B9DA97B12DC1472C00A4DA20 /* AniFlowKMP.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AniFlowKMP.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C0E0010F2FE2A7EB00F4D6B5 /* iosAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = iosAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -42,6 +43,11 @@
 		B9DA98002DC14AA900A4DA20 /* Configuration */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Configuration;
+			sourceTree = "<group>";
+		};
+		C0E0010A2FE2A7AF00F4D6B5 /* iosAppUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = iosAppUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -69,6 +75,7 @@
 			children = (
 				B9DA98002DC14AA900A4DA20 /* Configuration */,
 				B9DA97B32DC1472C00A4DA20 /* iosApp */,
+				C0E0010A2FE2A7AF00F4D6B5 /* iosAppUITests */,
 				B9DA97B22DC1472C00A4DA20 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -77,6 +84,7 @@
 			isa = PBXGroup;
 			children = (
 				B9DA97B12DC1472C00A4DA20 /* AniFlowKMP.app */,
+				C0E0010F2FE2A7EB00F4D6B5 /* iosAppUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -114,6 +122,27 @@
 			productReference = B9DA97B12DC1472C00A4DA20 /* AniFlowKMP.app */;
 			productType = "com.apple.product-type.application";
 		};
+		C0E0010B2FE2A7AF00F4D6B5 /* iosAppUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C0E0011B2FE2A7EC00F4D6B5 /* Build configuration list for PBXNativeTarget "iosAppUITests" */;
+			buildPhases = (
+				C0E001072FE2A7AE00F4D6B5 /* Sources */,
+				C0E001082FE2A7AE00F4D6B5 /* Frameworks */,
+				C0E001092FE2A7AE00F4D6B5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C0E001132FE2A7EC00F4D6B5 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				C0E0010A2FE2A7AF00F4D6B5 /* iosAppUITests */,
+			);
+			name = iosAppUITests;
+			productName = iosAppUITests;
+			productReference = C0E0010F2FE2A7EB00F4D6B5 /* iosAppUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -126,6 +155,10 @@
 				TargetAttributes = {
 					B9DA97B02DC1472C00A4DA20 = {
 						CreatedOnToolsVersion = 16.2;
+					};
+					C0E0010B2FE2A7AF00F4D6B5 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = B9DA97B02DC1472C00A4DA20;
 					};
 				};
 			};
@@ -149,12 +182,20 @@
 			projectRoot = "";
 			targets = (
 				B9DA97B02DC1472C00A4DA20 /* iosApp */,
+				C0E0010B2FE2A7AF00F4D6B5 /* iosAppUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		B9DA97AF2DC1472C00A4DA20 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C0E001092FE2A7AE00F4D6B5 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -187,6 +228,13 @@
 
 /* Begin PBXSourcesBuildPhase section */
 		B9DA97AD2DC1472C00A4DA20 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C0E001072FE2A7AE00F4D6B5 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -392,6 +440,44 @@
 			};
 			name = Release;
 		};
+		C0E001192FE2A7EC00F4D6B5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6GVG7NLF69;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = me.andannn.aniflow.iosAppUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = iosApp;
+			};
+			name = Debug;
+		};
+		C0E0011A2FE2A7EC00F4D6B5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6GVG7NLF69;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = me.andannn.aniflow.iosAppUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = iosApp;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -413,7 +499,34 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		C0E0011B2FE2A7EC00F4D6B5 /* Build configuration list for PBXNativeTarget "iosAppUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C0E001192FE2A7EC00F4D6B5 /* Debug */,
+				C0E0011A2FE2A7EC00F4D6B5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
+
+/* Begin PBXContainerItemProxy section */
+		C0E001122FE2A7EC00F4D6B5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B9DA97A92DC1472C00A4DA20 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B9DA97B02DC1472C00A4DA20;
+			remoteInfo = iosApp;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXTargetDependency section */
+		C0E001132FE2A7EC00F4D6B5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B9DA97B02DC1472C00A4DA20 /* iosApp */;
+			targetProxy = C0E001122FE2A7EC00F4D6B5 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCRemoteSwiftPackageReference section */
 		A18BB8792E8426C500B419A5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {

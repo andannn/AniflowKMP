@@ -10,13 +10,17 @@ struct iOSApp: App {
     
     var body: some Scene {
         WindowGroup {
-            RootView()
-                .onOpenURL { url in
-                    appDelegate.authHandler.onOpenURL(url)
-                }
-                .onReceive(NotificationCenter.default.publisher(for: UIScene.didActivateNotification)) { _ in
-                    appDelegate.authHandler.onSceneDidBecomeActive()
-                }
+            if ProcessInfo.processInfo.environment["UITEST_MEDIA_ROW"] != nil {
+                MediaRowItemUITestHostView()
+            } else {
+                RootView()
+                    .onOpenURL { url in
+                        appDelegate.authHandler.onOpenURL(url)
+                    }
+                    .onReceive(NotificationCenter.default.publisher(for: UIScene.didActivateNotification)) { _ in
+                        appDelegate.authHandler.onSceneDidBecomeActive()
+                    }
+            }
         }
     }
 }
@@ -26,6 +30,10 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     let netWorkConnectivity: NetworkConnectivityImpl = NetworkConnectivityImpl()
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+
+        if ProcessInfo.processInfo.environment["UITEST_MEDIA_ROW"] != nil {
+            return true
+        }
 
         FirebaseApp.configure()
         KoinHelper.shared.startKoin(
