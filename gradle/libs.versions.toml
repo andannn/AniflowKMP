@@ -32,7 +32,7 @@ sqldelight = "2.2.1"
 nav3Core = "1.0.0"
 nativecoroutines = "1.0.0"
 compose-bom = "2026.01.00"
-material3 = "1.5.0-alpha11"
+material3 = "1.5.0-alpha12"
 navresult = "1.0.1"
 
 [libraries]
