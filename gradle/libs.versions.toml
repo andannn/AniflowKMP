@@ -31,7 +31,7 @@ apollo = "4.4.0"
 sqldelight = "2.2.1"
 nav3Core = "1.0.0"
 nativecoroutines = "1.0.0"
-compose-bom = "2026.01.00"
+compose-bom = "2026.01.01"
 material3 = "1.5.0-alpha11"
 navresult = "1.0.1"
 
