@@ -1,9 +1,9 @@
 import com.andanana.melodify.util.libs
-import com.android.build.api.dsl.androidLibrary
+import com.android.build.api.dsl.KotlinMultiplatformAndroidCompilation
+import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryExtension
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import javax.inject.Inject
 
@@ -38,7 +38,7 @@ abstract class KmpExtension
             project.pluginManager.apply("com.android.kotlin.multiplatform.library")
 
             project.extensions.configure<KotlinMultiplatformExtension> {
-                androidLibrary {
+                this.configure<KotlinMultiplatformAndroidLibraryExtension> {
                     compileSdk = 36
                     minSdk = 26
 
@@ -52,13 +52,12 @@ abstract class KmpExtension
 
                     if (config.enableDeviceTest) {
                         withDeviceTestBuilder {
-                            sourceSetTreeName = "test".takeIf { config.includeDeviceTestToCommonTest }
+                            sourceSetTreeName =
+                                "test".takeIf { config.includeDeviceTestToCommonTest }
                         }.configure {
                             instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
                         }
                     }
-
-                    compilerOptions.jvmTarget.set(JvmTarget.JVM_17)
                 }
 
                 addJvmTargetIfNeeded()
@@ -131,18 +130,15 @@ abstract class KmpExtension
 
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         private fun KotlinMultiplatformExtension.configJvmTarget() {
-//
-// TODO: desktop and android Common source set can not be applied after migrate to Kmp agp plugin(https://developer.android.com/kotlin/multiplatform/plugin#features).
-//  probably because androidTarget() is deprecated.
-//  Uncomment this setting in the future
-//          applyDefaultHierarchyTemplate {
-//                common {
-//                    group("deskTopAndAndroid") {
-//                        withJvm()
-//                        withAndroidTarget()
-//                    }
-//                }
-//            }
+            applyDefaultHierarchyTemplate {
+                common {
+                    group("jvmAndAndroid") {
+                        withJvm()
+                        // https://github.com/andannn/Melodify/issues/470
+                        withCompilations { it is KotlinMultiplatformAndroidCompilation }
+                    }
+                }
+            }
         }
     }
 
