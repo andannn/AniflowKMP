@@ -11,7 +11,7 @@ kmpExt {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "me.andannn.aniflow.service"
     }
 

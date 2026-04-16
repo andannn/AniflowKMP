@@ -10,7 +10,7 @@ kmpExt {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "me.andannn.network.engine"
     }
     sourceSets {

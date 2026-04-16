@@ -9,7 +9,7 @@ kmpExt {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "me.andannn.aniflow.core.datastore"
     }
     sourceSets {
