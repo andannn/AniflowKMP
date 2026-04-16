@@ -32,7 +32,11 @@ fun App(navigator: RootNavigator) {
             NavDisplay(
                 modifier = Modifier,
                 backStack = navigator.backStackList,
-                sceneStrategy = DialogSceneStrategy<NavKey>() then SinglePaneSceneStrategy(),
+                sceneStrategies =
+                    listOf(
+                        DialogSceneStrategy(),
+                        SinglePaneSceneStrategy(),
+                    ),
                 entryDecorators =
                     listOf(
                         rememberSaveableStateHolderNavEntryDecorator(),
