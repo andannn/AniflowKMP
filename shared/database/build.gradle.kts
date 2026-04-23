@@ -22,7 +22,7 @@ sqldelight {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "me.andannn.aniflow.database"
     }
 
