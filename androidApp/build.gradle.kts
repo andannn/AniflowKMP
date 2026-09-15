@@ -16,8 +16,8 @@ android {
 
     defaultConfig {
         minSdk = 26
-        targetSdk = 36
-        compileSdk = 36
+        targetSdk = 37
+        compileSdk = 37
 
         applicationId = "me.andannn.aniflow"
         versionCode = (project.findProperty("VERSION_CODE") as? String?)?.toIntOrNull()
