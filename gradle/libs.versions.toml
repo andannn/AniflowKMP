@@ -1,5 +1,5 @@
 [versions]
-androidGradlePlugin = "9.2.1"
+androidGradlePlugin = "9.4.0"
 coil = "3.5.0"
 kotlin = "2.3.10"
 coreKtx = "1.19.0"
