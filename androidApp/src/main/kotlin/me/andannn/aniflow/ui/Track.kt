@@ -56,7 +56,6 @@ import me.andannn.aniflow.data.model.define.MediaContentMode
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.ui.theme.AppBackgroundColor
 import me.andannn.aniflow.ui.theme.ShapeHelper
-import me.andannn.aniflow.ui.util.SharedElementKey
 import me.andannn.aniflow.ui.util.buildSnackBarMessageHandler
 import me.andannn.aniflow.ui.widget.CustomPullToRefresh
 import me.andannn.aniflow.ui.widget.DefaultAppBar
@@ -68,7 +67,6 @@ import me.andannn.aniflow.usecase.data.provider.TrackUiState
 import me.andannn.aniflow.usecase.data.provider.submitErrorOfSyncStatus
 import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.LocalSnackbarHostStateHolder
-import me.andannn.aniflow.util.LocalTopNavAnimatedContentScope
 import me.andannn.aniflow.util.SnackbarHostStateHolder
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -337,35 +335,27 @@ fun TrackContent(
                                 Column(
                                     modifier = Modifier.animateItem(),
                                 ) {
-                                    with(LocalSharedTransitionScope.current) {
-                                        MediaRowItem(
-                                            modifier =
-                                                Modifier.fillMaxWidth().sharedBounds(
-                                                    rememberSharedContentState(
-                                                        SharedElementKey.keyOfMediaItem(item.mediaModel),
-                                                    ),
-                                                    LocalTopNavAnimatedContentScope.current,
-                                                ),
-                                            item = item,
-                                            isScrollInProgress = listState.isScrollInProgress,
-                                            shape =
-                                                ShapeHelper.listItemShapeVertical(
-                                                    isFirst,
-                                                    isLast,
-                                                ),
-                                            titleMaxLines = Int.MAX_VALUE,
-                                            userTitleLanguage = state.userOptions.titleLanguage,
-                                            onClick = {
-                                                onClickListItem(item.mediaModel)
-                                            },
-                                            onDelete = {
-                                                onDeleteItem(item)
-                                            },
-                                            onMarkWatched = {
-                                                onMarkWatched(item)
-                                            },
-                                        )
-                                    }
+                                    MediaRowItem(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        item = item,
+                                        isScrollInProgress = listState.isScrollInProgress,
+                                        shape =
+                                            ShapeHelper.listItemShapeVertical(
+                                                isFirst,
+                                                isLast,
+                                            ),
+                                        titleMaxLines = Int.MAX_VALUE,
+                                        userTitleLanguage = state.userOptions.titleLanguage,
+                                        onClick = {
+                                            onClickListItem(item.mediaModel)
+                                        },
+                                        onDelete = {
+                                            onDeleteItem(item)
+                                        },
+                                        onMarkWatched = {
+                                            onMarkWatched(item)
+                                        },
+                                    )
                                     Spacer(Modifier.height(2.dp))
                                 }
                             }
