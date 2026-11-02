@@ -68,7 +68,6 @@ import me.andannn.aniflow.data.title
 import me.andannn.aniflow.isPresentationMode
 import me.andannn.aniflow.ui.theme.AppBackgroundColor
 import me.andannn.aniflow.ui.theme.PageHorizontalPadding
-import me.andannn.aniflow.ui.util.SharedElementKey
 import me.andannn.aniflow.ui.widget.CustomPullToRefresh
 import me.andannn.aniflow.ui.widget.DefaultAppBar
 import me.andannn.aniflow.ui.widget.MediaPreviewItem
@@ -80,7 +79,6 @@ import me.andannn.aniflow.usecase.data.provider.HomeAppBarUiDataProvider
 import me.andannn.aniflow.usecase.data.provider.HomeAppBarUiState
 import me.andannn.aniflow.usecase.data.provider.submitErrorOfSyncStatus
 import me.andannn.aniflow.util.ErrorHandleSideEffect
-import me.andannn.aniflow.util.LocalTopNavAnimatedContentScope
 import org.koin.compose.viewmodel.koinViewModel
 
 private const val TAG = "Discover"
@@ -377,25 +375,13 @@ private fun MediaPreviewSector(
             ) {
                 val title by rememberUpdatedState(it.title.getUserTitleString(userTitleLanguage))
                 Row {
-                    with(LocalSharedTransitionScope.current) {
-                        MediaPreviewItem(
-                            modifier =
-                                Modifier
-                                    .width(150.dp)
-                                    .sharedBounds(
-                                        rememberSharedContentState(
-                                            SharedElementKey.keyOfMediaItem(
-                                                it,
-                                            ),
-                                        ),
-                                        LocalTopNavAnimatedContentScope.current,
-                                    ),
-                            title = title,
-                            isFollowing = false,
-                            coverImage = it.coverImage,
-                            onClick = { onMediaClick(it) },
-                        )
-                    }
+                    MediaPreviewItem(
+                        modifier = Modifier.width(150.dp),
+                        title = title,
+                        isFollowing = false,
+                        coverImage = it.coverImage,
+                        onClick = { onMediaClick(it) },
+                    )
                     Spacer(Modifier.width(4.dp))
                 }
             }

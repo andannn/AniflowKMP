@@ -123,14 +123,12 @@ import me.andannn.aniflow.data.model.relation.CharacterWithVoiceActor
 import me.andannn.aniflow.data.model.relation.MediaModelWithRelationType
 import me.andannn.aniflow.data.model.relation.MediaWithMediaListItem
 import me.andannn.aniflow.data.releasingTimeString
-import me.andannn.aniflow.platform.SnackBarMessage
 import me.andannn.aniflow.ui.theme.AppBackgroundColor
 import me.andannn.aniflow.ui.theme.BottomBarColor
 import me.andannn.aniflow.ui.theme.PageHorizontalPadding
 import me.andannn.aniflow.ui.theme.ShapeHelper
 import me.andannn.aniflow.ui.theme.StyledReadingContentFontFamily
 import me.andannn.aniflow.ui.theme.TopAppBarColors
-import me.andannn.aniflow.ui.util.SharedElementKey
 import me.andannn.aniflow.ui.util.buildSnackBarMessageHandler
 import me.andannn.aniflow.ui.widget.CharacterRowItem
 import me.andannn.aniflow.ui.widget.CustomPullToRefresh
@@ -148,7 +146,6 @@ import me.andannn.aniflow.usecase.data.provider.DetailUiState
 import me.andannn.aniflow.usecase.data.provider.submitErrorOfSyncStatus
 import me.andannn.aniflow.util.ErrorHandleSideEffect
 import me.andannn.aniflow.util.LocalSnackbarHostStateHolder
-import me.andannn.aniflow.util.LocalTopNavAnimatedContentScope
 import me.andannn.aniflow.util.SnackbarHostStateHolder
 import me.andannn.aniflow.util.rememberSnackBarHostState
 import me.andannn.aniflow.util.showSnackBarMessage
@@ -338,62 +335,56 @@ fun DetailMedia(
             viewModel.onRatingChange(it)
         }
 
-        with(LocalSharedTransitionScope.current) {
-            DetailMediaContent(
-                modifier =
-                    Modifier.fillMaxSize().sharedBounds(
-                        rememberSharedContentState(SharedElementKey.keyOfMediaItem(uiState.mediaModel!!)),
-                        LocalTopNavAnimatedContentScope.current,
-                    ),
-                title = uiState.title,
-                staffList = uiState.staffList,
-                mediaModel = uiState.mediaModel,
-                relations = uiState.relations,
-                studioList = uiState.studioList,
-                userOptions = uiState.userOptions,
-                mediaListItem = uiState.mediaListItem,
-                characterList = uiState.characters,
-                isRefreshing = isRefreshing,
-                bottomBarStatus = uiState.bottomBarStatus,
-                mediaListOption = uiState.mediaListOptions,
-                onPullRefresh = { viewModel.onPullRefresh() },
-                onPop = { navigator.popBackStack() },
-                onChangeStatus = viewModel::onChangeListItemStatus,
-                onAddToListClick = viewModel::onAddToListClick,
-                onToggleFavoriteClick = viewModel::onToggleFavoriteClick,
-                onTrailerClick = {
+        DetailMediaContent(
+            modifier = Modifier.fillMaxSize(),
+            title = uiState.title,
+            staffList = uiState.staffList,
+            mediaModel = uiState.mediaModel,
+            relations = uiState.relations,
+            studioList = uiState.studioList,
+            userOptions = uiState.userOptions,
+            mediaListItem = uiState.mediaListItem,
+            characterList = uiState.characters,
+            isRefreshing = isRefreshing,
+            bottomBarStatus = uiState.bottomBarStatus,
+            mediaListOption = uiState.mediaListOptions,
+            onPullRefresh = { viewModel.onPullRefresh() },
+            onPop = { navigator.popBackStack() },
+            onChangeStatus = viewModel::onChangeListItemStatus,
+            onAddToListClick = viewModel::onAddToListClick,
+            onToggleFavoriteClick = viewModel::onToggleFavoriteClick,
+            onTrailerClick = {
+                uriHandler.openUri(it)
+            },
+            onRelationItemClick = { navigator.navigateTo(Screen.DetailMedia(it.media.id)) },
+            onLoginClick = viewModel::onLoginClick,
+            onTrackProgressClick = {
+                navigator.navigateTo(Screen.Dialog.TrackProgressDialog(mediaId))
+            },
+            onRatingClick = {
+                navigator.navigateTo(Screen.Dialog.ScoringDialog(mediaId))
+            },
+            onExternalLinkClick = { link ->
+                link.url?.let {
                     uriHandler.openUri(it)
-                },
-                onRelationItemClick = { navigator.navigateTo(Screen.DetailMedia(it.media.id)) },
-                onLoginClick = viewModel::onLoginClick,
-                onTrackProgressClick = {
-                    navigator.navigateTo(Screen.Dialog.TrackProgressDialog(mediaId))
-                },
-                onRatingClick = {
-                    navigator.navigateTo(Screen.Dialog.ScoringDialog(mediaId))
-                },
-                onExternalLinkClick = { link ->
-                    link.url?.let {
-                        uriHandler.openUri(it)
-                    }
-                },
-                onStaffMoreClick = {
-                    navigator.navigateTo(Screen.DetailStaffPaging(mediaId))
-                },
-                onCharacterMoreClick = {
-                    navigator.navigateTo(Screen.DetailCharacterPaging(mediaId))
-                },
-                onStaffClick = {
-                    navigator.navigateTo(Screen.DetailStaff(it.id))
-                },
-                onCharacterClick = {
-                    navigator.navigateTo(Screen.DetailCharacter(it.id))
-                },
-                onStudioClick = {
-                    navigator.navigateTo(Screen.DetailStudio(it.id))
-                },
-            )
-        }
+                }
+            },
+            onStaffMoreClick = {
+                navigator.navigateTo(Screen.DetailStaffPaging(mediaId))
+            },
+            onCharacterMoreClick = {
+                navigator.navigateTo(Screen.DetailCharacterPaging(mediaId))
+            },
+            onStaffClick = {
+                navigator.navigateTo(Screen.DetailStaff(it.id))
+            },
+            onCharacterClick = {
+                navigator.navigateTo(Screen.DetailCharacter(it.id))
+            },
+            onStudioClick = {
+                navigator.navigateTo(Screen.DetailStudio(it.id))
+            },
+        )
     }
 
     ErrorHandleSideEffect(viewModel)

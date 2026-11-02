@@ -4,11 +4,22 @@
  */
 package me.andannn.aniflow.ui
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.SharedTransitionLayout
-import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavBackStack
@@ -17,18 +28,27 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.scene.DialogSceneStrategy
 import androidx.navigation3.scene.DialogSceneStrategy.Companion.dialog
+import androidx.navigation3.scene.Scene
 import androidx.navigation3.scene.SinglePaneSceneStrategy
 import androidx.navigation3.ui.NavDisplay
+import androidx.navigation3.ui.NavDisplay.predictivePopTransitionSpec
+import androidx.navigationevent.NavigationEvent
 import me.andannn.aniflow.util.rememberErrorHandlerNavEntryDecorator
-import me.andannn.aniflow.util.rememberTopNavAnimatedContentScopeNavEntryDecorator
 
 @Composable
 fun App(navigator: RootNavigator) {
     SharedTransitionLayout {
         CompositionLocalProvider(
             LocalRootNavigator provides navigator,
-            LocalSharedTransitionScope provides this,
         ) {
+            val density = LocalDensity.current
+            val windowWidthPx = LocalWindowInfo.current.containerSize.width
+
+            val maxShiftPx =
+                with(density) {
+                    windowWidthPx / 20f - 8.dp.toPx()
+                }.toInt()
+
             NavDisplay(
                 modifier = Modifier,
                 backStack = navigator.backStackList,
@@ -42,8 +62,10 @@ fun App(navigator: RootNavigator) {
                         rememberSaveableStateHolderNavEntryDecorator(),
                         rememberViewModelStoreNavEntryDecorator(),
                         rememberErrorHandlerNavEntryDecorator(),
-                        rememberTopNavAnimatedContentScopeNavEntryDecorator(),
                     ),
+                predictivePopTransitionSpec = {
+                    customPredictivePopTransitionSpec(maxShiftPx, it)
+                },
                 entryProvider =
                     entryProvider {
                         entry<Screen.Home> {
@@ -145,11 +167,6 @@ val LocalRootNavigator =
         error("No RootNavigator provided")
     }
 
-val LocalSharedTransitionScope =
-    androidx.compose.runtime.staticCompositionLocalOf<SharedTransitionScope> {
-        error("No RootNavigator provided")
-    }
-
 class RootNavigator constructor(
     private val backStack: NavBackStack<NavKey>,
 ) {
@@ -167,4 +184,27 @@ class RootNavigator constructor(
             }
         }
     }
+}
+
+private fun <T : Any> AnimatedContentTransitionScope<Scene<T>>.customPredictivePopTransitionSpec(
+    maxShiftPx: Int,
+    swipeEdge: Int,
+): ContentTransform {
+    val targetOffsetX =
+        when (swipeEdge) {
+            NavigationEvent.EDGE_LEFT -> maxShiftPx
+            NavigationEvent.EDGE_RIGHT -> -maxShiftPx
+            else -> 0
+        }
+
+    return EnterTransition.None togetherWith (
+        scaleOut(
+            targetScale = 0.9f,
+            animationSpec = tween(durationMillis = 300),
+        ) +
+            slideOutHorizontally(
+                targetOffsetX = { targetOffsetX },
+                animationSpec = tween(durationMillis = 300),
+            )
+    )
 }
